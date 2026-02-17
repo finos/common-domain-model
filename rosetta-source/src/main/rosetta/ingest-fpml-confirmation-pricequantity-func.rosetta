@@ -1631,6 +1631,7 @@ func MapFloatingRateIndex:
             assetClass: InterestRate,
             floatingRateIndex: MapFloatingRateIndexEnum(model -> floatingRateIndex -> value),
             indexTenor: MapPeriod(model -> indexTenor),
+            assetType: Other,
             ...
         }
 
@@ -1650,6 +1651,7 @@ func MapInflationIndex:
                         model -> floatingRateIndex -> value
                     ),
             indexTenor: MapPeriod(model -> indexTenor),
+            assetType: Other,
             ...
         }
 
@@ -1705,6 +1707,7 @@ func MapFloatingRateIndexToRateOptionWithLocation:
                                             fpmlFloatingRateIndex -> value
                                         ),
                                 indexTenor: MapPeriod(fpmlIndexTenor),
+                                assetType: Other,
                                 ...
                             },
                         ...
@@ -1826,7 +1829,7 @@ func MapAsset:
     set asset:
         fpmlAsset switch
             fpml.ExchangeTradedFund then
-                MapIdentifiedAssetToAssetListedDerivative(
+                MapIdentifiedAssetToAssetSecurity(
                         item,
                         exchangeId,
                         exchangeIdentifierModel -> relatedExchangeId,
@@ -1836,8 +1839,7 @@ func MapAsset:
                 MapIdentifiedAssetToAssetListedDerivative(
                         item,
                         exchangeId,
-                        exchangeIdentifierModel -> relatedExchangeId,
-                        ListedDerivative
+                        exchangeIdentifierModel -> relatedExchangeId
                     ),
             fpml.Loan then
                 MapIdentifiedAssetToAssetSecurity(item, exchangeId, empty, Debt),
@@ -1861,7 +1863,6 @@ func MapIdentifiedAssetToAssetListedDerivative:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1877,7 +1878,7 @@ func MapIdentifiedAssetToAssetListedDerivative:
                             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
                             relatedExchange: fpmlRelatedExchangeId
                                     extract MapExchangeIdToLegalEntity,
-                            instrumentType: instrumentType,
+                            assetType: ListedDerivative,
                             ...
                         },
                     ...
@@ -1890,7 +1891,7 @@ func MapIdentifiedAssetToAssetLoan:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        assetType AssetTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1906,7 +1907,7 @@ func MapIdentifiedAssetToAssetLoan:
                             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
                             relatedExchange: fpmlRelatedExchangeId
                                     extract MapExchangeIdToLegalEntity,
-                            instrumentType: instrumentType,
+                            assetType: Loan,
                             ...
                         },
                     ...
@@ -1919,7 +1920,7 @@ func MapIdentifiedAssetToAssetSecurity:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1931,7 +1932,7 @@ func MapIdentifiedAssetToAssetSecurity:
                                 fpmlIdentifiedAsset,
                                 fpmlExchangeId,
                                 fpmlRelatedExchangeId,
-                                instrumentType
+                                securityType
                             ),
                     ...
                 },
@@ -1943,7 +1944,7 @@ func MapIdentifiedAssetToSecurity:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
     output:
         security Security (0..1)
 
@@ -1953,7 +1954,8 @@ func MapIdentifiedAssetToSecurity:
             isExchangeListed: if fpmlExchangeId exists then True,
             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
             relatedExchange: fpmlRelatedExchangeId extract MapExchangeIdToLegalEntity,
-            instrumentType: instrumentType,
+            securityType: securityType,
+            assetType: Security,
             ...
         }
 
@@ -1976,6 +1978,7 @@ func MapAssetCommodity:
                             deliveryNearby: MapCommodityDeliveryDates(fpmlCommodity),
                             ...
                         },
+                        assetType: Commodity,
                     ...
                 },
             ...
@@ -1999,6 +2002,7 @@ func MapEquityIndex:
                             extract MapExchangeIdToLegalEntity,
                     name: fpmlIndex -> description,
                     assetClass: Equity,
+                    assetType: Other,
                     ...
                 },
             ...
@@ -2015,6 +2019,7 @@ func MapBasket:
             identifier: empty,
             basketConstituent: fpmlBasket -> basketConstituent
                     extract MapBasketConstituentWithLocation,
+            assetType: Security,
             ...
         }
 
@@ -2214,6 +2219,7 @@ func MapCurrencyToAssetCash:
                             identifier: MapCurrency(fpmlCurrency),
                             identifierType: CurrencyCode
                         },
+                    assetType: Cash,
                     ...
                 },
             ...
@@ -2244,6 +2250,7 @@ func MapQuotedCurrencyPairToObservableWithLocation:
                                     sourceProvider: empty,
                                     ...
                                 },
+                            assetType: Other,
                             ...
                         },
                     ...
@@ -2311,6 +2318,7 @@ func MapCommodityClassificationListToObservableCommodity:
                             priceQuoteType: empty,
                             taxonomy: fpmlCommodityClassificationList
                                     extract MapCommodityClassificationToTaxonomy,
+                            assetType: Commodity,
                             ...
                         },
                     ...
