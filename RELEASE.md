@@ -1,17 +1,34 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Credit, Equity and Commodity*
+# Math Model - New DSL Core Mathematical Functions
 
-_Background_
+### Background
 
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+To support complex financial calculations new CDM fundamental mathematical capabilities are required. This release bridges that gap by providing native DSL implementations for exponential, natural logarithm, and square root operations.
 
-_What is being released?_
+For further information, see issue [#4169](https://github.com/finos/common-domain-model/issues/4169).
 
-This release maps Credit, Equity and Commodity products, as per [#4453](https://github.com/finos/common-domain-model/issues/4453), [#4454](https://github.com/finos/common-domain-model/issues/4454) and [#4455](https://github.com/finos/common-domain-model/issues/4455).
+### What is being released?
 
-- Mapping support added for `AssetIdTypeEnum` values `Name` and `REDID` for FpML Credit products
-- Mapping of price per option updated for FpML Equity products
-- Mapping of `id` to `CommodityPayout` for FpML Commodity products
+This release introduces core mathematical function definitions within the `cdm.base.math` namespace. These functions utilize standard numerical analysis techniques adapted specifically for the Rune DSL to ensure deterministic execution without external dependencies.
 
-_Review Directions_
+New functions include:
 
-Changes can be reviewed in PR: [#4456](https://github.com/finos/common-domain-model/pull/4456)
+* `Exp`: The exponential function, uses a 10th-degree Taylor-Maclaurin series expansion with argument reduction.
+* `Log`: The natural logarithm, uses the Inverse Hyperbolic Tangent series expansion up to degree 19 with argument scaling.
+* `Sqrt`: The square root function, approximates using the Newton-Raphson method with a logarithmic initial-guess ladder.
+
+Verification and Testing:
+
+The following JUnit scenarios have been added to validate the mathematical properties, series approximation accuracy, and boundary conditions:
+
+* `cdm.base.math.functions.ExpTest`
+* `cdm.base.math.functions.LogTest`
+* `cdm.base.math.functions.SqrtTest`
+
+As these are new functions, there are no backward compatibility issues or impacts on existing model logic.
+
+### Review Directions
+
+In Rosetta, select the Textual Browser and inspect the new definitions in `cdm.base.math`.
+In IDE, select the file `rosetta-source/src/main/rosetta/base-math-func.rosetta` to inspect the new symbol definitions.
+
+---
