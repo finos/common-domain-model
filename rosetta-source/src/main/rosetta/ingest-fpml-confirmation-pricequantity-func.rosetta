@@ -230,25 +230,24 @@ func MapCurrencyAmountToQuantity:
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
 
+    alias mappedUnit:
+        if fpmlCurrency exists
+        then UnitType {
+                currency: MapCurrency(fpmlCurrency),
+                ...
+            }
+        else if fpmlFinancialUnit exists
+        then UnitType {
+                financialUnit: fpmlFinancialUnit,
+                ...
+            }
+
     set nonNegativeQuantitySchedule:
         if fpmlNotionalAmount exists
         then NonNegativeQuantitySchedule {
                 value: fpmlNotionalAmount,
                 datedValue: MapScheduleToDatedValueList(fpmlStepList),
-                unit:
-                    UnitType {
-                        currency: MapCurrency(fpmlCurrency),
-                        ...
-                    },
-                multiplier:
-                    Measure {
-                        value: fpmlNotionalAmount,
-                        unit:
-                            UnitType {
-                                financialUnit: if fpmlFinancialUnit exists
-                                        then fpmlFinancialUnit,
-                                ...
-                },},
+                unit: mappedUnit,
                 ...
             }
 
@@ -558,7 +557,7 @@ func MapFxCoreDetailsModelQuantityListWithLocation:
                             quantity1 -> currency,
                             empty
                         ),
-                    CreateQuantityKey("exchangedCurrency1", fpmlLeg)
+                    CreateQuantityKey(quantity1 -> currency -> value, fpmlLeg)
                 )
 
     add quantityList:
@@ -570,7 +569,7 @@ func MapFxCoreDetailsModelQuantityListWithLocation:
                             quantity2 -> currency,
                             empty
                         ),
-                    CreateQuantityKey("exchangedCurrency2", fpmlLeg)
+                    CreateQuantityKey(quantity2 -> currency -> value, fpmlLeg)
                 )
 
 func MapFxCoreDetailsModelQuantityWithAddress:
@@ -581,21 +580,33 @@ func MapFxCoreDetailsModelQuantityWithAddress:
         quantity NonNegativeQuantitySchedule (0..1)
             [metadata address]
 
+    alias quotedCurrencyPair: 
+        fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
+
     set quantity:
-        if fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
-        then CreateQuantityWithAddress(CreateQuantityKey("exchangedCurrency1", fpmlLeg))
-        else CreateQuantityWithAddress(CreateQuantityKey("exchangedCurrency2", fpmlLeg))
+        if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+        then CreateQuantityWithAddress(CreateQuantityKey(quotedCurrencyPair -> currency1 -> value, fpmlLeg))
+        else CreateQuantityWithAddress(CreateQuantityKey(quotedCurrencyPair -> currency2 -> value, fpmlLeg))
 
 func GetFpmlExchangedCurrency:
     inputs:
         fpmlFxCoreDetailsModel fpml.FxCoreDetailsModel (0..1)
     output:
-        fpmlExchangedCurrency fpml.Payment (1..1)
+        fpmlExchangedCurrency fpml.Payment (0..1)
+
+    alias quotedCurrencyPair: 
+        fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
+
+    alias currency:
+        if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+        then quotedCurrencyPair -> currency1
+        else quotedCurrencyPair -> currency2
 
     set fpmlExchangedCurrency:
-        if fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+        if fpmlFxCoreDetailsModel -> exchangedCurrency1 -> paymentAmount -> currency = currency
         then fpmlFxCoreDetailsModel -> exchangedCurrency1
-        else fpmlFxCoreDetailsModel -> exchangedCurrency2
+        else if fpmlFxCoreDetailsModel -> exchangedCurrency2 -> paymentAmount -> currency = currency
+        then fpmlFxCoreDetailsModel -> exchangedCurrency2
 
 func MapFxOptionToQuantityListWithLocation:
     inputs:
@@ -858,44 +869,6 @@ func CreatePriceWithAddress:
             address: keyValue
         }
 
-func MapEquityPermiumToPriceListWithLocation:
-    inputs:
-        fpmlEquityPremium fpml.EquityPremium (0..1)
-    output:
-        priceSchedule PriceSchedule (0..*)
-            [metadata location]
-    add priceSchedule:
-        if fpmlEquityPremium exists
-        then PriceSchedule {
-            value: fpmlEquityPremium -> pricePerOption -> amount,
-            unit:
-                UnitType {
-                    currency: MapCurrency(fpmlEquityPremium -> pricePerOption -> currency),
-                    ...
-                },
-            perUnitOf:
-                UnitType {
-                    financialUnit: Share,
-                    ...
-                },
-            priceType: AssetPrice,
-            ...
-        } with-meta {
-            location: CreatePriceKey("equityPremium", empty)
-        }
-
-func MapEquityPermiumToPriceListWithAddress:
-    inputs:
-        fpmlEquityPremium fpml.EquityPremium (0..1)
-    output:
-        priceSchedule PriceSchedule (0..*)
-            [metadata address]
-    add priceSchedule:
-        if fpmlEquityPremium exists
-        then empty with-meta {
-            address: CreatePriceKey("equityPremium", empty)
-        }
-
 func MapFixedRateScheduleToPriceWithLocation:
     inputs:
         fpmlFixedRateSchedule fpml.Schedule (0..1)
@@ -1136,6 +1109,39 @@ func MapOptionStrikePrice:
                         unit: unit,
                         perUnitOf: perUnitOf,
                         priceType: AssetPrice,
+                        ...
+                    },
+                ...
+            }
+
+func MapSwapOptionStrikePrice:
+    inputs:
+        fpmlCreditDefaultSwapOption fpml.CreditDefaultSwapOption (0..1)
+        fpmlStrikePrice number (0..1)
+        fpmlStrikePercentage number (0..1)
+        currency fpml.Currency (0..1)
+    output:
+        optionStrike OptionStrike (0..1)
+
+    set optionStrike:
+        if fpmlStrikePrice exists or fpmlStrikePercentage exists
+        then OptionStrike {
+                strikePrice:
+                    Price {
+                        value: fpmlStrikePrice default fpmlStrikePercentage,
+                        unit:
+                            UnitType {
+                                currency: MapCurrency(currency),
+                                ...
+                            },
+                        perUnitOf:
+                            UnitType {
+                                currency: MapCurrency(currency),
+                                ...
+                            },
+                        priceType: InterestRate,
+                        arithmeticOperator: if fpmlCreditDefaultSwapOption -> strike -> spread exists
+                                then ArithmeticOperationEnum -> Add,
                         ...
                     },
                 ...
@@ -2161,6 +2167,8 @@ func MapAssetIdType:
         then ISDACRP
         else if StringContains(instrumentIdScheme, "iso4914")
         then UPI
+        else if StringContains(instrumentIdScheme, "-id-RED-")
+        then REDID
         else Other
 
 func MapCurrencyToObservableCashWithLocation:

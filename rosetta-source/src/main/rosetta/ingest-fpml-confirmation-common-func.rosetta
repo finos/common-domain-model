@@ -502,7 +502,7 @@ func MapExerciseTerms:
     set exerciseTerms:
         fpmlExercise switch
             fpml.EuropeanExercise then
-                MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
+                MapEuropeanExerciseTerms(item, cdmExerciseProcedure, empty),
             fpml.EquityEuropeanExercise then
                 MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
             fpml.CommodityEuropeanExercise then
@@ -552,7 +552,7 @@ func MapExerciseProcedure:
                                             cdmCounterpartyList
                                         )
                                 then Seller,
-                            businessCenter: fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> businessCenter -> value to-enum BusinessCenterEnum,
+                            businessCenter: fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> businessCenter -> value,
                             ...
                         },
                     ...
@@ -570,6 +570,7 @@ func MapEuropeanExerciseTerms:
     inputs:
         fpmlEuropeanExercise fpml.EuropeanExercise (0..1)
         cdmExerciseProcedure ExerciseProcedure (0..1)
+        payout Payout (0..1)
     output:
         exerciseTerms ExerciseTerms (1..1)
 
@@ -588,7 +589,9 @@ func MapEuropeanExerciseTerms:
             exerciseProcedure: cdmExerciseProcedure,
             partialExercise:
                 PartialExercise {
-                    notionalReference: empty,
+                    notionalReference: empty with-meta {
+                            reference: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> notionalReference -> href first
+                        },
                     integralMultipleAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> integralMultipleAmount,
                     minimumNotionalAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> minimumNotionalAmount,
                     ...

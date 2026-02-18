@@ -1,6 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
+
 import cdm.observable.asset.calculatedrate.CalculatedRateObservationDatesAndWeights;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
 import cdm.product.common.schedule.CalculationPeriodBase;
@@ -25,7 +25,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 
 	@Test
 	void shouldHandleBasicOISStyle() {
-		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.OIS, 0, null, false, false, false);
+		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, "GBLO", CalcMethod.OIS, 0, null, false, false, false);
 		Date st = Date.of(2021, 9, 10);
 		Date end = Date.of(2021, 12, 10);
 		CalculationPeriodBase calculationPeriod = period(st, end);
@@ -42,7 +42,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 
 	@Test
 	void shouldHandleLockout() {
-		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.Lockout, 2, null, false, false,
+		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, "GBLO", CalcMethod.Lockout, 2, null, false, false,
 				false);
 		Date st = Date.of(2021, 9, 10);
 		Date end = Date.of(2021, 12, 10);
@@ -64,7 +64,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 
 	@Test
 	void shouldHandleLookback() {
-		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.Lookback, 2, null, false, false,
+		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, "GBLO", CalcMethod.Lookback, 2, null, false, false,
 				false);
 		Date st = Date.of(2021, 9, 10);
 		Date end = Date.of(2021, 12, 10);
@@ -83,7 +83,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 
 	@Test
 	void shouldHandleObsShiftNormal() {
-		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, BusinessCenterEnum.USGS,
+		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, "GBLO", CalcMethod.ObsShift, 2, "USGS",
 				false, false, false);
 		Date st = Date.of(2021, 9, 10);
 		Date shifst = Date.of(2021, 9, 8);
@@ -106,7 +106,7 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 
 	@Test
 	void shouldHandleObsShiftSetInAdvance() {
-		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, null, false, true,
+		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, "GBLO", CalcMethod.ObsShift, 2, null, false, true,
 				false);
 		CalculationPeriodBase calcPeriod = period(Date.of(2021, 9, 10), Date.of(2021, 12, 10));
 		CalculationPeriodBase priorPeriod = period(Date.of(2021, 6, 10), Date.of(2021, 9, 10));
@@ -128,9 +128,9 @@ public class GenerateObservationDatesAndWeightsTest extends AbstractFunctionTest
 
 	@Test
 	void shouldHandleFallback() {
-		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.ObsShift, 2, null, false, true,
+		FloatingRateCalculationParameters calculationParams = initCalcParameters(true, "GBLO", CalcMethod.ObsShift, 2, null, false, true,
 				true);
-		ResetDates resetDate = initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
+		ResetDates resetDate = initResetDates("GBLO", 3, 2, true);
 		CalculationPeriodBase calcPeriod = period(Date.of(2021, 9, 10), Date.of(2021, 12, 10));
 		CalculationPeriodBase priorPeriod = period(Date.of(2021, 6, 10), Date.of(2021, 9, 10));
 		CalculationPeriodBase obsPeriod = period(Date.of(2021, 6, 4), Date.of(2021, 9, 6));

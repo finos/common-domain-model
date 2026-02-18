@@ -38,8 +38,8 @@ type Instruction: <"Instruction to a function that will be used to perform a bus
         then primitiveInstruction -> split only exists
 
     condition NewTrade: <"There must be no before trade state if the primitive instructions contain an execution, and vice versa. An instruction only handles 1 trade at a time.">
-        (if primitiveInstruction -> execution exists then before is absent)
-            and (if before is absent then primitiveInstruction -> execution exists)
+        (if primitiveInstruction -> execution exists then before is absent else True)
+            and (if before is absent then primitiveInstruction -> execution exists else True)
 
 type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
     contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
@@ -218,14 +218,21 @@ type Transfer extends AssetFlowBase: <"Defines the movement of an Asset (eg cash
     transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
 
 type TransferExpression: <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
-    priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
     scheduledTransfer ScheduledTransfer (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+    unscheduledTransfer UnscheduledTransfer (0..1) <"Specifies an ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
 
     condition:
         one-of
 
-type ScheduledTransfer:
-    transferType ScheduledTransferEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+type UnscheduledTransfer: <"An ad-hoc transfer instigated by a party to the contract.">
+    transferType UnscheduledTransferEnum (0..1) <"Specifies the type of unscheduled transfer.">
+    priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
+
+    condition:
+        one-of
+
+type ScheduledTransfer: <"A scheduled transfer built into the contract.">
+    transferType ScheduledTransferEnum (1..1) <"Specifies the type of scheduled transfer.">
     corporateActionTransferType CorporateActionTypeEnum (0..1)
 
     condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
@@ -330,7 +337,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
 
     condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
         if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
-                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
         then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement exists
@@ -339,7 +346,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
 
     condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
         if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
-                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
         then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal exists
@@ -348,7 +355,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
 
     condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
         if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
-                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents exists
         then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal exists

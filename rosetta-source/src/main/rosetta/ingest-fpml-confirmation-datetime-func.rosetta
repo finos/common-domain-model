@@ -2,6 +2,7 @@ namespace cdm.ingest.fpml.confirmation.datetime
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.staticdata.codelist.*
 import cdm.event.workflow.*
 import cdm.ingest.fpml.confirmation.other.*
 import cdm.observable.asset.*
@@ -266,7 +267,9 @@ func MapAdjustableRelativeOrPeriodicDates:
             relativeDates: MapRelativeDateSequenceToRelativeDates(
                         fpmlAdjustableRelativeOrPeriodicDates -> relativeDateSequence
                     ),
-            periodicDates: empty
+            periodicDates: MapPeriodicDates(
+                        fpmlAdjustableRelativeOrPeriodicDates -> periodicDates
+            ),
         } with-meta {
             key: fpmlAdjustableRelativeOrPeriodicDates -> id
         }
@@ -683,7 +686,7 @@ func MapBusinessCenter:
     inputs:
         fpmlBusinessCenter fpml.BusinessCenter (0..1)
     output:
-        businessCenter BusinessCenterEnum (0..1)
+        businessCenter BusinessCenter (0..1)
             [metadata scheme]
 
     set businessCenter:
@@ -729,7 +732,7 @@ func MapBusinessCenterTime:
     set businessCenterTime:
         BusinessCenterTime {
             hourMinuteTime: fpmlBusinessCenterTime -> hourMinuteTime,
-            businessCenter: fpmlBusinessCenterTime -> businessCenter -> value to-enum BusinessCenterEnum
+            businessCenter: fpmlBusinessCenterTime -> businessCenter -> value
         }
     set businessCenterTime -> businessCenter -> scheme:
         fpmlBusinessCenterTime -> businessCenter -> businessCenterScheme

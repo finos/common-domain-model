@@ -1,7 +1,6 @@
 package cdm.legaldocumentation.csa.processor;
 
 import cdm.base.datetime.BusinessCenterEnum;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.legaldocumentation.csa.ValuationCalculationDateLocation;
 import cdm.legaldocumentation.csa.ValuationCalculationDateLocationElection;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -40,10 +39,11 @@ public class ValuationCalculationDateLocationMappingProcessor extends MappingPro
 		setValueAndUpdateMappings(synonymPath.addElement(party + selectLocationSynonymValue),
 				(value) -> calculationDateLocationElectionBuilder.setParty(toCounterpartyRoleEnum(party)));
 
+		//TH Sprint 2025-12: CDM Reference Data update. Requires further review.
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
 				(value) -> getSynonymToEnumMap().getEnumValueOptional(BusinessCenterEnum.class, value)
-						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
-						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
+						.map(Enum::name)
+						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenterValue));
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
 				value -> calculationDateLocationElectionBuilder.setCustomLocation(removeHtml(value)));

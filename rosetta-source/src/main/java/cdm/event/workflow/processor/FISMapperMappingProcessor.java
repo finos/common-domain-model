@@ -1,6 +1,5 @@
 package cdm.event.workflow.processor;
 
-import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessDayConventionEnum;
 import cdm.base.datetime.PeriodExtendedEnum;
 import cdm.base.datetime.RollConventionEnum;
@@ -89,7 +88,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
                 .getOrCreatePaymentDatesAdjustments()
                 .getOrCreateBusinessCenters()
                 .getOrCreateBusinessCenter(0)
-                .setValue(BusinessCenterEnum.EUTA);
+                .setValue("EUTA");
         getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriod(PeriodExtendedEnum.T);
         getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriodMultiplier(1);
 
