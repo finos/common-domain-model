@@ -869,44 +869,6 @@ func CreatePriceWithAddress:
             address: keyValue
         }
 
-func MapEquityPermiumToPriceListWithLocation:
-    inputs:
-        fpmlEquityPremium fpml.EquityPremium (0..1)
-    output:
-        priceSchedule PriceSchedule (0..*)
-            [metadata location]
-    add priceSchedule:
-        if fpmlEquityPremium exists
-        then PriceSchedule {
-            value: fpmlEquityPremium -> pricePerOption -> amount,
-            unit:
-                UnitType {
-                    currency: MapCurrency(fpmlEquityPremium -> pricePerOption -> currency),
-                    ...
-                },
-            perUnitOf:
-                UnitType {
-                    financialUnit: Share,
-                    ...
-                },
-            priceType: AssetPrice,
-            ...
-        } with-meta {
-            location: CreatePriceKey("equityPremium", empty)
-        }
-
-func MapEquityPermiumToPriceListWithAddress:
-    inputs:
-        fpmlEquityPremium fpml.EquityPremium (0..1)
-    output:
-        priceSchedule PriceSchedule (0..*)
-            [metadata address]
-    add priceSchedule:
-        if fpmlEquityPremium exists
-        then empty with-meta {
-            address: CreatePriceKey("equityPremium", empty)
-        }
-
 func MapFixedRateScheduleToPriceWithLocation:
     inputs:
         fpmlFixedRateSchedule fpml.Schedule (0..1)
@@ -2205,6 +2167,8 @@ func MapAssetIdType:
         then ISDACRP
         else if StringContains(instrumentIdScheme, "iso4914")
         then UPI
+        else if StringContains(instrumentIdScheme, "-id-RED-")
+        then REDID
         else Other
 
 func MapCurrencyToObservableCashWithLocation:
