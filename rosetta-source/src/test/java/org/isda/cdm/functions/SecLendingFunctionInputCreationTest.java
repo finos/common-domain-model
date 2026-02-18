@@ -203,15 +203,15 @@ class SecLendingFunctionInputCreationTest {
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
-                        "lender-1",
-                        "Fund 1",
+                        "fund-1",
+                        "FUND1",
                         CounterpartyRoleEnum.PARTY_1,
                         0.60))
                 // Fund 2 lends 80k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction( blockExecutionTradeState,
-                        "lender-2",
-                        "Fund 2",
-                        CounterpartyRoleEnum.PARTY_1,
+                        "fund-2",
+                        "FUND2",
+                        CounterpartyRoleEnum.PARTY_2,
                         0.40))
                 // Close original trade
                 .addBreakdown(PrimitiveInstruction.builder()
@@ -236,7 +236,7 @@ class SecLendingFunctionInputCreationTest {
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.ALLOCATION,
-                Date.of(2020, 9, 21),
+                Date.of(2025, 9, 21),
                 null);
     }
 
