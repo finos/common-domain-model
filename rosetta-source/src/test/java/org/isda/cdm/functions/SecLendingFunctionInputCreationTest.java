@@ -2,7 +2,6 @@ package org.isda.cdm.functions;
 
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
@@ -34,8 +33,6 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
-import com.rosetta.model.metafields.MetaFields;
-import org.eclipse.emf.mwe2.language.factory.ISetting;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -205,18 +202,20 @@ class SecLendingFunctionInputCreationTest {
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
-                        "Fund-1",
+                        "Fund 1",
+                        "1",
                         "FUND1",
                         CounterpartyRoleEnum.PARTY_2,
                         0.60))
                 // Fund 2 lends 80k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction( blockExecutionTradeState,
-                        "Fund-2",
+                        "Fund 2",
+                        "2",
                         "FUND2",
-                        CounterpartyRoleEnum.PARTY_1,
-                        0.40))
+                        CounterpartyRoleEnum.PARTY_2,
+                        0.40));
                 // Close original trade
-                .addBreakdown(PrimitiveInstruction.builder()
+              /*  .addBreakdown(PrimitiveInstruction.builder()
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
@@ -227,7 +226,7 @@ class SecLendingFunctionInputCreationTest {
                                         .addQuantityValue(NonNegativeQuantitySchedule.builder()
                                                 .setValue(BigDecimal.valueOf(0.0))
                                                 .setUnit(UnitType.builder()
-                                                        .setFinancialUnit(FinancialUnitEnum.SHARE))))));
+                                                        .setFinancialUnit(FinancialUnitEnum.SHARE))))));*/
 
         Instruction.InstructionBuilder instruction = Instruction.builder()
                 .setBeforeValue(blockExecutionTradeState)
@@ -256,6 +255,7 @@ class SecLendingFunctionInputCreationTest {
                 // Fund 3 lends 20k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(tradeStateToBeReallocated,
                         "lender-3",
+                        "3",
                         "Fund 3",
                         CounterpartyRoleEnum.PARTY_1,
                         0.25))
@@ -410,16 +410,16 @@ class SecLendingFunctionInputCreationTest {
         return afterTradeState;
     }
 
-    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
+    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String partyName, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
         Party agentLenderParty = getParty(tradeState, role);
-        List<TradeIdentifier> allocationIdentifiers = createAllocationIdentifier(tradeState.build().toBuilder(), "-" + externalKey);
+        List<TradeIdentifier> allocationIdentifiers = createAllocationIdentifier(tradeState.build().toBuilder(), externalKey);
 
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
                 .setCounterparty(Counterparty.builder()
                         .setPartyReferenceValue(Party.builder()
-                                .setNameValue(externalKey)
+                                .setNameValue(partyName)
                                 .addPartyId(PartyIdentifier.builder()
                                         .setIdentifierValue(partyId)
                                         .build()))
