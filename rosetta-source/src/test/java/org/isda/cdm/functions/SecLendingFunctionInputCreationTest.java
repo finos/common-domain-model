@@ -205,13 +205,13 @@ class SecLendingFunctionInputCreationTest {
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
-                        "fund-1",
+                        "Fund-1",
                         "FUND1",
                         CounterpartyRoleEnum.PARTY_2,
                         0.60))
                 // Fund 2 lends 80k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction( blockExecutionTradeState,
-                        "fund-2",
+                        "Fund-2",
                         "FUND2",
                         CounterpartyRoleEnum.PARTY_1,
                         0.40))
@@ -412,28 +412,27 @@ class SecLendingFunctionInputCreationTest {
 
     private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
         Party agentLenderParty = getParty(tradeState, role);
-        List<TradeIdentifier> allocationIdentifiers = createAllocationIdentifier(tradeState.build().toBuilder(), externalKey);
+        List<TradeIdentifier> allocationIdentifiers = createAllocationIdentifier(tradeState.build().toBuilder(), "-" + externalKey);
 
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
                 .setCounterparty(Counterparty.builder()
                         .setPartyReferenceValue(Party.builder()
-                                .setMeta(MetaFields.builder().setExternalKey(externalKey))
-                                .setNameValue(partyId)
+                                .setNameValue(externalKey)
                                 .addPartyId(PartyIdentifier.builder()
                                         .setIdentifierValue(partyId)
                                         .build()))
                         .setRole(role))
                 .setPartyRole(PartyRole.builder()
                         .setPartyReferenceValue(agentLenderParty)
-                        .setRole(PartyRoleEnum.AGENT_LENDER))
+                        .setRole(PartyRoleEnum.BENEFICIAL_OWNER))
                 .setTradeId(allocationIdentifiers);
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                 .addChange(PriceQuantity.builder()
-                        .setQuantityValue(allocatedQuantities));
+                       .setQuantityValue(allocatedQuantities));
 
         return PrimitiveInstruction.builder()
                 .setPartyChange(partyChangeInstruction)
@@ -472,7 +471,7 @@ class SecLendingFunctionInputCreationTest {
             TradeIdentifier.TradeIdentifierBuilder allocationIdentifierBuilder = tradeIdentifier
                     .build().toBuilder();
             allocationIdentifierBuilder.getAssignedIdentifier()
-                    .forEach(c -> c.setIdentifierValue(c.getIdentifier().getValue() + "-" + allocationName));
+                    .forEach(c -> c.setIdentifierValue(c.getIdentifier().getValue() + allocationName));
             tradeIds.add(allocationIdentifierBuilder.build());
         });
 
