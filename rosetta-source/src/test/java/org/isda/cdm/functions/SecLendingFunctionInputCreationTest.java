@@ -412,8 +412,7 @@ class SecLendingFunctionInputCreationTest {
 
     private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
         Party agentLenderParty = getParty(tradeState, role);
-        List<TradeIdentifier> allocationIdentifiers = createAllocationIdentifier(tradeState.build().toBuilder(), "allocation-" + externalKey);
-       // TradeIdentifier allocationIdentifier2 = createAllocationIdentifier(tradeState.build().toBuilder(), "LEI12345ABCDE-20250922-TRADE001", true);
+        List<TradeIdentifier> allocationIdentifiers = createAllocationIdentifier(tradeState.build().toBuilder(), externalKey);
 
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
 
