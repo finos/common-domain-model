@@ -2,6 +2,7 @@ package org.isda.cdm.functions;
 
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
+import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
@@ -34,6 +35,7 @@ import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import org.eclipse.emf.mwe2.language.factory.ISetting;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -205,7 +207,7 @@ class SecLendingFunctionInputCreationTest {
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
                         "fund-1",
                         "FUND1",
-                        CounterpartyRoleEnum.PARTY_1,
+                        CounterpartyRoleEnum.PARTY_2,
                         0.60))
                 // Fund 2 lends 80k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction( blockExecutionTradeState,
@@ -410,7 +412,9 @@ class SecLendingFunctionInputCreationTest {
 
     private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
         Party agentLenderParty = getParty(tradeState, role);
-        TradeIdentifier allocationIdentifier = createAllocationIdentifier(tradeState.build().toBuilder(), "allocation-" + externalKey);
+        List<TradeIdentifier> allocationIdentifiers = createAllocationIdentifier(tradeState.build().toBuilder(), "allocation-" + externalKey);
+       // TradeIdentifier allocationIdentifier2 = createAllocationIdentifier(tradeState.build().toBuilder(), "LEI12345ABCDE-20250922-TRADE001", true);
+
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
@@ -425,7 +429,7 @@ class SecLendingFunctionInputCreationTest {
                 .setPartyRole(PartyRole.builder()
                         .setPartyReferenceValue(agentLenderParty)
                         .setRole(PartyRoleEnum.AGENT_LENDER))
-                .setTradeId(Lists.newArrayList(allocationIdentifier));
+                .setTradeId(allocationIdentifiers);
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
@@ -461,12 +465,19 @@ class SecLendingFunctionInputCreationTest {
                 .collect(Collectors.toList());
     }
 
-    private static TradeIdentifier createAllocationIdentifier(TradeState tradeState, String allocationName) {
-        TradeIdentifier.TradeIdentifierBuilder allocationIdentifierBuilder = tradeState.getTrade().getTradeIdentifier().get(0)
-                .build().toBuilder();
-        allocationIdentifierBuilder.getAssignedIdentifier()
-                .forEach(c -> c.setIdentifierValue(c.getIdentifier().getValue() + "-" + allocationName));
-        return allocationIdentifierBuilder.build();
+    private static List<TradeIdentifier> createAllocationIdentifier(TradeState tradeState, String allocationName) {
+        List<TradeIdentifier> tradeIds = new ArrayList<>();
+
+        List<? extends TradeIdentifier> tradeIdentifiers = tradeState.getTrade().getTradeIdentifier();
+        tradeIdentifiers.forEach(tradeIdentifier -> {
+            TradeIdentifier.TradeIdentifierBuilder allocationIdentifierBuilder = tradeIdentifier
+                    .build().toBuilder();
+            allocationIdentifierBuilder.getAssignedIdentifier()
+                    .forEach(c -> c.setIdentifierValue(c.getIdentifier().getValue() + "-" + allocationName));
+            tradeIds.add(allocationIdentifierBuilder.build());
+        });
+
+        return tradeIds;
     }
 
     private static String readResource(String inputJson) throws IOException {
