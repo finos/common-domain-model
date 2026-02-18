@@ -211,7 +211,7 @@ class SecLendingFunctionInputCreationTest {
                 .addBreakdown(createAllocationInstruction( blockExecutionTradeState,
                         "fund-2",
                         "FUND2",
-                        CounterpartyRoleEnum.PARTY_2,
+                        CounterpartyRoleEnum.PARTY_1,
                         0.40))
                 // Close original trade
                 .addBreakdown(PrimitiveInstruction.builder()
