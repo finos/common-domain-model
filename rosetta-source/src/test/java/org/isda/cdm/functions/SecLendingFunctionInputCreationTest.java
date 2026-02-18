@@ -237,8 +237,8 @@ class SecLendingFunctionInputCreationTest {
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.ALLOCATION,
-                Date.of(2025, 9, 21),
-                null);
+                Date.of(2025, 9, 22),
+                Date.of(2025, 9, 22));
     }
 
     @Test
