@@ -580,13 +580,16 @@ func MapFxCoreDetailsModelQuantityWithAddress:
         quantity NonNegativeQuantitySchedule (0..1)
             [metadata address]
 
-    alias quotedCurrencyPair: 
-        fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
+    alias quotedCurrencyPair: fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
 
     set quantity:
         if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
-        then CreateQuantityWithAddress(CreateQuantityKey(quotedCurrencyPair -> currency1 -> value, fpmlLeg))
-        else CreateQuantityWithAddress(CreateQuantityKey(quotedCurrencyPair -> currency2 -> value, fpmlLeg))
+        then CreateQuantityWithAddress(
+                    CreateQuantityKey(quotedCurrencyPair -> currency1 -> value, fpmlLeg)
+                )
+        else CreateQuantityWithAddress(
+                CreateQuantityKey(quotedCurrencyPair -> currency2 -> value, fpmlLeg)
+            )
 
 func GetFpmlExchangedCurrency:
     inputs:
@@ -594,8 +597,7 @@ func GetFpmlExchangedCurrency:
     output:
         fpmlExchangedCurrency fpml.Payment (0..1)
 
-    alias quotedCurrencyPair: 
-        fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
+    alias quotedCurrencyPair: fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
 
     alias currency:
         if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
