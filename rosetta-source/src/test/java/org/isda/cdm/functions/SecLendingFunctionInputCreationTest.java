@@ -207,14 +207,14 @@ class SecLendingFunctionInputCreationTest {
                         externalKey + "1",
                         partyId + "1",
                         role,
-                        0.60, addUniqueAllocationIdentifier, allocationName))
+                        0.60, addUniqueAllocationIdentifier, allocationName + "1"))
                 // Fund 2 lends 80k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
                         partyName + "2",
                         externalKey + "2",
                         partyId + "2",
                         CounterpartyRoleEnum.PARTY_2,
-                        0.40, addUniqueAllocationIdentifier, allocationName));
+                        0.40, addUniqueAllocationIdentifier, allocationName + "2"));
         // Close original trade
               /*  .addBreakdown(PrimitiveInstruction.builder()
                         .setQuantityChange(QuantityChangeInstruction.builder()
@@ -247,7 +247,7 @@ class SecLendingFunctionInputCreationTest {
         // We want to get the contract formation for the 40% allocated trade, and back it out by 25% causing a
         // decrease quantity change (so notional will be 10% of the original block).
         // We then want to do a new allocation of 10% of the original block.
-        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput("lender-", "Fund", "lender-" ,CounterpartyRoleEnum.PARTY_1, false, "-allocation-"));
+        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput("lender-", "Fund", "lender-" ,CounterpartyRoleEnum.PARTY_1, false, "-allocation-" + "lender-"));
 
         // Trade state where the quantity is 40%
         TradeState tradeStateToBeReallocated = originalAllocationBusinessEvent.getAfter().get(1);
@@ -259,7 +259,7 @@ class SecLendingFunctionInputCreationTest {
                         "lender-3",
                         "Fund 3",
                         CounterpartyRoleEnum.PARTY_1,
-                        0.25, false, "-allocation-"))
+                        0.25, false, "-allocation-" + "lender-3"))
                 // Fund 2 lends 60k SDOL to Borrower CP001
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setQuantityChange(QuantityChangeInstruction.builder()
@@ -413,10 +413,10 @@ class SecLendingFunctionInputCreationTest {
 
     private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String partyName, String externalKey, String partyId, CounterpartyRoleEnum role, double percent, boolean addUniquieAllocationIdentifier, String allocationName) {
         List<TradeIdentifier> allocationIdentifiers = new ArrayList<>();
-        allocationIdentifiers.add(createAllocationIdentifier(tradeState.build().toBuilder(), allocationName + externalKey));
+        allocationIdentifiers.add(createAllocationIdentifier(tradeState.build().toBuilder(), allocationName));
 
         if (addUniquieAllocationIdentifier) {
-            allocationIdentifiers.add(createUniquieAllocationIdentifier(tradeState.build().toBuilder(), externalKey, "LEI12345ABCDE-20250922-TRADE00"));
+            allocationIdentifiers.add(createUniqueAllocationIdentifier(tradeState.build().toBuilder(), allocationName.substring(allocationName.length()-1), "LEI12345ABCDE-20250922-TRADE00"));
         }
 
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
@@ -479,11 +479,11 @@ class SecLendingFunctionInputCreationTest {
         return allocationIdentifierBuilder.build();
     }
 
-    private static TradeIdentifier createUniquieAllocationIdentifier(TradeState tradeState, String allocationName, String identifierValue) {
+    private static TradeIdentifier createUniqueAllocationIdentifier(TradeState tradeState, String allocationName, String identifierValue) {
         TradeIdentifier.TradeIdentifierBuilder allocationIdentifierBuilder = tradeState.getTrade().getTradeIdentifier().get(0)
                 .build().toBuilder();
         allocationIdentifierBuilder.getAssignedIdentifier()
-                .forEach(c -> c.setIdentifierValue(identifierValue + "-" + allocationName));
+                .forEach(c -> c.setIdentifierValue(identifierValue + allocationName));
         allocationIdentifierBuilder.setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER);
         return allocationIdentifierBuilder.build();
     }
