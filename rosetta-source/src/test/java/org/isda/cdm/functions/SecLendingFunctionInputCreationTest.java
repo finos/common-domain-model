@@ -411,11 +411,11 @@ class SecLendingFunctionInputCreationTest {
         return afterTradeState;
     }
 
-    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String partyName, String externalKey, String partyId, CounterpartyRoleEnum role, double percent, boolean addUniquieAllocationIdentifier, String allocationName) {
+    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String partyName, String externalKey, String partyId, CounterpartyRoleEnum role, double percent, boolean addUniqueAllocationIdentifier, String allocationName) {
         List<TradeIdentifier> allocationIdentifiers = new ArrayList<>();
         allocationIdentifiers.add(createAllocationIdentifier(tradeState.build().toBuilder(), allocationName));
 
-        if (addUniquieAllocationIdentifier) {
+        if (addUniqueAllocationIdentifier) {
             allocationIdentifiers.add(createUniqueAllocationIdentifier(tradeState.build().toBuilder(), allocationName.substring(allocationName.length()-1), "LEI12345ABCDE-20250922-TRADE00"));
         }
 
