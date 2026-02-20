@@ -370,7 +370,9 @@ here in the interests of brevity.
 ``` Haskell
 type EconomicTerms:
   effectiveDate AdjustableOrRelativeDate (0..1)
+  effectiveTime DirectOrRelativeTime (0..1)
   terminationDate AdjustableOrRelativeDate (0..1)
+  terminationTime DirectOrRelativeTime (0..1)
   dateAdjustments BusinessDayAdjustments (0..1)
   payout Payout (1..*)
   terminationProvision TerminationProvision (0..1)
