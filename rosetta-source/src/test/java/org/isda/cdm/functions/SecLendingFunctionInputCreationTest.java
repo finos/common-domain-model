@@ -35,6 +35,7 @@ import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import net.sf.saxon.sapling.SaplingText;
 import org.finos.cdm.CdmRuntimeModule;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -218,13 +219,14 @@ class SecLendingFunctionInputCreationTest {
         String partyName = "Fund ";
         CounterpartyRoleEnum party = CounterpartyRoleEnum.PARTY_2;
         String allocation = "";
-        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, partyName, party, party, allocation, true);
+        Date date = Date.of(2025, 9, 22);
+        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, partyName, party, party, allocation, date, date,true);
 
         assertJsonEquals("functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
 
 
-    private CreateBusinessEventInput getAllocationInput(TradeState blockExecutionTradeState, String externalKey, String partyId , String partyName, CounterpartyRoleEnum party1, CounterpartyRoleEnum party2, String allocation, boolean isAllocationExecution) {
+    private CreateBusinessEventInput getAllocationInput(TradeState blockExecutionTradeState, String externalKey, String partyId , String partyName, CounterpartyRoleEnum party1, CounterpartyRoleEnum party2, String allocation, Date eventDate, Date effectiveDate, boolean isAllocationExecution) {
 
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
@@ -264,8 +266,7 @@ class SecLendingFunctionInputCreationTest {
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.ALLOCATION,
-                Date.of(2020, 9, 21),
-                null);
+               eventDate, effectiveDate);
     }
 
 
@@ -285,7 +286,8 @@ class SecLendingFunctionInputCreationTest {
         CounterpartyRoleEnum party2 = CounterpartyRoleEnum.PARTY_2;
 
         String allocation = "allocation-lender-";
-        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput(blockExecutionTradeState, externalKey, partyId, "", party2, party1, allocation, false) );
+        Date date = Date.of(2020, 9, 21);
+        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput(blockExecutionTradeState, externalKey, partyId, "", party2, party1, allocation, date , null, false) );
 
         // Trade state where the quantity is 40%
         TradeState tradeStateToBeReallocated = originalAllocationBusinessEvent.getAfter().get(1);
