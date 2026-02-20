@@ -217,13 +217,13 @@ class SecLendingFunctionInputCreationTest {
         String partyId = "FUND";
         CounterpartyRoleEnum party = CounterpartyRoleEnum.PARTY_2;
         String allocation = "";
-        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, party, CounterpartyRoleEnum.PARTY_1, allocation);
+        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, party, CounterpartyRoleEnum.PARTY_1, allocation, true);
 
         assertJsonEquals("functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
 
 
-    private CreateBusinessEventInput getAllocationInput(TradeState blockExecutionTradeState, String externalKey, String partyId , CounterpartyRoleEnum party1, CounterpartyRoleEnum party2, String allocation) {
+    private CreateBusinessEventInput getAllocationInput(TradeState blockExecutionTradeState, String externalKey, String partyId , CounterpartyRoleEnum party1, CounterpartyRoleEnum party2, String allocation, boolean isAllocationExecution) {
 
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
@@ -231,13 +231,13 @@ class SecLendingFunctionInputCreationTest {
                         externalKey + "1",
                         partyId + "1",
                         party1,
-                        0.60, allocation + "1"))
+                        0.60, allocation + "1" , isAllocationExecution))
                 // Fund 2 lends 80k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
                         externalKey + "2",
                         partyId + "2",
                         party2,
-                        0.40, allocation + "2"))
+                        0.40, allocation + "2", isAllocationExecution))
         // Close original trade
              /*   .addBreakdown(PrimitiveInstruction.builder()
                         .setQuantityChange(QuantityChangeInstruction.builder()
@@ -282,7 +282,7 @@ class SecLendingFunctionInputCreationTest {
         CounterpartyRoleEnum party2 = CounterpartyRoleEnum.PARTY_2;
 
         String allocation = "allocation-lender-";
-        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput(blockExecutionTradeState, externalKey, partyId, party2, party1, allocation) );
+        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput(blockExecutionTradeState, externalKey, partyId, party2, party1, allocation, false) );
 
         // Trade state where the quantity is 40%
         TradeState tradeStateToBeReallocated = originalAllocationBusinessEvent.getAfter().get(1);
@@ -293,7 +293,7 @@ class SecLendingFunctionInputCreationTest {
                         "lender-3",
                         "Fund 3",
                         CounterpartyRoleEnum.PARTY_1,
-                        0.25, allocation + "3"))
+                        0.25, allocation + "3", false))
                 // Fund 2 lends 60k SDOL to Borrower CP001
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setQuantityChange(QuantityChangeInstruction.builder()
@@ -445,9 +445,11 @@ class SecLendingFunctionInputCreationTest {
         return afterTradeState;
     }
 
-    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent, String allocation) {
+    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent, String allocation, boolean isAllocationExecution) {
         Party agentLenderParty = getParty(tradeState, role);
-        TradeIdentifier allocationIdentifier = createAllocationIdentifier(tradeState.build().toBuilder(), allocation);
+
+        List<TradeIdentifier> allocationIdentifiers = getTradeIdentifiers(tradeState, allocation, isAllocationExecution);
+
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
@@ -462,7 +464,7 @@ class SecLendingFunctionInputCreationTest {
                 .setPartyRole(PartyRole.builder()
                         .setPartyReferenceValue(agentLenderParty)
                         .setRole(PartyRoleEnum.AGENT_LENDER))
-                .setTradeId(Lists.newArrayList(allocationIdentifier));
+                .setTradeId(Lists.newArrayList(allocationIdentifiers));
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
@@ -485,7 +487,7 @@ class SecLendingFunctionInputCreationTest {
     }
 
     @NotNull
-    private static List<TradeIdentifier> getTradeIdentifiers(TradeState tradeState, boolean addUniqueAllocationIdentifier, String allocationName) {
+    private static List<TradeIdentifier> getTradeIdentifiers(TradeState tradeState, String allocationName, boolean addUniqueAllocationIdentifier) {
         List<TradeIdentifier> allocationIdentifiers = new ArrayList<>();
         allocationIdentifiers.add(createAllocationIdentifier(tradeState.build().toBuilder(), allocationName));
 
