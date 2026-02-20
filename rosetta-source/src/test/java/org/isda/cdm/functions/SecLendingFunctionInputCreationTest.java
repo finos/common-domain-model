@@ -213,29 +213,32 @@ class SecLendingFunctionInputCreationTest {
         // Agent Lender lends 200k SDOL to Borrower CP001
         TradeState blockExecutionTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, ALLOCATION_BLOCK_EXECUTION_TRADE_STATE_JSON);
 
-        String externalKey = "lender-";
+        String externalKey = "fund-";
         String partyId = "FUND";
+        String partyName = "Fund ";
         CounterpartyRoleEnum party = CounterpartyRoleEnum.PARTY_2;
         String allocation = "";
-        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, party, party, allocation, true);
+        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, partyName, party, party, allocation, true);
 
         assertJsonEquals("functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
 
 
-    private CreateBusinessEventInput getAllocationInput(TradeState blockExecutionTradeState, String externalKey, String partyId , CounterpartyRoleEnum party1, CounterpartyRoleEnum party2, String allocation, boolean isAllocationExecution) {
+    private CreateBusinessEventInput getAllocationInput(TradeState blockExecutionTradeState, String externalKey, String partyId , String partyName, CounterpartyRoleEnum party1, CounterpartyRoleEnum party2, String allocation, boolean isAllocationExecution) {
 
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
                         externalKey + "1",
                         partyId + "1",
+                        partyName + "1",
                         party1,
                         0.60, allocation + "1" , isAllocationExecution))
                 // Fund 2 lends 80k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
                         externalKey + "2",
                         partyId + "2",
+                        partyName + "2",
                         party2,
                         0.40, allocation + "2", isAllocationExecution))
         // Close original trade
@@ -282,7 +285,7 @@ class SecLendingFunctionInputCreationTest {
         CounterpartyRoleEnum party2 = CounterpartyRoleEnum.PARTY_2;
 
         String allocation = "allocation-lender-";
-        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput(blockExecutionTradeState, externalKey, partyId, party2, party1, allocation, false) );
+        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput(blockExecutionTradeState, externalKey, partyId, "", party2, party1, allocation, false) );
 
         // Trade state where the quantity is 40%
         TradeState tradeStateToBeReallocated = originalAllocationBusinessEvent.getAfter().get(1);
@@ -292,6 +295,7 @@ class SecLendingFunctionInputCreationTest {
                 .addBreakdown(createAllocationInstruction(tradeStateToBeReallocated,
                         "lender-3",
                         "Fund 3",
+                        "",
                         CounterpartyRoleEnum.PARTY_1,
                         0.25, allocation + "3", false))
                 // Fund 2 lends 60k SDOL to Borrower CP001
@@ -445,8 +449,8 @@ class SecLendingFunctionInputCreationTest {
         return afterTradeState;
     }
 
-    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent, String allocation, boolean isAllocationExecution) {
-        PartyRole.PartyRoleBuilder partyRole = getPartyRole(isAllocationExecution, tradeState, role, partyId, externalKey, partyId);
+    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, String partyName, CounterpartyRoleEnum role, double percent, String allocation, boolean isAllocationExecution) {
+        PartyRole.PartyRoleBuilder partyRole = getPartyRole(isAllocationExecution, tradeState, role, partyName, externalKey, partyId);
 
         List<TradeIdentifier> allocationIdentifiers = getTradeIdentifiers(tradeState, allocation, isAllocationExecution);
 
@@ -508,7 +512,7 @@ class SecLendingFunctionInputCreationTest {
         return Party.builder()
                 .addPartyId(PartyIdentifier.builder().setIdentifier(FieldWithMetaString.builder().setValue(partyId)))
                 .setName(FieldWithMetaString.builder().setValue(partyName).build())
-                .setMeta(MetaFields.builder().setExternalKey(externalKey)).build();
+                .setMeta(MetaFields.builder().setExternalKey(partyName)).build();
     }
 
     private static Party getParty(TradeState tradeState, CounterpartyRoleEnum counterpartyRoleEnum) {
