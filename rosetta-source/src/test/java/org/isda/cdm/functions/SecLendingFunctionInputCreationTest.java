@@ -217,7 +217,7 @@ class SecLendingFunctionInputCreationTest {
         String partyId = "FUND";
         CounterpartyRoleEnum party = CounterpartyRoleEnum.PARTY_2;
         String allocation = "";
-        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, party, CounterpartyRoleEnum.PARTY_1, allocation, true);
+        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, party, party, allocation, true);
 
         assertJsonEquals("functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
@@ -446,11 +446,12 @@ class SecLendingFunctionInputCreationTest {
     }
 
     private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent, String allocation, boolean isAllocationExecution) {
-        Party agentLenderParty = getParty(tradeState, role);
+        PartyRole.PartyRoleBuilder partyRole = getPartyRole(isAllocationExecution, tradeState, role, partyId, externalKey, partyId);
 
         List<TradeIdentifier> allocationIdentifiers = getTradeIdentifiers(tradeState, allocation, isAllocationExecution);
 
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
+
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
                 .setCounterparty(Counterparty.builder()
@@ -461,9 +462,7 @@ class SecLendingFunctionInputCreationTest {
                                         .setIdentifierValue(partyId)
                                         .build()))
                         .setRole(role))
-                .setPartyRole(PartyRole.builder()
-                        .setPartyReferenceValue(agentLenderParty)
-                        .setRole(PartyRoleEnum.AGENT_LENDER))
+                .setPartyRole(partyRole)
                 .setTradeId(Lists.newArrayList(allocationIdentifiers));
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstruction = QuantityChangeInstruction.builder()
@@ -476,14 +475,22 @@ class SecLendingFunctionInputCreationTest {
                 .setQuantityChange(quantityChangeInstruction);
     }
 
-    private PartyRole getPartyRole(TradeState tradeState, String partyName, String externalKey, String partyId, CounterpartyRoleEnum role, boolean isAllocationExecution) {
-        PartyRole.PartyRoleBuilder builder = PartyRole.builder();
+    private static PartyRole.PartyRoleBuilder getPartyRole(boolean isAllocationExecution, TradeState tradeState, CounterpartyRoleEnum role, String partyName, String externalKey, String partyId) {
+        Party agentLenderParty = getParty(tradeState, role);
+
+        PartyRole.PartyRoleBuilder partyRole = PartyRole.builder();
+
         if (isAllocationExecution) {
-            builder.setPartyReferenceValue(getPartyReferenceValue(partyName, externalKey, partyId))
+            partyRole
+                    .setPartyReferenceValue(getPartyReferenceValue(partyName, externalKey, partyId))
                     .setRole(PartyRoleEnum.BENEFICIAL_OWNER);
+        } else {
+            partyRole
+                    .setPartyReferenceValue(agentLenderParty)
+                    .setRole(PartyRoleEnum.AGENT_LENDER);
         }
-        return builder.setPartyReferenceValue(getParty(tradeState, role))
-                .setRole(PartyRoleEnum.AGENT_LENDER);
+
+        return partyRole;
     }
 
     @NotNull
