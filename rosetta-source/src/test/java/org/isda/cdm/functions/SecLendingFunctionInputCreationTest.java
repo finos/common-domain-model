@@ -2,6 +2,7 @@ package org.isda.cdm.functions;
 
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
+import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
@@ -34,7 +35,9 @@ import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import net.sf.saxon.sapling.SaplingText;
 import org.finos.cdm.CdmRuntimeModule;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -76,10 +79,15 @@ class SecLendingFunctionInputCreationTest {
 
     // AVOID ADDING MANUALLY CRAFTED JSON
 
-    // ALLOCATION AND REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
+    // ALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
     // This is the execution instruction between an agent lender and a borrower
-    public static final String EXECUTION_INSTRUCTION_JSON = "/functions/sec-lending/block-execution-instruction.json";
-    public static final String BLOCK_EXECUTION_TRADE_STATE_JSON = "functions/sec-lending/block-execution-trade-state.json";
+    public static final String ALLOCATION_EXECUTION_INSTRUCTION_JSON = "/functions/sec-lending/allocation-block-execution-instruction.json";
+    public static final String ALLOCATION_BLOCK_EXECUTION_TRADE_STATE_JSON = "functions/sec-lending/allocation-block-execution-trade-state.json";
+
+    // REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
+    // This is the execution instruction between an agent lender and a borrower
+    public static final String REALLOCATION_EXECUTION_INSTRUCTION_JSON = "/functions/sec-lending/reallocation-block-execution-instruction.json";
+    public static final String REALLOCATION_BLOCK_EXECUTION_TRADE_STATE_JSON = "functions/sec-lending/reallocation-block-execution-trade-state.json";
 
     // SETTLEMENT AND RETURN WORKFLOWS ARE BASED OF THIS..
     public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/functions/sec-lending/new-settlement-workflow-func-input.json";
@@ -88,7 +96,6 @@ class SecLendingFunctionInputCreationTest {
     public static final String EXECUTION_CASH_BENCHMARK_FUNC_INPUT_JSON = "/functions/sec-lending/execution/execution-cash-benchmark-input.json";
     public static final String EXECUTION_NONCASH_PORTFOLIO_FUNC_INPUT_JSON = "/functions/sec-lending/execution/execution-noncash-portfolio-input.json";
 
-    
 
     private static Injector injector;
 
@@ -119,7 +126,7 @@ class SecLendingFunctionInputCreationTest {
     void executionNoncashPortfolio() throws IOException {
         assertJsonConformsToRosettaType(EXECUTION_NONCASH_PORTFOLIO_FUNC_INPUT_JSON, CreateBusinessEventInput.class);
     }
-    
+
     @Test
     void validateNewSettlementWorkflowFuncInputJson() throws IOException {
         assertJsonConformsToRosettaType(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON, ExecutionInstruction.class);
@@ -127,12 +134,14 @@ class SecLendingFunctionInputCreationTest {
 
     @Test
     void validateExecutionInstructionWorkflowFuncInputJson() throws IOException {
-        assertJsonConformsToRosettaType(EXECUTION_INSTRUCTION_JSON, ExecutionInstruction.class);
+        assertJsonConformsToRosettaType(ALLOCATION_EXECUTION_INSTRUCTION_JSON, ExecutionInstruction.class);
+        assertJsonConformsToRosettaType(REALLOCATION_EXECUTION_INSTRUCTION_JSON, ExecutionInstruction.class);
+
     }
 
     @Test
-    void validateExecutionInstructionWorkflowFuncOutputJson() throws IOException {
-        URL resource = SecLendingFunctionInputCreationTest.class.getResource(EXECUTION_INSTRUCTION_JSON);
+    void validateAllocationExecutionInstructionWorkflowFuncOutputJson() throws IOException {
+        URL resource = SecLendingFunctionInputCreationTest.class.getResource(ALLOCATION_EXECUTION_INSTRUCTION_JSON);
         ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
         Create_Execution createExecution = injector.getInstance(Create_Execution.class);
 
@@ -140,13 +149,25 @@ class SecLendingFunctionInputCreationTest {
 
         PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
         postProcessor.postProcess(TradeState.class, tradeStateBuilder);
-        
-        assertJsonEquals(BLOCK_EXECUTION_TRADE_STATE_JSON, tradeStateBuilder.build());
+
+        assertJsonEquals(ALLOCATION_BLOCK_EXECUTION_TRADE_STATE_JSON, tradeStateBuilder.build());
     }
 
-    private static TradeState getBlockExecutionTradeStateJson() throws IOException {
-        return ResourcesUtils.getObjectAndResolveReferences(TradeState.class, BLOCK_EXECUTION_TRADE_STATE_JSON);
+
+    @Test
+    void validateReallocationExecutionInstructionWorkflowFuncOutputJson() throws IOException {
+        URL resource = SecLendingFunctionInputCreationTest.class.getResource(REALLOCATION_EXECUTION_INSTRUCTION_JSON);
+        ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
+        Create_Execution createExecution = injector.getInstance(Create_Execution.class);
+
+        TradeState.TradeStateBuilder tradeStateBuilder = createExecution.evaluate(executionInstruction).toBuilder();
+
+        PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
+        postProcessor.postProcess(TradeState.class, tradeStateBuilder);
+
+        assertJsonEquals(REALLOCATION_BLOCK_EXECUTION_TRADE_STATE_JSON, tradeStateBuilder.build());
     }
+
 
     @Test
     void validatePartReturnSettlementWorkflowFuncInputJson() throws IOException {
@@ -190,31 +211,40 @@ class SecLendingFunctionInputCreationTest {
 
     @Test
     void validateCreateAllocationFuncInputJson() throws IOException {
-        CreateBusinessEventInput actual = getAllocationInput();
+        // Agent Lender lends 200k SDOL to Borrower CP001
+        TradeState blockExecutionTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, ALLOCATION_BLOCK_EXECUTION_TRADE_STATE_JSON);
+
+        String externalKey = "fund-";
+        String partyId = "FUND";
+        String partyName = "Fund ";
+        CounterpartyRoleEnum party = CounterpartyRoleEnum.PARTY_2;
+        String allocation = "";
+        Date date = Date.of(2025, 9, 22);
+        CreateBusinessEventInput actual = getAllocationInput(blockExecutionTradeState, externalKey, partyId, partyName, party, party, allocation, date, date,true);
 
         assertJsonEquals("functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
 
 
-    private CreateBusinessEventInput getAllocationInput() throws IOException {
-        // Agent Lender lends 200k SDOL to Borrower CP001
-        TradeState blockExecutionTradeState = getBlockExecutionTradeStateJson();
+    private CreateBusinessEventInput getAllocationInput(TradeState blockExecutionTradeState, String externalKey, String partyId , String partyName, CounterpartyRoleEnum party1, CounterpartyRoleEnum party2, String allocation, Date eventDate, Date effectiveDate, boolean isAllocationExecution) {
 
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
                 .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
-                        "lender-1",
-                        "Fund 1",
-                        CounterpartyRoleEnum.PARTY_1,
-                        0.60))
+                        externalKey + "1",
+                        partyId + "1",
+                        partyName + "1",
+                        party1,
+                        0.60, allocation + "1" , isAllocationExecution))
                 // Fund 2 lends 80k SDOL to Borrower CP001
-                .addBreakdown(createAllocationInstruction( blockExecutionTradeState,
-                        "lender-2",
-                        "Fund 2",
-                        CounterpartyRoleEnum.PARTY_1,
-                        0.40))
-                // Close original trade
-                .addBreakdown(PrimitiveInstruction.builder()
+                .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
+                        externalKey + "2",
+                        partyId + "2",
+                        partyName + "2",
+                        party2,
+                        0.40, allocation + "2", isAllocationExecution))
+        // Close original trade
+             /*   .addBreakdown(PrimitiveInstruction.builder()
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
@@ -225,7 +255,7 @@ class SecLendingFunctionInputCreationTest {
                                         .addQuantityValue(NonNegativeQuantitySchedule.builder()
                                                 .setValue(BigDecimal.valueOf(0.0))
                                                 .setUnit(UnitType.builder()
-                                                        .setFinancialUnit(FinancialUnitEnum.SHARE))))));
+                                                        .setFinancialUnit(FinancialUnitEnum.SHARE))))))*/;
 
         Instruction.InstructionBuilder instruction = Instruction.builder()
                 .setBeforeValue(blockExecutionTradeState)
@@ -236,16 +266,28 @@ class SecLendingFunctionInputCreationTest {
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instruction.build()),
                 EventIntentEnum.ALLOCATION,
-                Date.of(2020, 9, 21),
-                null);
+               eventDate, effectiveDate);
     }
+
+
+
 
     @Test
     void validateCreateReallocationFuncInputJson() throws IOException {
         // We want to get the contract formation for the 40% allocated trade, and back it out by 25% causing a
         // decrease quantity change (so notional will be 10% of the original block).
         // We then want to do a new allocation of 10% of the original block.
-        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput());
+        // Agent Lender lends 200k SDOL to Borrower CP001
+        TradeState blockExecutionTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, REALLOCATION_BLOCK_EXECUTION_TRADE_STATE_JSON);
+
+        String externalKey = "lender-";
+        String partyId = "Fund ";
+        CounterpartyRoleEnum party1 = CounterpartyRoleEnum.PARTY_1;
+        CounterpartyRoleEnum party2 = CounterpartyRoleEnum.PARTY_2;
+
+        String allocation = "allocation-lender-";
+        Date date = Date.of(2020, 9, 21);
+        BusinessEvent originalAllocationBusinessEvent = runCreateBusinessEventFunc(getAllocationInput(blockExecutionTradeState, externalKey, partyId, "", party2, party1, allocation, date , null, false) );
 
         // Trade state where the quantity is 40%
         TradeState tradeStateToBeReallocated = originalAllocationBusinessEvent.getAfter().get(1);
@@ -255,8 +297,9 @@ class SecLendingFunctionInputCreationTest {
                 .addBreakdown(createAllocationInstruction(tradeStateToBeReallocated,
                         "lender-3",
                         "Fund 3",
+                        "",
                         CounterpartyRoleEnum.PARTY_1,
-                        0.25))
+                        0.25, allocation + "3", false))
                 // Fund 2 lends 60k SDOL to Borrower CP001
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setQuantityChange(QuantityChangeInstruction.builder()
@@ -408,10 +451,13 @@ class SecLendingFunctionInputCreationTest {
         return afterTradeState;
     }
 
-    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
-        Party agentLenderParty = getParty(tradeState, role);
-        TradeIdentifier allocationIdentifier = createAllocationIdentifier(tradeState.build().toBuilder(), "allocation-" + externalKey);
+    private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, String partyName, CounterpartyRoleEnum role, double percent, String allocation, boolean isAllocationExecution) {
+        PartyRole.PartyRoleBuilder partyRole = getPartyRole(isAllocationExecution, tradeState, role, partyName, externalKey, partyId);
+
+        List<TradeIdentifier> allocationIdentifiers = getTradeIdentifiers(tradeState, allocation, isAllocationExecution);
+
         List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
+
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
                 .setCounterparty(Counterparty.builder()
@@ -422,10 +468,8 @@ class SecLendingFunctionInputCreationTest {
                                         .setIdentifierValue(partyId)
                                         .build()))
                         .setRole(role))
-                .setPartyRole(PartyRole.builder()
-                        .setPartyReferenceValue(agentLenderParty)
-                        .setRole(PartyRoleEnum.AGENT_LENDER))
-                .setTradeId(Lists.newArrayList(allocationIdentifier));
+                .setPartyRole(partyRole)
+                .setTradeId(Lists.newArrayList(allocationIdentifiers));
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
@@ -435,6 +479,42 @@ class SecLendingFunctionInputCreationTest {
         return PrimitiveInstruction.builder()
                 .setPartyChange(partyChangeInstruction)
                 .setQuantityChange(quantityChangeInstruction);
+    }
+
+    private static PartyRole.PartyRoleBuilder getPartyRole(boolean isAllocationExecution, TradeState tradeState, CounterpartyRoleEnum role, String partyName, String externalKey, String partyId) {
+        Party agentLenderParty = getParty(tradeState, role);
+
+        PartyRole.PartyRoleBuilder partyRole = PartyRole.builder();
+
+        if (isAllocationExecution) {
+            partyRole
+                    .setPartyReferenceValue(getPartyReferenceValue(partyName, externalKey, partyId))
+                    .setRole(PartyRoleEnum.BENEFICIAL_OWNER);
+        } else {
+            partyRole
+                    .setPartyReferenceValue(agentLenderParty)
+                    .setRole(PartyRoleEnum.AGENT_LENDER);
+        }
+
+        return partyRole;
+    }
+
+    @NotNull
+    private static List<TradeIdentifier> getTradeIdentifiers(TradeState tradeState, String allocationName, boolean addUniqueAllocationIdentifier) {
+        List<TradeIdentifier> allocationIdentifiers = new ArrayList<>();
+        allocationIdentifiers.add(createAllocationIdentifier(tradeState.build().toBuilder(), allocationName));
+
+        if (addUniqueAllocationIdentifier) {
+            allocationIdentifiers.add(createUniqueAllocationIdentifier(tradeState.build().toBuilder(), allocationName.substring(allocationName.length()-1), "LEI12345ABCDE-20250922-TRADE00"));
+        }
+        return allocationIdentifiers;
+    }
+
+    private static Party getPartyReferenceValue(String partyName, String externalKey, String partyId) {
+        return Party.builder()
+                .addPartyId(PartyIdentifier.builder().setIdentifier(FieldWithMetaString.builder().setValue(partyId)))
+                .setName(FieldWithMetaString.builder().setValue(partyName).build())
+                .setMeta(MetaFields.builder().setExternalKey(partyName)).build();
     }
 
     private static Party getParty(TradeState tradeState, CounterpartyRoleEnum counterpartyRoleEnum) {
@@ -466,6 +546,16 @@ class SecLendingFunctionInputCreationTest {
                 .build().toBuilder();
         allocationIdentifierBuilder.getAssignedIdentifier()
                 .forEach(c -> c.setIdentifierValue(c.getIdentifier().getValue() + "-" + allocationName));
+        return allocationIdentifierBuilder.build();
+    }
+
+
+    private static TradeIdentifier createUniqueAllocationIdentifier(TradeState tradeState, String allocationName, String identifierValue) {
+        TradeIdentifier.TradeIdentifierBuilder allocationIdentifierBuilder = tradeState.getTrade().getTradeIdentifier().get(0)
+                .build().toBuilder();
+        allocationIdentifierBuilder.getAssignedIdentifier()
+                .forEach(c -> c.setIdentifierValue(identifierValue + allocationName));
+        allocationIdentifierBuilder.setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER);
         return allocationIdentifierBuilder.build();
     }
 

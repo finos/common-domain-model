@@ -1,19 +1,20 @@
-# _Asset Model - Adding Redemption Attribute to Debt Type_
+# _Visualisations - Update securities lending Allocation example_
 _Background_
 
-There are several values in the the `DebtClassEnum` relating to the redemption of the debt which could be more granular and composable. There are 4 attributes representing unique combinations for `IssuerConvertible`, `HolderConvertible`, `IssuerExchangeable`, `HolderExchangeable`. However, these could be represented using separate enums and conditions within DebtType. This would also remove the additional Convertible attribute.
+Rosetta provides examples of how to perform lifecycle events. The example showing the use of the Allocation process for securities lending trades has been updated.
 
 _What is being released?_
+T
+he existing Allocation visualisation has been updated as follows:
 
-Created a DebtRedemption type 
-- Added `redemptionType` attribute with type `RedemptionTypeEnum` 
-- Added `putCall` attribute with type `PutCallEnum` 
-- Added `party` attribute with type `RedemptionPartyEnum` 
+- The `after` trades are now assigned to the agent lender and the fund, rather than the borrower and the fund
+- The `after` trades have been given Unique Transaction Identifiers
+- The original Trade Execution that the allocation is being performed upon is no longer closed. This has to remain open as this is the agreement between the borrower and the lender.
 
-Created 2 new enums 
-- `RedemptionTypeEnum` with values Convertible, Exchangeable, ContingentConvertible, Sinkable, Extraordinary
-- `RedemptionPartyEnum` with values Holder and Issuer
+**Compatibility**
+
+There are no compatibility issues with the CDM as these files are separate to the core model.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4447](https://github.com/finos/common-domain-model/pull/4447)
+The changes can be reviewed in PR: [#4464](https://github.com/finos/common-domain-model/pull/4464)
