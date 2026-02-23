@@ -9,4 +9,4 @@ Removal of DebtClassEnum and references to it.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4471](https://github.com/finos/common-domain-model/pull/4471)
+The changes can be reviewed in PR: [#4474](https://github.com/finos/common-domain-model/pull/4474)
