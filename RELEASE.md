@@ -5,7 +5,9 @@ In the collateral model, there is no way of specifying whether a security is a c
 
 _What is being released?_
 
-Addition of a new type IndexType. This allows for the definition of an index within collateral criteria without using Index in the Product Model. Therefore only the value in the EquityIndexEnum needs to be specified rather than an AssetIdentifier.
+Addition of a new type `IndexType`. 
+
+This allows for the definition of an index within collateral criteria without using `Index` in the Product Model. Therefore, only the value in the `EquityIndexEnum` needs to be specified rather than an `AssetIdentifier`.
 
 _Review Directions_
 
