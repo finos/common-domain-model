@@ -9,4 +9,4 @@ Addition of a new type IndexType. This allows for the definition of an index wit
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4475](https://github.com/finos/common-domain-model/pull/4475)
+The changes can be reviewed in PR: [#4476](https://github.com/finos/common-domain-model/pull/4476)
