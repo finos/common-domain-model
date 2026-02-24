@@ -1,60 +1,83 @@
-# Product Model - Interest Rate and Equity Qualification updates
-_Background_
-
-Currently, some FX Products are qualifying as Interest rate, Equity and FX. This is due to a minor issue with the Interest Rate and Equity Qualification Function.
-
-_What is being released?_
-
-This release includes a modification to the `Qualify_AssetClass_InterestRate` and `Qualify_AssetClass_Equity` logic to avoid qualifying FX Products as Interest Rate or Equity.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4377](https://github.com/finos/common-domain-model/pull/4377)
-
-# Product Model - Barrier Options Cardinality Updates
+# *Product Model - Commodity Qualification and Cashflow function updates*
 
 _Background_
 
-Barrier Options can have multiple knock-ins and knock-outs which are not supported with the current cardinality. The cardinality of the `knockIn` or `knockOut` / `barrierCap` or `barrierFloor` attributes is currently `(0..1)`.
+The qualification of Commodity Products is currently incomplete due to a missing condition. Additionally, modification is required in `Create_CashflowFromSettlementPayout` function to address errors in FX Products.
 
 _What is being released?_
 
-Relaxing the cardinality to `(0..*)` to handle multiple `knockIn` or `knockOut` / `barrierCap` or `barrierFloor`.
+This release includes: 
+1. Modifications made to `Qualify_AssetClass_Commodity`
+2. Removal of redundant condition in `Qualify_Commodity_Swap_FixedFloat`
+3. Addition of `valueDate` in `SettlementDate` condition
+4. Addition of cashflow from `OptionPayout` and `SettlementPayout` in `Create_CashflowFromPayout` function.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4358](https://github.com/finos/common-domain-model/pull/4358)
+Changes can be reviewed in PR: [#4438](https://github.com/finos/common-domain-model/pull/4438)
+
+# *Product Model - Updating Qualification Functions to Handle `only exists` Syntax*
+
+_Background_
+
+In 6.x.x, the `only exists` syntax does not apply to the choice `Payout -> SettlementPayout`, because there is always only one. Instead, `only-element` is used on the payout, which is incorrect, because if there is more than one payout then none will be set. The original intention was to allow for multiple of the same payout types.
+
+_What is being released?_
+
+Updating any previous instance of `only-exist` to use a function which checks whether only the payout in questions exists, allowing for multiple of the same payouts.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4415](https://github.com/finos/common-domain-model/pull/4415)
+
+# *Product Model - EquityForward Qualification functions*
+
+_Background_
+
+There are no qualification functions for Equity Forwards.
+
+_What is being released?_
+
+Qualification Functions for Equity Forwards introduced:
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleName` 
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex` 
+- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket`
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4404](https://github.com/finos/common-domain-model/pull/4404)
 
 # _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This release updates the DSL dependency, and third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
+This release updates the `DSL` , `bundle` and `FpML as Rune` dependency:
 
 Version updates include:
-- `DSL` `9.75.1` Performance improvements and bug fix. See DSL release notes: [9.75.1](https://github.com/finos/rune-dsl/releases/tag/9.75.1)
-- `DSL` `9.75.0` Suppress warnings annotation. See DSL release notes: [9.75.0](https://github.com/finos/rune-dsl/releases/tag/9.75.0)
-- `DSL` `9.74.1` Fix usage of `default` with multi-cardinality. See DSL release notes: [9.74.1](https://github.com/finos/rune-dsl/releases/tag/9.74.1)
-- `DSL` `9.74.0` Fix `empty` meta coercion. See DSL release notes: [9.74.0](https://github.com/finos/rune-dsl/releases/tag/9.74.0)
-- `DSL` `9.73.0` Clean up DSL warnings. See DSL release notes: [9.73.0](https://github.com/finos/rune-dsl/releases/tag/9.73.0)
-- `DSL` `9.72.0` Fix for serialisation. See DSL release notes: [9.72.0](https://github.com/finos/rune-dsl/releases/tag/9.72.0)
-- `DSL` `9.71.0` Fixes incorrect treatment of empty for boolean resolution, equality, and implicit `else`. See DSL release notes: [DSL 9.71.0](https://github.com/finos/rune-dsl/releases/tag/9.71.0)
-
-Version updates include:
-
-The PairOff qualification function now correctly qualifies. See updated sample in `src/main/resources/cdm-sample-files/functions/repo-and-bond/pair-off-output.json`
-
-No expectations are updated as part of this release.
-
-Third-party software library updates:
-
-- `npm/qs` upgraded from version 6.13.0 to 6.14.1, see [GHSA-6rw7-vpxm-498p](https://github.com/advisories/GHSA-6rw7-vpxm-498p) for further details
+- `DSL` `9.75.3` Performance improvements and bug fix. See DSL release notes: [9.75.3](https://github.com/finos/rune-dsl/releases/tag/9.75.3)
+- `bundle` `11.108.0` Performance improvements and bug fix.
+- `FpML as Rune` `1.5.0` See Release notes: [1.5.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.5.0).
+- `FpML as Rune` `1.4.0` See Release notes: [1.4.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.4.0).
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4315](https://github.com/finos/common-domain-model/pull/4315) && [#4310](https://github.com/finos/common-domain-model/pull/4310)
+The changes can be reviewed in PR: [#4391](https://github.com/finos/common-domain-model/pull/4391) && [#4410](https://github.com/finos/common-domain-model/pull/4410) 
 
-# *Ingestion Framework for FpML - Mapping Coverage: Credit Default Swap Option*
+# *Ingestion Framework for FpML - Principal Payment Schedule*
+
+_Background_
+
+An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule` for single final payments. For further information, see [#4076](https://github.com/finos/common-domain-model/issues/4076).
+
+_What is being released?_
+
+Synonym Ingest and Ingest Functions related to `PrincipalPaymentSchedule` have been updated to set `principalPaymentSchedule->finalPrincipalPayment` when `principalPayment->finalPayment` is true.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4401](https://github.com/finos/common-domain-model/pull/4401)
+
+# *Ingestion Framework for FpML - Mapping Coverage: FX and Rates*
 
 _Background_
 
@@ -62,15 +85,29 @@ Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for 
 
 _What is being released?_
 
-This release maps Credit Default Swap Option products, as per [#4293](https://github.com/finos/common-domain-model/issues/4293).
+This release maps FX and Rates products, as per [#4373](https://github.com/finos/common-domain-model/issues/4373) and [#4440](https://github.com/finos/common-domain-model/issues/4440).
 
-Updates to mapping of FpML products `creditDefaultSwapOption` and `creditDefaultSwap`:
-
-- `Product` attributes `taxonomy`
-- `TradeLot` attributes `priceQuantity`
-- `OptionPayout` attributes `exerciseTerms`, `referenceInformation`, `priceQuantity`, `settlementTerms`, `feature`, `underlier`, `optionType` and `strike`
+- Mapping updates to `quantitySchedule` for FpML FX products
+- Duplicate mappings removed in product taxonomy for FpML FRA products
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4339](https://github.com/finos/common-domain-model/pull/4339)
+Changes can be reviewed in PR: [#4374](https://github.com/finos/common-domain-model/pull/4374)
 
+# *Ingestion Framework for FpML - Mapping Coverage: Credit, Equity and Commodity*
+
+_Background_
+
+Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+
+_What is being released?_
+
+This release maps Credit, Equity and Commodity products, as per [#4453](https://github.com/finos/common-domain-model/issues/4453), [#4454](https://github.com/finos/common-domain-model/issues/4454) and [#4455](https://github.com/finos/common-domain-model/issues/4455).
+
+- Mapping support added for `AssetIdTypeEnum` values `Name` and `REDID` for FpML Credit products
+- Mapping of price per option updated for FpML Equity products
+- Mapping of `id` to `CommodityPayout` for FpML Commodity products
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4445](https://github.com/finos/common-domain-model/pull/4445)
