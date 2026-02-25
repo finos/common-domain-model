@@ -90,9 +90,9 @@ public class FunctionCreator {
                 this.getClass().getClassLoader(),
                 ROSETTA_OBJECT_MAPPER);
         FunctionRunner.FunctionRunnerResult<Object, Object> run = functionRunner.run();
-        if (!run.isSuccess()) {
-            writeTestOutput(executionDescriptor, run);
-        }
+
+        writeTestOutput(executionDescriptor, run);
+
     }
 
     private void writeTestOutput(ExecutionDescriptor executionDescriptor, FunctionRunner.FunctionRunnerResult<Object, Object> run) throws IOException {
