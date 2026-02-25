@@ -34,9 +34,6 @@ type AssetIdentifier: <"The unique identifier for an Asset, specified using an A
 
 type InstrumentBase extends AssetBase: <"Defines the common attributes for all Instrument data types.">
 
-    condition AssetIsInstrument: <"The assetType must be an instrument.">
-        [AssetTypeEnum -> Security, AssetTypeEnum -> ListedDerivative, AssetTypeEnum -> Loan, AssetTypeEnum -> LetterOfCredit] any = assetType
-
 choice Instrument: <"A type of Asset that is issued by one party to one or more others.">
     ListedDerivative <"A securitized derivative on another asset that is created by an exchange.">
     Loan <"An Asset that represents a loan or borrow obligation.">
@@ -106,7 +103,7 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
 
     condition NoExchange: <"Cash cannot be a listed Asset.">
         exchange is absent and isExchangeListed is absent
-
+    
     condition AssetType: <"AssetType must be cash.">
         assetType = Cash
 
@@ -333,7 +330,7 @@ type TaxonomyClassification:
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
+    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security."> 
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
     equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
@@ -342,9 +339,6 @@ type AssetType: <"Represents a class to allow specification of the asset product
     condition SecuritySubType:
         if assetType <> Security
         then securityType is absent
-                and debtType is absent
-                and equityType is absent
-                and fundType is absent
 
     condition BondSubType:
         if securityType <> Debt then debtType is absent
@@ -356,7 +350,7 @@ type AssetType: <"Represents a class to allow specification of the asset product
         if securityType <> Fund then fundType is absent
 
     condition OtherAssetSubType:
-        if assetType = AssetTypeEnum -> Other
+        if assetType = Other
         then otherAssetType exists
 
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
