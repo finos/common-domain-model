@@ -101,6 +101,7 @@ type SpecifiedEntity: <"The party specific election of Specified Entities for th
 type GoverningLaw: <"A represenation of the governing law of the ISDA master agreement.">
     governingLaw IsdaMasterGoverningLawEnum (1..1) <"Selection from the enumerated list of governing laws specified.">
     governingLawIfOther string (0..1) <"Specifies the governing law if the choice on the enumerated list is 'Other'.">
+    includesNonContractualObligations boolean (1..1) <"Specifies if the governing law of the agreement extends to any non-contractual obligations">
 
     condition GoverningLaw: <"A validation rule to ensure that if a value from the Governing Law Enum is selected, governingLawIfOther is omitted.">
         if governingLaw <> IsdaMasterGoverningLawEnum -> OTHER
@@ -135,7 +136,7 @@ type IsdaCalculationAgentElection: <"An election to determine who the Calculatio
         if agent <> IsdaMasterCalculationAgent -> Other
         then agentIfOther is absent
 
-type SubstitueCalculationAgentElection: <"An election to determine the characteristics around a subsitution Calculation Agent.">
+type SubstituteCalculationAgentElection: <"An election to determine the characteristics around a subsitution Calculation Agent.">
     methodologyForSubstitutionExists boolean (1..1) <"A boolean to represent if the metholodgy exists for appointing a substitute Calculation Agent (True), or not (False).">
     subtituteCalculationAgentIndependent boolean (0..1) <"A boolean to represent that if a substitute Calculation Agent can be appointed, whether they should be independent (True) or not (False).">
     substituteCalculationAgentAppointedBy SubstituteCalculationAgentAppointer (0..1) <"A representation of who appoints the substitute Calculation Agent.">
@@ -143,13 +144,13 @@ type SubstitueCalculationAgentElection: <"An election to determine the character
     costOfSubstituteCalculationAgentBoreBy PayeeOfSubstituteCalculationAgent (0..1) <"A representation of who bears the cost of the substitute calculation agent.">
     costOfSubstituteCalculationAgentBoreByIfOther string (0..1) <"A representation of who bears the cost of the substitute calculation agent if 'Other'.">
 
-    condition SubstitueCalculationAgentElection: <"A validation rule to determine that if methodology exists, then the relevant details are included.">
+    condition SubstituteCalculationAgentElection: <"A validation rule to determine that if methodology exists, then the relevant details are included.">
         if methodologyForSubstitutionExists
         then subtituteCalculationAgentIndependent exists
             and substituteCalculationAgentAppointedBy exists
             and costOfSubstituteCalculationAgentBoreBy exists
 
-    condition SubstitueCalculationAgentElection: <"A validation rule to determine that if methodology does not exists, then the relevant details are omitted.">
+    condition SubstituteCalculationAgentElection: <"A validation rule to determine that if methodology does not exists, then the relevant details are omitted.">
         if methodologyForSubstitutionExists = False
         then subtituteCalculationAgentIndependent is absent
             and substituteCalculationAgentAppointedBy is absent
@@ -157,19 +158,19 @@ type SubstitueCalculationAgentElection: <"An election to determine the character
             and costOfSubstituteCalculationAgentBoreBy is absent
             and costOfSubstituteCalculationAgentBoreByIfOther is absent
 
-    condition SubstitueCalculationAgentElection: <"A validation rule to determine if appointed by is defined as 'Other' then the substituteCalculationAgentAppointedByIfOther exists.">
+    condition SubstituteCalculationAgentElection: <"A validation rule to determine if appointed by is defined as 'Other' then the substituteCalculationAgentAppointedByIfOther exists.">
         if substituteCalculationAgentAppointedBy = SubstituteCalculationAgentAppointer -> Other
         then substituteCalculationAgentAppointedByIfOther exists
 
-    condition SubstitueCalculationAgentElection: <"A validation rule to determine if appointed by is defined and not 'Other', then the substituteCalculationAgentAppointedByIfOther is omitted.">
+    condition SubstituteCalculationAgentElection: <"A validation rule to determine if appointed by is defined and not 'Other', then the substituteCalculationAgentAppointedByIfOther is omitted.">
         if substituteCalculationAgentAppointedBy <> SubstituteCalculationAgentAppointer -> Other
         then substituteCalculationAgentAppointedByIfOther is absent
 
-    condition SubstitueCalculationAgentElection: <"A validation rule to determine if the cost bore by is defined as 'Other' then the costOfSubstituteCalculationAgentBoreByIfOther exists.">
+    condition SubstituteCalculationAgentElection: <"A validation rule to determine if the cost bore by is defined as 'Other' then the costOfSubstituteCalculationAgentBoreByIfOther exists.">
         if costOfSubstituteCalculationAgentBoreBy = PayeeOfSubstituteCalculationAgent -> Other
         then costOfSubstituteCalculationAgentBoreByIfOther exists
 
-    condition SubstitueCalculationAgentElection: <"A validation rule to determine if the cost bore by is defined and not 'Other', then the costOfSubstituteCalculationAgentBoreByIfOther is omitted.">
+    condition SubstituteCalculationAgentElection: <"A validation rule to determine if the cost bore by is defined and not 'Other', then the costOfSubstituteCalculationAgentBoreByIfOther is omitted.">
         if costOfSubstituteCalculationAgentBoreBy <> PayeeOfSubstituteCalculationAgent -> Other
         then costOfSubstituteCalculationAgentBoreByIfOther is absent
 
@@ -177,5 +178,5 @@ type IsdaCalculationAgent: <"The set of elections to define and categorise the C
     eventOfDefault IsdaCalculationAgentElection (1..1) <"Capturing the Calculation Agent in the Event of Default.">
     terminationEvent IsdaCalculationAgentElection (1..1) <"Capturing the Calculation Agent for a Termination Event.">
     noEvent IsdaCalculationAgentElection (1..1) <"Capturing the default Calculation Agent when no Event of Default or Termination Event occurs.">
-    substituteCalculationAgent SubstitueCalculationAgentElection (1..1) <"Capturing the details regarding appointing a substitute Calculation Agent.">
+    substituteCalculationAgent SubstituteCalculationAgentElection (1..1) <"Capturing the details regarding appointing a substitute Calculation Agent.">
     otherComments string (0..1) <"Optional string to capture further information regarding the Calculation Agent.">
