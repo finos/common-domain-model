@@ -5,6 +5,10 @@ import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToW
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
 import com.regnosys.functions.FunctionCreator;
+import com.regnosys.ingest.createiq.CreateiQIngestionServiceTest;
+import com.regnosys.ingest.fis.FisIngestionTest;
+import com.regnosys.ingest.ore.OreTradeTest;
+import com.regnosys.rosetta.common.transform.TestPackUtils;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
 import com.regnosys.testing.TestingExpectationUtil;
@@ -50,6 +54,8 @@ public class CdmTestPackCreator {
 
             testPackConfigCreator.run();
 
+            testPackConfigCreator.runIngestion();
+
             testPackConfigCreator.runFunctionCreators();
 
             System.exit(0);
@@ -59,18 +65,43 @@ public class CdmTestPackCreator {
         }
     }
 
+    private void runIngestion() {
+
+        LOGGER.info(" ** Updating expectations for FisIngestion");
+
+        FisIngestionTest fisIngestionCreator = new FisIngestionTest();
+        Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
+        injector.injectMembers(fisIngestionCreator);
+
+        fisIngestionCreator.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+
+        LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
+
+        CreateiQIngestionServiceTest createiQIngestionServiceTest = new CreateiQIngestionServiceTest();
+        injector.injectMembers(createiQIngestionServiceTest);
+
+        createiQIngestionServiceTest.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+
+        LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
+
+        OreTradeTest oreTradeTest = new OreTradeTest();
+        injector.injectMembers(oreTradeTest);
+
+        oreTradeTest.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+
+    }
 
     private void runFunctionCreators() throws Exception {
 
-        LOGGER.info("Updating Function Input Samples");
+        LOGGER.info(" ** Updating Function Input Samples");
 
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();
         functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
         SecLendingFunctionInputCreator secLendingFunctionInputCreator = new SecLendingFunctionInputCreator();
-        secLendingFunctionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+        secLendingFunctionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
-        LOGGER.info("Updating Function Output Samples");
+        LOGGER.info(" ** Updating Function Output Samples");
 
         FunctionCreator functionCreator = new FunctionCreator();
         functionCreator.run();

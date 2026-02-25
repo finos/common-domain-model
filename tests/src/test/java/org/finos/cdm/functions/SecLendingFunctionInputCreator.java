@@ -96,7 +96,7 @@ public class SecLendingFunctionInputCreator {
     public static void main(String[] args) {
         try {
             SecLendingFunctionInputCreator secLendingFunctionInputCreator = new SecLendingFunctionInputCreator();
-            secLendingFunctionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+            secLendingFunctionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
             System.exit(0);
         } catch (Exception e) {
