@@ -1,4 +1,4 @@
-package org.isda.cdm.functions;
+package org.finos.cdm.functions;
 
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Account;

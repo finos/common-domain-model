@@ -5,6 +5,7 @@ import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToW
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
+import com.regnosys.functions.FunctionCreator;
 import com.regnosys.rosetta.common.transform.PipelineModel;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
@@ -14,11 +15,15 @@ import com.regnosys.testing.pipeline.PipelineTreeConfig;
 import fpml.consolidated.doc.Document;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
+import org.finos.cdm.functions.FunctionInputCreator;
+import org.finos.cdm.functions.SecLendingFunctionInputCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 public class CdmTestPackCreator {
 
@@ -46,6 +51,9 @@ public class CdmTestPackCreator {
             injector.injectMembers(testPackConfigCreator);
 
             testPackConfigCreator.run();
+
+          //  testPackConfigCreator.runFunctionCreators();
+
             System.exit(0);
         } catch (Exception e) {
             LOGGER.error("Error executing {}.main()", CdmTestPackCreator.class.getName(), e);
@@ -53,6 +61,17 @@ public class CdmTestPackCreator {
         }
     }
 
+
+    private void runFunctionCreators() throws Exception {
+        FunctionInputCreator functionInputCreator = new FunctionInputCreator();
+        functionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+
+        SecLendingFunctionInputCreator secLendingFunctionInputCreator = new SecLendingFunctionInputCreator();
+        secLendingFunctionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+
+        FunctionCreator functionCreator = new FunctionCreator();
+        functionCreator.run();
+    }
     private void run() throws IOException {
         pipelineConfigWriter.writePipelinesAndTestPacks(createTreeConfig());
     }
