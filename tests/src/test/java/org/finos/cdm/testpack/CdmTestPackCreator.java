@@ -52,7 +52,7 @@ public class CdmTestPackCreator {
 
             testPackConfigCreator.run();
 
-          //  testPackConfigCreator.runFunctionCreators();
+            testPackConfigCreator.runFunctionCreators();
 
             System.exit(0);
         } catch (Exception e) {
@@ -63,11 +63,15 @@ public class CdmTestPackCreator {
 
 
     private void runFunctionCreators() throws Exception {
+
+        LOGGER.info("Updating Function Input Samples");
+
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();
         functionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
 
         SecLendingFunctionInputCreator secLendingFunctionInputCreator = new SecLendingFunctionInputCreator();
         secLendingFunctionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+        LOGGER.info("Updating Function Output Samples");
 
         FunctionCreator functionCreator = new FunctionCreator();
         functionCreator.run();
