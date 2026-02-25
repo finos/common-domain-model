@@ -10,6 +10,7 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
+import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.testing.TestingExpectationUtil;
 import org.finos.cdm.CdmRuntimeModule;
 import org.finos.cdm.CdmRuntimeModuleTesting;
@@ -38,7 +39,6 @@ public class OreTradeTest extends IngestionTest<TradeState>{
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getOre1039();
-
 	}
 	
 	@Override
@@ -63,7 +63,7 @@ public class OreTradeTest extends IngestionTest<TradeState>{
 			Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
 			injector.injectMembers(ingestionTest);
 
-			ingestionTest.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+			ingestionTest.run();
 
 			System.exit(0);
 		} catch (Exception e) {
@@ -76,11 +76,11 @@ public class OreTradeTest extends IngestionTest<TradeState>{
 	 * from other entry points (e.g. CdmTestPackCreator).
 	 */
 	@org.junit.Test
-	public void run(boolean writeExpectations) {
+	public void run() {
 
 		// Ensure environment is set up
-		expectationsManager = new ExpectationManager(writeExpectations);
-
+		expectationsManager = new ExpectationManager(writeActualExpectations);
+		objectWriter = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter();
 		setup();
 		fpMLFiles().forEach(e ->{
 			Object[] argsArray = e.get();

@@ -48,149 +48,149 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
 public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CreateiQIngestionServiceTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateiQIngestionServiceTest.class);
 
-	private static final String SAMPLE_DIR = "cdm-sample-files/createiq/";
+    private static final String SAMPLE_DIR = "cdm-sample-files/createiq/";
 
-	private static ImmutableList<String> EXPECTATION_FILES = ImmutableList.<String>builder()
-		.add(SAMPLE_DIR + "test-pack/production/expectations.json")
-		.add(SAMPLE_DIR + "test-pack/sandbox/expectations.json")
-		.add(SAMPLE_DIR + "test-pack/development/expectations.json")
-		.add(SAMPLE_DIR + "other/sandbox/expectations.json")
-		.build();
-
-
-	private static IngestionService ingestionService;
-	private static ObjectMapper objectMapper;
-
-	@BeforeAll
-	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
-		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getService("createiQAll");
-		objectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
-	}
-
-	@Override
-	protected Class<LegalAgreement> getClazz() {
-		return LegalAgreement.class;
-	}
-
-	@Override
-	protected IngestionService ingestionService() {
-		return ingestionService;
-	}
-
-	@Override
-	protected void assertExpectations(Expectation expectation, IngestionReport<LegalAgreement> ingested) throws JsonProcessingException {
-		super.assertExpectations(expectation,ingested);
-	}
+    private static ImmutableList<String> EXPECTATION_FILES = ImmutableList.<String>builder()
+            .add(SAMPLE_DIR + "test-pack/production/expectations.json")
+            .add(SAMPLE_DIR + "test-pack/sandbox/expectations.json")
+            .add(SAMPLE_DIR + "test-pack/development/expectations.json")
+            .add(SAMPLE_DIR + "other/sandbox/expectations.json")
+            .build();
 
 
-	@Test
-	void mappingCoverageIsConsistent() {
-		for (String file : EXPECTATION_FILES) {
-			List<Expectation> expectations = readFile(Resources.getResource(file), objectMapper, new TypeReference<List<Expectation>>() {
-			}).collect(Collectors.toList());
-			List<MappingCoverage> coverageFromExpectations = toMappingCoverages(ingestionService.getEnvironmentName(), expectations);
-			URL resource = this.getClass().getResource(file.replace("expectations.json", "coverage.json"));
-			if (resource != null) {
-				List<MappingCoverage> actualCoverage = readCoverageFile(Resources.getResource(file.replace("expectations.json", "coverage.json")), objectMapper);
-				for (MappingCoverage mappingCoverage : coverageFromExpectations) {
-					assertThat(actualCoverage, hasItem(mappingCoverage));
-				}
-			}
-		}
-	}
+    private static IngestionService ingestionService;
+    private static ObjectMapper objectMapper;
 
-	private static List<MappingCoverage> toMappingCoverages(String environmentName, Collection<Expectation> expectations) {
-		return expectations.stream().collect(groupingBy(CreateiQIngestionServiceTest::schema, toMappingStatistic()))
-			.entrySet().stream()
-			.map(entry -> new MappingCoverage(environmentName, entry.getKey().getSchema(), entry.getValue()))
-			.collect(Collectors.toList());
-	}
+    @BeforeAll
+    static void setup() {
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
+        ingestionService = IngestionFactory.getInstance().getService("createiQAll");
+        objectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+    }
 
-	/**
-	 * Builds an CreateiQSchema object from the file path of the expectations file
-	 */
-	private static CreateiQSchema schema(Expectation e) {
-		List<Path> parts = Lists.newArrayList(ClassPathUtils.loadSingleFromClasspath(e.getFileName()).iterator());
-		List<Path> pathData = parts.subList(parts.size() - 4, parts.size() - 1);
-		return new CreateiQSchema(pathData.get(0).toString(), pathData.get(1).toString(), pathData.get(2).toString());
-	}
+    @Override
+    protected Class<LegalAgreement> getClazz() {
+        return LegalAgreement.class;
+    }
 
-	/**
-	 * @return A collector to add all the external paths and mapping exceptions across expectation files and produce a mapping coverage statistic.
-	 */
-	private static Collector<Expectation, MutablePair<Integer, Integer>, Double> toMappingStatistic() {
-		return Collector.of(
-			() -> MutablePair.of(0, 0),
-			(pair, expectation) -> pair.set(pair.left + expectation.getExternalPaths(), pair.right + expectation.getOutstandingMappings()),
-			(pair1, pair2) -> MutablePair.of(pair1.left + pair2.left, pair1.right + pair2.right),
-			pair -> pair.left == 0 ? 0.0 : 1.0 - (pair.right.doubleValue() / pair.left.doubleValue()));
-	}
+    @Override
+    protected IngestionService ingestionService() {
+        return ingestionService;
+    }
 
-	private static void writeFileToDisk(Pair<String, List<MappingCoverage>> expectationFileMappingCoveragesPair) {
-		String url = EXPECTATION_FILES.stream().filter(_url -> expectationFileMappingCoveragesPair.left().endsWith(_url)).findFirst().orElseThrow();
-		String updatedFilename = url.replace("expectations.json", "coverage.json");
-		System.out.println("Writing to disk: " + updatedFilename);
-		try {
-			Path path = Paths.get(updatedFilename);
-			Files.createDirectories(path.getParent());
-			try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-				List<MappingCoverage> mappingCoverages = expectationFileMappingCoveragesPair.right();
-				Collections.sort(mappingCoverages);
-				writer.write(toJson(mappingCoverages));
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    protected void assertExpectations(Expectation expectation, IngestionReport<LegalAgreement> ingested) throws JsonProcessingException {
+        super.assertExpectations(expectation, ingested);
+    }
 
-	@SuppressWarnings("unused")//used by the junit parameterized test
-	private static Stream<Arguments> fpMLFiles() {
-		return readExpectationsFromString(EXPECTATION_FILES);
-	}
 
-	public static void main(String[] args) {
-		try {
-			CreateiQIngestionServiceTest ingestionTest = new CreateiQIngestionServiceTest();
-			Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
-			injector.injectMembers(ingestionTest);
+    @Test
+    void mappingCoverageIsConsistent() {
+        for (String file : EXPECTATION_FILES) {
+            List<Expectation> expectations = readFile(Resources.getResource(file), objectMapper, new TypeReference<List<Expectation>>() {
+            }).collect(Collectors.toList());
+            List<MappingCoverage> coverageFromExpectations = toMappingCoverages(ingestionService.getEnvironmentName(), expectations);
+            URL resource = this.getClass().getResource(file.replace("expectations.json", "coverage.json"));
+            if (resource != null) {
+                List<MappingCoverage> actualCoverage = readCoverageFile(Resources.getResource(file.replace("expectations.json", "coverage.json")), objectMapper);
+                for (MappingCoverage mappingCoverage : coverageFromExpectations) {
+                    assertThat(actualCoverage, hasItem(mappingCoverage));
+                }
+            }
+        }
+    }
 
-			ingestionTest.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+    private static List<MappingCoverage> toMappingCoverages(String environmentName, Collection<Expectation> expectations) {
+        return expectations.stream().collect(groupingBy(CreateiQIngestionServiceTest::schema, toMappingStatistic()))
+                .entrySet().stream()
+                .map(entry -> new MappingCoverage(environmentName, entry.getKey().getSchema(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
 
-			System.exit(0);
-		} catch (Exception e) {
-			LOGGER.error("Error executing {}.main()", CreateiQIngestionServiceTest.class.getName(), e);
-			System.exit(1);
-		}
-	}
-	/**
-	 * Programmatically run the JUnit 5 tests defined for this class so it can be executed
-	 * from other entry points (e.g. CdmTestPackCreator).
-	 */
-	@org.junit.Test
-	public void run(boolean writeExpectations) {
+    /**
+     * Builds an CreateiQSchema object from the file path of the expectations file
+     */
+    private static CreateiQSchema schema(Expectation e) {
+        List<Path> parts = Lists.newArrayList(ClassPathUtils.loadSingleFromClasspath(e.getFileName()).iterator());
+        List<Path> pathData = parts.subList(parts.size() - 4, parts.size() - 1);
+        return new CreateiQSchema(pathData.get(0).toString(), pathData.get(1).toString(), pathData.get(2).toString());
+    }
 
-		// Ensure environment is set up
-		expectationsManager = new ExpectationManager(writeExpectations);
-		setup();
-		fpMLFiles().forEach(e ->{
-			Object[] argsArray = e.get();
-			String expectationFilePath = (String) argsArray[0];
-			Expectation expectation = (Expectation) argsArray[1];
-			try {
-				if(writeActualExpectations) {
-					writeIngestionExpectation(expectationFilePath, expectation);
-				}
-				else{
-					ingest(expectationFilePath, expectation);
-				}
-			} catch (Throwable ex) {
-				throw new RuntimeException(ex);
-			}
+    /**
+     * @return A collector to add all the external paths and mapping exceptions across expectation files and produce a mapping coverage statistic.
+     */
+    private static Collector<Expectation, MutablePair<Integer, Integer>, Double> toMappingStatistic() {
+        return Collector.of(
+                () -> MutablePair.of(0, 0),
+                (pair, expectation) -> pair.set(pair.left + expectation.getExternalPaths(), pair.right + expectation.getOutstandingMappings()),
+                (pair1, pair2) -> MutablePair.of(pair1.left + pair2.left, pair1.right + pair2.right),
+                pair -> pair.left == 0 ? 0.0 : 1.0 - (pair.right.doubleValue() / pair.left.doubleValue()));
+    }
 
-		});
-	}
+    private static void writeFileToDisk(Pair<String, List<MappingCoverage>> expectationFileMappingCoveragesPair) {
+        String url = EXPECTATION_FILES.stream().filter(_url -> expectationFileMappingCoveragesPair.left().endsWith(_url)).findFirst().orElseThrow();
+        String updatedFilename = url.replace("expectations.json", "coverage.json");
+        System.out.println("Writing to disk: " + updatedFilename);
+        try {
+            Path path = Paths.get(updatedFilename);
+            Files.createDirectories(path.getParent());
+            try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+                List<MappingCoverage> mappingCoverages = expectationFileMappingCoveragesPair.right();
+                Collections.sort(mappingCoverages);
+                writer.write(toJson(mappingCoverages));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unused")//used by the junit parameterized test
+    private static Stream<Arguments> fpMLFiles() {
+        return readExpectationsFromString(EXPECTATION_FILES);
+    }
+
+    public static void main(String[] args) {
+        try {
+            CreateiQIngestionServiceTest ingestionTest = new CreateiQIngestionServiceTest();
+            Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
+            injector.injectMembers(ingestionTest);
+
+            ingestionTest.run();
+
+            System.exit(0);
+        } catch (Exception e) {
+            LOGGER.error("Error executing {}.main()", CreateiQIngestionServiceTest.class.getName(), e);
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Programmatically run the JUnit 5 tests defined for this class so it can be executed
+     * from other entry points (e.g. CdmTestPackCreator).
+     */
+    @org.junit.Test
+    public void run() {
+
+        // Ensure environment is set up
+        expectationsManager = new ExpectationManager(writeActualExpectations);
+        setup();
+        fpMLFiles().forEach(e -> {
+            Object[] argsArray = e.get();
+            String expectationFilePath = (String) argsArray[0];
+            Expectation expectation = (Expectation) argsArray[1];
+            try {
+                if (writeActualExpectations) {
+                    writeIngestionExpectation(expectationFilePath, expectation);
+                } else {
+                    ingest(expectationFilePath, expectation);
+                }
+            } catch (Throwable ex) {
+                throw new RuntimeException(ex);
+            }
+
+        });
+    }
 }

@@ -73,21 +73,21 @@ public class CdmTestPackCreator {
         Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
         injector.injectMembers(fisIngestionCreator);
 
-        fisIngestionCreator.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+        fisIngestionCreator.run();
 
         LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
 
         CreateiQIngestionServiceTest createiQIngestionServiceTest = new CreateiQIngestionServiceTest();
         injector.injectMembers(createiQIngestionServiceTest);
 
-        createiQIngestionServiceTest.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+        createiQIngestionServiceTest.run();
 
         LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
 
         OreTradeTest oreTradeTest = new OreTradeTest();
         injector.injectMembers(oreTradeTest);
 
-        oreTradeTest.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+        oreTradeTest.run();
 
     }
 

@@ -29,11 +29,11 @@ import java.util.stream.Stream;
 public class FisIngestionTest extends IngestionTest<WorkflowStep> {
     private static final Logger LOGGER = LoggerFactory.getLogger(FisIngestionTest.class);
 
-	private static final String ENV_INSTANCE_NAME = "target/ISLA";
-	private static final List<URL> ENV_FILE = Collections.singletonList(Resources.getResource("ingestions/isla-ingestions.json"));
-	private static final String SAMPLE_FILES_DIR = "cdm-sample-files/fis/";
+    private static final String ENV_INSTANCE_NAME = "target/ISLA";
+    private static final List<URL> ENV_FILE = Collections.singletonList(Resources.getResource("ingestions/isla-ingestions.json"));
+    private static final String SAMPLE_FILES_DIR = "cdm-sample-files/fis/";
 
-	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
+    private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
             .add(Resources.getResource(SAMPLE_FILES_DIR + "expectations.json"))
             .build();
 
@@ -41,10 +41,10 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
 
     @BeforeAll
     static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
         initialiseIngestionFactory(ENV_INSTANCE_NAME, ENV_FILE, runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
         ingestionService = IngestionFactory.getInstance(ENV_INSTANCE_NAME).getFis();
-        objectWriter = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter();
+
     }
 
     @Override
@@ -78,7 +78,7 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
             Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
             injector.injectMembers(ingestionTest);
 
-            ingestionTest.run(TestingExpectationUtil.WRITE_EXPECTATIONS);
+            ingestionTest.run();
 
             System.exit(0);
         } catch (Exception e) {
@@ -86,33 +86,34 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
             System.exit(1);
         }
     }
+
     /**
      * Programmatically run the JUnit 5 tests defined for this class so it can be executed
      * from other entry points (e.g. CdmTestPackCreator).
      */
     @Test
-    public void run(boolean writeExpectations) {
+    public void run() {
 
-            // Ensure environment is set up
-        expectationsManager = new ExpectationManager(writeExpectations);
+        // Ensure environment is set up
+        expectationsManager = new ExpectationManager(writeActualExpectations);
+        objectWriter = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter();
         setup();
-            fpMLFiles().forEach(e ->{
-                Object[] argsArray = e.get();
-                String expectationFilePath = (String) argsArray[0];
-                Expectation expectation = (Expectation) argsArray[1];
-                try {
-                    if(writeActualExpectations) {
-                        writeIngestionExpectation(expectationFilePath, expectation);
-                    }
-                    else{
-                        ingest(expectationFilePath, expectation);
-                    }
-                    tearDown();
-                } catch (Throwable ex) {
-                    tearDown();
-                    throw new RuntimeException(ex);
+        fpMLFiles().forEach(e -> {
+            Object[] argsArray = e.get();
+            String expectationFilePath = (String) argsArray[0];
+            Expectation expectation = (Expectation) argsArray[1];
+            try {
+                if (writeActualExpectations) {
+                    writeIngestionExpectation(expectationFilePath, expectation);
+                } else {
+                    ingest(expectationFilePath, expectation);
                 }
+                tearDown();
+            } catch (Throwable ex) {
+                tearDown();
+                throw new RuntimeException(ex);
+            }
 
-            });
+        });
     }
 }
