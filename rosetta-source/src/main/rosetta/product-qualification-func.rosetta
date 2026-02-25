@@ -67,8 +67,8 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
             or (OptionPayoutOnlyExists(economicTerms -> payout)
                 and (ObservableQualification(
                         optionUnderlier -> Observable,
-                        SecurityTypeEnum -> Debt,
-                        AssetClassEnum -> InterestRate
+                        Debt,
+                        InterestRate
                     )
                     or optionUnderlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType = Debt
                     or if optionUnderlier -> Product exists
@@ -80,7 +80,7 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                     or (economicTerms -> payout -> SettlementPayout exists and economicTerms -> payout -> InterestRatePayout exists))
                 and (UnderlierQualification(
                         settlementUnderlier,
-                        SecurityTypeEnum -> Debt,
+                        Debt,
                         AssetClassEnum -> InterestRate
                     )
                     or if settlementUnderlier -> Product ->> economicTerms exists
@@ -360,9 +360,9 @@ func Qualify_SecurityTypeEquity: <"Qualifies that the security type, for all of 
     set is_equity:
         securityType = Equity
             or (securityType = Fund
-                and security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+                and security -> fundType = ExchangeTradedFund)
             or (securityType = Fund
-                and security -> fundType = FundProductTypeEnum -> MutualFund)
+                and security -> fundType = MutualFund)
             or securityType = Warrant
 
 func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset Class classification Equity and Base Product Classification Swap.">
@@ -1547,7 +1547,7 @@ func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option t
             and economicTerms -> payout only-element -> OptionPayout exists
                 // qualifies the underlyer of the option as a debt security
             and optionPayout -> underlier -> Observable
-                extract [ ObservableQualification(item, SecurityTypeEnum -> Debt, empty) ]
+                extract [ ObservableQualification(item, Debt, empty) ]
             all = True
 
 func Qualify_InterestRate_Forward_Debt: <"Qualifies a product as Interest Rate Bond Forward based on economic terms, which is defined as a transaction in which one party agrees to pay an agreed price for a specified amount of a bond of an issuer or a basket of bonds of several issuers at a future date and the other party agrees to pay a price for the same amount of the same bond to be set on a specified date in the future.">
