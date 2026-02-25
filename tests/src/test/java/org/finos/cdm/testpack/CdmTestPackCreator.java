@@ -2,17 +2,15 @@ package org.finos.cdm.testpack;
 
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToTradeState;
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToWorkflowStep;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
 import com.regnosys.functions.FunctionCreator;
-import com.regnosys.rosetta.common.transform.PipelineModel;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
+import com.regnosys.testing.TestingExpectationUtil;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
 import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
-import fpml.consolidated.doc.Document;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.finos.cdm.functions.FunctionInputCreator;
@@ -67,10 +65,11 @@ public class CdmTestPackCreator {
         LOGGER.info("Updating Function Input Samples");
 
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();
-        functionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+        functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
         SecLendingFunctionInputCreator secLendingFunctionInputCreator = new SecLendingFunctionInputCreator();
         secLendingFunctionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+
         LOGGER.info("Updating Function Output Samples");
 
         FunctionCreator functionCreator = new FunctionCreator();

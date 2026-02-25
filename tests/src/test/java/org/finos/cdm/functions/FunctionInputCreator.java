@@ -50,6 +50,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
@@ -116,7 +117,7 @@ public class FunctionInputCreator {
     public static void main(String[] args) {
         try {
             FunctionInputCreator functionInputCreator = new FunctionInputCreator();
-            functionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+            functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
             System.exit(0);
         } catch (Exception e) {
