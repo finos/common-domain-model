@@ -2,23 +2,30 @@ package org.finos.cdm.testpack;
 
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToTradeState;
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToWorkflowStep;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
-import com.regnosys.rosetta.common.transform.PipelineModel;
+import com.regnosys.functions.FunctionCreator;
+import com.regnosys.ingest.createiq.CreateiQIngestionServiceTest;
+import com.regnosys.ingest.fis.FisIngestionTest;
+import com.regnosys.ingest.ore.OreTradeTest;
+import com.regnosys.rosetta.common.transform.TestPackUtils;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
+import com.regnosys.testing.TestingExpectationUtil;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
 import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
-import fpml.consolidated.doc.Document;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
+import org.finos.cdm.functions.FunctionInputCreator;
+import org.finos.cdm.functions.SecLendingFunctionInputCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 public class CdmTestPackCreator {
 
@@ -46,6 +53,11 @@ public class CdmTestPackCreator {
             injector.injectMembers(testPackConfigCreator);
 
             testPackConfigCreator.run();
+
+            testPackConfigCreator.runIngestion();
+
+            testPackConfigCreator.runFunctionCreators();
+
             System.exit(0);
         } catch (Exception e) {
             LOGGER.error("Error executing {}.main()", CdmTestPackCreator.class.getName(), e);
@@ -53,6 +65,47 @@ public class CdmTestPackCreator {
         }
     }
 
+    private void runIngestion() {
+
+        LOGGER.info(" ** Updating expectations for FisIngestion");
+
+        FisIngestionTest fisIngestionCreator = new FisIngestionTest();
+        Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
+        injector.injectMembers(fisIngestionCreator);
+
+        fisIngestionCreator.run();
+
+        LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
+
+        CreateiQIngestionServiceTest createiQIngestionServiceTest = new CreateiQIngestionServiceTest();
+        injector.injectMembers(createiQIngestionServiceTest);
+
+        createiQIngestionServiceTest.run();
+
+        LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
+
+        OreTradeTest oreTradeTest = new OreTradeTest();
+        injector.injectMembers(oreTradeTest);
+
+        oreTradeTest.run();
+
+    }
+
+    private void runFunctionCreators() throws Exception {
+
+        LOGGER.info(" ** Updating Function Input Samples");
+
+        FunctionInputCreator functionInputCreator = new FunctionInputCreator();
+        functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
+
+        SecLendingFunctionInputCreator secLendingFunctionInputCreator = new SecLendingFunctionInputCreator();
+        secLendingFunctionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
+
+        LOGGER.info(" ** Updating Function Output Samples");
+
+        FunctionCreator functionCreator = new FunctionCreator();
+        functionCreator.run();
+    }
     private void run() throws IOException {
         pipelineConfigWriter.writePipelinesAndTestPacks(createTreeConfig());
     }
