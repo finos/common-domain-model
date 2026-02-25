@@ -33,7 +33,7 @@ type AssetIdentifier: <"The unique identifier for an Asset, specified using an A
     identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
 type InstrumentBase extends AssetBase: <"Defines the common attributes for all Instrument data types.">
-    
+
     condition AssetIsInstrument: <"The assetType must be an instrument.">
         [AssetTypeEnum -> Security, AssetTypeEnum -> ListedDerivative, AssetTypeEnum -> Loan, AssetTypeEnum -> LetterOfCredit] any = assetType
 
@@ -106,7 +106,7 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
 
     condition NoExchange: <"Cash cannot be a listed Asset.">
         exchange is absent and isExchangeListed is absent
-    
+
     condition AssetType: <"AssetType must be cash.">
         assetType = Cash
 
@@ -223,16 +223,13 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
     fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
 
     condition DebtSubType:
-        if securityType <> Debt
-        then debtType is absent
+        if securityType <> Debt then debtType is absent
 
     condition EquitySubType:
-        if securityType <> Equity
-        then equityType is absent
+        if securityType <> Equity then equityType is absent
 
     condition FundSubType:
-        if securityType <> Fund
-        then fundType is absent
+        if securityType <> Fund then fundType is absent
 
     condition AssetType: <"Asset type must be Security.">
         assetType = Security
@@ -336,7 +333,7 @@ type TaxonomyClassification:
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security."> 
+    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
     equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
@@ -350,16 +347,13 @@ type AssetType: <"Represents a class to allow specification of the asset product
                 and fundType is absent
 
     condition BondSubType:
-        if securityType <> Debt
-        then debtType is absent
+        if securityType <> Debt then debtType is absent
 
     condition EquitySubType:
-        if securityType <> Equity
-        then equityType is absent
+        if securityType <> Equity then equityType is absent
 
     condition FundSubType:
-        if securityType <> Fund
-        then fundType is absent
+        if securityType <> Fund then fundType is absent
 
     condition OtherAssetSubType:
         if assetType = AssetTypeEnum -> Other
