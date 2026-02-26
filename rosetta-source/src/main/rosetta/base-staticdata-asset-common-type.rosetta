@@ -103,7 +103,7 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
 
     condition NoExchange: <"Cash cannot be a listed Asset.">
         exchange is absent and isExchangeListed is absent
-    
+
     condition AssetType: <"AssetType must be cash.">
         assetType = Cash
 
@@ -220,16 +220,13 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
     fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
 
     condition DebtSubType:
-        if securityType <> Debt
-        then debtType is absent
+        if securityType <> Debt then debtType is absent
 
     condition EquitySubType:
-        if securityType <> Equity
-        then equityType is absent
+        if securityType <> Equity then equityType is absent
 
     condition FundSubType:
-        if securityType <> Fund
-        then fundType is absent
+        if securityType <> Fund then fundType is absent
 
     condition AssetType: <"Asset type must be Security.">
         assetType = Security
@@ -242,15 +239,23 @@ type EquityType:
         if equityType <> EquityTypeEnum -> DepositaryReceipt
         then depositaryReceipt is absent
 
-type DebtType: <"Specifies the type of debt instrument.">
-    debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
-    debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
+type DebtType: <"Specifies the type of debt security.">
+    debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt security.">
 
-type DebtEconomics: <"Specifies selected economics of a debt instrument.">
+type DebtEconomics: <"Specifies selected economics of a debt security.">
     seniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
     interest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
     principal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
     secured SecuredDebt (0..1) <"Specifies the type of secured debt.">
+    redemption DebtRedemption (0..1) <"Specifies the general rule for redemption of a debt security.">
+
+type DebtRedemption: <"Specifies the redemption features and whether the redemption right is exercised at the discretion of the issuer or the holder.">
+    redemptionType RedemptionTypeEnum (0..1) <"Specifies the contractual redemption or conversion features associated with a debt security.">
+    putCall PutCallEnum (0..1) <"Specifies the embedded option feature of a debt security.">
+    party RedemptionPartyEnum (0..1) <"Specifies whether the debt security is redeemed at the election of the Issuer/Holder.">
+
+    condition ConvertibleExchangablePartyElectionExists: <"A type of redemption must be specified if the redeeming party is specified.">
+        if party exists then redemptionType exists or putCall exists
 
 type SecuredDebt:
     securedType SecuredTypeEnum (0..1) <"Specifies the type of secured debt product.">
@@ -325,31 +330,26 @@ type TaxonomyClassification:
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security."> 
+    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
     equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
     otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
 
     condition SecuritySubType:
-        if assetType <> Security
-        then securityType is absent
+        if assetType <> Security then securityType is absent
 
     condition BondSubType:
-        if securityType <> Debt
-        then debtType is absent
+        if securityType <> Debt then debtType is absent
 
     condition EquitySubType:
-        if securityType <> Equity
-        then equityType is absent
+        if securityType <> Equity then equityType is absent
 
     condition FundSubType:
-        if securityType <> Fund
-        then fundType is absent
+        if securityType <> Fund then fundType is absent
 
     condition OtherAssetSubType:
-        if assetType = Other
-        then otherAssetType exists
+        if assetType = Other then otherAssetType exists
 
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
     pricePublisher string (1..1) <"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg. Commodity publishers can be found at this URL:  http://www.fpml.org/coding-scheme/commodity-information-provider>">

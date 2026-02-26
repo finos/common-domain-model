@@ -165,9 +165,6 @@ func CheckAssetType:
             or (collateralAssetTypes
                 then filter assetType = query -> collateralAssetType -> assetType
                 then filter
-                    debtType is absent
-                        or debtType -> debtClass = query -> collateralAssetType -> debtType -> debtClass
-                then filter
                     securityType is absent
                         or securityType = query -> collateralAssetType -> securityType
                 then item exists
@@ -246,5 +243,8 @@ func CriteriaMatchesSecurityType:
                 anyCriteria
                     extract CriteriaMatchesSecurityType(item, securityType)
                     then any = True,
-            NegativeCriteria then CriteriaMatchesSecurityType(negativeCriteria, securityType) = False,
+            NegativeCriteria then CriteriaMatchesSecurityType(
+                        negativeCriteria,
+                        securityType
+                    ) = False,
             default False
