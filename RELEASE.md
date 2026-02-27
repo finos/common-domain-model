@@ -8,7 +8,7 @@ _What is being released?_
 
 - Renaming `InstrumentTypeEnum` to `SecurityTypeEnum`
 - Adding `SecurityTypeEnum` as an attribute under `Security` and removing it from `InstrumentBase`
-- Removing `ListedDerivative` and `LetterOfCredit` from `SecurityTypeEnum` and adding it to `AssetTypeEnum`
+- Removing `ListedDerivative` and `LetterOfCredit` from `SecurityTypeEnum` and adding them to `AssetTypeEnum`
 - Adding `Loan` to `AssetTypeEnum` to further align it with the asset and instrument model
 - Adding `AssetTypeEnum` to `AssetBase`
 - Adding conditions on each of the types to enforce the correct asset type selection
