@@ -18,6 +18,9 @@ type IndexBase extends AssetBase: <"Identifies an index by referencing an identi
     provider LegalEntity (0..1) <"The organisation that creates or maintains the Index.">
     assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
 
+    condition AssetType: <"Asset type must be Other.">
+        assetType = Other
+
 choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
     CreditIndex <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
     EquityIndex <"An index based on equity securities, e.g. the S&P 500.">
@@ -216,6 +219,9 @@ choice Observable: <"Specifies the object to be observed for a price, it could b
 type Basket extends AssetBase: <"Defines a custom basket by referencing an identifier and its constituents.">
     basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
         [metadata location]
+
+    condition AssetType: <"Asset type must be Security.">
+        assetType = Security
 
 type BasketConstituent extends Observable: <"Identifies the constituents of the basket">
     quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
