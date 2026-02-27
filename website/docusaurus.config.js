@@ -34,6 +34,7 @@ module.exports = {
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
         {to: 'docs/cdm-materials', label: 'CDM Resources', position: 'right'},
+        {to: 'schemas', label: 'Schemas', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
         {
           href: 'https://github.com/finos/common-domain-model',
@@ -115,6 +116,10 @@ module.exports = {
             {
               label: 'Releases',
               href: 'https://github.com/finos/common-domain-model/releases',
+            },
+            {
+              label: 'Schemas',
+              href: 'https://github.com/finos/common-domain-model/schemas',
             },
             {
               label: 'What Is The CDM?',
