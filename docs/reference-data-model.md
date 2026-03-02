@@ -47,8 +47,7 @@ type NaturalPerson:
 ``` Haskell
 type LegalEntity:
   [metadata key]
-  entityId string (0..*)
-    [metadata scheme]
   name string (1..1)
     [metadata scheme]
+  entityIdentifier EntityIdentifier (0..*)
 ```

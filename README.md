@@ -94,7 +94,7 @@ Steps:
 
 ## Documentation
 
-The CDM has extensive documentation which is kept up to date. Any change to the CDM should be accompanied by documentation. See docs guide [here](https://cdm.finos.org/docs/contribution#documentation-style-guide)
+The CDM has extensive documentation which is kept up to date. Any change to the CDM should be accompanied by documentation. See docs guide [here](https://cdm.finos.org/docs/dev-guidelines/#documentation)
 
 ## Governance overview
 
