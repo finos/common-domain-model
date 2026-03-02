@@ -162,6 +162,26 @@ func MapCounterpartyRoleEnum:
             then extract role
             then only-element
 
+func MapMultipleCounterpartyRoleEnum:
+    inputs:
+        fpmlPartyReference1 string (0..1)
+        fpmlPartyReference2 string (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        counterpartyRoleEnum CounterpartyRoleEnum (0..2)
+
+    add counterpartyRoleEnum:
+        cdmCounterpartyList
+            filter partyReference -> reference exists
+            then filter partyReference -> reference = fpmlPartyReference1
+            then extract role
+
+    add counterpartyRoleEnum:
+        cdmCounterpartyList
+            filter partyReference -> reference exists
+            then filter partyReference -> reference = fpmlPartyReference2
+            then extract role
+
 func MapAncillaryPartyList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
@@ -695,11 +715,39 @@ func MapLegalEntity:
 
     set legalEntity:
         LegalEntity {
-            entityId: [entityIdFromLegalEntitySequence, entityIdFromLegalEntity],
             name: fpmlLegalEntity -> legalEntitySequence -> entityName
                     extract MapStringWithScheme(value, entityNameScheme),
+            entityIdentifier: MapEntityIdentifier(fpmlLegalEntity)
         }
     set legalEntity -> key: fpmlLegalEntity -> id
+
+func MapEntityIdentifier:
+    inputs:
+        fpmlLegalEntity fpml.LegalEntity (0..1)
+    output:
+        entityIdentifier EntityIdentifier (0..*)
+
+    add entityIdentifier:
+        fpmlLegalEntity -> entityId
+            extract
+                EntityIdentifier {
+                    identifier: MapStringWithScheme(value, entityIdScheme),
+                    identifierType: MapEntityIdentifierTypeEnum(entityIdScheme)
+                }
+
+func MapEntityIdentifierTypeEnum:
+    inputs:
+        productIdScheme string (0..1)
+    output:
+        source EntityIdentifierTypeEnum (0..1)
+
+    set source:
+        MapPartyIdentifierTypeEnum(productIdScheme) to-enum EntityIdentifierTypeEnum
+            default if StringContains(productIdScheme, "-id-RED-")
+                then REDID
+                else if StringContains(productIdScheme, "iso3166")
+                then CountryCode
+                else Other
 
 func MapLegalEntityReference:
     inputs:

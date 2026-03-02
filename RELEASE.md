@@ -1,15 +1,19 @@
-# Collateral Model - Collateral Guarantor added to Collateral Criteria
+# *Asset Model - Aligning AssetType with Asset and Security*
 
 _Background_
 
-There is a gap in the collateral model where a party cannot be specified to guarantee the collateral asset. Although users can specify the collateral issuer type, the guarantor is not supported in the collateral criteria choice type. A guarantor is a common requirement for collateral criteria. 
+There is inconsistency in how asset type, instrument, and security types are modelled. This release seeks to restructure the types and enums so they are harmonised.
 
 _What is being released?_
 
-- `IssuerTypeEnum` is renamed to `CollateralEntityTypeEnum`. This enum can be reused as the entity type values are common across the issuer & guarantor. `IssuerTypeEnum` is used only in the `CollateralIssuerType` so there is minimal impact to other areas of the model. 
-- `CollateralGuarantorType` is created which has the `CollateralEntityTypeEnum` as an attribute.
-- `CollateralGuarantorType` is  added to `CollateralCriteria`.
+- Renaming `InstrumentTypeEnum` to `SecurityTypeEnum`
+- Adding `SecurityTypeEnum` as an attribute under `Security` and removing it from `InstrumentBase`
+- Removing `ListedDerivative` and `LetterOfCredit` from `SecurityTypeEnum` and adding them to `AssetTypeEnum`
+- Adding `Loan` to `AssetTypeEnum` to further align it with the asset and instrument model
+- Adding `AssetTypeEnum` to `AssetBase`
+- Adding conditions on each of the types to enforce the correct asset type selection
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4258](https://github.com/finos/common-domain-model/pull/4258)
+Changes can be reviewed in PR: [#4434](https://github.com/finos/common-domain-model/pull/4434)
+
