@@ -247,7 +247,7 @@ choice CollateralCriteria: <"The possible different terms that can be combined, 
     CollateralTaxonomy <"Criteria is the taxonomy characteristics of an collateral.">
     ListingExchange <"Criteria is that the collateral is listed on a specific exchange.">
     ListingSector <"Criteria is the industry sector of the collateral asset.">
-    Index <"Criteria is that the collateral is a constituent of a specific index.">
+    IndexType <"Criteria is that the collateral is a constituent of a specific index.">
     CounterpartyOwnIssuePermitted <"Criteria includes collateral issued by the counterparty.">
     DomesticCurrencyIssued <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
 
@@ -269,9 +269,9 @@ qualify as eligible collateral:
 
 This can be described logically as:
 
-( `AssetType` = 'Equity' AND `IssuerCountryOfOrigin` = 'USA')
+( `AssetType` = 'Security' and `SecurityType` = 'Equity' AND `IssuerCountryOfOrigin` = 'USA')
 OR
-( `AssetType` = 'FixedIncome' AND `IssuerCountryOfOrigin` = 'UK').
+( `AssetType` = 'Security'  and `SecurityType` = 'Debt' AND `IssuerCountryOfOrigin` = 'UK').
 
 Within the CDM, the implementation of this AND and OR logic is achieved
 by the addition of further attributes to `CollateralCriteria`:
@@ -995,7 +995,7 @@ For the second example, the query can be constructed as follows:
 	"maturity": 3,
 	"collateralAssetType": [ {
 		"assetType": "Security",
-		"securityType": "Bond"
+		"securityType": "Debt"
 		} ] ,
 	"assetCountryOfOrigin": "JP" ,
 	"demoninatedCurrency": "JPY",
