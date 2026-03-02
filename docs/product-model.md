@@ -140,22 +140,26 @@ for purposes of brevity.
 Security has a set of additional attributes, as shown below:
 
 ``` Haskell
-type Security extends InstrumentBase: 
+type Security extends InstrumentBase:
+    securityType SecurityTypeEnum (1..1) 
     debtType DebtType (0..1)
     equityType EquityType (0..1) 
     fundType FundProductTypeEnum (0..1)
 
     condition DebtSubType:
-        if instrumentType <> InstrumentTypeEnum -> Debt
+        if securityType <> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if instrumentType <> InstrumentTypeEnum -> Equity
+        if securityType <> Equity
         then equityType is absent
 
     condition FundSubType:
-        if instrumentType <> InstrumentTypeEnum -> Fund
+        if securityType <> Fund
         then fundType is absent
+    
+    condition AssetType:
+        assetType = Security
 ```
 
 The asset identifier will uniquely identify the security. The

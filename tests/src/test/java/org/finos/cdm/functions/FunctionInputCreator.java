@@ -581,7 +581,7 @@ public class FunctionInputCreator {
                                 .setAsset(Asset.builder()
                                         .setInstrument(Instrument.builder()
                                                 .setSecurity(Security.builder()
-                                                        .setInstrumentType(InstrumentTypeEnum.EQUITY)
+                                                        .setSecurityType(SecurityTypeEnum.EQUITY)
                                                         .addIdentifier(AssetIdentifier.builder()
                                                                 .setIdentifierType(AssetIdTypeEnum.OTHER)
                                                                 .setIdentifier(FieldWithMetaString.builder()
