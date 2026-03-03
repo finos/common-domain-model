@@ -14,6 +14,6 @@ _What is being released?_
 - Adding conditions on each of the types to enforce the correct asset type selection
 
 _Review Directions_
-
+ 
 Changes can be reviewed in PR: [#4434](https://github.com/finos/common-domain-model/pull/4434)
 
