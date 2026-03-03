@@ -1,6 +1,5 @@
 # *Documentation - CDM Schema Publication*
 
-
 _Background_
 
 CDM schemas were not previously available via the CDM Documentation, which limited their discoverability and reuse by external consumers and tooling. Issue [#4436](https://github.com/finos/common-domain-model/issues/4436) identified the need to make CDM schemas available to support wider adoption and integration.
