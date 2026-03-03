@@ -1,5 +1,5 @@
 ---
-title: CDM Videos
+title: CDM Videos 
 ---
 
 Find more videos on the Common Domain Model on the [FINOS Youtube page](https://www.youtube.com/watch?v=-LsDI_3ltmc&list=PLmPXh6nBuhJsqoqAAIryD6P7N1cacdgJM)
