@@ -8,7 +8,6 @@ import com.regnosys.functions.FunctionCreator;
 import com.regnosys.ingest.createiq.CreateiQIngestionServiceTest;
 import com.regnosys.ingest.fis.FisIngestionTest;
 import com.regnosys.ingest.ore.OreTradeTest;
-import com.regnosys.rosetta.common.transform.TestPackUtils;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
 import com.regnosys.testing.TestingExpectationUtil;
@@ -18,14 +17,12 @@ import com.regnosys.testing.pipeline.PipelineTreeConfig;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.finos.cdm.functions.FunctionInputCreator;
-import org.finos.cdm.functions.SecLendingFunctionInputCreator;
+import org.finos.cdm.functions.SecLendingFunctionInputCreationTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 public class CdmTestPackCreator {
 
@@ -98,8 +95,8 @@ public class CdmTestPackCreator {
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();
         functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
-        SecLendingFunctionInputCreator secLendingFunctionInputCreator = new SecLendingFunctionInputCreator();
-        secLendingFunctionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
+        SecLendingFunctionInputCreationTest SecLendingFunctionInputCreationTest = new SecLendingFunctionInputCreationTest();
+        SecLendingFunctionInputCreationTest.run();
 
         LOGGER.info(" ** Updating Function Output Samples");
 
