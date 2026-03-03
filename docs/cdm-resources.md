@@ -1,5 +1,5 @@
 ---
-title: Common Domain Model Resources 
+title: Common Domain Model Resources  
 ---
 
 Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://www.finos.org/common-domain-model)
