@@ -11,7 +11,6 @@ import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.regnosys.testing.TestingExpectationUtil;
 import org.finos.cdm.CdmRuntimeModule;
 import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.junit.Test;
