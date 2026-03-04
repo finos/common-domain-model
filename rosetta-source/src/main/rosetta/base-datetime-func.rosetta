@@ -348,3 +348,177 @@ func AdjustableDatesResolution: <"Prioritization of unadjustedDate over adjusted
         if adjustableDates -> unadjustedDate exists
         then adjustableDates -> unadjustedDate
         else adjustableDates -> adjustedDate
+
+func GenerateCalendarDateList: <"Recursively generates a list of all calendar dates between startDate and endDate (inclusive). Does not filter weekends or holidays.">
+    inputs:
+        startDate date (1..1) <"Start of the date range to be generated.">
+        endDate date (1..1) <"End of the date range to be generated">
+    output:
+        dateList date (0..*) <"Resulting list of calendar dates between startDate and endDate (inclusive).">
+
+    alias active: <"Condition to determine if generation should continue (startDate must be before or equal to endDate).">
+        startDate <= endDate
+
+    alias priorDate: <"Date immediately preceding the current endDate, used for recursion.">
+        AddDays(endDate, -1)
+
+    alias priorList: <"Recursive call to generate all dates from startDate up to the priorDate.">
+        GenerateCalendarDateList(startDate, priorDate)
+
+    alias newList: <"Append the current endDate to the recursively generated list.">
+        AppendDateToList(priorList, endDate)
+
+    add dateList: <"Return the new list if still within range, stops recursion when startDate passes endDate.">
+        if active then newList
+
+func ExpandMissingDates: <"Recursively fills gaps between consecutive dates by repeating the previous date for each missing day. Ensures every day gap is represented by repeated instances of the previous business date.">
+    inputs:
+        inputDates date (0..*) <"A list of business dates (ascending) that may contain daily gaps.">
+    output:
+        filledDates date (0..*) <"A list of dates where missing days are filled by repeating the prior date.">
+
+    alias listSize: <"The number of dates in the input date list.">
+        inputDates count
+
+    alias lastDate: <"The last date in the current list, or empty if there is one or fewer dates.">
+        if listSize <= 1 then empty else inputDates last
+
+    alias remainingDates: <"All dates except the last one, or empty if fewer than two exist.">
+        if listSize <= 1 then [] else PopOffDateList(inputDates)
+
+    alias previousDate: <"The date immediately before the last date, if present.">
+        if listSize <= 1 then empty else remainingDates last
+
+    alias expandedEarlierDates: <"Recursively calls ExpandMissingDates on the remaining (earlier) portion of the list to compute its filled sequence.">
+        if listSize <= 1
+        then []
+        else ExpandMissingDates(remainingDates)
+
+    alias dayGap: <"Number of calendar days between the previous date and the last date. Determines how many repeated dates are needed.">
+        if listSize <= 1
+        then 0
+        else DateDifference(previousDate, lastDate)
+
+    alias gapSize: <"The number of repeated entries required for the previous date (always dayGap - 1, since the last date will be appended separately).">
+        if listSize <= 1 then 0 else dayGap - 1
+
+    alias repeatedDates: <"List of repeated previousDate entries equal to numGapFillers, or empty if no gap.">
+        if gapSize > 0
+        then BuildRepeatedDateList(previousDate, gapSize)
+        else []
+
+    alias partiallyExpandedDates: <"Append the repeated dates to the recursively built list from earlier steps.">
+        if listSize <= 1
+        then []
+        else [expandedEarlierDates, repeatedDates]
+
+    alias finalRecursiveList: <"Append the current last date to the partially built list, ensuring inclusion of the current endpoint.">
+        if listSize <= 1
+        then []
+        else AppendDateToList(partiallyExpandedDates, lastDate)
+
+    add filledDates: <"Return the original list if only 1 input date, else return the recursively constructed list with gaps filled.">
+        if listSize <= 1 then inputDates else finalRecursiveList
+
+func BuildRepeatedDateList: <"Creates a list containing the same date repeated a specified number of times.">
+    inputs:
+        dateToRepeat date (1..1) <"The date that will be repeated.">
+        numberOfRepeats number (1..1) <"Number of repetitions to produce.">
+    output:
+        repeatedDate date (0..*) <"List of repeated instances of dateToRepeat.">
+
+    alias shorterList: <"Recursive call producing one fewer repetition until reaching zero.">
+        BuildRepeatedDateList(dateToRepeat, numberOfRepeats - 1)
+
+    alias extendedList: <"Append one instance of dateToRepeat to the smaller list.">
+        AppendDateToList(shorterList, dateToRepeat)
+
+    // condition PositiveNumberOfRepeats: numberOfRepeats > 0
+    add repeatedDate: <"If numberOfRepeats <= 0, return empty; otherwise return the appended list.">
+        if numberOfRepeats <= 0 then [] else extendedList
+
+func AdjustDateToBusinessDayConvention: <"Applies a specific business day convention to a single date if it's a holiday and adjusts it.">
+    inputs:
+        unadjustedDate date (1..1)
+        holidayDates date (0..*)
+        businessConvention BusinessDayConventionEnum (1..1)
+    output:
+        adjustedDate date (1..1)
+
+    set adjustedDate:
+        if (holidayDates contains unadjustedDate) = False
+        then unadjustedDate
+        else businessConvention switch
+      FOLLOWING then 
+        ApplyFollowing(unadjustedDate, holidayDates),
+      PRECEDING then 
+        ApplyPreceding(unadjustedDate, holidayDates),
+      MODFOLLOWING then 
+        ApplyModFollowing(unadjustedDate, holidayDates),
+      default unadjustedDate
+
+func ApplyFollowing: <"Finds the next available business day by moving forward in time.">
+    inputs:
+        unadjustedDate date (1..1)
+        holidayDates date (0..*)
+    output:
+        nextBusinessDay date (1..1)
+
+    set nextBusinessDay:
+        if (holidayDates contains unadjustedDate) = False
+        then unadjustedDate
+        else ApplyFollowing(AddDays(unadjustedDate, 1), holidayDates)
+
+func ApplyPreceding: <"Finds the previous available business day by moving backward in time.">
+    inputs:
+        unadjustedDate date (1..1)
+        holidayDates date (0..*)
+    output:
+        previousBusinessDay date (1..1)
+
+    set previousBusinessDay:
+        if (holidayDates contains unadjustedDate) = False
+        then unadjustedDate
+        else ApplyPreceding(AddDays(unadjustedDate, -1), holidayDates)
+
+func ApplyModFollowing: <"Applies the 'Following' convention, but reverts to 'Preceding' if the adjustment crosses a month boundary.">
+    inputs:
+        unadjustedDate date (1..1)
+        holidayDates date (0..*)
+    output:
+        adjustedDate date (1..1)
+
+    alias followingDate: ApplyFollowing(unadjustedDate, holidayDates)
+
+    alias IsDifferentMonth: (followingDate -> month) <> (unadjustedDate -> month)
+
+    set adjustedDate:
+        if IsDifferentMonth
+        then ApplyPreceding(unadjustedDate, holidayDates)
+        else followingDate
+
+func ShiftBusinessDays: <"Recursively shifts a date by a specific number of business days, skipping dates in the provided non business date list.">
+    inputs:
+        startDate date (1..1) <"The starting date from which the shift is calculated.">
+        offset int (1..1) <"The number of business days to shift. Positive integers shift forward and negative ones shift backward.">
+        nonBusinessDates date (0..*) <"The list of dates to be treated as non business dates to be skipped.">
+    output:
+        shiftedDate date (1..1) <"The resulting valid business date after applying the shift.">
+
+    alias nextDay: <"Calculates the next candidate date to evaluate, moving forward or backward by one day based on the offset sign.">
+        if offset > 0 then AddDays(startDate, 1)
+        else AddDays(startDate, -1)
+    
+    alias isNonBusinessDay: <"Determines if the calculated next calendar date falls on a non business day.">
+        nonBusinessDates contains nextDay
+
+    alias remainingOffset: <"Calculates the remaining number of business days to shift. If the next day is a non business day, the offset remains unchanged, otherwise its magnitude is decreased by 1.">
+        if isNonBusinessDay then offset
+        else (
+            if offset > 0 then offset - 1 
+            else offset + 1
+        )
+    
+    set shiftedDate: <"Returns the current date if the offset has reached 0, otherwise it recursively continues shifting from the next day.">
+        if offset = 0 then startDate
+        else ShiftBusinessDays(nextDay, remainingOffset, nonBusinessDates)

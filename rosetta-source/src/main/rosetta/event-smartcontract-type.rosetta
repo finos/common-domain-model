@@ -1,0 +1,52 @@
+namespace cdm.event.smartcontract: <"Defines the SmartContract data model, including execution steps, shared history, and outputs used to orchestrate Reset and other smart-contract processes.">
+version "${project.version}"
+
+import cdm.event.common.*
+
+import cdm.event.smartcontract.*
+import cdm.event.smartcontract.resetinstruction.*
+
+type SmartContract: <"Represents a smart-contract orchestration, holding data, shared history, and an ordered sequence of SmartContractSteps.">
+    [rootType]
+    smartContractStep SmartContractStep (1..*) <"Ordered sequence of SmartContractSteps that drive the smart-contract process (atomic actions, calculations, validations).">
+    smartContractHistory SmartContractHistory (0..1) <"Shared state accumulated across executed steps, capturing intermediate and final outputs of the smart-contract process.">
+    smartContractType SmartContractTypeEnum (1..1) <"Type of smart contract being orchestrated (e.g. ResetInstruction).">
+    smartContractIdentifier string (1..1) <"Unique identifier of this SmartContract instance.">
+    tradeId TradeIdentifier (0..1) <"Identifier of the underlying trade to which this SmartContract relates.">
+    smartContractOutput SmartContractOutput (0..1) <"Outputs of each Smart Contract process. The recording of this information will be done in a single step at the end of the process for each Smart Contract.">
+
+    condition SmartContractType: <"All SmartContractSteps within this SmartContract must declare the same SmartContractType as the SmartContract itself.">
+        smartContractStep -> smartContractStepInstruction -> smartContractType all = smartContractType
+
+type SmartContractStep: <"Represents a single atomic step in the smart-contract lifecycle, including its instructions, status, and optional output.">
+    identifier string (0..1) <"Identification of the Smart Contract step.">
+    timestamp zonedDateTime (0..1) <"Date and time of the execution of the Smart Contract step after being executed.">
+    smartContractStepInstruction SmartContractStepInstruction (1..1) <"Set of instructions defining the steps of each Smart Contract process.">
+
+type SmartContractStepInstruction: <"Set of instructions defining the steps of each Smart Contract process.">
+    smartContractType SmartContractTypeEnum (1..1) <"Definition of the Smart Contract.">
+    smartContractStepInstructions SmartContractInstructionSteps (1..1) <"List of all Smart Contract Steps that can be reusable across Smart Contracts.">
+
+type SmartContractInstructionSteps: <"Container for all instruction steps that can be used within a SmartContract.">
+    collectFloatingRateOption CollectFloatingRateOptionInstruction (0..1) <"Data needed to execute the extraction of the Floating Rate Option index name.">
+    recordFloatingRateOptionData RecordFloatingRateOptionDataInstruction (0..1) <"Data needed to extract and record the Floating Rate Option Data.">
+    determineUnadjustedCalculationPeriod DetermineUnadjustedCalculationPeriodInstruction (0..1) <"Data neded to determine the Unadjusted Calculation Period.">
+    adjustPeriod AdjustPeriodInstruction (0..1) <"Data needed to adjust the Calculation Period.">
+    adjustDate AdjustDateInstruction (0..1) <"Data needed to adjust the Reset Date.">
+    determineUnadjustedObservationDates DetermineUnadjustedObservationDatesInstruction (0..1) <"Data needed to determine the Unadjusted Observation Dates.">
+    adjustObservationDates AdjustObservationDatesInstruction (0..1) <"Data needed to adjust the Observation Dates.">
+    
+    condition NonEmptyInstruction:
+        one-of
+
+type SmartContractOutput: <"Records the relevant output of each Smart Contract. Will be updated while executing the relevant steps of the Smart Contract so at the end of the process the output should be completed and ready to use in other parts of the system.">
+    resetInstruction Reset (0..1) <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
+
+type SmartContractHistory: <"Persistent state updated after each accepted SmartContractStep, storing all intermediate and final outputs required for subsequent processing.">
+    collectedFloatingRateOption CollectFloatingRateOptionInstruction (0..1) <"Output of the execution of the collection of the Floating Rate Index Name.">
+    recordedFloatingRateOptionData RecordFloatingRateOptionDataInstruction (0..1) <"Output of the execution of the Floating Rate Index Data extraction.">
+    determinedUnadjustedCalculationPeriod DetermineUnadjustedCalculationPeriodInstruction (0..1) <"Output of the execution of the Unadjusted Calculation Period determination.">
+    adjustedPeriod AdjustPeriodInstruction (0..1) <"Output of the adjustment of the Calculation Period.">
+    adjustedDate AdjustDateInstruction (0..1) <"Output of the adjustment of the Reset Date.">
+    determinedUnadjustedObservationDates DetermineUnadjustedObservationDatesInstruction (0..1) <"Output of the execution of the Unadjusted Observation Dates determination.">
+    adjustedObservationDates AdjustObservationDatesInstruction (0..1) <"Output of the adjustment of the Observation Dates.">

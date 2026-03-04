@@ -1,0 +1,122 @@
+namespace cdm.event.smartcontract: <"Provides orchestration functions for executing Smart Contract steps and updating shared SmartContractHistory.">
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.event.common.*
+
+/*
+  This namespace defines the orchestration layer of the Smart Contract framework.
+  It provides the generic execution engine responsible for appending steps, maintaining deterministic state, and producing Smart Contract outputs.
+
+  A Smart Contract in this model is not a continuously running program. Instead, it is a deterministic, step-based state machine where:
+    1. Each SmartContractStep represents the execution of exactly one instruction
+    2. Each instruction updates the shared SmartContractHistory
+    3. The history acts as the accumulated state of the Smart Contract
+    4. The SmartContract instance is reconstructed after every new step
+
+  The execution model works as follows:
+  - STEP EXECUTION
+    [func] Create_SmartContractStepFromInstruction:
+      - Creates a new SmartContractStep with timestamp and identifier
+      - Wraps the provided instruction together with its SmartContractType
+      - Appends the new step to the existing execution history
+      - Updates the shared SmartContractHistory
+      - Reconstructs the SmartContract
+
+  - STATE TRANSITION LOGIC
+    [func] AddStepToHistory:
+      - Implements deterministic field-by-field state overlay
+      - For each field in SmartContractHistory:
+          - If the new instruction provides a value → that value replaces the prior one
+          - Otherwise → the prior value is carried forward
+      - Every field in SmartContractHistory is explicitly assigned in the resulting finalHistory
+      - Produces a new SmartContractHistory instance derived purely from:
+            (previous history + current instruction)
+
+  This design ensures:
+    - Full auditability (all steps are preserved)
+    - Deterministic state reconstruction
+    - Separation between instruction logic and orchestration logic
+    - Reusability across different SmartContractType implementations
+    (e.g., ResetInstruction and future lifecycle processes)
+
+  The namespace is intentionally generic and does not contain domain-specific calculation logic. It only manages execution flow and state aggregation.
+*/
+
+func Create_SmartContractStepFromInstruction: <"Creates a new SmartContract instance by appending a SmartContractStep derived from the provided instruction, updating any previous SmartContractHistory, and producing the Smart Contract Output if at the end of the Smart Contract process.">
+    inputs:
+        previousSmartContractSteps SmartContractStep (0..*) <"Previously executed Smart Contract Steps that form the execution history of the Smart Contract. The newly created step will be appended to this list.">
+        previousSmartContractHistory SmartContractHistory (0..1) <"The shared Smart Contract History accumulated from prior steps. This history is incrementally updated by overlaying the current instruction.">
+        smartContractIdentifier string (1..1) <"Unique identifier of the Smart Contract, which remains constant across all steps.">
+        tradeId TradeIdentifier (0..1) <"Identifier of the underlying trade associated with this Smart Contract.">
+        smartContractType SmartContractTypeEnum (1..1) <"The type of Smart Contract being executed (e.g., ResetInstruction). This type must be consistent across all steps.">
+        stepIdentifier string (1..1) <"Identifier of the Smart Contract Step, used for traceability, debugging, or audit purposes.">
+        smartContractStepInstruction SmartContractInstructionSteps (1..1) <"The Instruction describing the atomic action to be executed in this step. Exactly one instruction must be populated.">
+    output:
+        executedSmartContract SmartContract (1..1) <"The resulting Smart Contract after executing the new step, including the updated history, appended step history, and any generated outputs.">
+
+    alias newSmartContractHistory: <"The updated Smart Contract History produced by overlaying the current instruction on top of the previous history.">
+        AddStepToHistory(previousSmartContractHistory, smartContractStepInstruction)
+
+    alias newSmartContractStep: <"The new Smart Contract Step representing the execution of the provided instruction at the current point in time.">
+        SmartContractStep {
+            identifier: stepIdentifier,
+            timestamp: Now(),
+            smartContractStepInstruction: 
+                SmartContractStepInstruction {
+                    smartContractType: smartContractType,
+                    smartContractStepInstructions: smartContractStepInstruction
+                }
+        }
+
+    set executedSmartContract: <"Constructs the final Smart aa instance by combining identifiers, updated history, execution history, and outputs.">
+        SmartContract {
+            smartContractIdentifier: smartContractIdentifier,
+            tradeId: tradeId,
+            smartContractType: smartContractType,
+            smartContractHistory: newSmartContractHistory,
+            smartContractStep: [previousSmartContractSteps, newSmartContractStep],
+            ...
+        }
+
+func AddStepToHistory: <"Produces an updated SmartContractHistory by overlaying the new step instructions on top of the existing history, field by field.">
+    inputs:
+        initialHistory SmartContractHistory (0..1)
+        nextStepToAdd SmartContractInstructionSteps (1..1)
+    output:
+        finalHistory SmartContractHistory (1..1)
+
+    set finalHistory -> collectedFloatingRateOption:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption
+        else initialHistory -> collectedFloatingRateOption
+
+    set finalHistory -> recordedFloatingRateOptionData:
+        if nextStepToAdd -> recordFloatingRateOptionData exists
+        then nextStepToAdd -> recordFloatingRateOptionData
+        else initialHistory -> recordedFloatingRateOptionData
+
+    set finalHistory -> determinedUnadjustedCalculationPeriod:
+        if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
+        then nextStepToAdd -> determineUnadjustedCalculationPeriod
+        else initialHistory -> determinedUnadjustedCalculationPeriod
+
+    set finalHistory -> adjustedPeriod:
+        if nextStepToAdd -> adjustPeriod exists
+        then nextStepToAdd -> adjustPeriod
+        else initialHistory -> adjustedPeriod
+
+    set finalHistory -> adjustedDate:
+        if nextStepToAdd -> adjustDate exists
+        then nextStepToAdd -> adjustDate
+        else initialHistory -> adjustedDate
+
+    set finalHistory -> determinedUnadjustedObservationDates:
+        if nextStepToAdd -> determineUnadjustedObservationDates exists
+        then nextStepToAdd -> determineUnadjustedObservationDates
+        else initialHistory -> determinedUnadjustedObservationDates
+
+    set finalHistory -> adjustedObservationDates:
+        if nextStepToAdd -> adjustObservationDates exists
+        then nextStepToAdd -> adjustObservationDates
+        else initialHistory -> adjustedObservationDates

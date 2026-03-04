@@ -1,0 +1,401 @@
+namespace cdm.event.smartcontract.resetinstruction: <"Defines the Reset smart-contract step construction functions and supporting calculation logic used to derive calculation periods, reset dates, and observation dates.">
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.observable.asset.*
+import cdm.observable.asset.calculatedrate.*
+import cdm.observable.asset.fro.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+
+import cdm.event.smartcontract.*
+
+import cdm.base.staticdata.asset.rates.*
+
+/*
+  This namespace defines the functional logic for the Interest Rate Reset Smart Contract process. In the lifecycle of a derivative, a "Reset" occurs when a floating rate option (e.g., LIBOR, SOFR, EURIBOR) is observed from the market and applied to a trade to calculate the next payment.
+  
+  The Reset Smart Contract automates this by:
+  1. Bridging the gap between the legal trade confirmation and external market data
+  2. Executing a deterministic 10-step workflow to calculate exactly which dates must be observed
+
+  -------------------------------------------------------------------------------
+  CURRENT FUNCTIONAL SCOPE
+  -------------------------------------------------------------------------------
+
+  - Supported Business Day Conventions:
+      - Following
+      - Preceding
+      - Modified Following
+
+  - The following conventions are intentionally out-of-scope in this version:
+      - Modified Preceding
+      - Nearest
+      - Not Adjusted
+
+    These limitations impact all date-adjustment steps (Steps 4, 5, and 7).
+
+  - Supported Observation Shifts and Offsets:
+      - Fixing Day Offset
+      - Lookback Shift
+
+  - The following mechanisms are intentionally out-of-scope in this version:
+      - Observation Period Shift
+      - Lockout Shift
+
+    These limitations impact Step 7 (Adjust Observation Dates).
+
+  The scope boundaries above are deliberate and can be extended in future iterations without modifying the deterministic state transition architecture.
+
+  -------------------------------------------------------------------------------
+  WORKFLOW OVERVIEW (FIRST 7 STEPS)
+  -------------------------------------------------------------------------------
+
+These are the first 7 steps and the order of them to execute the Smart Contract:
+   
+   - STEP 1: Identify Floating Rate Option Name
+     [func] Create_CollectFloatingRateOptionInstruction: Extracts the index name from the trade's floating leg.
+   
+   - [Placeholder Function] ExtractFloatingRateOptionData: External call to fetch FRO metadata (e.g., Category, Style, Day Count Fraction) from the ISDA FR Matrix.
+   
+   - STEP 2: Record FRO Data
+     [func] Create_RecordFloatingRateOptionDataInstruction: Packages the fetched metadata for the smart contract state.
+   
+   - STEP 3: Determine Unadjusted Calculation Period
+     [func] Create_DetermineUnadjustedCalculationPeriodInstruction: Determines the unadjusted calculation period and unadjusted reset date from the trade's CalculationPeriodDates structure.
+   
+   - [Placeholder Function] GetNonBusinessDates: Given a list of dates or a period, fetches non business dates for specific business centers (used in Steps 4, 5, and 7).
+   
+   - STEP 4: Adjust Calculation Period
+     [func] Create_AdjustPeriodInstruction: Applies the specified business day convention to the unadjusted calculation period and adjusts it accordingly.
+   
+   - STEP 5: Adjust Reset Date
+     [func] Create_AdjustDateInstruction: Applies the specified business day convention to the unadjusted reset date and adjusts it accordingly.
+   
+   - STEP 6: Determine Unadjusted Observation Dates
+     [func] Create_DetermineUnadjustedObservationDatesInstruction: Generates the list of unadjusted dates to observe the benchmark's market rates based on the requirements of the FRO (Single Observation, Multiple Observation, Index Level Observation)
+   
+   - STEP 7: Adjust Observation Dates
+     [func] Create_AdjustObservationDatesInstruction: Applies Fixing Offsets and Lookback Shifts to the list of unadjusted observation dates, and adjusts the resulting dates for non business dates to produce the definitive adjusted list of observation dates. 
+*/
+
+// SMART CONTRACT STEP 1 - Get Floating Rate Index Name
+func Create_CollectFloatingRateOptionInstruction: <"This function generates the smart contract step instruction necessary to collect the Floating Rate Option data by extracting the floating rate index name from the floating leg.">
+    inputs:
+        floatingLeg InterestRatePayout (1..1) <"The floating leg of the incoming interest-rate trade.">
+        tradeDate date (1..1) <"The trade date of the trade for which we are collecting the floating rate index name. This will be used later to reference which version of the Floating Rate Option Matrix to obtain the data from.">
+    output:
+        floatingRateOptionDataInstruction CollectFloatingRateOptionInstruction (1..1) <"The output smart contract step instruction containing the index name and trade date.">
+
+    alias index:
+        floatingLeg -> rateSpecification -> FloatingRateSpecification -> rateOption -> FloatingRateIndex -> floatingRateIndex
+
+    set floatingRateOptionDataInstruction -> floatingRateIndex: index
+    set floatingRateOptionDataInstruction -> tradeDate: tradeDate
+
+// MIDDLE FUNCTION BETWEEN STEPS 1 AND 2 - external call to fetch FRO metadata from the ISDA FRO Matrix
+func ExtractFloatingRateOptionData: <"This function, given a floating rate option, extracts the floating rate option's metadata from the ISDA FRO Matrix and returns that data in a CDM structured format. Additionally, it uses the reference date specified to select the relevant version of the FRO Matrix.">
+    [codeImplementation]
+    inputs:
+        tradeDate date (1..1) <"The Trade Date, used to reference the ISDA FRO Matrix version.">
+        floatingRateIndex FloatingRateIndexEnum (1..1) <"The Floating Rate Index for which to extract its metadata from the ISDA FRO Matrix.">
+    
+    output:
+        floatingRateIndexData FloatingRateIndexDefinition (1..1) <"The Floating Rate Index data extracted from the ISDA FRO Matrix.">
+
+// SMART CONTRACT STEP 2 - Record Floating Rate Option Data
+func Create_RecordFloatingRateOptionDataInstruction: <"This function constructs the smart contract step instruction required to record the Floating Rate Option data. It takes the data provided by an external oracle and places it in the RecordFloatingRateOptionDataInstruction.">
+    inputs:
+        floatingRateIndexData FloatingRateIndexDefinition (1..1)
+    output:
+        recordFloatingRateOptionDataInstruction RecordFloatingRateOptionDataInstruction (1..1)
+
+    set recordFloatingRateOptionDataInstruction -> floatingRateOptionData:
+        floatingRateIndexData
+
+// SMART CONTRACT STEP 3 - Determine Unadjusted Calculation Period
+func Create_DetermineUnadjustedCalculationPeriodInstruction: <"This function generates the smart contract step instruction necessary to determine the unadjusted calculation period and adding it to the DetermineUnadjustedObservationPeriodInstruction.">
+    inputs:
+        calculationPeriodDates CalculationPeriodDates (1..1)
+        unadjustedResetDate date (1..1)
+    output:
+        determineUnadjustedCalculationPeriodInstruction DetermineUnadjustedCalculationPeriodInstruction (1..1)
+
+    alias calculationPeriod: <"The resulting calculation period obtained from the Calculation Period Dates and the unadjusted reset date.">
+        CalculationPeriodBase {
+            adjustedStartDate: CalculationPeriod(calculationPeriodDates, unadjustedResetDate) -> startDate,
+            adjustedEndDate: CalculationPeriod(calculationPeriodDates, unadjustedResetDate) -> endDate
+        }
+
+    set determineUnadjustedCalculationPeriodInstruction -> unadjustedCalculationPeriod: <"Sets the unadjusted calculation period to the output.">
+        calculationPeriod
+
+    set determineUnadjustedCalculationPeriodInstruction -> unadjustedResetDate: <"Sets the unadjusted reset date to the output.">
+        unadjustedResetDate
+
+// MIDDLE FUNCTION BETWEEN STEP 3 & 4 - External call to fetch the list of non business dates of the calculation period given a set of applicable business centers 
+func GetNonBusinessDates: <"This function, given the list of business centers applicable and a period or a list of dates, extracts the list of non business dates for the given period or list of dates and returns the corresponding list of non business dates. The function should receive as input a list of dates or a period, but not both at the same time. That is, given either a list of periods or a period (start date + end date), the function will return their non business days.">
+    [codeImplementation]
+    inputs:
+        businessCenters BusinessCenterEnum (0..*) <"The business centers related to a period or a list of one or more dates.">
+        period CalculationPeriodBase (0..1) <"The period from which the list of non business dates are generated.">
+        dates date (0..*) <"The list of dates from which the list of non business dates are generated.">
+    output:
+        nonBusinessDates date (1..*) <"The list of non business dates.">
+
+    condition PeriodOrDates: <"There can only be a period or a list of dates specified as input to this function. The function then fetches the non business dates of the given period OR list of dates and returns them.">
+        if period is absent then dates exists
+        else if dates is absent then period exists
+
+// SMART CONTRACT STEP 4 - Adjust Calculation Period
+func Create_AdjustPeriodInstruction: <"This function generates the smart contract step instruction necessary to adjust the unadjusted period, and adding it to the AdjustPeriodInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
+    inputs:
+        unadjustedPeriod CalculationPeriodBase (1..1) <"The Unadjusted Period.">
+        nonBusinessDates date (0..*) <"The list of non business dates applicable to the Period.">
+        businessConvention BusinessDayConventionEnum (1..1) <"The business day convention to apply to adjust the Unadjusted Period (e.g., FOLLOWING, PRECEDING).">
+    output:
+        adjustPeriodInstruction AdjustPeriodInstruction (1..1) <"The Adjusted Calculation Period.">
+
+    alias adjustedCalculationPeriodStart: <"The adjusted starting date of the calculation period.">
+        AdjustDateToBusinessDayConvention(unadjustedPeriod -> adjustedStartDate, nonBusinessDates, businessConvention)
+
+    alias adjustedCalculationPeriodEnd: <"The adjusted ending date of the calculation period.">
+        AdjustDateToBusinessDayConvention(unadjustedPeriod -> adjustedEndDate, nonBusinessDates, businessConvention)
+
+    set adjustPeriodInstruction:
+        AdjustPeriodInstruction {
+            adjustedPeriod: CalculationPeriodBase {
+                adjustedStartDate: adjustedCalculationPeriodStart,
+                adjustedEndDate: adjustedCalculationPeriodEnd
+            }
+        }
+
+// MIDDLE FUNCTION BETWEEN STEPS 4 AND 5 - External call to the 'GetNonBusinessDates' function to fetch the list of non business dates of the reset date given a set of applicable business centers 
+
+// SMART CONTRACT STEP 5 - Adjust the Reset Date
+func Create_AdjustDateInstruction: <"This function generates the smart contract step instruction necessary to adjust the unadjusted reset date, and adding it to the AdjustResetDateInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
+    inputs:
+        unadjustedDate date (1..1) <"The Unadjusted Date.">
+        nonBusinessDates date (0..*) <"The list of non business dates applicable to the Reset Date, obtained from the GetNonBusinessDates function.">
+        businessConvention BusinessDayConventionEnum (1..1) <"The business day convention to apply to adjust the Unadjusted Reset Date (e.g., FOLLOWING, PRECEDING).">
+    output:
+        adjustDateInstruction AdjustDateInstruction (1..1) <"The Adjusted Reset Date.">
+
+    alias adjustedResetDate: <"The adjusted reset date.">
+        AdjustDateToBusinessDayConvention(unadjustedDate, nonBusinessDates, businessConvention)
+    
+    set adjustDateInstruction:
+        AdjustDateInstruction {
+            adjustedDate: adjustedResetDate
+        }
+
+// SMART CONTRACT STEP 6 - Determine Unadjusted Observation Dates
+func Create_DetermineUnadjustedObservationDatesInstruction: <"This function generates the smart contract step instruction necessary to generate the unadjusted observation dates, and adding them to the DetermineUnadjustedObservationDatesInstruction.">
+    inputs:
+        adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The adjusted calculation period.">
+        adjustedResetDate date (1..1) <"The adjusted reset date.">
+        category FloatingRateIndexCategoryEnum (1..1) <"The category of the Floating Rate Index (e.g., Calculated, Screen).">
+        style FloatingRateIndexStyleEnum (0..1) <"The style of the Floating Rate Index (e.g., Term, Overnight Rate, Compounded FRO).">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"The calculation methodology applicable to the Floating Rate Index found in the FRO Matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"The calculation methodology applicable to the Floating Rate Index found in the Confirmation.">
+    output:
+        determineUnadjustedObservationDatesInstruction DetermineUnadjustedObservationDatesInstruction (1..1) <"The list of one or more Unadjusted Observation Dates.">
+
+    alias isSingleObservation: <"If the Floating Rate Index follows Single Observation logic.">
+        category = ScreenRate 
+        and style <> Overnight 
+        and calculationMethodologyFromFloatingRateOption is absent 
+        and calculationMethodologyFromConfirmation is absent
+
+    alias isCompoundedIndex: <"If the Floating Rate Index is a specific Compounded Index style.">
+        category = Calculated 
+        and style = CompoundedIndex 
+        and (
+            if calculationMethodologyFromConfirmation exists then calculationMethodologyFromConfirmation = CompoundedIndex
+            else if calculationMethodologyFromFloatingRateOption exists then calculationMethodologyFromFloatingRateOption = Compounded
+        )
+    
+    alias isMultipleObservation:  <"If the Floating Rate Index follows Multiple Observation logic. An FRO requires multiple observations if it is either (1) a Calculated Rate with a CompoundedFRO or AverageFRO style, and has a calculation methodology of Compounding or Averaging, or (2) a Screen Rate with an Overnight style, and has a calculation methodoogy of Compounding or Averaging.">
+        (
+            // Calculated Rate Scenarios
+            category = Calculated 
+            and (
+                style = AverageFRO 
+                or style = CompoundedFRO
+            )
+            and (
+                if calculationMethodologyFromConfirmation exists 
+                then calculationMethodologyFromConfirmation = Compounding or calculationMethodologyFromConfirmation = Averaging
+                else if calculationMethodologyFromFloatingRateOption exists 
+                then calculationMethodologyFromFloatingRateOption = OISCompound or calculationMethodologyFromFloatingRateOption = Average
+            )
+        )
+        or 
+        (
+            // Screen Rate + Overnight Rate Scenario
+            category = ScreenRate
+            and style = Overnight
+            and (
+                if calculationMethodologyFromConfirmation exists 
+                then calculationMethodologyFromConfirmation = Compounding or calculationMethodologyFromConfirmation = Averaging
+                else if calculationMethodologyFromFloatingRateOption exists 
+                then calculationMethodologyFromFloatingRateOption = OISCompound or calculationMethodologyFromFloatingRateOption = Average
+            )
+        )
+
+    condition NoMethodIfSingle: <"If the Floating Rate Index is Single Observation, there should not be any calculation methodology specified.">
+        if isSingleObservation 
+        then calculationMethodologyFromConfirmation is absent and calculationMethodologyFromFloatingRateOption is absent
+        else if isSingleObservation = False
+        then True
+
+    condition MethodFromConfirmationExistsWhenOvernightRate: <"If the Floating Rate Index has a Style of Overnight, then the calculation methodology originating from the Workflow Step must be present.">
+        if style = Overnight then calculationMethodologyFromConfirmation exists
+
+    set determineUnadjustedObservationDatesInstruction:
+        DetermineUnadjustedObservationDatesInstruction {
+            unadjustedObservationDates: 
+                if isSingleObservation then adjustedResetDate
+                else if isMultipleObservation then 
+                    GenerateCalendarDateList(
+                        adjustedCalculationPeriod -> adjustedStartDate,
+                        adjustedCalculationPeriod -> adjustedEndDate
+                    )
+                else if isCompoundedIndex then [adjustedCalculationPeriod -> adjustedStartDate, adjustedCalculationPeriod -> adjustedEndDate]
+        } 
+
+// Middle functions between Step 6 and Step 7: The 'GetNonBusinessDates' function is called again. If the Floating Rate Index requires Multiple Observations: the function fetches the non business dates for the observation dates, and if the Floating Rate Index requires Single Observation: the function fetches the non business dates for the reset date.
+
+// SMART CONTRACT STEP 7 - Adjust Observation Dates
+func Create_AdjustObservationDatesInstruction: <"This function generates the smart contract step instruction necessary to make the necessary adjustments to the observation dates, and adding the resulting adjusted dates to the AdjustObservationDatesInstruction. Supported shifts and offsets in this version are: {Fixing Day Offset, Lookback Shift (only for Multiple Observations)}. The following mechanisms are currently out-of-scope: {Observation Period Shift, Lockout Shift, Lookback Shift (for Compounded Index Observations)}.">
+    inputs:
+        unadjustedObservationDates date (0..*) <"The list of unadjusted observation dates. For Single Observation, this contains one date. For Multiple Observation, it is a list of daily calendar dates, and for Index Observation it contains the first and last dates of the calculation period.">
+        fixingDayOffset Offset (0..1) <"The offset to apply to obtain the fixing date or fixing period.">
+        lookbackShift OffsetCalculation (0..1) <"The lookback shift offset to apply for Multiple Observation (e.g., 5 business days lag). This should be absent for Single and Index observations.">
+        category FloatingRateIndexCategoryEnum (1..1) <"The ISDA category of the floating rate index (e.g., Screen Rate, Calculated Rate).">
+        style FloatingRateIndexStyleEnum (0..1) <"The ISDA style of the index (e.g., CompoundedFRO).">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the FRO Matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the Confirmation.">
+        nonBusinessDatesObservationDates date (0..*) <"The list of non business dates applicable to the observation period (used for Lookback Shifts).">
+        nonBusinessDatesAdjustedResetDate date (0..*) <"The list of non business dates applicable to the reset date (used for Fixing Day Offsets).">
+    output:
+        adjustObservationDatesInstruction AdjustObservationDatesInstruction (1..1) <"The instruction containing the final list of adjusted observation dates.">
+
+    // --- Observation Distinctions ---
+    alias isSingleObservation: <"If the Floating Rate Index follows Single Observation logic.">
+        category = ScreenRate 
+        and style <> Overnight 
+        and calculationMethodologyFromFloatingRateOption is absent 
+        and calculationMethodologyFromConfirmation is absent
+
+    alias isCompoundedIndex: <"If the Floating Rate Index is a specific Compounded Index style.">
+        category = Calculated 
+        and style = CompoundedIndex 
+        and (
+            if calculationMethodologyFromConfirmation exists then calculationMethodologyFromConfirmation = CompoundedIndex
+            else if calculationMethodologyFromFloatingRateOption exists then calculationMethodologyFromFloatingRateOption = Compounded
+        )
+    
+    alias isMultipleObservation:  <"If the Floating Rate Index follows Multiple Observation logic. An FRO requires multiple observations if it is either (1) a Calculated Rate with a CompoundedFRO or AverageFRO style, and has a calculation methodology of Compounding or Averaging, or (2) a Screen Rate with an Overnight style, and has a calculation methodoogy of Compounding or Averaging.">
+        (
+            // Calculated Rate Scenarios
+            category = Calculated 
+            and (
+                style = AverageFRO 
+                or style = CompoundedFRO
+            )
+            and (
+                if calculationMethodologyFromConfirmation exists 
+                then calculationMethodologyFromConfirmation = Compounding or calculationMethodologyFromConfirmation = Averaging
+                else if calculationMethodologyFromFloatingRateOption exists 
+                then calculationMethodologyFromFloatingRateOption = OISCompound or calculationMethodologyFromFloatingRateOption = Average
+            )
+        )
+        or 
+        (
+            // Screen Rate + Overnight Rate Scenario
+            category = ScreenRate
+            and style = Overnight
+            and (
+                if calculationMethodologyFromConfirmation exists 
+                then calculationMethodologyFromConfirmation = Compounding or calculationMethodologyFromConfirmation = Averaging
+                else if calculationMethodologyFromFloatingRateOption exists 
+                then calculationMethodologyFromFloatingRateOption = OISCompound or calculationMethodologyFromFloatingRateOption = Average
+            )
+        )
+
+    // --- Calculations ---
+
+    // SINGLE OBSERVATION
+    alias singleAdjusted: <"Applies the Fixing Day Offset (if present) to the single observation date using the Reset Date holiday calendar.">
+        if isSingleObservation then
+        ShiftBusinessDays(
+            unadjustedObservationDates only-element,
+            if fixingDayOffset exists then fixingDayOffset -> periodMultiplier else 0,
+            nonBusinessDatesAdjustedResetDate
+        )
+    
+    // MULTIPLE OBSERVATION
+    alias multipleStartFixingOffset: <"Applies the Fixing Day Offset (if present) to the start date of the period using the Observation Dates holiday calendar.">
+        if isMultipleObservation then
+        ShiftBusinessDays(
+            unadjustedObservationDates first,
+            if fixingDayOffset exists then fixingDayOffset -> periodMultiplier else 0,
+            nonBusinessDatesObservationDates
+        )
+
+    alias multipleStartLookbackShift: <"Applies the Lookback Shift (if present) to the fixing day offset-adjusted start date of the period using the Observation Dates holiday calendar.">
+        if isMultipleObservation then
+        ShiftBusinessDays(
+            multipleStartFixingOffset,
+            if lookbackShift exists then lookbackShift -> offsetDays * -1 else 0,
+            nonBusinessDatesObservationDates
+        )
+
+    alias multipleEndFixingOffset: <"Applies the Fixing Day Offset (if present) to the end date of the period using the Observation Dates holiday calendar.">
+        if isMultipleObservation then
+        ShiftBusinessDays(
+            unadjustedObservationDates last,
+            if fixingDayOffset exists then fixingDayOffset -> periodMultiplier else 0,
+            nonBusinessDatesObservationDates
+        )
+
+    alias multipleEndLookbackShift: <"Applies the Lookback Shift (if present) to the fixing day offset-adjusted end date of the period using the Observation Dates holiday calendar.">
+        if isMultipleObservation then
+        ShiftBusinessDays(
+            multipleEndFixingOffset,
+            if lookbackShift exists then lookbackShift -> offsetDays * -1 else 0,
+            nonBusinessDatesObservationDates
+        )
+
+    alias unadjustedMiddleDates: <"Regenerates the full list of calendar dates between the new shifted start and end dates. This ensures we account for every calendar day in the new shifted period before applying adjustments.">
+        GenerateCalendarDateList(
+                multipleStartLookbackShift,
+                multipleEndLookbackShift
+            )
+
+    alias uniqueMiddleAdjustedDates: <"Adjusts every date in the shifted calendar period to the Preceding Business Day. Sorts and removes duplicates to prepare for gap filling.">
+        unadjustedMiddleDates
+            extract
+                AdjustDateToBusinessDayConvention(item, nonBusinessDatesObservationDates, PRECEDING)
+            then sort
+            then distinct
+    
+    alias multipleAdjustedDateList: <"Expands the list of valid business days to fill any gaps. Repeats the previous business day for any missing calendar days to maintain the correct weightings.">
+        ExpandMissingDates(uniqueMiddleAdjustedDates)
+    
+    // COMPOUNDED INDEX
+    alias compoundedIndexList: <"For Compounded indices, returns the start and end date of the unadjusted period without modification.">
+        [unadjustedObservationDates first, unadjustedObservationDates last]
+    
+    condition FixingOffsetDaysOnly: <"Validates that the Fixing Day Offset period is defined in Days.">
+        if fixingDayOffset exists then fixingDayOffset -> period = D
+        else if fixingDayOffset is absent then True
+ 
+    set adjustObservationDatesInstruction: <"Constructs the instruction with the correct calculated list of dates based on the identified observation route.">
+        AdjustObservationDatesInstruction {
+            adjustedObservationDates: 
+                if isSingleObservation then singleAdjusted
+                else if isCompoundedIndex then compoundedIndexList
+                else if isMultipleObservation then multipleAdjustedDateList
+        }
