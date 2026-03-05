@@ -1,19 +1,16 @@
-# *Asset Model - Aligning AssetType with Asset and Security*
-
+# Product Model - Inclusion of time in event instruction
 _Background_
 
-There is inconsistency in how asset type, instrument, and security types are modelled. This release seeks to restructure the types and enums so they are harmonised.
+The current data model for trades only includes date references within the `economicTerms` section for the contract's start and end dates. Additionally, the `EventInstruction` structure does not currently capture precise intra-day event times. This approach lacks granularity for intra-day transactions, where the exact time of initiation and termination is critical for accurate trade representation and downstream processing. 
+
+The inclusion of time would allow precise specification of the contract's start and end times and should support a time zone and related time components to ensure accurate interpretation across regions and other referenced times.
 
 _What is being released?_
 
-- Renaming `InstrumentTypeEnum` to `SecurityTypeEnum`
-- Adding `SecurityTypeEnum` as an attribute under `Security` and removing it from `InstrumentBase`
-- Removing `ListedDerivative` and `LetterOfCredit` from `SecurityTypeEnum` and adding them to `AssetTypeEnum`
-- Adding `Loan` to `AssetTypeEnum` to further align it with the asset and instrument model
-- Adding `AssetTypeEnum` to `AssetBase`
-- Adding conditions on each of the types to enforce the correct asset type selection
+- Contribution of new types to define the time as a direct or relative object, based on the `TimeZone` type and potentially having some offsets and adjustments
+- The `DirectOrRelativeTime` applied to the `effectiveDate` and `terminationDate` as part of the `economicTerms` in a new element: `effectiveTime` and `terminationTime`
+- The time relative to the event date in the `EventInstruction`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4434](https://github.com/finos/common-domain-model/pull/4434)
-
+Changes can be reviewed in PR: [#4437](https://github.com/finos/common-domain-model/pull/4437)
