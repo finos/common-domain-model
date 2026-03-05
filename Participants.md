@@ -29,6 +29,7 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Jason Polis, ISDA, Date of enrollment: 14 Mar 2025
 - Horance Zheng, ISDA, Date of enrollment: 16th Jun 2025
 - Gaurav Pandey, ISDA, Date of enrollment: 1st Dec 2025
+- Alston Antao, ISDA, Date of enrollment: 16th Feb 2026
 
 
 ## How to enroll as a participant
