@@ -55,4 +55,4 @@ PS: This solution needs to be further tested and discusses
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4439](https://github.com/finos/common-domain-model/pull/4439)
+Changes can be reviewed in PR: [#4504](https://github.com/finos/common-domain-model/pull/4504)
