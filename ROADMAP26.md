@@ -6,7 +6,7 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
   <tr>
     <th style="width: 12%;background:#fafafa;border:1px solid #ddd;">Working Group<br>Chair</th>
     <th style="width: 22%;">1Q 2026</th>
-    <th style="width: 22%;">2Q 2026</th>
+    <th style="width: 22%;">2Q 2026</th> 
     <th style="width: 22%;">3Q 2026</th>
     <th style="width: 22%;">4Q 2026</th>
   </tr>
@@ -129,7 +129,7 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
      </tr>
   </tr>
     <tr>
-    <td><b>ISDA Legal Agreement WG</b><br>Vernon Alden-Smith</td>
+    <td><b>ISDA Legal Technology WG</b><br>Heather Smith</td>
     　<td colspan="4" ><ul>
        <li>ISDA Document contributions (Community led)</li>
       </ul></td>
