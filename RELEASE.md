@@ -1,113 +1,58 @@
-# *Product Model - Commodity Qualification and Cashflow function updates*
+# *BusinessEvent and TradeState Creation - Missing activityDate in closedState when creating a Termination*
 
 _Background_
 
-The qualification of Commodity Products is currently incomplete due to a missing condition. Additionally, modification is required in `Create_CashflowFromSettlementPayout` function to address errors in FX Products.
+Issue link [#3969](https://github.com/finos/common-domain-model/issues/3969)
+
+CDM does not populate the activityDate in the closedState of a TradeState when using the Create_TerminationInstruction function, thus always creating a TradeState with validation errors
+[TradeState → state → closedState → activityDate]
+
+Activity date cannot be added automatically from Create_TradeState as the activityDate exist in the Create_BusinessEvent and is not passed down to Create_TradeState
+
+This change creates a provision for the activityDate by setting the effectiveDate of the QuantityChange when setting zero amounts in the Create_TerminationInstruction
+
+Impact: the new parameter added to Create_TerminationInstruction has to be supported by all other functions calling it"
 
 _What is being released?_
 
-This release includes: 
-1. Modifications made to `Qualify_AssetClass_Commodity`
-2. Removal of redundant condition in `Qualify_Commodity_Swap_FixedFloat`
-3. Addition of `valueDate` in `SettlementDate` condition
-4. Addition of cashflow from `OptionPayout` and `SettlementPayout` in `Create_CashflowFromPayout` function.
+[#3969 (comment)](https://github.com/finos/common-domain-model/pull/4363)
+
+Primary Change:
+Add input parameter in Create_TerminationInstruction
+effectiveDate AdjustableOrRelativeDate (0..1) <""Date of Termination"">
+
+Assign activityDate in closed state of a Terminated TradeState
+Assumption: All quantityChange instructions in the business event will be the same
+
+Impact Changes:
+
+functions using Create_TerminationInstruction need to supply the additional parameter effectiveDate
+
+func Create_RollPrimitiveInstruction
+use effectiveRollDate as the effectivDate for termination
+
+func Create_OnDemandRateChangePrimitiveInstruction
+use effectiveDate for termination
+
+func Create_CancellationPrimitiveInstruction
+use cancellationDate as the effectivDate for termination
+
+func Create_RepricePrimitiveInstruction
+use effectiveRepriceDate as the effectivDate for termination
+
+func Create_AdjustmentPrimitiveInstruction
+use effectiveRepriceDate as the effectivDate for termination
+
+func Create_ShapingInstruction
+use empty as the effectivDate for termination
+no suitable date value to repurpose, issue will still exist
+
+func Create_PartialDeliveryPrimitiveInstruction
+use empty as the effectivDate for termination
+no suitable date value to repurpose, issue will still exist
+
+PS: This solution needs to be further tested and discusses
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4438](https://github.com/finos/common-domain-model/pull/4438)
-
-# *Product Model - Updating Qualification Functions to Handle `only exists` Syntax*
-
-_Background_
-
-In 6.x.x, the `only exists` syntax does not apply to the choice `Payout -> SettlementPayout`, because there is always only one. Instead, `only-element` is used on the payout, which is incorrect, because if there is more than one payout then none will be set. The original intention was to allow for multiple of the same payout types.
-
-_What is being released?_
-
-Updating any previous instance of `only-exist` to use a function which checks whether only the payout in questions exists, allowing for multiple of the same payouts.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4415](https://github.com/finos/common-domain-model/pull/4415)
-
-# *Product Model - EquityForward Qualification functions*
-
-_Background_
-
-There are no qualification functions for Equity Forwards.
-
-_What is being released?_
-
-Qualification Functions for Equity Forwards introduced:
-- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleName` 
-- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex` 
-- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket`
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4404](https://github.com/finos/common-domain-model/pull/4404)
-
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the `DSL` , `bundle` and `FpML as Rune` dependency:
-
-Version updates include:
-- `DSL` `9.75.3` Performance improvements and bug fix. See DSL release notes: [9.75.3](https://github.com/finos/rune-dsl/releases/tag/9.75.3)
-- `bundle` `11.108.0` Performance improvements and bug fix.
-- `FpML as Rune` `1.5.0` See Release notes: [1.5.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.5.0).
-- `FpML as Rune` `1.4.0` See Release notes: [1.4.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.4.0).
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4391](https://github.com/finos/common-domain-model/pull/4391) && [#4410](https://github.com/finos/common-domain-model/pull/4410) 
-
-# *Ingestion Framework for FpML - Principal Payment Schedule*
-
-_Background_
-
-An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule` for single final payments. For further information, see [#4076](https://github.com/finos/common-domain-model/issues/4076).
-
-_What is being released?_
-
-Synonym Ingest and Ingest Functions related to `PrincipalPaymentSchedule` have been updated to set `principalPaymentSchedule->finalPrincipalPayment` when `principalPayment->finalPayment` is true.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4401](https://github.com/finos/common-domain-model/pull/4401)
-
-# *Ingestion Framework for FpML - Mapping Coverage: FX and Rates*
-
-_Background_
-
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
-
-_What is being released?_
-
-This release maps FX and Rates products, as per [#4373](https://github.com/finos/common-domain-model/issues/4373) and [#4440](https://github.com/finos/common-domain-model/issues/4440).
-
-- Mapping updates to `quantitySchedule` for FpML FX products
-- Duplicate mappings removed in product taxonomy for FpML FRA products
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4374](https://github.com/finos/common-domain-model/pull/4374)
-
-# *Ingestion Framework for FpML - Mapping Coverage: Credit, Equity and Commodity*
-
-_Background_
-
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
-
-_What is being released?_
-
-This release maps Credit, Equity and Commodity products, as per [#4453](https://github.com/finos/common-domain-model/issues/4453), [#4454](https://github.com/finos/common-domain-model/issues/4454) and [#4455](https://github.com/finos/common-domain-model/issues/4455).
-
-- Mapping support added for `AssetIdTypeEnum` values `Name` and `REDID` for FpML Credit products
-- Mapping of price per option updated for FpML Equity products
-- Mapping of `id` to `CommodityPayout` for FpML Commodity products
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4445](https://github.com/finos/common-domain-model/pull/4445)
+Changes can be reviewed in PR: [#4439](https://github.com/finos/common-domain-model/pull/4439)
