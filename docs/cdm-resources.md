@@ -3,7 +3,7 @@ title: Common Domain Model Resources
 ---
 
 Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://www.finos.org/common-domain-model)
-
+ 
 ## CDM Blogs
 
 ### [From Standard to Impact: CDM Becomes an Active Project](https://www.finos.org/blog/from-standards-to-impact-cdm-becomes-an-active-finos-project?hsLang=en-us)
