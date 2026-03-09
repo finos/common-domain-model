@@ -448,6 +448,8 @@ define, as examples:
   - Debt
   - Equity
   - Fund
+  - Warrant
+  - Certificate
 
 - `debtType` - Represents a filter based on the type of bond which
 includes further optional granularity for certain characteristics that
