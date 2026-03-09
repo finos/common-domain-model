@@ -481,6 +481,8 @@ such but not limited to as follows:
       - *Put Call*
       - *Party*
 
+Mortgage Backed Securities can be represented as an Asset Backed security and by specifying the type of Asset as `Mortgage`. If required, users can also set the underlying property type. 
+
 A similar structure exists for `equityType` and `fundType` and other
 collateral assets types.
 
