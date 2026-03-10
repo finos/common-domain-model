@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.datetime.daycount.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.equity.*
 import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
@@ -115,30 +116,30 @@ type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a s
 
     condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
-        then CriteriaMatchesAssetType(collateralCriteria, Debt)
+        then CriteriaMatchesSecurityType(collateralCriteria, Debt)
                 or (treatment -> concentrationLimit
                     extract
-                        CriteriaMatchesAssetType(
+                        CriteriaMatchesSecurityType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Debt
                             )) all = True
 
     condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
-        then CriteriaMatchesAssetType(collateralCriteria, Equity)
+        then CriteriaMatchesSecurityType(collateralCriteria, Equity)
                 or (treatment -> concentrationLimit
                     extract
-                        CriteriaMatchesAssetType(
+                        CriteriaMatchesSecurityType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Equity
                             )) all = True
 
     condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
-        then CriteriaMatchesAssetType(collateralCriteria, Equity)
+        then CriteriaMatchesSecurityType(collateralCriteria, Equity)
                 or (treatment -> concentrationLimit
                     extract
-                        CriteriaMatchesAssetType(
+                        CriteriaMatchesSecurityType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Equity
                             )) all = True
@@ -217,6 +218,7 @@ choice CollateralCriteria: <"The possible different terms that can be combined, 
     AnyCriteria <"Enables two or more Collateral Criteria to be combined using OR logic.">
     NegativeCriteria <"Enables a single Collateral Criteria to be excluded using NOT logic.">
     CollateralIssuerType <"Criteria is the type of entity issuing the asset.">
+    CollateralGuarantorType <"Criteria is the type of entity guaranteeing the asset.">
     AssetType <"Criteria is the asset type of the collateral.">
     IssuerCountryOfOrigin <"Criteria is the issuing entity country of origin.">
     AssetCountryOfOrigin <"Criteria is the collateral asset country of origin.">
@@ -230,7 +232,7 @@ choice CollateralCriteria: <"The possible different terms that can be combined, 
     CollateralTaxonomy <"Criteria is the taxonomy characteristics of an collateral.">
     ListingExchange <"Criteria is that the collateral is listed on a specific exchange.">
     ListingSector <"Criteria is the industry sector of the collateral asset.">
-    Index <"Criteria is that the collateral is a constituent of a specific index.">
+    IndexType <"Criteria is that the collateral is a constituent of a specific index.">
     CounterpartyOwnIssuePermitted <"Criteria includes collateral issued by the counterparty.">
     DomesticCurrencyIssued <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
 
@@ -359,3 +361,6 @@ type DeliveryAmount: <"A class to specify the application of Interest Amount wit
         one-of
 
 type SpecificAsset extends Asset: <"A single, specifically identified Asset chosen from the Asset data type">
+
+type IndexType: <"Specification of an index.">
+    equityIndex EquityIndexEnum (0..1) <"An enumerated list for equity indices.">

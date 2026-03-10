@@ -69,7 +69,7 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 
     agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
     relatedAgreements LegalAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
-    umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
+    umbrellaAgreement UmbrellaAgreement (0..1) <"Specifies a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement.">
 
     condition ConsistentlyExecutedAgreements: <"An executed agreement can only point to executed related agreements if any.">
         if relatedAgreements exists and agreementDate exists
@@ -85,6 +85,9 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
         then legalAgreementIdentification -> agreementName -> creditSupportAgreementType = CreditSupportAgreementTypeEnum -> CollateralTransferAgreement
         else if agreementTerms -> agreement -> masterAgreementSchedule exists
         then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum -> MasterAgreement
+
+    condition AgreementType: <"Either the Agreement Terms (i.e. a bilateral or one way agreement) or an Umbrella Agreement (i.e. an agreement where multiple parties and variations of terms are described within a single document but represent multiple agreements for operational purposes) should be included, but not both.">
+        required choice agreementTerms, umbrellaAgreement
 
 type LegalAgreementBase: <"Specifies the legal agreement baseline information, being negotiated or having been executed. It excludes specialized elections">
     agreementDate date (0..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
@@ -153,18 +156,37 @@ type AgreementName: <"Specifies the agreement name through an agreement type and
         if creditSupportAgreementMarginType exists
         then creditSupportAgreementType exists
 
-type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
+type UmbrellaAgreement: <"Specifies the set of agreements, the parties of which are set within UmbrellaAgreementSet, beyond the two contracting parties to that agreement.">
+    agreementSet UmbrellaAgreementSet (1..*) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
 
-    isApplicable boolean (1..1) <"The determination of whether Umbrella Agreement terms are Applicable (True), or Not Applicable (False)">
-    language string (0..1) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
-    parties UmbrellaAgreementEntity (0..*) <"Underlying principals to the umbrella agreement.">
+type UmbrellaAgreementParty: <"Specifies the entities that are part of the umbrella agreement.">
+    party Party (0..1) <"Specifies the party to the umbrella agreement">
+    actingAs CounterpartyRoleEnum (0..1) <"Specifies the CounterpartyRoleEnum, e.g. either Party1 or Party2, that is associated to the party.">
+    partyRole UmbrellaPartyRoleEnum (0..1) <"Represents the legal role that each defined entity to the agreement performs within the structure of that agreement.">
+    nonLegalEntity NonLegalEntity (0..1) <"Specifies a non-legal entity that exists in the agreement with a defined relationship to a Legal entity to the agreement.">
+    parentParty Party (0..1) <"Represents the identification of a parent child relationship between two entities in the Umbrella agreement, allowing non-legal entities to be linked to the appropriate legal entity and allowing funds, portfolio or managed accounts to be linked to their applicable Investment Manager or Agent within the agreement.">
 
-    condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
-        if isApplicable = True then language exists and parties exists
+    condition ParentParty: <"Specifies that certain defined roles require that a parent party is identified.">
+        if partyRole = UmbrellaPartyRoleEnum -> Sleeve
+        then parentParty exists
 
-type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal entities that are part of the umbrella agreement.">
+    condition UmbrellaParty: <"Only a Party or a non-Legal entity can be set.">
+        required choice party, nonLegalEntity
 
-    terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
+    condition NonLegalEntityParent: <"Non-Legal entity must have a Parent Party.">
+        if nonLegalEntity exists then parentParty exists
+
+type NonLegalEntity: <"Specifies a non-legal entity that exists in the agreement with a defined relationship to a Legal entity to the agreement">
+    identifier string (1..1) <"Specifies the unique identifier value for a non-legal entity such as a sleeve, or sub account, that is a party to the agreement and has a relationship with a legal entity defined on the agreement.">
+    identifierType string (1..1) <"Specifies the Identifier type for a non-Legal entity to the agreement, for example the use of an alert code to uniquely identify a non-Legal entity.">
+
+type UmbrellaAgreementSet: <"Represents the groups of agreement term elections that exist within the agreement and to which entities that particular group of elections apply. Where all entities under the umbrella have the same set of elections only one agreement set will exist. At least one agreement set must be defined for an Umbrella agreement">
+    agreement Agreement (1..1) <"Specification of the standard set of terms that define a legal agreement.">
+    party UmbrellaAgreementParty (2..*) <"Specifies the underlying parties to the agreement that either act as legal parties to the agreement or represent legal constructs that are managed by a party to the agreement but do not represent a Legal Entity as of themselves.">
+    additionalLanguage string (0..1) <"Represents any additional language that may need to be captured regarding the structure or application of terms that may exist for the agreement.">
+
+    condition ExcludeGMSLA: <"Umbrella agreement functionality is not applicable to the GMSLA legal agreement type">
+        agreement -> masterAgreementElections -> islaGmsla is absent
 
 type ContactInformationElection: <"Specifies the party reference and the associated contact information.">
     partyReference CounterpartyRoleEnum (1..1) <"The party to which the election and details apply.">
