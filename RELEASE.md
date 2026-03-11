@@ -1,29 +1,16 @@
-# _Collateral Model - Addition of IndexType_
+# Product Model - Inclusion of time in event instruction
 _Background_
 
-In the collateral model, there is no way of specifying whether a security is a constituent of a particular index without also specifying an asset identifier for that index.
+The current data model for trades only includes date references within the `economicTerms` section for the contract's start and end dates. Additionally, the `EventInstruction` structure does not currently capture precise intra-day event times. This approach lacks granularity for intra-day transactions, where the exact time of initiation and termination is critical for accurate trade representation and downstream processing. 
 
-Furthermore, it was agreed on the working group discussions that `RegCap` could be removed as it is not in use.
-
-Addition of a new type `IndexType`. 
-
-This allows for the definition of an index within collateral criteria without using `Index` in the Product Model. Therefore, only the value in the `EquityIndexEnum` needs to be specified rather than an `AssetIdentifier`.
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4476](https://github.com/finos/common-domain-model/pull/4476)
-
-# _Asset Model - Removal of DebtClassEnum_
-_Background_
-
-There is ambiguity around vanilla and structured enum values without a defined taxonomy. Recent changes in `DebtType` now allow for Structured and Vanilla debt to be defined outside of this enum based solely on their characteristics. 
-
-Furthermore, it was agreed on the working group discussions that `RegCap` could be removed as it is not in use.
+The inclusion of time would allow precise specification of the contract's start and end times and should support a time zone and related time components to ensure accurate interpretation across regions and other referenced times.
 
 _What is being released?_
 
-Removal of `DebtClassEnum` and any references to it.
+- Contribution of new types to define the time as a direct or relative object, based on the `TimeZone` type and potentially having some offsets and adjustments
+- The `DirectOrRelativeTime` applied to the `effectiveDate` and `terminationDate` as part of the `economicTerms` in a new element: `effectiveTime` and `terminationTime`
+- The time relative to the event date in the `EventInstruction` as a `TimeZone` and the time relative to the effective date in the `EventInstruction` as a `TimeZone`
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4474](https://github.com/finos/common-domain-model/pull/4474)
+Changes can be reviewed in PR: [#4437](https://github.com/finos/common-domain-model/pull/4437)
