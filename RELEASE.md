@@ -9,7 +9,7 @@ _What is being released?_
 
 - Contribution of new types to define the time as a direct or relative object, based on the `TimeZone` type and potentially having some offsets and adjustments
 - The `DirectOrRelativeTime` applied to the `effectiveDate` and `terminationDate` as part of the `economicTerms` in a new element: `effectiveTime` and `terminationTime`
-- The time relative to the event date in the `EventInstruction`
+- The time relative to the event date in the `EventInstruction` as a `TimeZone` and the time relative to the effective date in the `EventInstruction` as a `TimeZone`
 
 _Review Directions_
 
