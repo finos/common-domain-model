@@ -17,15 +17,33 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
     taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
     isExchangeListed boolean (0..1) <"Defines whether the Asset is listed on a public exchange.">
-    exchange LegalEntity (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
-    relatedExchange LegalEntity (0..*) <"Provides the related Exchanges, if applicable.">
-    assetType AssetTypeEnum (1..1) <"Specifies the type of asset.">
+    party Party (0..*) <"The party with the obligation to pay dividends, coupons, or other payouts to the asset holder.">
+    partyRole AssetPartyRole (0..1) <"The role of the payer specific to the asset type, i.e. bond, equity.">
+    ancillaryPartyRole AssetAncillaryPartyRole (0..*) <"The role of a party with indirect participation in the asset (i.e. transfer agent).">
+    assetType AssetTypeEnum (1..1) <"Represents a class to allow specification of the asset product type.">
 
-    condition ExchangeListed: <"If Exchange is specified, it must be an exchange-listed Instrument.">
-        if exchange exists then isExchangeListed
 
-    condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
-        if exchange is absent then relatedExchange is absent
+    condition ExchangeRole: <"If Exchange is specified, it must be an exchange-listed Instrument.">
+         if (partyRole -> role = Exchange or (ancillaryPartyRole->role filter item = AssetAncillaryPartyRoleEnum.Exchange then exists))
+                  then isExchangeListed = True
+
+    condition ExchangeListed: <"if isExchangeListed is true then partyRole is Exchange.">
+         if isExchangeListed then ancillaryPartyRole -> role any = Exchange
+
+    condition RelatedExchange: <"If isExchangeList is false then RelatedExchange ancillaryPartyRole is absent.">
+         if isExchangeListed is absent then ancillaryPartyRole -> role any <> RelatedExchange and
+             ancillaryPartyRole -> role any <> Exchange
+
+    condition Issuer: <"If the asset type is a security then the role must be issuer.">
+        if assetType = AssetTypeEnum.Security
+            then partyRole -> role = Issuer
+
+    condition LenderBorrower: <"If the asset type is a Loan then the role must be Lender.">
+        if assetType = AssetTypeEnum.Loan
+            then partyRole -> role =  Lender
+
+    condition NoAncillaryPartyRole: <"Party,partyrole and ancillaryPartyRole are all absent.">
+        party is absent and partyRole is absent and ancillaryPartyRole is absent
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1) <"The identifier value.">
@@ -102,7 +120,7 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
         taxonomy is absent
 
     condition NoExchange: <"Cash cannot be a listed Asset.">
-        exchange is absent and isExchangeListed is absent
+        isExchangeListed is absent
 
     condition AssetType: <"AssetType must be cash.">
         assetType = Cash
