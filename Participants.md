@@ -30,7 +30,7 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Horance Zheng, ISDA, Date of enrollment: 16th Jun 2025
 - Gaurav Pandey, ISDA, Date of enrollment: 1st Dec 2025
 - Alston Antao, ISDA, Date of enrollment: 16th Feb 2026
-
+- Yuan Bradley, ISDA, Date of enrollment: 11th Mar 2026
 
 ## How to enroll as a participant
 In order to enroll as a participant in the {standard name} project, please submit a Pull Request to this [participants](#participants) file listing your name, organization, and date of enrollment, by following the steps described below. 
