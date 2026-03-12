@@ -776,6 +776,59 @@ func MapExchangeIdToLegalEntity:
             ...
         }
 
+ func MapExchangeIdToAssetParty:
+     inputs:
+         fpmlExchangeId fpml.ExchangeId (0..1)
+     output:
+         party Party (0..1)
+
+     set party:
+         Party {
+             partyId:  MapPartyIdentifier2 (fpmlExchangeId -> value),
+             name: MapStringWithScheme(
+                         fpmlExchangeId -> value,
+                         fpmlExchangeId -> exchangeIdScheme
+                     ),
+             ...
+         }
+
+func MapPartyIdentifier2:
+    inputs:
+        identifierValue string (1..1)
+    output:
+        partyId PartyIdentifier (1..1)
+
+   set partyId:
+        PartyIdentifier {
+            identifier: identifierValue,
+            ...
+            }
+
+
+func MapAssetPartyRole:
+    inputs:
+        party Party (1..1)
+    output:
+        assetPartyRole AssetPartyRole (1..1)
+
+    set assetPartyRole->partyReference:
+        party
+    set assetPartyRole->role:
+        AssetPartyRoleEnum->Exchange
+
+func MapAssetAncillaryPartyRole:
+    inputs:
+        party Party (1..1)
+    output:
+        assetAncillaryPartyRole AssetAncillaryPartyRole (1..1)
+
+    set assetAncillaryPartyRole->partyReference:
+        party
+
+    set assetAncillaryPartyRole->role:
+        AssetAncillaryPartyRoleEnum->RelatedExchange
+
+
 func MapPayerReceiver:
     inputs:
         fpmlPayerReceiverModel fpml.PayerReceiverModel (0..1)
