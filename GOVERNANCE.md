@@ -1,4 +1,4 @@
-# Community Specification Governance Policy 1.0
+# Community Specification Governance Policy 2.0
 
 The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.
 
