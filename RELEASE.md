@@ -1,16 +1,58 @@
-# Product Model - Inclusion of time in event instruction
+# *BusinessEvent and TradeState Creation - Missing activityDate in closedState when creating a Termination*
+
 _Background_
 
-The current data model for trades only includes date references within the `economicTerms` section for the contract's start and end dates. Additionally, the `EventInstruction` structure does not currently capture precise intra-day event times. This approach lacks granularity for intra-day transactions, where the exact time of initiation and termination is critical for accurate trade representation and downstream processing. 
+Issue link [#3969](https://github.com/finos/common-domain-model/issues/3969)
 
-The inclusion of time would allow precise specification of the contract's start and end times and should support a time zone and related time components to ensure accurate interpretation across regions and other referenced times.
+CDM does not populate the activityDate in the closedState of a TradeState when using the Create_TerminationInstruction function, thus always creating a TradeState with validation errors
+[TradeState → state → closedState → activityDate]
+
+Activity date cannot be added automatically from Create_TradeState as the activityDate exist in the Create_BusinessEvent and is not passed down to Create_TradeState
+
+This change creates a provision for the activityDate by setting the effectiveDate of the QuantityChange when setting zero amounts in the Create_TerminationInstruction
+
+Impact: the new parameter added to Create_TerminationInstruction has to be supported by all other functions calling it"
 
 _What is being released?_
 
-- Contribution of new types to define the time as a direct or relative object, based on the `TimeZone` type and potentially having some offsets and adjustments
-- The `DirectOrRelativeTime` applied to the `effectiveDate` and `terminationDate` as part of the `economicTerms` in a new element: `effectiveTime` and `terminationTime`
-- The time relative to the event date in the `EventInstruction` as a `TimeZone` and the time relative to the effective date in the `EventInstruction` as a `TimeZone`
+[#3969 (comment)](https://github.com/finos/common-domain-model/pull/4363)
+
+Primary Change:
+Add input parameter in Create_TerminationInstruction
+effectiveDate AdjustableOrRelativeDate (0..1) <""Date of Termination"">
+
+Assign activityDate in closed state of a Terminated TradeState
+Assumption: All quantityChange instructions in the business event will be the same
+
+Impact Changes:
+
+functions using Create_TerminationInstruction need to supply the additional parameter effectiveDate
+
+func Create_RollPrimitiveInstruction
+use effectiveRollDate as the effectivDate for termination
+
+func Create_OnDemandRateChangePrimitiveInstruction
+use effectiveDate for termination
+
+func Create_CancellationPrimitiveInstruction
+use cancellationDate as the effectivDate for termination
+
+func Create_RepricePrimitiveInstruction
+use effectiveRepriceDate as the effectivDate for termination
+
+func Create_AdjustmentPrimitiveInstruction
+use effectiveRepriceDate as the effectivDate for termination
+
+func Create_ShapingInstruction
+use empty as the effectivDate for termination
+no suitable date value to repurpose, issue will still exist
+
+func Create_PartialDeliveryPrimitiveInstruction
+use empty as the effectivDate for termination
+no suitable date value to repurpose, issue will still exist
+
+PS: This solution needs to be further tested and discusses
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4437](https://github.com/finos/common-domain-model/pull/4437)
+Changes can be reviewed in PR: [#4504](https://github.com/finos/common-domain-model/pull/4504)
