@@ -1,16 +1,37 @@
-# Product Model - Inclusion of time in event instruction
+# Build Modernization — Introduce `thin` Maven Profile for Minimal Runtime Distribution
+
 _Background_
 
-The current data model for trades only includes date references within the `economicTerms` section for the contract's start and end dates. Additionally, the `EventInstruction` structure does not currently capture precise intra-day event times. This approach lacks granularity for intra-day transactions, where the exact time of initiation and termination is critical for accurate trade representation and downstream processing. 
+The current `cdm-java` (rosetta-source) distribution bundles a significant volume of supplemental resources into the primary runtime artifact. This results in an artifact size of approximately 65 MB in Maven Central, which leads to unnecessary memory overhead and an expanded security surface area in production and cloud-native environments.
 
-The inclusion of time would allow precise specification of the contract's start and end times and should support a time zone and related time components to ensure accurate interpretation across regions and other referenced times.
+By decoupling the core generated model logic from these supplemental files, this PR provides a "Thin JAR" alternative that improves deployment efficiency, reduces class-loading times, and simplifies security compliance audits.
 
 _What is being released?_
 
-- Contribution of new types to define the time as a direct or relative object, based on the `TimeZone` type and potentially having some offsets and adjustments
-- The `DirectOrRelativeTime` applied to the `effectiveDate` and `terminationDate` as part of the `economicTerms` in a new element: `effectiveTime` and `terminationTime`
-- The time relative to the event date in the `EventInstruction` as a `TimeZone` and the time relative to the effective date in the `EventInstruction` as a `TimeZone`
+* Introduction of the `thin` Maven Profile: An opt-in build configuration that generates a lean runtime artifact.
+* Secondary Artifact with Maven Classifier: Implementation of the `thin` classifier, allowing the build to generate a secondary, lean JAR (e.g., `cdm-java-thin.jar`) alongside the standard distribution ensuring full backward compatibility for existing pipelines.
+* Targeted Resource Exclusions: The following resources are excluded from the `thin` artifact to minimize bloat:
+
+```xml
+<excludes>
+    <exclude>build-resources/**</exclude>
+    <exclude>cdm-sample-files/**</exclude>
+    <exclude>config/**</exclude>
+    <exclude>functions/**</exclude>
+    <exclude>ingest/**</exclude>
+    <exclude>ingestions/**</exclude>
+    <exclude>mapping-analytics/**</exclude>
+    <exclude>release/**</exclude>
+    <exclude>result-json-files/**</exclude>
+    <exclude>schemas/**</exclude>
+    <exclude>**/rosetta/*.rosetta</exclude>
+</excludes>
+
+```
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4437](https://github.com/finos/common-domain-model/pull/4437)
+Maintainers and users can verify the build locally by running:
+`mvn clean install -Pthin -DskipTests`
+
+This should produce both the standard JAR and the new `-thin.jar` artifact in the `target` directory and local `.m2` repository.
