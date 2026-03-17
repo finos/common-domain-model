@@ -1,16 +1,19 @@
-# Product Model - Inclusion of time in event instruction
+## Sample Data - Legal Agreements (CSA/ECS)
+
 _Background_
 
-The current data model for trades only includes date references within the `economicTerms` section for the contract's start and end dates. Additionally, the `EventInstruction` structure does not currently capture precise intra-day event times. This approach lacks granularity for intra-day transactions, where the exact time of initiation and termination is critical for accurate trade representation and downstream processing. 
+The CDM has limited test samples. This release expands the test sample area with legal agreement sample data as CDM JSON files, that demonstrates the use of the CDM to provide standardized digital versions of legal agreements derived from original word/pdf hard copies of dummy documents. 
 
-The inclusion of time would allow precise specification of the contract's start and end times and should support a time zone and related time components to ensure accurate interpretation across regions and other referenced times.
+_What is being released?_ 
 
-_What is being released?_
+Samples of the CDM legal agreements covering the various clauses and outcomes commonly negotiated in ISDA Credit Support Annex (CSA) Collateral documents and Eligible Collateral Schedules (ECS), as follows:
+-	ISDA 1994/1995 New York and English Law CSA 
+-	ISDA 2016 VM New York and English Law CSA
+-	ISDA 2018 IM New York and English Law CSA
+-	Various eligible collateral schedules, covering different asset types.
 
-- Contribution of new types to define the time as a direct or relative object, based on the `TimeZone` type and potentially having some offsets and adjustments
-- The `DirectOrRelativeTime` applied to the `effectiveDate` and `terminationDate` as part of the `economicTerms` in a new element: `effectiveTime` and `terminationTime`
-- The time relative to the event date in the `EventInstruction` as a `TimeZone` and the time relative to the effective date in the `EventInstruction` as a `TimeZone`
+For more information see issue https://github.com/finos/common-domain-model/issues/4459
 
-_Review Directions_
+_Review Directions_ 
 
-Changes can be reviewed in PR: [#4437](https://github.com/finos/common-domain-model/pull/4437)
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4533
