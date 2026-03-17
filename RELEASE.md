@@ -1,16 +1,19 @@
-# Product Model - Inclusion of time in event instruction
+# Reference Data — Rune-DSL FpML Coding Scheme Validation Upgrade
+
 _Background_
 
-The current data model for trades only includes date references within the `economicTerms` section for the contract's start and end dates. Additionally, the `EventInstruction` structure does not currently capture precise intra-day event times. This approach lacks granularity for intra-day transactions, where the exact time of initiation and termination is critical for accurate trade representation and downstream processing. 
-
-The inclusion of time would allow precise specification of the contract's start and end times and should support a time zone and related time components to ensure accurate interpretation across regions and other referenced times.
+The Common Domain Model relied on a custom Java-based implementation for externalized FpML coding scheme validation. 
+This release upgrades the validation framework by moving the core logic directly into native Rune DSL. It removes the dependency on the Java runtime for cross-platform consistency.
 
 _What is being released?_
 
-- Contribution of new types to define the time as a direct or relative object, based on the `TimeZone` type and potentially having some offsets and adjustments
-- The `DirectOrRelativeTime` applied to the `effectiveDate` and `terminationDate` as part of the `economicTerms` in a new element: `effectiveTime` and `terminationTime`
-- The time relative to the event date in the `EventInstruction` as a `TimeZone` and the time relative to the effective date in the `EventInstruction` as a `TimeZone`
+Key improvements include:
+- The `ValidateFpMLCodingSchemeDomain` function is now implemented directly in the model.
+- Decommissioned the legacy `ValidateFpMLCodingSchemeImpl` and its `CdmRuntimeModule` binding.
+- Decommissioned Java-specific validation unit tests.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4437](https://github.com/finos/common-domain-model/pull/4437)
+Maintainers and users can verify the upgrade by running the following tests:
+- `rosetta-source/src/test/java/cdm/base/staticdata/codelist/FpMLCodingSchemeTests.java` (cdm model unit tests)
+- `examples/src/test/java/org/isda/cdm/codelist/CodeValidationTest.java` (custom application example)
