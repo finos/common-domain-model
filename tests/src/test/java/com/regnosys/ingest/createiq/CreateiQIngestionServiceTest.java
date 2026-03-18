@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.google.inject.Injector;
-import com.regnosys.ingest.test.framework.ingestor.ExpectationManager;
 import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
@@ -20,7 +19,6 @@ import com.regnosys.rosetta.common.testing.MappingCoverage;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.MutablePair;
 import com.regnosys.rosetta.common.util.Pair;
-import com.regnosys.testing.TestingExpectationUtil;
 import org.finos.cdm.CdmRuntimeModule;
 import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.junit.jupiter.api.BeforeAll;
@@ -80,6 +78,7 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
     protected IngestionService ingestionService() {
         return ingestionService;
     }
+
 
     @Override
     protected void assertExpectations(Expectation expectation, IngestionReport<LegalAgreement> ingested) throws JsonProcessingException {
@@ -175,17 +174,17 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
     public void run() {
 
         // Ensure environment is set up
-        expectationsManager = new ExpectationManager(writeActualExpectations);
         setup();
         fpMLFiles().forEach(e -> {
             Object[] argsArray = e.get();
             String expectationFilePath = (String) argsArray[0];
             Expectation expectation = (Expectation) argsArray[1];
+            String expectationFileName = (String) argsArray[2];
             try {
                 if (writeActualExpectations) {
-                    writeIngestionExpectation(expectationFilePath, expectation);
+                    writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
                 } else {
-                    ingest(expectationFilePath, expectation);
+                    ingest(expectationFilePath, expectation, expectationFileName);
                 }
             } catch (Throwable ex) {
                 throw new RuntimeException(ex);

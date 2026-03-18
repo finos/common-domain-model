@@ -4,13 +4,11 @@ import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.google.inject.Injector;
-import com.regnosys.ingest.test.framework.ingestor.ExpectationManager;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import org.finos.cdm.CdmRuntimeModule;
 import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.junit.Test;
@@ -71,6 +69,7 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
         IngestionFactory.getInstance(ENV_INSTANCE_NAME).clear();
     }
 
+
     public static void main(String[] args) {
         try {
             FisIngestionTest ingestionTest = new FisIngestionTest();
@@ -94,18 +93,17 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
     public void run() {
 
         // Ensure environment is set up
-        expectationsManager = new ExpectationManager(writeActualExpectations);
-        objectWriter = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter();
         setup();
         fpMLFiles().forEach(e -> {
             Object[] argsArray = e.get();
             String expectationFilePath = (String) argsArray[0];
             Expectation expectation = (Expectation) argsArray[1];
+            String expectationFileName = (String) argsArray[2];
             try {
                 if (writeActualExpectations) {
-                    writeIngestionExpectation(expectationFilePath, expectation);
+                    writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
                 } else {
-                    ingest(expectationFilePath, expectation);
+                    ingest(expectationFilePath, expectation, expectationFileName);
                 }
                 tearDown();
             } catch (Throwable ex) {

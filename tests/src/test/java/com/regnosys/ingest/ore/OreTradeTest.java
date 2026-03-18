@@ -1,6 +1,7 @@
 package com.regnosys.ingest.ore;
 
 import cdm.event.common.TradeState;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.google.inject.Injector;
@@ -11,7 +12,6 @@ import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.regnosys.testing.TestingExpectationUtil;
 import org.finos.cdm.CdmRuntimeModule;
 import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,6 +33,7 @@ public class OreTradeTest extends IngestionTest<TradeState>{
 			.build();
 	
 	private static IngestionService ingestionService;
+	private static ExpectationManager expectationsManager;
 
 	@BeforeAll
 	static void setup() {
@@ -49,6 +50,14 @@ public class OreTradeTest extends IngestionTest<TradeState>{
 	@Override
 	protected IngestionService ingestionService() {
 		return ingestionService;
+	}
+
+	public static ExpectationManager getExpectationManager() {
+		return expectationsManager;
+	}
+
+	public static ObjectWriter getObjectWriter() {
+		return RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter();
 	}
 
 	@SuppressWarnings("unused")//used by the junit parameterized test
@@ -79,19 +88,21 @@ public class OreTradeTest extends IngestionTest<TradeState>{
 	public void run() {
 
 		// Ensure environment is set up
-		expectationsManager = new ExpectationManager(writeActualExpectations);
-		objectWriter = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter();
 		setup();
 		fpMLFiles().forEach(e ->{
 			Object[] argsArray = e.get();
 			String expectationFilePath = (String) argsArray[0];
 			Expectation expectation = (Expectation) argsArray[1];
+            String expectationFileName = (String) argsArray[2];
 			try {
 				if(writeActualExpectations) {
-					writeIngestionExpectation(expectationFilePath, expectation);
-				}
-				else{
-					ingest(expectationFilePath, expectation);
+					expectationsManager = new ExpectationManager(true);
+
+					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
+                } else {
+					expectationsManager = new ExpectationManager(false);
+
+					ingest(expectationFilePath, expectation, expectationFileName);
 				}
 			} catch (Throwable ex) {
 				throw new RuntimeException(ex);
