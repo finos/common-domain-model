@@ -54,7 +54,7 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModule;
-import org.isda.cdm.functions.CreateBusinessEventInput;import org.slf4j.Logger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.ResourcesUtils;
 
@@ -68,7 +68,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.regnosys.testing.TestingExpectationUtil.TEST_WRITE_BASE_PATH;import static org.isda.cdm.functions.FunctionUtils.guard;import static util.ResourcesUtils.*;
+import static com.regnosys.testing.TestingExpectationUtil.TEST_WRITE_BASE_PATH;import static org.finos.cdm.functions.FunctionUtils.guard;import static util.ResourcesUtils.*;
 
 public class FunctionInputCreator {
 
@@ -271,7 +271,7 @@ public class FunctionInputCreator {
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder =
                 PrimitiveInstruction.builder()
-                        .setExecution(org.isda.cdm.functions.FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder));
+                        .setExecution(FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder));
 
         if (!transferState.isEmpty()) {
             primitiveInstructionBuilder
@@ -786,7 +786,7 @@ public class FunctionInputCreator {
 
         reKey(tradeStateBuilder);
 
-        return org.isda.cdm.functions.FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder.build());
+        return FunctionUtils.createExecutionInstructionFromTradeState(tradeStateBuilder.build());
     }
 
     private void setDates(InterestRatePayout.InterestRatePayoutBuilder payout, Date effectiveDate, Date terminationDate) {
@@ -1670,7 +1670,7 @@ public class FunctionInputCreator {
         steps.add(newExecutionWorkflowStep);
         steps.add(correctExecutionWorkflowStep);
 
-        org.isda.cdm.functions.CreateWorkflowInput actual = new org.isda.cdm.functions.CreateWorkflowInput(steps);
+        CreateWorkflowInput actual = new CreateWorkflowInput(steps);
 
         writeExpectation("cdm-sample-files/functions/workflow-step/correction/correction-func-input.json", actual);
     }
@@ -1704,8 +1704,8 @@ public class FunctionInputCreator {
 
         // Cancel WorkflowStep
 
-        org.isda.cdm.functions.CreateWorkflowStepInput cancelWorkflowStepInput =
-                new org.isda.cdm.functions.CreateWorkflowStepInput(MessageInformation.builder().setMessageIdValue("msg-2"),
+        CreateWorkflowStepInput cancelWorkflowStepInput =
+                new CreateWorkflowStepInput(MessageInformation.builder().setMessageIdValue("msg-2"),
                         getEventTimestamp(eventDate, LocalTime.of(18, 55)),
                         getIdentifier("id-2"),
                         Collections.emptyList(),
@@ -1734,7 +1734,7 @@ public class FunctionInputCreator {
         steps.add(cancelWorkflowStep);
         steps.add(newExecutionWorkflowStep);
 
-        org.isda.cdm.functions.CreateWorkflowInput actual = new org.isda.cdm.functions.CreateWorkflowInput(steps);
+        CreateWorkflowInput actual = new CreateWorkflowInput(steps);
 
         writeExpectation("cdm-sample-files/functions/workflow-step/cancellation/cancellation-func-input.json", actual);
     }
@@ -1751,8 +1751,8 @@ public class FunctionInputCreator {
         BusinessEvent businessEvent = runCreateBusinessEventFunc(executionBusinessEventInput);
 
         // Create WorkflowStep
-        org.isda.cdm.functions.CreateWorkflowStepInput workflowStepInput =
-                new org.isda.cdm.functions.CreateWorkflowStepInput(MessageInformation.builder().setMessageIdValue(messageId),
+        CreateWorkflowStepInput workflowStepInput =
+                new CreateWorkflowStepInput(MessageInformation.builder().setMessageIdValue(messageId),
                         getEventTimestamp(eventDate, eventTime),
                         getIdentifier(eventId),
                         getParties(businessEvent),
@@ -1835,7 +1835,7 @@ public class FunctionInputCreator {
         return businessEvent.build();
     }
 
-    private WorkflowStep runCreateWorkflowStepFunc(org.isda.cdm.functions.CreateWorkflowStepInput input) {
+    private WorkflowStep runCreateWorkflowStepFunc(CreateWorkflowStepInput input) {
         WorkflowStep.WorkflowStepBuilder workflowStep =
                 createWorkflowStep.evaluate(input.getMessageInformation(),
                                 input.getTimestamp(),

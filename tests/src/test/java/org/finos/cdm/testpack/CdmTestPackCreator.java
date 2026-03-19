@@ -19,6 +19,9 @@ import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
+import org.finos.cdm.functions.FunctionCreator;
+import org.finos.cdm.functions.FunctionInputCreator;
+import org.finos.cdm.functions.SecLendingFunctionInputCreationTest;
 import org.finos.cdm.ingest.diagnostics.IngestBasicDiagnosticsCreator;
 import org.finos.cdm.ingest.diagnostics.IngestExpectationDiffCreator;
 import org.slf4j.Logger;
@@ -160,9 +163,9 @@ public class CdmTestPackCreator {
     private void runFunctionCreators() throws Exception {
 
         LOGGER.info(" ** Updating Function Input Samples");
-/*
+
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();
-        functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
+        functionInputCreator.run();
 
         SecLendingFunctionInputCreationTest SecLendingFunctionInputCreationTest = new SecLendingFunctionInputCreationTest();
         SecLendingFunctionInputCreationTest.run();
@@ -170,7 +173,7 @@ public class CdmTestPackCreator {
         LOGGER.info(" ** Updating Function Output Samples");
 
         FunctionCreator functionCreator = new FunctionCreator();
-        functionCreator.run();*/
+        functionCreator.run();
     }
 
     private void run() throws IOException {

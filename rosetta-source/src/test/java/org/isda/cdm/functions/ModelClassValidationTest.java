@@ -1,4 +1,4 @@
-package org.finos.cdm.functions;
+package org.isda.cdm.functions;
 
 import cdm.base.staticdata.party.PartyRole;
 import cdm.base.staticdata.party.PartyRoleEnum;
