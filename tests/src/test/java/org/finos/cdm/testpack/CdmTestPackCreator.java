@@ -43,6 +43,15 @@ public class CdmTestPackCreator {
     @Inject
     PipelineConfigWriter pipelineConfigWriter;
 
+    @Inject
+    OreTradeTest oreTradeTest;
+
+    @Inject
+    FisIngestionTest fisIngestionTest;
+
+    @Inject
+    CreateiQIngestionServiceTest createiQIngestionServiceTest;
+
     public static void main(String[] args) {
         try {
             CdmTestPackCreator testPackConfigCreator = new CdmTestPackCreator();
@@ -65,25 +74,12 @@ public class CdmTestPackCreator {
     private void runIngestion() {
 
         LOGGER.info(" ** Updating expectations for FisIngestion");
-
-        FisIngestionTest fisIngestionCreator = new FisIngestionTest();
-        Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
-        injector.injectMembers(fisIngestionCreator);
-
-        fisIngestionCreator.run();
+        fisIngestionTest.run();
 
         LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
-
-        CreateiQIngestionServiceTest createiQIngestionServiceTest = new CreateiQIngestionServiceTest();
-        injector.injectMembers(createiQIngestionServiceTest);
-
         createiQIngestionServiceTest.run();
 
-        LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
-
-        OreTradeTest oreTradeTest = new OreTradeTest();
-        injector.injectMembers(oreTradeTest);
-
+        LOGGER.info(" ** Updating expectations for OreTradeTest");
         oreTradeTest.run();
 
     }
@@ -103,6 +99,7 @@ public class CdmTestPackCreator {
         FunctionCreator functionCreator = new FunctionCreator();
         functionCreator.run();
     }
+
     private void run() throws IOException {
         pipelineConfigWriter.writePipelinesAndTestPacks(createTreeConfig());
     }

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.google.inject.Injector;
 import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
@@ -20,12 +19,9 @@ import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.MutablePair;
 import com.regnosys.rosetta.common.util.Pair;
 import org.finos.cdm.CdmRuntimeModule;
-import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -45,8 +41,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
 public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateiQIngestionServiceTest.class);
 
     private static final String SAMPLE_DIR = "cdm-sample-files/createiq/";
 
@@ -151,26 +145,6 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
         return readExpectationsFromString(EXPECTATION_FILES);
     }
 
-    public static void main(String[] args) {
-        try {
-            CreateiQIngestionServiceTest ingestionTest = new CreateiQIngestionServiceTest();
-            Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
-            injector.injectMembers(ingestionTest);
-
-            ingestionTest.run();
-
-            System.exit(0);
-        } catch (Exception e) {
-            LOGGER.error("Error executing {}.main()", CreateiQIngestionServiceTest.class.getName(), e);
-            System.exit(1);
-        }
-    }
-
-    /**
-     * Programmatically run the JUnit 5 tests defined for this class so it can be executed
-     * from other entry points (e.g. CdmTestPackCreator).
-     */
-    @org.junit.Test
     public void run() {
 
         // Ensure environment is set up

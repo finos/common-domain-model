@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 
 import static com.regnosys.rosetta.common.util.ClassPathUtils.loadFromClasspath;
 import static com.regnosys.rosetta.common.util.UrlUtils.toUrl;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FunctionCreator {
 
@@ -45,18 +44,6 @@ public class FunctionCreator {
             "functions/repo-and-bond-execution-descriptor.json");
 
     private static Injector injector;
-
-    public static void main(String[] args) {
-        try {
-            FunctionCreator secLendingFunctionInputCreator = new FunctionCreator();
-            secLendingFunctionInputCreator.run();
-
-            System.exit(0);
-        } catch (Exception e) {
-            LOGGER.error("Error executing {}.main()", FunctionCreator.class.getName(), e);
-            System.exit(1);
-        }
-    }
 
     public void run() throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
         Module module = Modules.override(new CdmRuntimeModule())
