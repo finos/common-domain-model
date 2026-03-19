@@ -1,4 +1,4 @@
-package org.isda.cdm.functions;
+package org.finos.cdm.functions;
 
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
@@ -35,7 +35,7 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.finos.cdm.CdmRuntimeModule;
-import org.junit.jupiter.api.BeforeAll;
+import org.isda.cdm.functions.CreateBusinessEventInput;import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
