@@ -40,7 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
+public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
 
     private static final String SAMPLE_DIR = "cdm-sample-files/createiq/";
 
@@ -136,5 +136,27 @@ class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
     @SuppressWarnings("unused")//used by the junit parameterized test
     private static Stream<Arguments> fpMLFiles() {
         return readExpectationsFromString(EXPECTATION_FILES);
+    }
+
+    public void run() {
+
+        // Ensure environment is set up
+        setup();
+        fpMLFiles().forEach(e -> {
+            Object[] argsArray = e.get();
+            String expectationFilePath = (String) argsArray[0];
+            Expectation expectation = (Expectation) argsArray[1];
+            String expectationFileName = (String) argsArray[2];
+            try {
+                if (writeActualExpectations) {
+                    writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
+                } else {
+                    ingest(expectationFilePath, expectation, expectationFileName);
+                }
+            } catch (Throwable ex) {
+                throw new RuntimeException(ex);
+            }
+
+        });
     }
 }

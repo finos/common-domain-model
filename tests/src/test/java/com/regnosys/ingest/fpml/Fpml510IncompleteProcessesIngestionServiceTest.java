@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToWorkflowStep;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class Fpml510IncompleteProcessesIngestionServiceTest extends IngestionTest<WorkflowStep> {
+public class Fpml510IncompleteProcessesIngestionServiceTest extends IngestionTest<WorkflowStep> {
 
     private static final String INCOMPLETE_PROCESSES = "cdm-sample-files/fpml-5-10/incomplete-processes/";
 
@@ -48,4 +48,26 @@ class Fpml510IncompleteProcessesIngestionServiceTest extends IngestionTest<Workf
     private static Stream<Arguments> fpMLFiles() {
         return readExpectationsFrom(EXPECTATION_FILES);
     }
+
+	public void run() {
+
+		// Ensure environment is set up
+		setup();
+		fpMLFiles().forEach(e -> {
+			Object[] argsArray = e.get();
+			String expectationFilePath = (String) argsArray[0];
+			Expectation expectation = (Expectation) argsArray[1];
+			String expectationFileName = (String) argsArray[2];
+			try {
+				if (writeActualExpectations) {
+					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
+				} else {
+					ingest(expectationFilePath, expectation, expectationFileName);
+				}
+			} catch (Throwable ex) {
+				throw new RuntimeException(ex);
+			}
+
+		});
+	}
 }
