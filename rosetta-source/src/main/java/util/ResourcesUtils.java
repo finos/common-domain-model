@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ResourcesUtils {
 
@@ -84,5 +85,17 @@ public class ResourcesUtils {
 		List<PostProcessStep> postProcessors = Arrays.asList(globalKeyProcessStep, new ReKeyProcessStep(globalKeyProcessStep));
 		postProcessors.forEach(p -> p.runProcessStep(builder.getType(), builder));
 		return builder;
+	}
+
+	public static <T extends RosettaModelObjectBuilder> List<T> reKey(List<T> builder) {
+		return builder.stream().map(ResourcesUtils::reKey).collect(Collectors.toList());
+	}
+
+	public static <B extends RosettaModelObjectBuilder, O extends RosettaModelObject> List<B> toBuilder(List<O> objectList) {
+		return (List<B>) objectList.stream().map(RosettaModelObject::toBuilder).collect(Collectors.toList());
+	}
+
+	public static <O extends RosettaModelObject, B extends RosettaModelObjectBuilder> List<O> build(List<B> builderList) {
+		return (List<O>) builderList.stream().map(RosettaModelObjectBuilder::build).collect(Collectors.toList());
 	}
 }
