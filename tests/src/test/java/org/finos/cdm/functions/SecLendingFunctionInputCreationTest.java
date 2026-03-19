@@ -37,6 +37,7 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.finos.cdm.CdmRuntimeModule;
 import org.isda.cdm.functions.CreateBusinessEventInput;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,6 +108,7 @@ public class SecLendingFunctionInputCreationTest {
         validateCreateSecurityLendingInvoiceFuncInputJson();
     }
 
+    @BeforeAll
     static void setup() {
         Module module = Modules.override(new CdmRuntimeModule())
                 .with(new AbstractModule() {
@@ -143,7 +145,7 @@ public class SecLendingFunctionInputCreationTest {
         assertJsonConformsToRosettaType(EXECUTION_INSTRUCTION_JSON, ExecutionInstruction.class);
     }
 
-
+    @Test
     void validateExecutionInstructionWorkflowFuncOutputJson() throws IOException {
 
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(EXECUTION_INSTRUCTION_JSON);
@@ -162,7 +164,7 @@ public class SecLendingFunctionInputCreationTest {
         return ResourcesUtils.getObjectAndResolveReferences(TradeState.class, BLOCK_EXECUTION_TRADE_STATE_JSON);
     }
 
-
+    @Test
     void validatePartReturnSettlementWorkflowFuncInputJson() throws IOException {
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
                 ReturnInstruction.builder()
@@ -183,7 +185,7 @@ public class SecLendingFunctionInputCreationTest {
         assertJsonConformsToRosettaType("/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
-
+    @Test
     void validateFullReturnSettlementWorkflowFuncInputJson() throws IOException {
         ReturnInstruction returnInstruction = ReturnInstruction.builder()
                 .addQuantity(Quantity.builder()
@@ -202,7 +204,7 @@ public class SecLendingFunctionInputCreationTest {
         assertJsonConformsToRosettaType("/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
-
+    @Test
     void validateCreateAllocationFuncInputJson() throws IOException {
         CreateBusinessEventInput actual = getAllocationInput();
 
@@ -254,7 +256,7 @@ public class SecLendingFunctionInputCreationTest {
                 null);
     }
 
-
+    @Test
     void validateCreateReallocationFuncInputJson() throws IOException {
         // We want to get the contract formation for the 40% allocated trade, and back it out by 25% causing a
         // decrease quantity change (so notional will be 10% of the original block).
@@ -293,7 +295,7 @@ public class SecLendingFunctionInputCreationTest {
         assertJsonEquals("functions/sec-lending/reallocation/reallocation-pre-settled-func-input.json", actual);
     }
 
-
+    @Test
     void validateCreateSecurityLendingInvoiceFuncInputJson() throws IOException {
         RunReturnSettlementWorkflowInput input = assertJsonConformsToRosettaType("/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
         Workflow part = injector.getInstance(RunReturnSettlementWorkflow.class).execute(input);
