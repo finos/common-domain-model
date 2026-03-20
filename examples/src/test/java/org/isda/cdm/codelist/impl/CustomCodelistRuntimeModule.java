@@ -9,6 +9,5 @@ public class CustomCodelistRuntimeModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(LoadCodeList.class).to(LoadCodeListCustomImpl.class);
-        bind(ValidateFpMLCodingSchemeDomain.class).to(ValidateCodeListCustomImpl.class);
     }
 }
