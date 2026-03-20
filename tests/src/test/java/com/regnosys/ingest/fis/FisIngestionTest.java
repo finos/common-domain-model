@@ -7,6 +7,7 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
+import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class FisIngestionTest extends IngestionTest<WorkflowStep> {
+public class FisIngestionTest extends IngestionTest<WorkflowStep> {
 
     private static final String ENV_INSTANCE_NAME = "target/ISLA";
     private static final List<URL> ENV_FILE = Collections.singletonList(Resources.getResource("ingestions/isla-ingestions.json"));
@@ -61,5 +62,29 @@ class FisIngestionTest extends IngestionTest<WorkflowStep> {
     @AfterAll // 
     static void tearDown() {
         IngestionFactory.getInstance(ENV_INSTANCE_NAME).clear();
+    }
+
+    public void run() {
+
+        // Ensure environment is set up
+        setup();
+        fpMLFiles().forEach(e -> {
+            Object[] argsArray = e.get();
+            String expectationFilePath = (String) argsArray[0];
+            Expectation expectation = (Expectation) argsArray[1];
+            String expectationFileName = (String) argsArray[2];
+            try {
+                if (writeActualExpectations) {
+                    writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
+                } else {
+                    ingest(expectationFilePath, expectation, expectationFileName);
+                }
+                tearDown();
+            } catch (Throwable ex) {
+                tearDown();
+                throw new RuntimeException(ex);
+            }
+
+        });
     }
 }

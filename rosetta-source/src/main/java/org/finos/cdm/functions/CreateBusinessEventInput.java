@@ -1,4 +1,4 @@
-package org.isda.cdm.functions;
+package org.finos.cdm.functions;
 
 import cdm.event.common.EventIntentEnum;
 import cdm.event.common.Instruction;
