@@ -24,14 +24,14 @@ This project provides various sets of Legal Agreements examples based on dummy g
 
 
 ## Folder Overview
-- `ISDA-Credit-Support-Annex-Docs\`<br>
+- `isda-credit-support-annex-docs\`<br>
 
-  - `Legacy-CSA-Samples-Data\`<br>
+  - `legacy-csa-sample-data\`<br>
 This folder contains series of folders within for 10 Legacy CSA samples labelled 1 – 10, each individual sample folder contains an original pdf dummy legal document CSA and also the digital CDM JSON equivalent file
-  - `VM-CSA-Test-Samples-Data\`<br>
+  - `vm-csa-sample-data\`<br>
 This folder contains series of folders within for 10 VM CSA samples labelled 1 – 10, each individual sample folder contains an original pdf dummy legal document CSA and also the digital CDM JSON equivalent file
-  - `IM-CSA-Test-Samples-Data\`<br>
+  - `im-csa-sample-data\`<br>
 This folder contains series of folders within for 10 IM CSA samples labelled 1 – 10, each individual sample folder contains an original pdf dummy legal document CSA and also the digital CDM JSON equivalent file
-- `Eligible-Collateral-Schedules\`<br>
+- `eligible-collateral-schedules\`<br>
 This folder contains various samples of eligible collateral schedules, it includes the original sample and also the digital CDM JSON equivalent file
 
