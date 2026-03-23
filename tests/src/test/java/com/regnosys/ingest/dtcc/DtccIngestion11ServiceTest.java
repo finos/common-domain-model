@@ -9,6 +9,7 @@ import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.synonym.MappingReport;
 import com.regnosys.ingest.test.framework.ingestor.synonym.MappingResult;
+import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,7 +20,7 @@ import java.net.URL;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
+public class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DtccIngestion11ServiceTest.class);
 
 	private static final String DTCC_11_0_FILES_DIR = "cdm-sample-files/dtcc-11-0/";
@@ -63,5 +64,27 @@ class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
 
 	private String toExcelExportString(MappingResult r) {
 		return r.getExternalPath() + "|" + r.getInternalPaths().entrySet().stream().map(e->e.getKey().buildPath()).collect(Collectors.joining(",\n\t\t"));
+	}
+
+	public void run() {
+
+		// Ensure environment is set up
+		setup();
+		fpMLFiles().forEach(e -> {
+			Object[] argsArray = e.get();
+			String expectationFilePath = (String) argsArray[0];
+			Expectation expectation = (Expectation) argsArray[1];
+			String expectationFileName = (String) argsArray[2];
+			try {
+				if (writeActualExpectations) {
+					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
+				} else {
+					ingest(expectationFilePath, expectation, expectationFileName);
+				}
+			} catch (Throwable ex) {
+				throw new RuntimeException(ex);
+			}
+
+		});
 	}
 }

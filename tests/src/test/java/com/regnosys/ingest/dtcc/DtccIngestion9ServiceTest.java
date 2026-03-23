@@ -22,7 +22,7 @@ import java.net.URL;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
+public class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DtccIngestion9ServiceTest.class);
 
 	private static final String DTCC_9_0_FILES_DIR = "cdm-sample-files/dtcc-9-0/";
@@ -71,5 +71,27 @@ class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
 
 	private String toExcelExportString(MappingResult r) {
 		return r.getExternalPath() + "|" + r.getInternalPaths().entrySet().stream().map(e->e.getKey().buildPath()).collect(Collectors.joining(",\n\t\t"));
+	}
+
+	public void run() {
+
+		// Ensure environment is set up
+		setup();
+		fpMLFiles().forEach(e -> {
+			Object[] argsArray = e.get();
+			String expectationFilePath = (String) argsArray[0];
+			Expectation expectation = (Expectation) argsArray[1];
+			String expectationFileName = (String) argsArray[2];
+			try {
+				if (writeActualExpectations) {
+					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
+				} else {
+					ingest(expectationFilePath, expectation, expectationFileName);
+				}
+			} catch (Throwable ex) {
+				throw new RuntimeException(ex);
+			}
+
+		});
 	}
 }
