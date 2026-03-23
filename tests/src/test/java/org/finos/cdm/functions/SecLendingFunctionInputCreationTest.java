@@ -1,4 +1,4 @@
-package org.isda.cdm.functions;
+package org.finos.cdm.functions;
 
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
@@ -30,6 +30,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
@@ -57,13 +58,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static util.ResourcesUtils.getJson;
 import static util.ResourcesUtils.reKey;
 
-class SecLendingFunctionInputCreationTest {
+public class SecLendingFunctionInputCreationTest {
 
-    private static final boolean WRITE_EXPECTATIONS =
-            Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
-                    .map(Boolean::parseBoolean).orElse(false);
-    private static final Optional<Path> TEST_WRITE_BASE_PATH =
-            Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get);
     private static final Logger LOGGER = LoggerFactory.getLogger(SecLendingFunctionInputCreationTest.class);
 
 
@@ -85,6 +81,29 @@ class SecLendingFunctionInputCreationTest {
     public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/cdm-sample-files/functions/sec-lending/new-settlement-workflow-func-input.json";
     
     private static Injector injector;
+
+    public static void main(String[] args) {
+        try {
+            SecLendingFunctionInputCreationTest secLendingFunctionInputCreator = new SecLendingFunctionInputCreationTest();
+            secLendingFunctionInputCreator.run();
+
+            System.exit(0);
+        } catch (Exception e) {
+            LOGGER.error("Error executing {}.main()", SecLendingFunctionInputCreationTest.class.getName(), e);
+            System.exit(1);
+        }
+    }
+
+    @Test
+    public void run() throws Exception {
+        setup();
+        validateExecutionInstructionWorkflowFuncOutputJson();
+        validatePartReturnSettlementWorkflowFuncInputJson();
+        validateFullReturnSettlementWorkflowFuncInputJson();
+        validateCreateAllocationFuncInputJson();
+        validateCreateReallocationFuncInputJson();
+        validateCreateSecurityLendingInvoiceFuncInputJson();
+    }
 
     @BeforeAll
     static void setup() {
@@ -480,19 +499,20 @@ class SecLendingFunctionInputCreationTest {
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
         String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
         String expectedJson = getJson(expectedJsonPath);
-        if (!expectedJson.equals(actualJson)) {
-            if (WRITE_EXPECTATIONS) {
+        if (TestingExpectationUtil.WRITE_EXPECTATIONS) {
                 writeExpectation(expectedJsonPath, actualJson);
-            }
-        }
+        } else {
         assertEquals(expectedJson, actualJson,
                 "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
+
+
+        }
     }
 
     private void writeExpectation(String writePath, String json) {
         // Add environment variable TEST_WRITE_BASE_PATH to override the base write path, e.g.
         // TEST_WRITE_BASE_PATH=/Users/hugohills/dev/github/REGnosys/rosetta-cdm/rosetta-source/src/main/resources/
-        TEST_WRITE_BASE_PATH.filter(Files::exists).ifPresent(basePath -> {
+        TestingExpectationUtil.TEST_WRITE_BASE_PATH.filter(Files::exists).ifPresent(basePath -> {
             Path expectationFilePath = basePath.resolve(writePath);
             try {
                 Files.createDirectories(expectationFilePath.getParent());

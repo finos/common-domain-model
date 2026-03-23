@@ -7,6 +7,7 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
+import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
@@ -16,7 +17,7 @@ import java.net.URL;
 import java.util.stream.Stream;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CMEClearedConfirmTest extends IngestionTest<WorkflowStep> {
+public class CMEClearedConfirmTest extends IngestionTest<WorkflowStep> {
 
     private static final String CME_CLEARED_1_17_FILES_DIR = "cdm-sample-files/cme-cleared-confirm-1-17/";
 
@@ -48,4 +49,25 @@ class CMEClearedConfirmTest extends IngestionTest<WorkflowStep> {
         return readExpectationsFrom(EXPECTATION_FILES);
     }
 
+	public void run() {
+
+		// Ensure environment is set up
+		setup();
+		fpMLFiles().forEach(e -> {
+			Object[] argsArray = e.get();
+			String expectationFilePath = (String) argsArray[0];
+			Expectation expectation = (Expectation) argsArray[1];
+			String expectationFileName = (String) argsArray[2];
+			try {
+				if (writeActualExpectations) {
+					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
+				} else {
+					ingest(expectationFilePath, expectation, expectationFileName);
+				}
+			} catch (Throwable ex) {
+				throw new RuntimeException(ex);
+			}
+
+		});
+	}
 }
