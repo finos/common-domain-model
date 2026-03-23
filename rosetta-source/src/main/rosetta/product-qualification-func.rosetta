@@ -161,7 +161,6 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
                                 )
                         ] all = True))
             or economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
-            or economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Basket -> basketConstituent -> Index -> ForeignExchangeRateIndex exists
             or (economicTerms -> payout only-element -> OptionPayout exists
                 and (optionUnderlier -> Observable -> Asset -> Cash exists
                     or if optionUnderlier -> Product exists
@@ -1743,7 +1742,7 @@ func Qualify_BuySellBack: <"Qualifies a product as a Buy/Sell Back based on the 
             extract
                 payout only-element -> AssetPayout exists
                     and
-                        ( payout -> AssetPayout only-element -> tradeType = SecurityLending )
+                        ( payout only-element -> AssetPayout -> tradeType = SecurityLending )
                     or 
                         ( collateral -> collateralProvisions -> collateralType = NonCash
                             and collateral -> collateralPortfolio -> portfolioIdentifier exists )
