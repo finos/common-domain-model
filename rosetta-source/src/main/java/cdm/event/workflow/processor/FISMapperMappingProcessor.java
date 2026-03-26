@@ -1,6 +1,5 @@
 package cdm.event.workflow.processor;
 
-import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessDayConventionEnum;
 import cdm.base.datetime.PeriodExtendedEnum;
 import cdm.base.datetime.RollConventionEnum;
@@ -8,8 +7,8 @@ import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
 import cdm.base.staticdata.asset.common.AssetIdTypeEnum;
 import cdm.base.staticdata.asset.common.AssetIdentifier;
-import cdm.base.staticdata.asset.common.InstrumentTypeEnum;
 import cdm.base.staticdata.asset.common.Security;
+import cdm.base.staticdata.asset.common.SecurityTypeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PartyIdentifier;
 import cdm.event.common.ExecutionTypeEnum;
@@ -89,12 +88,12 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
                 .getOrCreatePaymentDatesAdjustments()
                 .getOrCreateBusinessCenters()
                 .getOrCreateBusinessCenter(0)
-                .setValue(BusinessCenterEnum.EUTA);
+                .setValue("EUTA");
         getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriod(PeriodExtendedEnum.T);
         getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriodMultiplier(1);
 
         //sec lending payout
-        getSecPO(tradeState).getValue().getOrCreateUnderlier().getOrCreateInstrument().getOrCreateSecurity().setInstrumentType(InstrumentTypeEnum.EQUITY);
+        getSecPO(tradeState).getValue().getOrCreateUnderlier().getOrCreateInstrument().getOrCreateSecurity().setSecurityType(SecurityTypeEnum.EQUITY);
 
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setReceiver(CounterpartyRoleEnum.PARTY_2);
@@ -338,7 +337,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
             // key
             PathValue<PriceQuantityBuilder> pq = getPriceQuantityForSecurityFinancePayout(tradeState);
             Security security = Security.builder()
-                    .setInstrumentType(InstrumentTypeEnum.EQUITY)
+                    .setSecurityType(SecurityTypeEnum.EQUITY)
                     .addIdentifier(AssetIdentifier.builder()
                             .setIdentifierValue(value)
                             .setIdentifierType(AssetIdTypeEnum.SEDOL));

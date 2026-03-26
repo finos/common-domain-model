@@ -33,7 +33,7 @@ module.exports = {
       },
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
-        {to: 'docs/cdm-materials', label: 'CDM Resources', position: 'right'},
+        {to: 'docs/cdm-resources', label: 'CDM Resources', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
         {
           href: 'https://github.com/finos/common-domain-model',
@@ -172,6 +172,10 @@ module.exports = {
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
+        },
+        gtag: {
+          trackingID: "G-9ZYPYF37E7",
+          anonymizeIP: true,
         }
       }
     ]

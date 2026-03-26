@@ -22,7 +22,6 @@ The Common Domain Model is an open standard project hosted under FINOS, the [Fin
 To subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
 
-
 ## CDM Design Principles
 
 Contributions to the CDM have to comply with the following set of design principles that include the following concepts:
@@ -40,14 +39,20 @@ Ways to interact with the CDM community:
 
 * **GitHub**: CDM activity primarily happens in this [CDM GitHub repository](https://github.com/finos/common-domain-model). [Watch](https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository) the repository in order to be notified of new Pull Requests and issues.
 * **Email**: If you'd like to receive official updates, please send an email to help@finos.org. You can join the CDM mailing list by sending an email to [cdm+subscribe@lists.finos.org](mailto:cdm+subscribe@lists.finos.org). 
-* **Meetings**: Finally, another great way to interact with the community is to attend the Working Groups.  Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+* **Meetings**: Finally, another great way to interact with the community is to attend the Working Groups.  Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com).
+* **CDM Training**: **Introduction to the CDM (LFEL1016)**: A 90-minute Express Learning course covering the fundamentals of the Common Domain Model - how it standardizes data for financial products, trades, and lifecycle events to improve interoperability across technologies. [Enroll here](https://training.linuxfoundation.org/training/introduction-to-the-common-domain-model-cdm-lfel1016/). **CDM Collateral Start-up Guide**: A set of short tutorials designed for business users to explore the CDM in the context of collateral management. This hands-on resource walks through features, tools, and implementation approaches. [Learn more](https://www.isda.org/2023/02/16/isda-collateral-initiatives/)
+
 
 > &#128161; Tip<br>
 > **Need help?**  Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
 
 ## Roadmap
 
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](ROADMAP.md).
+- Each year, the chairs of the CDM Working Groups collaborate with the three participating trade associations (ISDA, ICMA and ISLA) to prepare plans for the coming year.
+- View the following resources:
+  - [2026 CDM Roadmaps](ROADMAP26.md):  outlines planned contributions and deliverables from each Working Group 
+  - [2026 CDM Schedule](SCHEDULE26.md):  outlines the plans for CDM releases 
+  - [Prior Year's Roadmaps](ROADMAP.md).
 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
 
@@ -90,7 +95,7 @@ Steps:
 
 ## Documentation
 
-The CDM has extensive documentation which is kept up to date. Any change to the CDM should be accompanied by documentation. See docs guide [here](https://cdm.finos.org/docs/contribution#documentation-style-guide)
+The CDM has extensive documentation which is kept up to date. Any change to the CDM should be accompanied by documentation. See docs guide [here](https://cdm.finos.org/docs/dev-guidelines/#documentation)
 
 ## Governance overview
 
@@ -182,6 +187,22 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Nicholas Moger       | JPMorgan Chase & Co.|  OrgRep                                | nicholas-moger         | 
 
 If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
+
+## How to release a new version of the CDM Project
+
+1. Go to the [releases](https://github.com/finos/common-domain-model/releases) page.
+2. Click on `Draft a new release`.
+3. Make sure the correct target branch is selected e.g `master`, `6.x.x` or `5.x.x`.
+4. In the `Select Tag` box, the latest version will be the top.
+5. Increment that [semantic version](https://semver.org/spec/v2.0.0.html) and enter in the `Select Tag` box and click `Create new tag`.
+6. Click on `Generate release notes`. This will generate the title and changelog based on the commits since the last release.
+7. The generated release notes will have links to the Pull Requests that were merged since the last release.
+8. For each PR generated by Rosetta, there will be a release note as a comment of the PR. Replace each PR link with PR Release Notes.
+9. Click Publish release.
+10. The release will trigger a build in the CI/CD pipeline.
+11. The build will publish the new version of the CDM Project to the Artifact Registry.
+12. The release will also trigger a notification email to the project maintainers.
+
 
 ## License
 

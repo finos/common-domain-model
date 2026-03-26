@@ -453,9 +453,16 @@ func Qualify_PairOff: <"Qualifies an event as a pair-off when all the details of
             and openTradeState -> trade -> product = newTradeInstruction -> before -> trade -> product
             and openTradeState -> trade -> tradeLot = newTradeInstruction -> before -> trade -> tradeLot
             and openTradeState -> trade -> counterparty = newTradeInstruction -> before -> trade -> counterparty
-            and openTradeState -> trade -> ancillaryParty = newTradeInstruction -> before -> trade -> ancillaryParty
-            and openTradeState -> trade -> adjustment = newTradeInstruction -> before -> trade -> adjustment
-                // All open trades are associated to a package, and that package is the same across all trades
+                // for optional fields such as ancillaryParty and adjustment, we need to check if both are absent or both equal
+            and (if openTradeState -> trade -> ancillaryParty exists
+                        or newTradeInstruction -> before -> trade -> ancillaryParty exists
+                then openTradeState -> trade -> ancillaryParty = newTradeInstruction -> before -> trade -> ancillaryParty
+                else True)
+            and (if openTradeState -> trade -> adjustment exists
+                        or newTradeInstruction -> before -> trade -> adjustment exists
+                then openTradeState -> trade -> adjustment = newTradeInstruction -> before -> trade -> adjustment
+                else True)
+                    // All open trades are associated to a package, and that package is the same across all trades
             and packageRef count = openTradeState count
             and packageRef distinct count = 1
 

@@ -6,6 +6,8 @@ import cdm.base.datetime.*
 import cdm.base.datetime.daycount.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.equity.*
+import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
@@ -114,30 +116,30 @@ type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a s
 
     condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
-        then CriteriaMatchesAssetType(collateralCriteria, Debt)
+        then CriteriaMatchesSecurityType(collateralCriteria, Debt)
                 or (treatment -> concentrationLimit
                     extract
-                        CriteriaMatchesAssetType(
+                        CriteriaMatchesSecurityType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Debt
                             )) all = True
 
     condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
-        then CriteriaMatchesAssetType(collateralCriteria, Equity)
+        then CriteriaMatchesSecurityType(collateralCriteria, Equity)
                 or (treatment -> concentrationLimit
                     extract
-                        CriteriaMatchesAssetType(
+                        CriteriaMatchesSecurityType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Equity
                             )) all = True
 
     condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
-        then CriteriaMatchesAssetType(collateralCriteria, Equity)
+        then CriteriaMatchesSecurityType(collateralCriteria, Equity)
                 or (treatment -> concentrationLimit
                     extract
-                        CriteriaMatchesAssetType(
+                        CriteriaMatchesSecurityType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Equity
                             )) all = True
@@ -216,6 +218,7 @@ choice CollateralCriteria: <"The possible different terms that can be combined, 
     AnyCriteria <"Enables two or more Collateral Criteria to be combined using OR logic.">
     NegativeCriteria <"Enables a single Collateral Criteria to be excluded using NOT logic.">
     CollateralIssuerType <"Criteria is the type of entity issuing the asset.">
+    CollateralGuarantorType <"Criteria is the type of entity guaranteeing the asset.">
     AssetType <"Criteria is the asset type of the collateral.">
     IssuerCountryOfOrigin <"Criteria is the issuing entity country of origin.">
     AssetCountryOfOrigin <"Criteria is the collateral asset country of origin.">
@@ -229,7 +232,7 @@ choice CollateralCriteria: <"The possible different terms that can be combined, 
     CollateralTaxonomy <"Criteria is the taxonomy characteristics of an collateral.">
     ListingExchange <"Criteria is that the collateral is listed on a specific exchange.">
     ListingSector <"Criteria is the industry sector of the collateral asset.">
-    Index <"Criteria is that the collateral is a constituent of a specific index.">
+    IndexType <"Criteria is that the collateral is a constituent of a specific index.">
     CounterpartyOwnIssuePermitted <"Criteria includes collateral issued by the counterparty.">
     DomesticCurrencyIssued <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
 
@@ -259,7 +262,7 @@ type CollateralInterestCalculationParameters: <"Represents parameters for calcul
     floatingRate CollateralAgreementFloatingRate (0..1) <"Specifies the floating interest rate to be used.">
     inBaseCurrency boolean (1..1) <"If True, specifies that the interest transfers should be converted to base currency equivalent, or if False specifies that the transfer should be in the currency of the collateral.">
     compoundingType CompoundingTypeEnum (0..1) <"Specifies the type of compounding to be applied (None, Business, Calendar).">
-    compoundingBusinessCenter BusinessCenterEnum (0..*) <"Specifies the applicable business centers for compounding.">
+    compoundingBusinessCenter BusinessCenter (0..*) <"Specifies the applicable business centers for compounding.">
     dayCountFraction DayCountFractionEnum (1..1) <"Specifies the day count fraction to use for that currency.">
     rounding Rounding (0..1) <"Specifies the rounding rules for settling in that currency.">
     roundingFrequency RoundingFrequencyEnum (0..1) <"Specifies when/how often is rounding applied?">
@@ -307,7 +310,7 @@ type CollateralAgreementFloatingRate extends FloatingRateBase: <"Represents the 
  */
 type CollateralInterestHandlingParameters: <"Represents parameters that describe how calculated interest amounts are handled, i.e. are they transferred/distributed, or is the collateral balance adjusted, is netting done, and any other special handling.">
     interestPaymentHandling CollateralInterestHandlingEnum (1..1) <"Specifies how the collateral interest is to be handled.">
-    paymentBusinessCenter BusinessCenterEnum (0..*) <"Specifies applicable business centers for payments.">
+    paymentBusinessCenter BusinessCenter (0..*) <"Specifies applicable business centers for payments.">
     netPostedAndHeldInterest boolean (1..1) <"Indicates whether to net Held and Posted Interest Payments (i.e. whether interest payable for a period can be netted with interest receivable).">
     netInterestWithMarginCalls boolean (1..1) <"Indicates whether the interest amount may be offset against any margin call deliver or return amounts?   (aka 'net payments' indicator).">
     includeAccrualInMarginCalc boolean (1..1) <"Indicates whether or not to include the open interest accrual in the margin calculation.">
@@ -358,3 +361,6 @@ type DeliveryAmount: <"A class to specify the application of Interest Amount wit
         one-of
 
 type SpecificAsset extends Asset: <"A single, specifically identified Asset chosen from the Asset data type">
+
+type IndexType: <"Specification of an index.">
+    equityIndex EquityIndexEnum (0..1) <"An enumerated list for equity indices.">
