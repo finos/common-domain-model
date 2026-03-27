@@ -117,6 +117,10 @@ module.exports = {
               href: 'https://github.com/finos/common-domain-model/releases',
             },
             {
+              label: 'Schemas',
+              href: 'https://github.com/finos/common-domain-model/schemas',
+            },
+            {
               label: 'What Is The CDM?',
               to: '/pdfs/Why-CDM.pdf',
               target: '_blank'
