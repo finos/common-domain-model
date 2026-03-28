@@ -73,9 +73,8 @@ public class CdmRuntimeModule extends AbstractModule {
 
 		// External FpML Coding Schemes data loader
 		bind(LoadCodeList.class).to(bindLoadCodeList());
-		bind(ValidateFpMLCodingSchemeDomain.class).to(bindValidateFpMLCodingSchemeDomain());
-    
-    // Ingest
+
+    	// Ingest
 		bind(StringContains.class).to(StringContainsImpl.class);
 		bind(CreateKey.class).to(CreateKeyImpl.class);
 		bind(CreateAssetKey.class).to(CreateAssetKeyImpl.class);
@@ -84,10 +83,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends LoadCodeList> bindLoadCodeList() {
 		return LoadCodeListImpl.class;
-	}
-
-	protected Class<? extends ValidateFpMLCodingSchemeDomain> bindValidateFpMLCodingSchemeDomain() {
-		return ValidateFpMLCodingSchemeImpl.class;
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
