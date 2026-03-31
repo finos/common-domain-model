@@ -3,7 +3,7 @@
 [![FINOS - Active](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-active.svg)](https://community.finos.org/docs/governance/Software-Projects/stages/active)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11267/badge)](https://www.bestpractices.dev/projects/11267)
 
-# Common Domain Model (CDM)
+# Common Domain Model (CDM123)
 
 > &#128161; Tip<br> 
 > Visit the [CDM Documentation website](https://cdm.finos.org/) for a complete description of the features and capabilities of the Common Domain Model.
