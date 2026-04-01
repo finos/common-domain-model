@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 import java.math.BigDecimal;
 
@@ -99,7 +99,7 @@ final class SqrtTest extends AbstractFunctionTest {
         double sqrtA = sqrtFunc.evaluate(a).doubleValue();
         double sqrtB = sqrtFunc.evaluate(b).doubleValue();
 
-        assertEquals(sqrtAB, sqrtA * sqrtB, 10 * DELTA_HIGH,
+        assertEquals(sqrtAB, sqrtA * sqrtB, DELTA_HIGH,
                 "Multiplicative property: sqrt(a*b) should equal sqrt(a) * sqrt(b)");
     }
 
@@ -122,12 +122,12 @@ final class SqrtTest extends AbstractFunctionTest {
         double expected = 1000.0;
 
         // Verify accuracy
-        assertEquals(expected, Math.sqrt(bigNumber.doubleValue()), DELTA_MODERATE,
+        assertEquals(expected, Math.sqrt(bigNumber.doubleValue()), DELTA_HIGH,
                 "Sqrt iteration count insufficient for large inputs");
 
         // Verify implementation matches
         double actual = sqrtFunc.evaluate(bigNumber).doubleValue();
-        assertEquals(expected, actual, DELTA_MODERATE,
+        assertEquals(expected, actual, DELTA_HIGH,
                 "sqrt(1,000,000) should equal 1,000");
     }
 
