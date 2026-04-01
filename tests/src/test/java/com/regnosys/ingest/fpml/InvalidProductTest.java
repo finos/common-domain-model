@@ -6,6 +6,7 @@ import com.google.common.io.Resources;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
+import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
 
 import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 
-class InvalidProductTest extends IngestionTest<TradeState> {
+public class InvalidProductTest extends IngestionTest<TradeState> {
 
 	private static final String SAMPLE_FILES_DIR = "cdm-sample-files/fpml-5-10/invalid-products/";
 
@@ -50,5 +51,27 @@ class InvalidProductTest extends IngestionTest<TradeState> {
 	@SuppressWarnings("unused")//used by the junit parameterized test
 	private static Stream<Arguments> fpMLFiles() {
 		return readExpectationsFrom(EXPECTATION_FILES);
+	}
+
+	public void run() {
+
+		// Ensure environment is set up
+		setup();
+		fpMLFiles().forEach(e -> {
+			Object[] argsArray = e.get();
+			String expectationFilePath = (String) argsArray[0];
+			Expectation expectation = (Expectation) argsArray[1];
+			String expectationFileName = (String) argsArray[2];
+			try {
+				if (writeActualExpectations) {
+					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
+				} else {
+					ingest(expectationFilePath, expectation, expectationFileName);
+				}
+			} catch (Throwable ex) {
+				throw new RuntimeException(ex);
+			}
+
+		});
 	}
 }

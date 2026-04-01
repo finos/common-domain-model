@@ -14,6 +14,12 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
+  CheckRelease:
+    stage: 'setup'
+    image: alpine
+    commands:
+      - if [[ '${{CF_RELEASE_TAG}}' == *'CF_RELEASE_TAG'* ]]; then cf_export IS_RELEASE=false; else cf_export IS_RELEASE=true; fi
+
   MvnSettings:
     stage: 'setup'
     title: Setup Maven settings
@@ -40,10 +46,10 @@ steps:
     when:
       condition:
         all:
-          releaseNameNotDefined: "${{TAG_REPO}} == true"
+          releaseNameNotDefined: "${{IS_RELEASE}} == true"
     commands:
-      - cf_export RELEASE_NAME=${{TAG_NAME}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,release,excel,json-schema"
+      - cf_export RELEASE_NAME=${{CF_RELEASE_TAG}}
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,release,excel,json-schema"
 
   SnapshotProperties:
     stage: 'setup'
@@ -52,7 +58,7 @@ steps:
     when:
       condition:
         all:
-          releaseNameNotDefined: "${{TAG_REPO}} == false"
+          releaseNameNotDefined: "${{IS_RELEASE}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
@@ -234,7 +240,7 @@ steps:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/kotlin
       - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
+      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
 
   DeployPython:
     stage: 'build'
@@ -302,19 +308,3 @@ steps:
           jsonSchemaDeployFailure: steps.DeployJsonSchema.result == 'failure'
     commands:
       - exit 1
-
-  TagRepo:
-    stage: 'finalise'
-    title: Tag git repo with release name
-    image: alpine/git
-    when:
-      condition:
-        all:
-          buildPassed: steps.Build.result == 'success'
-          isRelease: "${{TAG_REPO}}"
-    commands:
-      - echo This is a release build, tag repos with release name [${{RELEASE_NAME}}]
-      - git fetch --prune https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}.git "+refs/tags/*:refs/tags/*"
-      - git tag ${{RELEASE_NAME}}
-      - git push https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}.git ${{RELEASE_NAME}}
-

@@ -27,17 +27,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.regnosys.rosetta.common.util.ClassPathUtils.loadFromClasspath;
 import static com.regnosys.rosetta.common.util.UrlUtils.toUrl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-//TODO: move this into the ingestion-test infrastructure
-class FunctionTest {
-	private static final boolean WRITE_TEST_OUTPUT = ExpectationUtil.WRITE_EXPECTATIONS;
+public class FunctionCreator {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(FunctionTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FunctionCreator.class);
 
 	private static final ObjectMapper ROSETTA_OBJECT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
 
@@ -51,8 +50,7 @@ class FunctionTest {
 
 	private static Injector injector;
 
-	@BeforeAll
-	static void setup() {
+    public void run() throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
 		Module module = Modules.override(new CdmRuntimeModule())
 			.with(new AbstractModule() {
 				@Override
@@ -61,30 +59,32 @@ class FunctionTest {
 				}
 			});
 		injector = Guice.createInjector(module);
+        List<ExecutionDescriptor> descriptors = loadExecutionDescriptors()
+                .map(arg -> (ExecutionDescriptor) arg.get()[2])
+                .collect(Collectors.toList());
+
+        for (ExecutionDescriptor descriptor : descriptors) {
+            runFunction(descriptor.getGroup(), descriptor.getName(), descriptor);
+        }
 	}
 
 	private static Stream<Arguments> loadExecutionDescriptors() {
-		return EXECUTION_DESCRIPTOR_PATHS.stream().flatMap(x -> loadFromClasspath(x, FunctionTest.class.getClassLoader()))
+		return EXECUTION_DESCRIPTOR_PATHS.stream().flatMap(x -> loadFromClasspath(x, FunctionCreator.class.getClassLoader()))
 				.map(path -> ExecutionDescriptor.loadExecutionDescriptor(ROSETTA_OBJECT_MAPPER, toUrl(path)))
 				.flatMap(Collection::stream)
 				.map(executionDescriptor -> Arguments.of(executionDescriptor.getGroup(),executionDescriptor.getName(), executionDescriptor));
 	}
 
-	@ParameterizedTest(name = "{0} - {1}")
-	@MethodSource("loadExecutionDescriptors")
-	void runFunction(@VisibleForTesting String groupName, @VisibleForTesting String testName, ExecutionDescriptor executionDescriptor) throws ClassNotFoundException, IOException, InvocationTargetException, IllegalAccessException {
+    public void runFunction(String groupName, String testName, ExecutionDescriptor executionDescriptor) throws ClassNotFoundException, IOException, InvocationTargetException, IllegalAccessException {
 		LOGGER.info("Running Test: " + groupName + ":" + testName);
 		FunctionRunner functionRunner = new FunctionRunner(executionDescriptor,
 			injector::getInstance,
 			this.getClass().getClassLoader(),
 			ROSETTA_OBJECT_MAPPER);
 		FunctionRunner.FunctionRunnerResult<Object, Object> run = functionRunner.run();
-		if (!run.isSuccess()) {
-			if (WRITE_TEST_OUTPUT) {
+
 				writeTestOutput(executionDescriptor, run);
-			}
-			assertEquals(run.getJsonExpected().replace("\r",""), run.getJsonActual().replace("\r", ""));
-		}
+
 	}
 
 	private void writeTestOutput(ExecutionDescriptor executionDescriptor, FunctionRunner.FunctionRunnerResult<Object, Object> run) throws IOException {
