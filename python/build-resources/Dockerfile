@@ -10,7 +10,7 @@ FROM maven:3.9.9-eclipse-temurin-21-alpine
 WORKDIR /mnt
 
 # Install required tools
-RUN apk add --no-cache python3 py3-pip wget curl bash
+RUN apk add --no-cache python3 py3-pip bash
 
 # Copy the entire repo into /mnt
 COPY . /mnt/common-domain-model/
