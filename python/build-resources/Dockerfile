@@ -1,5 +1,5 @@
 # Standard build:
-#   docker build -t rosetta-python-gen -f python/build/Dockerfile .
+#   docker build -t rosetta-python-gen -f python/build-resources/Dockerfile .
 #   docker run --rm rosetta-python-gen
 #
 # To run with results saved:
@@ -14,7 +14,7 @@ FROM maven:3.9.9-eclipse-temurin-21-alpine
 WORKDIR /mnt
 
 # Install required tools
-RUN apk add --no-cache python3 py3-pip wget curl bash git
+RUN apk add --no-cache python3 py3-pip bash git
 
 # Copy the entire repo into /mnt
 COPY . /mnt/common-domain-model/
@@ -22,7 +22,7 @@ COPY . /mnt/common-domain-model/
 WORKDIR /mnt/common-domain-model/
 
 # Make the entrypoint script executable
-RUN chmod +x python/build/build-cdm-python.sh
+RUN chmod +x python/build-resources/build-cdm-python.sh
 
 # Set the entrypoint
-ENTRYPOINT ["python/build/build-cdm-python.sh"]
+ENTRYPOINT ["python/build-resources/build-cdm-python.sh"]
