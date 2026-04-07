@@ -53,7 +53,7 @@ public class SynonymIngestExpectationTest {
                 .filter(x -> x.getFileName().toString().equals("expectations.json"))
                 .filter(x -> EXCLUDED_TEST_PACKS.stream().noneMatch(testPack -> x.toString().contains(testPack)))
                 .map(path -> Arguments.of(sampleFilesDir.relativize(path.getParent()).toString()
-                        .replace(File.pathSeparatorChar, '-'), path))
+                        .replace(File.separatorChar, '-'), path))
                 .collect(Collectors.toList());
     }
 }
