@@ -89,7 +89,7 @@ if [[ -n "${FPML_VERSION}" ]]; then
 fi
 
 # Run the generator
-java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -n "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}" -v "${CDM_VERSION}"
+java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -p "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}" -v "${CDM_VERSION}"
 
 export PYTHONDONTWRITEBYTECODE=1
 python3 -m venv /tmp/.pyenv
