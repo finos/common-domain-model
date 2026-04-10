@@ -6,22 +6,15 @@ IFS=$'\n\t'
 PROJECT_ROOT=$(pwd)
 CDM_ROSETTA="rosetta-source/src/main/rosetta"
 PYTHON_TARGET="rosetta-source/src/generated/python"
-PYTHON_PACKAGE_NAME="finos_cdm"
+PYTHON_PACKAGE_NAME="finos-cdm"
+NAMESPACE_PREFIX="finos"
 
-USE_LOCAL_JAR_FLAG=1
-if [[ -n "${USE_LOCAL_JAR_FLAG:-}" ]]; then
-  # Outside Docker: use the local build output directly
-  # Inside Docker: mount the JAR to /tmp/local-generator.jar and pass USE_LOCAL_JAR_FLAG=1
-  if [[ -f "/tmp/local-generator.jar" ]]; then
-    GENERATOR_JAR_FILE="/tmp/local-generator.jar"
-  else
-    echo "ERROR: USE_LOCAL_JAR_FLAG is set but /tmp/local-generator.jar was not found"
-  fi
-fi
-
-if [[ -n "${GENERATOR_JAR_FILE:-}" ]]; then
-  # Use the provided JAR file instead of pulling from GitHub
-  echo "GENERATOR_JAR_FILE is set: ${GENERATOR_JAR_FILE}"
+# todo: remove use of local generator JAR
+# Resolve the generator JAR.
+# Option 1: GENERATOR_JAR_FILE is set and the file exists — use it directly.
+# Option 2: GENERATOR_JAR_FILE is unset, empty, or the file is not found — pull from GitHub Releases.
+if [[ -n "${GENERATOR_JAR_FILE:-}" && -f "${GENERATOR_JAR_FILE}" ]]; then
+  echo "Using specified generator JAR: ${GENERATOR_JAR_FILE}"
   GENERATOR_JAR=$(basename "${GENERATOR_JAR_FILE}")
   if [[ "${GENERATOR_JAR_FILE}" != "/tmp/${GENERATOR_JAR}" ]]; then
     cp "${GENERATOR_JAR_FILE}" "/tmp/${GENERATOR_JAR}"
@@ -30,6 +23,10 @@ if [[ -n "${GENERATOR_JAR_FILE:-}" ]]; then
     echo "Using ${GENERATOR_JAR_FILE} in place"
   fi
 else
+  if [[ -n "${GENERATOR_JAR_FILE:-}" ]]; then
+    echo "WARNING: GENERATOR_JAR_FILE=${GENERATOR_JAR_FILE} was specified but not found — falling back to GitHub"
+  fi
+
   # Extract and set DSL_VERSION to the rosetta.dsl.version in the parent POM
   DSL_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
   echo "rosetta.code-gen.version: ${DSL_VERSION}"
@@ -91,7 +88,7 @@ if [[ -n "${FPML_VERSION}" ]]; then
 fi
 
 # Run the generator
-java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -n "${PYTHON_PACKAGE_NAME}"
+java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -p "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}"  
 
 export PYTHONDONTWRITEBYTECODE=1
 python3 -m venv /tmp/.pyenv
@@ -102,7 +99,7 @@ cd "${PYTHON_TARGET}"
 
 # Build and install the generated Python package
 python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir . .
-WHEEL_FILE=$(ls ./finos_cdm-*-py3-none-any.whl | head -n 1)
+WHEEL_FILE=$(ls ./*-*-py3-none-any.whl | head -n 1)
 if [[ ! -f "${WHEEL_FILE}" ]]; then
   echo "Wheel file not found!"
   exit 1
