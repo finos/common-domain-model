@@ -1,9 +1,10 @@
 # Standard build:
 #   docker build -t rosetta-python-gen -f python/build-resources/Dockerfile .
-#   docker run --rm rosetta-python-gen
+#   docker run --rm rosetta-python-gen                      # version defaults to 0.0.0
+#   docker run --rm rosetta-python-gen 6.99.99              # pass a version number
 #
 # To run with generated output saved to the host:
-#   docker run --name cdm-gen rosetta-python-gen; docker cp cdm-gen:/mnt/common-domain-model/rosetta-source/src/generated/python rosetta-source/src/generated/; docker rm cdm-gen
+#   docker run --name cdm-gen rosetta-python-gen 6.99.99; docker cp cdm-gen:/mnt/common-domain-model/rosetta-source/src/generated/python rosetta-source/src/generated/; docker rm cdm-gen
 #
 # To mount the docker environment and explore:
 #   docker run --rm -it --entrypoint /bin/bash rosetta-python-gen

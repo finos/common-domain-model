@@ -8,6 +8,7 @@ CDM_ROSETTA="rosetta-source/src/main/rosetta"
 PYTHON_TARGET="rosetta-source/src/generated/python"
 PYTHON_PACKAGE_NAME="finos-cdm"
 NAMESPACE_PREFIX="finos"
+CDM_VERSION="${1:-0.0.0}"
 
 # todo: remove use of local generator JAR
 # Resolve the generator JAR.
@@ -88,7 +89,7 @@ if [[ -n "${FPML_VERSION}" ]]; then
 fi
 
 # Run the generator
-java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -p "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}"  
+java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -p "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}" -v "${CDM_VERSION}"
 
 export PYTHONDONTWRITEBYTECODE=1
 python3 -m venv /tmp/.pyenv
