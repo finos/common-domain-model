@@ -67,12 +67,15 @@ else
   wget -O "/tmp/${GENERATOR_JAR}" "${GENERATOR_URL}" || { echo "Failed to download generator JAR"; exit 1; }
 fi
 
-# Check for rune-fpml dependency in pom.xml
+# Merge CDM and (optionally) FpML Rosetta files into a temp staging directory
+# so the source tree is never modified.
+MERGED_ROSETTA=$(mktemp -d)
+cp "${CDM_ROSETTA}"/*.rosetta "${MERGED_ROSETTA}/"
+
 FPML_VERSION=$(sed -n 's/.*<rune-fpml[-.]version>\(.*\)<\/rune-fpml[-.]version>.*/\1/p' pom.xml | head -n 1)
 
 if [[ -n "${FPML_VERSION}" ]]; then
-  echo "Found rune-fpml-version: ${FPML_VERSION}, pulling FpML definitions from rune-fpml"
-  mkdir -p "${CDM_ROSETTA}/rune-fpml"
+  echo "Found rune-fpml-version: ${FPML_VERSION} — pulling FpML Rosetta definitions"
   TEMP_FPML=$(mktemp -d)
   pushd "${TEMP_FPML}"
   git init
@@ -83,13 +86,16 @@ if [[ -n "${FPML_VERSION}" ]]; then
     echo "WARNING: Failed to pull rune-fpml version ${FPML_VERSION}, falling back to master"
     git pull --depth 1 origin master
   }
-  cp -r rosetta-source/src/main/rosetta/* "${PROJECT_ROOT}/${CDM_ROSETTA}/rune-fpml/"
+  cp rosetta-source/src/main/rosetta/*.rosetta "${MERGED_ROSETTA}/"
   popd
   rm -rf "${TEMP_FPML}"
+else
+  echo "No rune-fpml version found in pom.xml — generating from CDM Rosetta files only"
 fi
 
-# Run the generator
-java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -p "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}" -v "${CDM_VERSION}"
+# Run the generator against the merged Rosetta source
+java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${MERGED_ROSETTA}" -t "${PYTHON_TARGET}" -p "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}" -v "${CDM_VERSION}"
+rm -rf "${MERGED_ROSETTA}"
 
 export PYTHONDONTWRITEBYTECODE=1
 python3 -m venv /tmp/.pyenv
