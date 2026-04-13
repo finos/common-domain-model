@@ -132,16 +132,16 @@ steps:
           - dotnet build Cdm/Cdm.csproj
           - dotnet test Test/Test.csproj
           - dotnet publish Cdm/Cdm.csproj -c release -o ./app
-      BuildPython:
-        stage: 'build'
-        title: Python build
-        fail_fast: false
-        image: maven:3.9.9-eclipse-temurin-21-alpine
-        working_directory: ./
-        shell: bash
-        commands:
-          - apk add --no-cache python3 py3-pip wget curl bash
-          - rosetta-source/src/main/resources/build-resources/python/build-cdm-python.sh
+        #    BuildPython:
+        #stage: 'build'
+        #title: Python build
+        #fail_fast: false
+        #image: maven:3.9.9-eclipse-temurin-21-alpine
+        #working_directory: ./
+        #shell: bash
+          #commands:
+          # - apk add --no-cache python3 py3-pip wget curl bash
+          #- rosetta-source/src/main/resources/build-resources/python/build-cdm-python.sh
           
   DeployDaml:
     stage: 'build'
@@ -242,20 +242,20 @@ steps:
       - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
       - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
 
-  DeployPython:
-    stage: 'build'
-    title: Python deploy
-    fail_fast: false
-    image: maven:3.9.11-eclipse-temurin-21-alpine
-    working_directory: ./rosetta-source/
-    shell: bash
-    commands:
-      - apk add --no-cache python3
-      - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd src/generated/python
-      - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl rune_runtime-*-py3-none-any.whl
-      - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
-      - ${{MVN_DEPLOY_FILE_COMMAND}}
+    # DeployPython:
+    #   stage: 'build'
+    #  title: Python deploy
+    #  fail_fast: false
+    #  image: maven:3.9.11-eclipse-temurin-21-alpine
+    # working_directory: ./rosetta-source/
+    #    shell: bash
+      #commands:
+      #- apk add --no-cache python3
+      #- bash -c "${{GPG_IMPORT_COMMAND}}"
+      #- cd src/generated/python
+      #- tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl rune_runtime-*-py3-none-any.whl
+      #- python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
+      #- ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployExcel:
     stage: 'build'
@@ -297,13 +297,13 @@ steps:
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
           cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
-          pythonBuildFailure: steps.BuildPython.result == 'failure'
+          #  pythonBuildFailure: steps.BuildPython.result == 'failure'
           damlDeployFailure: steps.DeployDaml.result == 'failure'
           typeScriptDeployFailure: steps.DeployTypeScript.result == 'failure'
           cSharp8DeployFailure: steps.DeployCSharp8.result == 'failure'
           cSharp9DeployFailure: steps.DeployCSharp9.result == 'failure'
           goDeployFailure: steps.DeployGo.result == 'failure'
-          pythonDeployFailure: steps.DeployPython.result == 'failure'
+          #   pythonDeployFailure: steps.DeployPython.result == 'failure'
           excelDeployFailure: steps.DeployExcel.result == 'failure'
           jsonSchemaDeployFailure: steps.DeployJsonSchema.result == 'failure'
     commands:
