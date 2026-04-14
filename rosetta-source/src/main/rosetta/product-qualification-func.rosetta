@@ -161,6 +161,7 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
                                 )
                         ] all = True))
             or economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
+            or economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Basket -> basketConstituent -> Index -> ForeignExchangeRateIndex exists
             or (economicTerms -> payout only-element -> OptionPayout exists
                 and (optionUnderlier -> Observable -> Asset -> Cash exists
                     or if optionUnderlier -> Product exists
@@ -1738,8 +1739,14 @@ func Qualify_SecurityLending: <"Qualifies a product as Securities Lending based 
     output:
         is_product boolean (1..1)
     set is_product:
-        economicTerms -> payout only-element -> AssetPayout exists
-            and economicTerms -> collateral -> collateralPortfolio exists
+        economicTerms
+            extract
+                payout only-element -> AssetPayout exists
+                        and (payout only-element -> AssetPayout -> tradeType = SecurityLending)
+                    or (collateral -> collateralProvisions -> collateralType = NonCash
+                        and collateral -> collateralPortfolio -> portfolioIdentifier exists)
+                    or (collateral -> collateralProvisions -> collateralType = Cash
+                        and collateral -> collateralPortfolio -> collateralPosition -> product -> TransferableProduct -> Cash exists)
 
 func Qualify_Commodity_Swap_FixedFloat: <"Qualifies a product as a Fixed Float Commodity Swap.  The determination of the qualification is based on the economic terms and the following criteria: 1) One Floating Leg represented by the CommodityPayout, with an underlier that is a commodity, 2) One Fixed Leg represented by the FixedPricePayout, and 3) there are no other payout types.">
     [qualification Product]

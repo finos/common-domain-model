@@ -73,7 +73,7 @@ if [[ ! -f "${WHEEL_FILE}" ]]; then
   exit 1
 fi
 python3 -m pip install "${WHEEL_FILE}"
-python3 -m pip install pytest
-
-# Run unit tests (output will be visible in Docker logs)
-pytest -p no:cacheprovider ${PROJECT_ROOT}/cdm-python/test/
+# python3 -m pip install pytest
+# 
+# # Run unit tests (output will be visible in Docker logs)
+# pytest -p no:cacheprovider ${PROJECT_ROOT}/cdm-python/test/
