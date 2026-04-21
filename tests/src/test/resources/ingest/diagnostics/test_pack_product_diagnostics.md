@@ -44,7 +44,7 @@
 | fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 98% |
 | fpml-5-10-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-10-products-equity | equityOption | 3 | 103% |
-| fpml-5-10-products-equity | equitySwapTransactionSupplement | 6 | 101% |
+| fpml-5-10-products-equity | equitySwapTransactionSupplement | 6 | 102% |
 | fpml-5-10-products-equity | returnSwap | 3 | 101% |
 | fpml-5-10-products-fx | fxOption | 6 | 98% |
 | fpml-5-10-products-fx | fxSingleLeg | 8 | 103% |
@@ -69,7 +69,7 @@
 | fpml-5-12-products-credit | creditDefaultSwapOption | 4 | 98% |
 | fpml-5-12-products-equity | equityOption | 2 | 103% |
 | fpml-5-12-products-equity | equitySwapTransactionSupplement | 10 | 100% |
-| fpml-5-12-products-equity | returnSwap | 7 | 103% |
+| fpml-5-12-products-equity | returnSwap | 7 | 104% |
 | fpml-5-12-products-fx | fxOption | 6 | 98% |
 | fpml-5-12-products-fx | fxSingleLeg | 8 | 103% |
 | fpml-5-12-products-fx | fxSwap | 1 | 107% |
@@ -114,7 +114,7 @@
 | fpml-5-13-products-equity-options | brokerEquityOption | 3 | 101% |
 | fpml-5-13-products-equity-options | equityOption | 4 | 87% |
 | fpml-5-13-products-equity-swaps | equitySwapTransactionSupplement | 10 | 100% |
-| fpml-5-13-products-equity-swaps | returnSwap | 12 | 97% |
+| fpml-5-13-products-equity-swaps | returnSwap | 12 | 98% |
 | fpml-5-13-products-fx-derivatives | fxOption | 6 | 96% |
 | fpml-5-13-products-fx-derivatives | fxSingleLeg | 6 | 101% |
 | fpml-5-13-products-fx-derivatives | fxSwap | 3 | 111% |

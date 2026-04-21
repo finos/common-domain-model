@@ -27,11 +27,11 @@
 | brokerEquityOption | 6 | 101% |
 | fxOption | 26 | 101% |
 | bondOption | 12 | 101% |
-| equitySwapTransactionSupplement | 30 | 100% |
+| equitySwapTransactionSupplement | 30 | 101% |
 | equityOption | 37 | 100% |
+| returnSwap | 36 | 100% |
 | correlationSwap | 8 | 100% |
 | swap | 166 | 100% |
-| returnSwap | 36 | 99% |
 | equityOptionTransactionSupplement | 16 | 99% |
 | swaption | 25 | 99% |
 | creditDefaultSwapOption | 18 | 98% |
