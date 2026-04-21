@@ -1,5 +1,6 @@
-# Standard build:
-#   docker build -t rosetta-python-gen -f python/build-resources/Dockerfile .
+# Building the Docker image:
+#   docker build -t rosetta-python-gen -f python/Dockerfile .
+# Stadard usage (output will be visible in Docker logs):
 #   docker run --rm rosetta-python-gen                      # version defaults to 0.0.0
 #   docker run --rm rosetta-python-gen 7.99.99              # pass a version number
 #
@@ -31,7 +32,7 @@ COPY . /mnt/common-domain-model/
 WORKDIR /mnt/common-domain-model/
 
 # Make the entrypoint script executable
-RUN chmod +x python/build-resources/build-cdm-python.sh
+RUN chmod +x python/build-cdm-python.sh
 
 # Set the entrypoint
-ENTRYPOINT ["python/build-resources/build-cdm-python.sh"]
+ENTRYPOINT ["python/build-cdm-python.sh"]

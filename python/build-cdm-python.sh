@@ -15,7 +15,7 @@ CDM_VERSION="${1:-0.0.0}"
 # Option 1: GENERATOR_JAR_FILE is set and the file exists — use it directly.
 # Option 2: GENERATOR_JAR_FILE is unset, empty, or the file is not found — pull from GitHub Releases.
 if [[ -n "${GENERATOR_JAR_FILE:-}" && -f "${GENERATOR_JAR_FILE}" ]]; then
-  echo "Using specified generator JAR: ${GENERATOR_JAR_FILE}"
+  echo "***** Using specified generator JAR: ${GENERATOR_JAR_FILE}"
   GENERATOR_JAR=$(basename "${GENERATOR_JAR_FILE}")
   if [[ "${GENERATOR_JAR_FILE}" != "/tmp/${GENERATOR_JAR}" ]]; then
     cp "${GENERATOR_JAR_FILE}" "/tmp/${GENERATOR_JAR}"
@@ -29,12 +29,13 @@ else
   fi
 
   # Extract and set DSL_VERSION to the rosetta.dsl.version in the parent POM
-  DSL_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
-  echo "rosetta.code-gen.version: ${DSL_VERSION}"
+  # DSL_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
+  DSL_VERSION="9.78.0"
+  echo "***** rosetta.code-gen.version: ${DSL_VERSION}"
   # Find the latest release tag that matches the DSL version (x.y.z.n)
   GENERATOR_REPO="finos/rune-python-generator"
-  echo "Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
-  echo "Fetching tags from GitHub API..."
+  echo "***** Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
+  echo "***** Fetching tags from GitHub API..."
   RAW_TAGS=$(curl -s "https://api.github.com/repos/${GENERATOR_REPO}/tags?per_page=100")
   if [[ -z "${RAW_TAGS}" ]]; then
     echo "ERROR: No response from GitHub API"
@@ -48,7 +49,7 @@ else
     | sort -t. -k4 -n \
     | tail -n 1) || true
 
-  echo "Latest matching generator tag: ${LATEST_TAG}"
+  echo "***** Latest matching generator tag: ${LATEST_TAG}"
 
   if [[ -z "${LATEST_TAG}" ]]; then
     echo "ERROR: No generator release found for DSL version ${DSL_VERSION}"
@@ -57,7 +58,7 @@ else
 
   GENERATOR_JAR="python-${LATEST_TAG}.jar"
   GENERATOR_URL="https://github.com/${GENERATOR_REPO}/releases/download/${LATEST_TAG}/${GENERATOR_JAR}"
-  echo "Attempting to download ${GENERATOR_URL}"
+  echo "***** Attempting to download ${GENERATOR_URL}"
 
   if ! wget -q --spider "${GENERATOR_URL}"; then
     echo "ERROR: Generator jar ${GENERATOR_JAR} not found for tag ${LATEST_TAG}"
@@ -71,7 +72,7 @@ fi
 FPML_VERSION=$(sed -n 's/.*<rune-fpml[-.]version>\(.*\)<\/rune-fpml[-.]version>.*/\1/p' pom.xml | head -n 1)
 
 if [[ -n "${FPML_VERSION}" ]]; then
-  echo "Found rune-fpml-version: ${FPML_VERSION}, pulling FpML definitions from rune-fpml"
+  echo "***** Found rune-fpml-version: ${FPML_VERSION}, pulling FpML definitions from rune-fpml"
   mkdir -p "${CDM_ROSETTA}/rune-fpml"
   TEMP_FPML=$(mktemp -d)
   pushd "${TEMP_FPML}"
@@ -102,11 +103,11 @@ cd "${PYTHON_TARGET}"
 python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir . .
 WHEEL_FILE=$(ls ./*-*-py3-none-any.whl | head -n 1)
 if [[ ! -f "${WHEEL_FILE}" ]]; then
-  echo "Wheel file not found!"
+  echo "***** Wheel file not found!"
   exit 1
 fi
-# python3 -m pip install "${WHEEL_FILE}"
-# python3 -m pip install pytest
-# 
-# # Run unit tests (output will be visible in Docker logs)
-# pytest -p no:cacheprovider ${PROJECT_ROOT}/cdm-python/test/
+python3 -m pip install "${WHEEL_FILE}"
+python3 -m pip install pytest
+
+# Run unit tests (output will be visible in Docker logs)
+pytest -p no:cacheprovider ${PROJECT_ROOT}/python/test/
