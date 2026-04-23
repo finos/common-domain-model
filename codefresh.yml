@@ -48,7 +48,7 @@ steps:
           releaseNameNotDefined: "${{IS_RELEASE}} == true"
     commands:
       - cf_export RELEASE_NAME=${{CF_RELEASE_TAG}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,release,excel,json-schema"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,release,excel,json-schema, python"
 
   SnapshotProperties:
     stage: 'setup'
@@ -60,7 +60,7 @@ steps:
           releaseNameNotDefined: "${{IS_RELEASE}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,release,excel,json-schema"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,release,excel,json-schema, python"
 
   Build:
     stage: 'build'
@@ -140,7 +140,7 @@ steps:
         shell: bash
         commands:
           - apk add --no-cache python3 py3-pip bash
-          - python/build-cdm-python.sh
+          - python/build-cdm-python.sh ${{RELEASE_NAME}}
           
   DeployDaml:
     stage: 'build'
@@ -243,17 +243,14 @@ steps:
 
   DeployPython:
     stage: 'build'
-    title: Python deploy
+    title: Python deploy to PyPI
     fail_fast: false
-    image: maven:3.9.11-eclipse-temurin-21-alpine
-    working_directory: ./rosetta-source/
+    image: python:3.12-alpine
+    working_directory: ./rosetta-source/src/generated/python
     shell: bash
     commands:
-      - apk add --no-cache python3
-      - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd src/generated/python
-      - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl rune_runtime-*-py3-none-any.whl
-      - ${{MVN_DEPLOY_FILE_COMMAND}}
+      - pip install twine
+      - twine upload --username __token__ --password ${{PYPI_TOKEN}} *.whl
 
   DeployExcel:
     stage: 'build'
@@ -296,7 +293,7 @@ steps:
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
           cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
-          #  pythonBuildFailure: steps.BuildPython.result == 'failure'
+          pythonBuildFailure: steps.BuildPython.result == 'failure'
           damlDeployFailure: steps.DeployDaml.result == 'failure'
           scalaDeployFailure: steps.DeployScala.result == 'failure'
           typeScriptDeployFailure: steps.DeployTypeScript.result == 'failure'
@@ -304,7 +301,7 @@ steps:
           cSharp9DeployFailure: steps.DeployCSharp9.result == 'failure'
           goDeployFailure: steps.DeployGo.result == 'failure'
           kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
-          #   pythonDeployFailure: steps.DeployPython.result == 'failure'
+          pythonDeployFailure: steps.DeployPython.result == 'failure'
           excelDeployFailure: steps.DeployExcel.result == 'failure'
           jsonSchemaDeployFailure: steps.DeployJsonSchema.result == 'failure'
     commands:
