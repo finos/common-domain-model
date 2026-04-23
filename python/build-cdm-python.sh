@@ -33,9 +33,7 @@ else
   fi
 
   # Extract and set DSL_VERSION to the rosetta.dsl.version in the parent POM
-  # DSL_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
-  DSL_VERSION="9.78.0"
-  echo "***** rosetta.code-gen.version: ${DSL_VERSION}"
+  DSL_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
   # Find the latest release tag that matches the DSL version (x.y.z.n)
   GENERATOR_REPO="finos/rune-python-generator"
   echo "***** Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
