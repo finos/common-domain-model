@@ -5,18 +5,14 @@
 #   docker run --rm rosetta-python-gen 7.99.99              # pass a version number
 #
 # To run with generated output saved to the host:
+#   docker run --name cdm-gen rosetta-python-gen <version number>; docker cp cdm-gen:/mnt/common-domain-model/rosetta-source/src/generated/python rosetta-source/src/generated/; docker rm cdm-gen
+#      <version number> is optional and defaults to 0.0.0 if not provided. Examples include 7.0.0-dev.98, 7.99.99, etc.
+#
+#   docker run --name cdm-gen rosetta-python-gen 7.0.0-dev.98; docker cp cdm-gen:/mnt/common-domain-model/rosetta-source/src/generated/python rosetta-source/src/generated/; docker rm cdm-gen
 #   docker run --name cdm-gen rosetta-python-gen 7.99.99; docker cp cdm-gen:/mnt/common-domain-model/rosetta-source/src/generated/python rosetta-source/src/generated/; docker rm cdm-gen
 #
 # To mount the docker environment and explore:
 #   docker run --rm -it --entrypoint /bin/bash rosetta-python-gen
-
-# To use a local generator JAR, mount it into the container and set GENERATOR_JAR_FILE:
-#   docker run --rm \
-#     -v /Users/dls/projects/rune/rune-python-generator/FINOS/rune-python-generator/target/python-0.0.0.main-SNAPSHOT.jar:/tmp/python-generator.jar \
-#     -e GENERATOR_JAR_FILE=/tmp/python-generator.jar \
-#     rosetta-python-gen 0.0.0
-# If GENERATOR_JAR_FILE is unset or the file is not found, the script falls back to pulling from GitHub Releases.
-
 
 FROM maven:3.9.9-eclipse-temurin-21-alpine
 
