@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# todo: source CDM version from the tag
-# todo: push generated whl to PyPI and remove mvn distribution
 set -euo pipefail
 set -x
 IFS=$'\n\t'
