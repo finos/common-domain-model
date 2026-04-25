@@ -14,13 +14,13 @@
 # To mount the docker environment and explore:
 #   docker run --rm -it --entrypoint /bin/bash rosetta-python-gen
 
-FROM maven:3.9.9-eclipse-temurin-21-alpine
+FROM maven:3.9.11-eclipse-temurin-21
 
 # Set working directory to /mnt (where the repo will be copied)
 WORKDIR /mnt
 
 # Install required tools
-RUN apk add --no-cache python3 py3-pip bash git
+RUN apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-pip python3-venv git && rm -rf /var/lib/apt/lists/*
 
 # Copy the entire repo into /mnt
 COPY . /mnt/common-domain-model/
