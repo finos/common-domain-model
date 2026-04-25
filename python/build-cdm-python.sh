@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # todo: source CDM version from the tag
-# todo: remove the local generator and local DSL version
 # todo: push generated whl to PyPI and remove mvn distribution
 set -euo pipefail
 set -x
@@ -14,61 +13,41 @@ PYTHON_PACKAGE_NAME="finos-cdm"
 NAMESPACE_PREFIX="finos"
 CDM_VERSION="${1:-0.0.0}"
 
-# todo: remove use of local generator JAR
-# Resolve the generator JAR.
-# Option 1: GENERATOR_JAR_FILE is set and the file exists — use it directly.
-# Option 2: GENERATOR_JAR_FILE is unset, empty, or the file is not found — pull from GitHub Releases.
-if [[ -n "${GENERATOR_JAR_FILE:-}" && -f "${GENERATOR_JAR_FILE}" ]]; then
-  echo "***** Using specified generator JAR: ${GENERATOR_JAR_FILE}"
-  GENERATOR_JAR=$(basename "${GENERATOR_JAR_FILE}")
-  if [[ "${GENERATOR_JAR_FILE}" != "/tmp/${GENERATOR_JAR}" ]]; then
-    cp "${GENERATOR_JAR_FILE}" "/tmp/${GENERATOR_JAR}"
-    echo "Copied ${GENERATOR_JAR_FILE} to /tmp/${GENERATOR_JAR}"
-  else
-    echo "Using ${GENERATOR_JAR_FILE} in place"
-  fi
-else
-  if [[ -n "${GENERATOR_JAR_FILE:-}" ]]; then
-    echo "WARNING: GENERATOR_JAR_FILE=${GENERATOR_JAR_FILE} was specified but not found — falling back to GitHub"
-  fi
-
-  # Extract and set DSL_VERSION to the rosetta.dsl.version in the parent POM
-  DSL_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
-  # Find the latest release tag that matches the DSL version (x.y.z.n)
-  GENERATOR_REPO="finos/rune-python-generator"
-  echo "***** Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
-  echo "***** Fetching tags from GitHub API..."
-  RAW_TAGS=$(curl -s "https://api.github.com/repos/${GENERATOR_REPO}/tags?per_page=100")
-  if [[ -z "${RAW_TAGS}" ]]; then
-    echo "ERROR: No response from GitHub API"
-    exit 1
-  fi
-
-  LATEST_TAG=$(echo "${RAW_TAGS}" \
-    | grep '"name":' \
-    | cut -d '"' -f 4 \
-    | grep -E "^${DSL_VERSION}\.[0-9]+$" \
-    | sort -t. -k4 -n \
-    | tail -n 1) || true
-
-  echo "***** Latest matching generator tag: ${LATEST_TAG}"
-
-  if [[ -z "${LATEST_TAG}" ]]; then
-    echo "ERROR: No generator release found for DSL version ${DSL_VERSION}"
-    exit 1
-  fi
-
-  GENERATOR_JAR="python-${LATEST_TAG}.jar"
-  GENERATOR_URL="https://github.com/${GENERATOR_REPO}/releases/download/${LATEST_TAG}/${GENERATOR_JAR}"
-  echo "***** Attempting to download ${GENERATOR_URL}"
-
-  if ! wget -q --spider "${GENERATOR_URL}"; then
-    echo "ERROR: Generator jar ${GENERATOR_JAR} not found for tag ${LATEST_TAG}"
-    exit 1
-  fi
-
-  wget -O "/tmp/${GENERATOR_JAR}" "${GENERATOR_URL}" || { echo "Failed to download generator JAR"; exit 1; }
+# Extract and set DSL_VERSION to the rosetta.dsl.version in the parent POM
+DSL_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
+GENERATOR_REPO="finos/rune-python-generator"
+echo "***** Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
+echo "***** Fetching tags from GitHub API..."
+RAW_TAGS=$(curl -s "https://api.github.com/repos/${GENERATOR_REPO}/tags?per_page=100")
+if [[ -z "${RAW_TAGS}" ]]; then
+  echo "ERROR: No response from GitHub API"
+  exit 1
 fi
+
+LATEST_TAG=$(echo "${RAW_TAGS}" \
+  | grep '"name":' \
+  | cut -d '"' -f 4 \
+  | grep -E "^${DSL_VERSION}\.[0-9]+$" \
+  | sort -t. -k4 -n \
+  | tail -n 1) || true
+
+echo "***** Latest matching generator tag: ${LATEST_TAG}"
+
+if [[ -z "${LATEST_TAG}" ]]; then
+  echo "ERROR: No generator release found for DSL version ${DSL_VERSION}"
+  exit 1
+fi
+
+GENERATOR_JAR="python-${LATEST_TAG}.jar"
+GENERATOR_URL="https://github.com/${GENERATOR_REPO}/releases/download/${LATEST_TAG}/${GENERATOR_JAR}"
+echo "***** Attempting to download ${GENERATOR_URL}"
+
+if ! wget -q --spider "${GENERATOR_URL}"; then
+  echo "ERROR: Generator jar ${GENERATOR_JAR} not found for tag ${LATEST_TAG}"
+  exit 1
+fi
+
+wget -O "/tmp/${GENERATOR_JAR}" "${GENERATOR_URL}" || { echo "Failed to download generator JAR"; exit 1; }
 
 # Check for rune-fpml dependency in pom.xml
 FPML_VERSION=$(sed -n 's/.*<rune-fpml[-.]version>\(.*\)<\/rune-fpml[-.]version>.*/\1/p' pom.xml | head -n 1)
