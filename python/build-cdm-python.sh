@@ -95,8 +95,8 @@ fi
 java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -p "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}" -v "${CDM_VERSION}"
 
 export PYTHONDONTWRITEBYTECODE=1
-python3 -m venv /tmp/.pyenv
-source /tmp/.pyenv/bin/activate
+python3 -m venv ./.pyenv
+source ./.pyenv/bin/activate
 python3 -m pip install --upgrade pip
 
 cd "${PYTHON_TARGET}"
@@ -113,3 +113,6 @@ python3 -m pip install pytest
 
 # Run unit tests (output will be visible in Docker logs)
 pytest -p no:cacheprovider ${PROJECT_ROOT}/python/test/
+
+deactivate
+rm -rf ./.pyenv
