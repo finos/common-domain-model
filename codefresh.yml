@@ -247,10 +247,11 @@ steps:
     fail_fast: false
     image: python:3.12-slim
     working_directory: ./rosetta-source/src/generated/python
-    shell: bash
+    environment:
+      - TWINE_PASSWORD=${{PYPI_TOKEN}}
     commands:
       - pip install twine
-      - twine upload --non-interactive --username __token__ --password ${{PYPI_TOKEN}} *.whl
+      - twine upload --non-interactive --username __token__ --password $TWINE_PASSWORD *.whl
 
   DeployExcel:
     stage: 'build'
