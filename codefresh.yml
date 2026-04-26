@@ -36,7 +36,6 @@ steps:
       - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
       - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import" --mask
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
-      - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
       - cf_export MVN_DEPLOY_FILE_COMMAND="mvn deploy -Prelease -Dcheckstyle.skip=true -Dmaven.deploy.skip=true -s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml"
 
   ReleaseProperties:
@@ -136,12 +135,12 @@ steps:
         stage: 'build'
         title: Python build
         fail_fast: false
-        image: maven:3.9.9-eclipse-temurin-21-alpine
+        image: maven:3.9.11-eclipse-temurin-21
         working_directory: ./
         shell: bash
         commands:
-          - apk add --no-cache python3 py3-pip wget curl bash
-          - python/build-resources/build-cdm-python.sh
+          - apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-pip python3-venv git
+          - python/build-cdm-python.sh ${{RELEASE_NAME}}
           
   DeployDaml:
     stage: 'build'
@@ -244,17 +243,20 @@ steps:
 
   DeployPython:
     stage: 'build'
-    title: Python deploy
+    title: Python deploy to PyPI
     fail_fast: false
-    image: maven:3.9.11-eclipse-temurin-21-alpine
-    working_directory: ./rosetta-source/
-    shell: bash
+    image: python:3.12-slim
+    working_directory: ./rosetta-source/src/generated/python
+    when:
+      condition:
+        all:
+          isRelease: "${{IS_RELEASE}} == true"
+          pythonBuildSuccess: steps.BuildPython.result == 'success'
+    environment:
+      - TWINE_PASSWORD=${{PYPI_TOKEN}}
     commands:
-      - apk add --no-cache python3
-      - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd src/generated/python
-      - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl rune_runtime-*-py3-none-any.whl
-      - ${{MVN_DEPLOY_FILE_COMMAND}}
+      - pip install twine
+      - twine upload --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
 
   DeployExcel:
     stage: 'build'
