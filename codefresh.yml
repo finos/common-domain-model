@@ -251,11 +251,12 @@ steps:
       condition:
         all:
           isRelease: "${{IS_RELEASE}} == true"
+          pythonBuildSuccess: steps.BuildPython.result == 'success'
     environment:
       - TWINE_PASSWORD=${{PYPI_TOKEN}}
     commands:
       - pip install twine
-      - twine upload --non-interactive --username __token__ --password $TWINE_PASSWORD *.whl
+      - twine upload --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
 
   DeployExcel:
     stage: 'build'
