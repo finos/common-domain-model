@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * are properly resolved into valid {@link CodeList} objects and conform to schema validation.
  */
 class LoadCodeListTest {
-    private static final Logger logger = LoggerFactory.getLogger(LoadCodeListTest.class);
+    private final Logger logger = LoggerFactory.getLogger(LoadCodeListTest.class);
 
     // Dependency injection
     private static Injector injector;
@@ -103,4 +103,3 @@ class LoadCodeListTest {
         assertTrue(report.success(), "Must resolve a valid CodeList");
     }
 }
-
