@@ -33,7 +33,7 @@ If you’re interested in the Common Domain Model (CDM), please complete the [CD
 ## CDM Training
 
 -    **Introduction to the CDM (LFEL1016)**: A 90-minute Express Learning course covering the fundamentals of the Common Domain Model. Including how it standardizes data for financial products, trades, and lifecycle events to improve interoperability across technologies. [Enroll here](https://training.linuxfoundation.org/training/introduction-to-the-common-domain-model-cdm-lfel1016/).
--    **CDM Collateral Start-up Guide**: A set of short tutorials designed for business users to explore the CDM in the context of collateral management. This hands-on resource walks through features, tools, and implementation approaches. [Learn more](https://www.isda.org/2023/02/16/isda-collateral-initiatives/)
+-    **CDM Collateral Start-up Guide**: A set of short tutorials designed launched by ISDA, for business users to explore the CDM in the context of collateral management. This hands-on resource walks through features, tools, and implementation approaches. [Learn more](https://www.isda.org/2023/02/16/isda-collateral-initiatives/)
 
 ## Purpose
 
