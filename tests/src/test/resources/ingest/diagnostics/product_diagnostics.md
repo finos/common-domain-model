@@ -23,13 +23,13 @@
 | fxVolatilitySwap | 2 | 103% |
 | capFloor | 11 | 102% |
 | genericProduct | 2 | 102% |
+| equityOption | 37 | 102% |
 | varianceSwapTransactionSupplement | 6 | 102% |
 | brokerEquityOption | 6 | 101% |
+| returnSwap | 36 | 101% |
 | fxOption | 26 | 101% |
 | bondOption | 12 | 101% |
 | equitySwapTransactionSupplement | 30 | 101% |
-| equityOption | 37 | 100% |
-| returnSwap | 36 | 100% |
 | correlationSwap | 8 | 100% |
 | swap | 166 | 100% |
 | equityOptionTransactionSupplement | 16 | 99% |
