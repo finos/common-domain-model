@@ -15,52 +15,47 @@ import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToWorkflo
 
 public class Fpml513IncompleteProcessesIngestionServiceTest extends IngestionTest<WorkflowStep> {
 
-	private static final String BASE_DIR = "cdm-sample-files/fpml-5-13/incomplete-processes/";
+    private static final String BASE_DIR = "cdm-sample-files/fpml-5-13/incomplete-processes/";
 
-	private static IngestionService ingestionService;
+    private static IngestionService ingestionService;
 
-	@BeforeAll
-	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
-		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = getFpml5ConfirmationToWorkflowStep();
-	}
-	
-	@Override
-	protected Class<WorkflowStep> getClazz() {
-		return WorkflowStep.class;
-	}
+    @BeforeAll
+    static void setup() {
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
+        ingestionService = getFpml5ConfirmationToWorkflowStep();
+    }
 
-	@Override
-	protected IngestionService ingestionService() {
-		return ingestionService;
-	}
+    @Override
+    protected Class<WorkflowStep> getClazz() {
+        return WorkflowStep.class;
+    }
 
-	@SuppressWarnings("unused")//used by the junit parameterized test
-	private static Stream<Arguments> fpMLFiles() {
-		return readExpectationsFromPath(BASE_DIR);
-	}
+    @Override
+    protected IngestionService ingestionService() {
+        return ingestionService;
+    }
 
-	public void run() {
+    @SuppressWarnings("unused")//used by the junit parameterized test
+    private static Stream<Arguments> fpMLFiles() {
+        return readExpectationsFromPath(BASE_DIR);
+    }
 
-		// Ensure environment is set up
-		setup();
-		fpMLFiles().forEach(e -> {
-			Object[] argsArray = e.get();
-			String expectationFilePath = (String) argsArray[0];
-			Expectation expectation = (Expectation) argsArray[1];
-			String expectationFileName = (String) argsArray[2];
-			try {
-				if (writeActualExpectations) {
-					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
-				} else {
-					ingest(expectationFilePath, expectation, expectationFileName);
-				}
-			} catch (Throwable ex) {
-				throw new RuntimeException(ex);
-			}
+    public void updateExpectations() {
 
-		});
-	}
+        // Ensure environment is set up
+        setup();
+        fpMLFiles().forEach(e -> {
+            Object[] argsArray = e.get();
+            String expectationFilePath = (String) argsArray[0];
+            Expectation expectation = (Expectation) argsArray[1];
+            try {
+                writeIngestionExpectation(expectationFilePath, expectation);
+            } catch (Throwable ex) {
+                throw new RuntimeException(ex);
+            }
+
+        });
+    }
 
 }

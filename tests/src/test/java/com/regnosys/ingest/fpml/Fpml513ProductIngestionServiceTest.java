@@ -41,7 +41,7 @@ public class Fpml513ProductIngestionServiceTest extends IngestionTest<TradeState
         return readExpectationsFromPath(BASE_DIR);
     }
 
-    public void run() {
+    public void updateExpectations() {
 
         // Ensure environment is set up
         setup();
@@ -49,13 +49,8 @@ public class Fpml513ProductIngestionServiceTest extends IngestionTest<TradeState
             Object[] argsArray = e.get();
             String expectationFilePath = (String) argsArray[0];
             Expectation expectation = (Expectation) argsArray[1];
-            String expectationFileName = (String) argsArray[2];
             try {
-                if (writeActualExpectations) {
-                    writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
-                } else {
-                    ingest(expectationFilePath, expectation, expectationFileName);
-                }
+                writeIngestionExpectation(expectationFilePath, expectation);
             } catch (Throwable ex) {
                 throw new RuntimeException(ex);
             }

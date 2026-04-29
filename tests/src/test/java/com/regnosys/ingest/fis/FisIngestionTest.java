@@ -19,11 +19,11 @@ import java.util.stream.Stream;
 
 public class FisIngestionTest extends IngestionTest<WorkflowStep> {
 
-	private static final String ENV_INSTANCE_NAME = "target/ISLA";
-	private static final List<URL> ENV_FILE = Collections.singletonList(Resources.getResource("ingestions/isla-ingestions.json"));
-	private static final String SAMPLE_FILES_DIR = "cdm-sample-files/fis/";
+    private static final String ENV_INSTANCE_NAME = "target/ISLA";
+    private static final List<URL> ENV_FILE = Collections.singletonList(Resources.getResource("ingestions/isla-ingestions.json"));
+    private static final String SAMPLE_FILES_DIR = "cdm-sample-files/fis/";
 
-	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
+    private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
             .add(Resources.getResource(SAMPLE_FILES_DIR + "expectations.json"))
             .build();
 
@@ -31,7 +31,7 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
 
     @BeforeAll
     static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
         initialiseIngestionFactory(ENV_INSTANCE_NAME, ENV_FILE, runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
         ingestionService = IngestionFactory.getInstance(ENV_INSTANCE_NAME).getFis();
     }
@@ -52,7 +52,7 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
     }
 
 
-    public void run() {
+    public void updateExpectations() {
 
         // Ensure environment is set up
         setup();
@@ -60,13 +60,8 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
             Object[] argsArray = e.get();
             String expectationFilePath = (String) argsArray[0];
             Expectation expectation = (Expectation) argsArray[1];
-            String expectationFileName = (String) argsArray[2];
             try {
-                if (writeActualExpectations) {
-                    writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
-                } else {
-                    ingest(expectationFilePath, expectation, expectationFileName);
-                }
+                writeIngestionExpectation(expectationFilePath, expectation);
             } catch (Throwable ex) {
                 throw new RuntimeException(ex);
             }
