@@ -64,7 +64,7 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
         IngestionFactory.getInstance(ENV_INSTANCE_NAME).clear();
     }
 
-    public void run() {
+    public void updateExpectations() {
 
         // Ensure environment is set up
         setup();
@@ -74,11 +74,7 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
             Expectation expectation = (Expectation) argsArray[1];
             String expectationFileName = (String) argsArray[2];
             try {
-                if (writeActualExpectations) {
-                    writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
-                } else {
-                    ingest(expectationFilePath, expectation, expectationFileName);
-                }
+                writeIngestionExpectation(expectationFilePath, expectation);
                 tearDown();
             } catch (Throwable ex) {
                 tearDown();

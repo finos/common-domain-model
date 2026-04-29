@@ -50,7 +50,7 @@ public class NativeCdmEventsIngestionServiceTest extends IngestionTest<WorkflowS
         return readExpectationsFrom(EXPECTATION_FILES);
     }
 
-	public void run() {
+	public void updateExpectations() {
 
 		// Ensure environment is set up
 		setup();
@@ -60,11 +60,9 @@ public class NativeCdmEventsIngestionServiceTest extends IngestionTest<WorkflowS
 			Expectation expectation = (Expectation) argsArray[1];
 			String expectationFileName = (String) argsArray[2];
 			try {
-				if (writeActualExpectations) {
-					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
-				} else {
-					ingest(expectationFilePath, expectation, expectationFileName);
-				}
+				
+					writeIngestionExpectation(expectationFilePath, expectation);
+				
 			} catch (Throwable ex) {
 				throw new RuntimeException(ex);
 			}
