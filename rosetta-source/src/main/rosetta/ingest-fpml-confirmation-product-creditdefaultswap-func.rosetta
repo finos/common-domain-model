@@ -9,7 +9,7 @@ import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
-import cdm.ingest.fpml.confirmation.product.swap.*
+import cdm.ingest.fpml.confirmation.product.swap.* as swap
 import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
 import cdm.observable.event.*
@@ -45,12 +45,6 @@ func MapCreditDefaultSwapCounterpartyList:
                 buyerSellerModel -> buyerPartyReference
             )
 
-func MapCreditDefaultSwapAncillaryPartyList:
-    inputs:
-        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
-
 func MapCreditDefaultSwapNonTransferableProduct:
     inputs:
         fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
@@ -78,12 +72,6 @@ func MapCreditDefaultSwapEconomicTerms:
     output:
         economicTerms EconomicTerms (0..1)
 
-    alias nonStandardisedTerms:
-        if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms exists
-        then if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms any = True
-            then True
-            else False
-
     set economicTerms:
         EconomicTerms {
             effectiveDate: MapAdjustableDate2ToAdjustableOrRelativeDate(
@@ -99,7 +87,6 @@ func MapCreditDefaultSwapEconomicTerms:
                         fpmlCreditDefaultSwap,
                         cdmCounterpartyList
                     ),
-            nonStandardisedTerms: nonStandardisedTerms,
             ...
         }
 
@@ -222,10 +209,20 @@ func MapReferenceObligation:
         else if fpmlReferenceObligation -> mortgage exists
         then fpmlReferenceObligation -> mortgage
 
+    alias seniority:
+        if fpmlReferenceObligation -> bond exists
+        then fpmlReferenceObligation -> bond -> fixedIncomeSecurityContentModel -> seniority -> value
+
     set referenceObligation:
         ReferenceObligation {
             security: if debtAsset exists
-                    then MapIdentifiedAssetToSecurity(debtAsset, empty, empty, Debt),
+                    then MapIdentifiedAssetToSecurity(
+                            debtAsset,
+                            empty,
+                            empty,
+                            Debt,
+                            seniority
+                        ),
             primaryObligorReference: MapLegalEntityReference(
                         fpmlReferenceObligation -> primaryObligorReference
                     ),
@@ -247,7 +244,10 @@ func MapCreditIndex:
     set creditIndex:
         if fpmlIndexReferenceInformation exists
         then CreditIndex {
-                identifier: indexId extract MapIndexIdToAssetIdentifier,
+                identifier: [
+                        indexName extract MapIndexNameToAssetIdentifier,
+                        indexId extract MapIndexIdToAssetIdentifier
+                    ],
                 name: MapStringWithScheme(indexName -> value, indexName -> indexNameScheme),
                 provider: empty,
                 assetClass: Credit,
@@ -295,8 +295,9 @@ func MapBasketReferenceInformation:
     alias basketName:
         fpmlBasketReferenceInformation -> basketIdentifierModel -> basketIdentifierModelSequence -> basketName
 
-    alias basketId:
-        fpmlBasketReferenceInformation -> basketIdentifierModel -> basketIdentifierModelSequence -> basketId
+    alias basketIdList:
+        fpmlBasketReferenceInformation -> basketIdentifierModel
+            extract basketIdentifierModelSequence -> basketId default basketId
 
     set basketReferenceInformation:
         if fpmlBasketReferenceInformation exists
@@ -305,7 +306,7 @@ func MapBasketReferenceInformation:
                             basketName -> value,
                             basketName -> basketNameScheme
                         ),
-                basketId: basketId extract MapStringWithScheme(value, basketIdScheme),
+                basketId: basketIdList extract MapStringWithScheme(value, basketIdScheme),
                 referencePool:
                     ReferencePool {
                         referencePoolItem: fpmlBasketReferenceInformation -> referencePool -> referencePoolItem
@@ -531,7 +532,7 @@ func MapFeeLegToInterestRateLegPayout:
                                                         )
                             }},
                             FloatingRateSpecification: if fpmlFloatingRate exists
-                                    then MapFloatingRateSpecification(
+                                    then swap.MapFloatingRateSpecification(
                                             fpmlFloatingRate,
                                             fpmlFeeLeg
                                         ),

@@ -119,6 +119,10 @@ func MapProductTaxonomyList:
                         fpmlProductModel -> primaryAssetClass -> value,
                         fpmlProductModel -> primaryAssetClass -> assetClassScheme
                     ),
+            secondaryAssetClass: MapAssetClassWithScheme(
+                        fpmlProductModel -> secondaryAssetClass first -> value,
+                        fpmlProductModel -> secondaryAssetClass first -> assetClassScheme
+                    ),
             ...
         }
 
@@ -148,6 +152,42 @@ func MapAssetClassWithScheme:
             scheme: scheme
         }
 
+func GetMultiplerUnitTypeUnderlyingAsset:
+    inputs:
+        fpmlUnderlyingAsset fpml.Asset (0..1)
+    output:
+        unitType UnitType (0..1)
+
+    alias financialUnit:
+        fpmlUnderlyingAsset switch
+            fpml.Equity then FinancialUnitEnum -> Share,
+            default empty
+
+    set unitType:
+        UnitType {
+            financialUnit: financialUnit,
+            ...
+        }
+
+func GetUnitTypeForUnderlyingAsset:
+    inputs:
+        fpmlUnderlyingAsset fpml.Asset (0..1)
+    output:
+        unitType UnitType (0..1)
+
+    alias financialUnit:
+        fpmlUnderlyingAsset switch
+            fpml.Index then
+                if instrumentId exists
+                then FinancialUnitEnum -> IndexUnit,
+            default FinancialUnitEnum -> Share
+
+    set unitType:
+        UnitType {
+            financialUnit: financialUnit,
+            ...
+        }
+
 func MapUnitTypeWithScheme:
     inputs:
         value string (0..1)
@@ -155,14 +195,19 @@ func MapUnitTypeWithScheme:
     output:
         unitType UnitType (0..1)
 
+    alias financialUnit:
+        value to-enum FinancialUnitEnum
+            default if value = "IndexUnits" then IndexUnit
+            then to-string
+
     set unitType:
         UnitType {
             capacityUnit: if MapCapacityUnitEnum(value) exists
                     then MapCapacityUnitWithScheme(value, scheme),
             weatherUnit: if value to-enum WeatherUnitEnum exists
                     then MapWeatherUnitWithScheme(value, scheme),
-            financialUnit: if value to-enum FinancialUnitEnum exists
-                    then MapFinancialUnitWithScheme(value, scheme),
+            financialUnit: if financialUnit exists
+                    then MapFinancialUnitWithScheme(financialUnit, scheme),
             ...
         }
 
@@ -524,7 +569,34 @@ func MapExerciseTerms:
                 MapFxAmericanExerciseTerms(item, cdmExerciseProcedure),
             fpml.FxDigitalAmericanExercise then
                 MapFxDigitalAmericanExercise(item, cdmExerciseProcedure),
+            fpml.CommodityPhysicalEuropeanExercise then
+                MapCommodityPhysicalEuropeanExercise(item, cdmExerciseProcedure),
             default empty
+
+func MapCommodityPhysicalEuropeanExercise:
+    inputs:
+        fpmlCommodityPhysicalEuropeanExercise fpml.CommodityPhysicalEuropeanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: European,
+            expirationDate: fpmlCommodityPhysicalEuropeanExercise -> expirationDates -> adjustableDates -> unadjustedDate
+                    extract
+                        AdjustableOrRelativeDate {
+                            adjustableDate:
+                                AdjustableDate {
+                                    unadjustedDate: value -> date,
+                                    ...
+                                },
+                            relativeDate: empty
+                        },
+            // fpmlCommodityPhysicalEuropeanExercise -> expirationDates -> adjustableDates -> unadjustedDate
+            expirationTimeType: empty,
+            ...
+        }
 
 func MapExerciseProcedure:
     inputs:
@@ -912,28 +984,6 @@ func MapFxAmericanExerciseTerms:
 
     set exerciseTerms:
         MapFxDigitalAmericanExercise(fpmlFxAmericanExercise, cdmExerciseProcedure)
-
-func GetPerUnitOfForEquityDerivativeBase:
-    inputs:
-        fpmlEquityDerivativeBase fpml.EquityDerivativeBase (0..1)
-    output:
-        perUnitOf UnitType (0..1)
-
-    alias fpmlUnderlyingAsset:
-        fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
-
-    alias financialUnit:
-        fpmlUnderlyingAsset switch
-            fpml.Index then
-                if instrumentId exists
-                then FinancialUnitEnum -> IndexUnit,
-            default empty
-
-    set perUnitOf:
-        UnitType {
-            financialUnit: financialUnit default FinancialUnitEnum -> Share,
-            ...
-        }
 
 func MapAdjustableOrRelativeDateToObservationTerms:
     inputs:

@@ -10,7 +10,6 @@ import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.header.*
 import cdm.ingest.fpml.confirmation.legal.*
-import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.payment.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
@@ -35,6 +34,9 @@ func MapWorkflowStep:
         effectiveDate date (0..1)
         fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
         tradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
+        tradingEvents fpml.TradingEventSummary (0..1)
+        fpmlEventValuationModel fpml.business.events.EventValuationModel (0..1)
+        fpmlAdditionalPartyTradeIdentifier fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
     output:
         workflowStep WorkflowStep (0..1)
 
@@ -54,33 +56,73 @@ func MapWorkflowStep:
                                         ),
                                 before: MapTradeState(
                                             fpmlTrade,
-                                            fpmlPartiesAndAccountsModel
+                                            fpmlPartiesAndAccountsModel,
+                                            fpmlEventValuationModel,
+                                            fpmlAdditionalPartyTradeIdentifier
                                         )
                             }
                         ],
                     ...
                 },
-            timestamp:
-                EventTimestamp {
-                    dateTime: messageHeaderModel -> creationTimestamp,
-                    qualification: MapEventTimestampQualification(
-                                messageHeaderModel,
-                                fpmlTrade
-                    ),
+            timestamp: MapEventTimestamp(messageHeaderModel, fpmlTrade),
+            eventIdentifier: MapEventIdentifier(messageId, tradingEvents),
+            messageInformation: MapMessageInformation(messageId, messageHeaderModel),
+            action: action,
+            nextEvent: MapNextEvent(fpmlTrade -> tradeHeader -> partyTradeInformation),
+            ...
+        }
+
+func MapNextEvent:
+    inputs:
+        partyTradeInformation fpml.PartyTradeInformation (0..*)
+    output:
+        nextEvent EventInstruction (0..1)
+    set nextEvent:
+        EventInstruction {
+            intent: if partyTradeInformation -> clearingStatus -> value any = "Uncleared"
+                        and partyTradeInformation -> intentToClear any = True
+                    then Clearing
+                else if partyTradeInformation -> allocationStatus -> value any = "PreAllocation"
+                        and partyTradeInformation -> intentToAllocate any = True
+                then Allocation
+                else if partyTradeInformation -> intentToClear any = True
+                then Clearing
+                else if partyTradeInformation -> intentToAllocate any = True
+                then Allocation,
+            ...
+        }
+
+func MapEventIdentifier:
+    inputs:
+        messageId fpml.MessageId (0..1)
+        tradeEvent fpml.TradingEventSummary (0..1)
+    output:
+        eventIdentifier Identifier (0..*)
+
+    add eventIdentifier:
+        Identifier {
+            assignedIdentifier:
+                AssignedIdentifier {
+                    identifier: messageId -> value,
+                    ...
                 },
-            eventIdentifier:
+            ...
+        }
+
+    add eventIdentifier:
+        tradeEvent -> eventIdentifier
+            extract
                 Identifier {
                     assignedIdentifier:
                         AssignedIdentifier {
-                            identifier: messageId -> value,
+                            identifier: eventId -> value,
                             ...
                         },
+                    issuerReference: MapPartyReference(
+                                partyAndAccountReferencesModel -> partyReference -> href
+                            ),
                     ...
-                },
-            messageInformation: MapMessageInformation(messageId, messageHeaderModel),
-            action: action,
-            ...
-        }
+                }
 
 func MapPrimitiveInstruction:
     inputs:
@@ -182,28 +224,45 @@ func MapBreakdown:
         then remainingAmount default novatedAmount
 
     add breakdown:
-        if novatedAmount exists or changeInNotionalAmount exists
-        then PrimitiveInstruction {
-                quantityChange: MapQuantityChangeInstruction(
-                            empty,
-                            fpmlPostTradeEventsBaseModel,
-                            Replace
-                        ),
-                partyChange: MapPartyChangeInstruction(fpmlPostTradeEventsBaseModel),
-                transfer: MapTransferInstruction(
-                            fpmlPostTradeEventsBaseModel -> novation -> payment,
-                            Novation
-                        ),
-                ...
-            }
+        PrimitiveInstruction {
+            quantityChange:
+                QuantityChangeInstruction {
+                    change:
+                        PriceQuantity {
+                            quantity: changeInNotionalAmount
+                                    extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+                                    then default novatedAmount
+                                            extract MapMoneyToNonNegativeQuantitySchedule
+                            ,
+                            ...
+                        },
+                    direction: changeInstruction,
+                    ...
+                },
+            partyChange: MapPartyChangeInstruction(fpmlPostTradeEventsBaseModel),
+            transfer: MapTransferInstruction(
+                        fpmlPostTradeEventsBaseModel -> novation -> payment,
+                        Novation
+                    ),
+            ...
+        }
 
     add breakdown:
         PrimitiveInstruction {
-            quantityChange: MapQuantityChangeInstruction(
-                        empty,
-                        fpmlPostTradeEventsBaseModel,
-                        changeInstruction
-                    ),
+            quantityChange:
+                QuantityChangeInstruction {
+                    change:
+                        PriceQuantity {
+                            quantity: outstandingNotionalAmount
+                                    extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+                                    then default remainingAmount
+                                            extract MapMoneyToNonNegativeQuantitySchedule
+                            ,
+                            ...
+                        },
+                    direction: changeInstruction,
+                    ...
+                },
             ...
         }
 
@@ -262,13 +321,6 @@ func MapTerminationToPrimitiveInstruction:
 
     set primitiveInstruction:
         PrimitiveInstruction {
-            contractFormation:
-                ContractFormationInstruction {
-                    legalAgreement: MapLegalAgreementList(
-                                fpmlTrade -> documentation,
-                                counterpartyList
-                            )
-                },
             quantityChange: MapQuantityChangeInstruction(termination, empty, Replace),
             transfer: MapTransferInstruction(terminationPayment, transferExpression),
             ...
@@ -338,10 +390,12 @@ func MapPriceQuantity:
             extract CreateQuantityWithLocation(item, CreateQuantityKey(empty, empty))
 
     add priceQuantityList:
-        PriceQuantity {
-            quantity: q,
-            ...
-        }
+        q
+            extract
+                PriceQuantity {
+                    quantity: item,
+                    ...
+                }
 
 func MapMoneyToNonNegativeQuantitySchedule:
     inputs:

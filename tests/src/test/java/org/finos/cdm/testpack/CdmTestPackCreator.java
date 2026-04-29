@@ -96,9 +96,10 @@ public class CdmTestPackCreator {
             CdmTestPackCreator testPackConfigCreator = new CdmTestPackCreator();
             Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
             injector.injectMembers(testPackConfigCreator);
-            testPackConfigCreator.run();
 
             testPackConfigCreator.runIngestion();
+            testPackConfigCreator.run();
+
 
             testPackConfigCreator.runFunctionCreators();
 
@@ -110,7 +111,6 @@ public class CdmTestPackCreator {
     }
 
     private void runIngestion() {
-
         LOGGER.info(" ** Updating expectations for cmeClearedConfirmTest");
         cmeClearedConfirmTest.run();
         LOGGER.info(" ** Updating expectations for cmeSubmissionTest");
@@ -157,11 +157,9 @@ public class CdmTestPackCreator {
 
         LOGGER.info(" ** Updating expectations for OreTradeTest");
         oreTradeTest.run();
-
     }
 
     private void runFunctionCreators() throws Exception {
-
         LOGGER.info(" ** Updating Function Input Samples");
 
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();

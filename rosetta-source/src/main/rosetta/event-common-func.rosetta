@@ -483,8 +483,9 @@ func Create_ContractFormation: <"Function specification that represents an execu
         contractFormation TradeState (1..1) <"Primitive event containing the execution as its before state and the contract as the after state.">
 
     set contractFormation: execution
-    add contractFormation -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions.">
-        instruction -> legalAgreement
+    set contractFormation -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions, and ensure no duplicates.">
+        [instruction -> legalAgreement, contractFormation -> trade -> contractDetails -> documentation]
+            distinct
     set contractFormation -> state -> positionState: <"Assign the position status to formed.">
         PositionStatusEnum -> Formed
 
