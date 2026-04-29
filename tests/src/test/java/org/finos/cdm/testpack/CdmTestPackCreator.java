@@ -96,11 +96,13 @@ public class CdmTestPackCreator {
             CdmTestPackCreator testPackConfigCreator = new CdmTestPackCreator();
             Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
             injector.injectMembers(testPackConfigCreator);
-            testPackConfigCreator.run();
 
             testPackConfigCreator.runIngestion();
 
             testPackConfigCreator.runFunctionCreators();
+
+            testPackConfigCreator.run();
+
 
             System.exit(0);
         } catch (Exception e) {
