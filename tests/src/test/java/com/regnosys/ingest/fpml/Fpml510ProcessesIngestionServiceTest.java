@@ -58,7 +58,6 @@ public class Fpml510ProcessesIngestionServiceTest extends IngestionTest<Workflow
             Object[] argsArray = e.get();
             String expectationFilePath = (String) argsArray[0];
             Expectation expectation = (Expectation) argsArray[1];
-            String expectationFileName = (String) argsArray[2];
             try {
                 writeIngestionExpectation(expectationFilePath, expectation);
             } catch (Throwable ex) {

@@ -42,6 +42,7 @@ public class Fpml510IncompleteProductIngestionServiceTest extends IngestionTest<
     private static Stream<Arguments> fpMLFiles() {
         return readExpectationsFromPath(INCOMPLETE_BASE);
     }
+
     public void updateExpectations() {
 
         // Ensure environment is set up
@@ -50,7 +51,6 @@ public class Fpml510IncompleteProductIngestionServiceTest extends IngestionTest<
             Object[] argsArray = e.get();
             String expectationFilePath = (String) argsArray[0];
             Expectation expectation = (Expectation) argsArray[1];
-            String expectationFileName = (String) argsArray[2];
             try {
                 writeIngestionExpectation(expectationFilePath, expectation);
             } catch (Throwable ex) {
