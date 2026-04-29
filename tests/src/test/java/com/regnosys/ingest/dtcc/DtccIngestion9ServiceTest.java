@@ -60,7 +60,20 @@ public class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
         return readExpectationsFrom(EXPECTATION_FILES);
     }
 
-    public void updateExpectations() {
+	@SuppressWarnings("unused")
+	private void toPrintExcelExport(MappingReport mappingReport) {
+		LOGGER.info("\nSuccesses -----------------------------------------------------------------\n");
+		mappingReport.getSuccesses().stream().map(this::toExcelExportString).forEach(LOGGER::info);
+
+		LOGGER.info("\nFailures -----------------------------------------------------------------\n");
+		mappingReport.getFailures().stream().map(this::toExcelExportString).forEach(LOGGER::info);
+	}
+
+	private String toExcelExportString(MappingResult r) {
+		return r.getExternalPath() + "|" + r.getInternalPaths().entrySet().stream().map(e->e.getKey().buildPath()).collect(Collectors.joining(",\n\t\t"));
+	}
+
+	public void updateExpectations() {
 
         // Ensure environment is set up
         setup();
