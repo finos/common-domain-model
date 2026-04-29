@@ -58,16 +58,14 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModule;
-import org.isda.cdm.functions.CreateBusinessEventInput;
+import org.finos.cdm.util.ResourcesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.ResourcesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -75,7 +73,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.finos.cdm.functions.FunctionUtils.guard;
-import static util.ResourcesUtils.*;
+import static org.finos.cdm.util.ResourcesUtils.*;
 
 public class FunctionInputCreator {
 
@@ -125,8 +123,8 @@ public class FunctionInputCreator {
             System.exit(1);
         }
     }
-    
-    public void run( Optional<Path> writeBasePath) throws Exception {
+
+    public void run(Optional<Path> writeBasePath) throws Exception {
         Module module = Modules.override(new CdmRuntimeModule())
                 .with(new AbstractModule() {
                     @Override
@@ -1924,7 +1922,7 @@ public class FunctionInputCreator {
         List<? extends Instruction> pairOffInstruction = createPairOffInstruction.evaluate(Lists.newArrayList(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
         List<Instruction> rekeyedPairOffInstructions = pairOffInstruction.stream()
                 .map(Instruction::toBuilder)
-                .map(b -> reKey(b))
+                .map(ResourcesUtils::reKey)
                 .map(Instruction::build)
                 .collect(Collectors.toList());
 
