@@ -1,4 +1,4 @@
-package org.finos.cdm.qualify;
+package org.isda.cdm.qualify;
 
 import cdm.base.staticdata.asset.common.ProductTaxonomy;
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;

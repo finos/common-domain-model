@@ -1,4 +1,4 @@
-package org.finos.cdm.qualify;
+package org.isda.cdm.qualify;
 
 import cdm.event.common.BusinessEvent;
 import cdm.product.template.NonTransferableProduct;
