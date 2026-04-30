@@ -2,8 +2,8 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.codelist.*;
-import cdm.base.staticdata.codelist.functions.*;
+import cdm.base.staticdata.codelist.LoadCodeListImpl;
+import cdm.base.staticdata.codelist.functions.LoadCodeList;
 import cdm.ingest.fpml.confirmation.common.functions.StringContains;
 import cdm.ingest.fpml.confirmation.common.functions.StringContainsImpl;
 import cdm.ingest.fpml.confirmation.pricequantity.functions.*;
@@ -15,14 +15,12 @@ import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
-import com.regnosys.rosetta.translate.datamodel.json.CreateiQJsonSchemaParser;
-import com.regnosys.rosetta.translate.datamodel.json.JsonSchemaParser;
 import com.regnosys.runefpml.RuneFpmlRuntimeModule;
 import com.rosetta.model.lib.ModuleConfig;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
-import org.isda.cdm.processor.CdmReferenceConfig;
 import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
+import org.finos.cdm.reference.CdmReferenceConfig;
 
 @ModuleConfig(model="COMMON-DOMAIN-MODEL", type="Rosetta")
 public class CdmRuntimeModule extends AbstractModule {
@@ -69,7 +67,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CalculationPeriods.class).to (bindCalculationPeriods());
 		bind(ResolveAdjustableDate.class).to(bindResolveAdjustableDate());
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
-		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
 
 		// External FpML Coding Schemes data loader
 		bind(LoadCodeList.class).to(bindLoadCodeList());
