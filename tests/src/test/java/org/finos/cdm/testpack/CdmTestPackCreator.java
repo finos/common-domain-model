@@ -13,7 +13,6 @@ import com.regnosys.ingest.fpml.*;
 import com.regnosys.ingest.ore.OreTradeTest;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
-import com.regnosys.testing.TestingExpectationUtil;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
 import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
@@ -97,12 +96,10 @@ public class CdmTestPackCreator {
             Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
             injector.injectMembers(testPackConfigCreator);
 
-            testPackConfigCreator.runIngestion();
-            testPackConfigCreator.run();
-
+            testPackConfigCreator.runSynonymIngest();
+            testPackConfigCreator.runFunctionIngestAndDiagnostics();
 
             testPackConfigCreator.runFunctionCreators();
-
             System.exit(0);
         } catch (Exception e) {
             LOGGER.error("Error executing {}.main()", CdmTestPackCreator.class.getName(), e);
@@ -110,53 +107,53 @@ public class CdmTestPackCreator {
         }
     }
 
-    private void runIngestion() {
+    private void runSynonymIngest() {
         LOGGER.info(" ** Updating expectations for cmeClearedConfirmTest");
-        cmeClearedConfirmTest.run();
+        cmeClearedConfirmTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for cmeSubmissionTest");
-        cmeSubmissionTest.run();
+        cmeSubmissionTest.updateExpectations();
 
         LOGGER.info(" ** Updating expectations for dtccIngestion9ServiceTest");
-        dtccIngestion9ServiceTest.run();
+        dtccIngestion9ServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for dtccIngestion11ServiceTest");
-        dtccIngestion11ServiceTest.run();
+        dtccIngestion11ServiceTest.updateExpectations();
 
         LOGGER.info(" ** Updating expectations for FisIngestion");
-        fisIngestionTest.run();
+        fisIngestionTest.updateExpectations();
 
         LOGGER.info(" ** Updating expectations for fpml510IncompleteProcessesIngestionServiceTest");
-        fpml510IncompleteProcessesIngestionServiceTest.run();
+        fpml510IncompleteProcessesIngestionServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for fpml510IncompleteProductIngestionServiceTest");
-        fpml510IncompleteProductIngestionServiceTest.run();
+        fpml510IncompleteProductIngestionServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for fpml510ProcessesIngestionServiceTest");
-        fpml510ProcessesIngestionServiceTest.run();
+        fpml510ProcessesIngestionServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for fpml510ProductIngestionServiceTest");
-        fpml510ProductIngestionServiceTest.run();
+        fpml510ProductIngestionServiceTest.updateExpectations();
 
         LOGGER.info(" ** Updating expectations for fpml512IncompleteProductIngestionServiceTest");
-        fpml512IncompleteProductIngestionServiceTest.run();
+        fpml512IncompleteProductIngestionServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for fpml512ProcessesIngestionServiceTest");
-        fpml512ProcessesIngestionServiceTest.run();
+        fpml512ProcessesIngestionServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for fpml512ProductIngestionServiceTest");
-        fpml512ProductIngestionServiceTest.run();
+        fpml512ProductIngestionServiceTest.updateExpectations();
 
         LOGGER.info(" ** Updating expectations for fpml513IncompleteProcessesIngestionServiceTest");
-        fpml513IncompleteProcessesIngestionServiceTest.run();
+        fpml513IncompleteProcessesIngestionServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for fpml513IncompleteProductIngestionServiceTest");
-        fpml513IncompleteProductIngestionServiceTest.run();
+        fpml513IncompleteProductIngestionServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for fpml513ProcessesIngestionServiceTest");
-        fpml513ProcessesIngestionServiceTest.run();
+        fpml513ProcessesIngestionServiceTest.updateExpectations();
         LOGGER.info(" ** Updating expectations for fpml513ProductIngestionServiceTest");
-        fpml513ProductIngestionServiceTest.run();
+        fpml513ProductIngestionServiceTest.updateExpectations();
 
         LOGGER.info(" ** Updating expectations for invalidProductTest");
-        invalidProductTest.run();
+        invalidProductTest.updateExpectations();
 
         LOGGER.info(" ** Updating expectations for nativeCdmEventsIngestionServiceTest");
-        nativeCdmEventsIngestionServiceTest.run();
+        nativeCdmEventsIngestionServiceTest.updateExpectations();
 
         LOGGER.info(" ** Updating expectations for OreTradeTest");
-        oreTradeTest.run();
+        oreTradeTest.updateExpectations();
     }
 
     private void runFunctionCreators() throws Exception {
@@ -174,7 +171,7 @@ public class CdmTestPackCreator {
         functionCreator.run();
     }
 
-    private void run() throws IOException {
+    private void runFunctionIngestAndDiagnostics() throws IOException {
         pipelineConfigWriter.writePipelinesAndTestPacks(createTreeConfig());
         new IngestBasicDiagnosticsCreator().generateIngestBasicDiagnostics();
         new IngestExpectationDiffCreator().generateIngestExpectationDiffs();
