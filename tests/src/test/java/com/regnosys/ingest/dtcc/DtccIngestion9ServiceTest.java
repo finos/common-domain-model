@@ -22,43 +22,43 @@ import java.net.URL;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
+public class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DtccIngestion9ServiceTest.class);
 
-	private static final String DTCC_9_0_FILES_DIR = "cdm-sample-files/dtcc-9-0/";
+    private static final String DTCC_9_0_FILES_DIR = "cdm-sample-files/dtcc-9-0/";
 
-	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
-			.add(Resources.getResource(DTCC_9_0_FILES_DIR + "expectations.json"))
-			.build();
+    private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
+            .add(Resources.getResource(DTCC_9_0_FILES_DIR + "expectations.json"))
+            .build();
 
-	private static IngestionService dtcc9IngestionService;
+    private static IngestionService dtcc9IngestionService;
 
-	@BeforeAll
-	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
-		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		dtcc9IngestionService = IngestionFactory.getInstance().getDtcc9();
-	}
+    @BeforeAll
+    static void setup() {
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
+        dtcc9IngestionService = IngestionFactory.getInstance().getDtcc9();
+    }
 
-	@Override
-	protected void assertExpectations(Expectation expectation, IngestionReport<WorkflowStep> ingested) throws JsonProcessingException {
+    @Override
+    protected void assertExpectations(Expectation expectation, IngestionReport<WorkflowStep> ingested) throws JsonProcessingException {
 
-	}
+    }
 
-	@Override
-	protected Class<WorkflowStep> getClazz() {
-		return WorkflowStep.class;
-	}
+    @Override
+    protected Class<WorkflowStep> getClazz() {
+        return WorkflowStep.class;
+    }
 
-	@Override
-	protected IngestionService ingestionService() {
-		return dtcc9IngestionService;
-	}
+    @Override
+    protected IngestionService ingestionService() {
+        return dtcc9IngestionService;
+    }
 
-	@SuppressWarnings("unused")//used by the junit parameterized test
-	private static Stream<Arguments> fpMLFiles() {
-		return readExpectationsFrom(EXPECTATION_FILES);
-	}
+    @SuppressWarnings("unused")//used by the junit parameterized test
+    private static Stream<Arguments> fpMLFiles() {
+        return readExpectationsFrom(EXPECTATION_FILES);
+    }
 
 	@SuppressWarnings("unused")
 	private void toPrintExcelExport(MappingReport mappingReport) {
@@ -72,4 +72,21 @@ class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
 	private String toExcelExportString(MappingResult r) {
 		return r.getExternalPath() + "|" + r.getInternalPaths().entrySet().stream().map(e->e.getKey().buildPath()).collect(Collectors.joining(",\n\t\t"));
 	}
+
+	public void updateExpectations() {
+
+        // Ensure environment is set up
+        setup();
+        fpMLFiles().forEach(e -> {
+            Object[] argsArray = e.get();
+            String expectationFilePath = (String) argsArray[0];
+            Expectation expectation = (Expectation) argsArray[1];
+            try {
+                writeIngestionExpectation(expectationFilePath, expectation);
+            } catch (Throwable ex) {
+                throw new RuntimeException(ex);
+            }
+
+        });
+    }
 }
