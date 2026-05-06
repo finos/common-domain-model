@@ -160,15 +160,34 @@ func CheckAssetType:
     output:
         isEqual boolean (1..1)
 
+    alias queryCollateral:  query -> collateralAssetType
+
     set isEqual:
+
         collateralAssetTypes is absent
             or (collateralAssetTypes
-                then filter assetType = query -> collateralAssetType -> assetType
+                then filter assetType = queryCollateral -> assetType
                 then filter
                     securityType is absent
-                        or securityType = query -> collateralAssetType -> securityType
+                        or securityType = queryCollateral -> securityType
+                then filter 
+                    debtType is absent
+                    or CheckDebtType(queryCollateral -> debtType, query)
                 then item exists
                 )
+
+func CheckDebtType:
+    inputs:
+        collateralDebtTypes DebtType (0..1)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    alias queryCollateral: query -> collateralAssetType -> debtType -> debtEconomics
+    
+    alias matchingQueries: collateralDebtTypes -> debtEconomics extract queryCollateral any = item
+    
+    set isEqual: matchingQueries all = True
 
 func CheckDenominatedCurrency:
     inputs:
