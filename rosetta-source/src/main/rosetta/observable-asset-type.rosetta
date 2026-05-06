@@ -1,6 +1,7 @@
 namespace cdm.observable.asset : <"Observable concepts applicable to assets: price, reference price, valuation method etc.">
 version "${project.version}"
 
+import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
@@ -8,7 +9,6 @@ import cdm.base.staticdata.asset.equity.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.party.*
-import cdm.mapping.config.*
 import cdm.observable.common.*
 import cdm.product.asset.*
 
@@ -116,19 +116,6 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
     condition InterestRateObservable: <"When the observable is an interest rate index, the price type must be interest rate and the arithmetic operator must be specified.">
         InterestRateObservableCondition
 
-type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
-    premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
-    pricePerOption Money (0..1) <"The amount of premium to be paid expressed as a function of the number of options.">
-    percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
-
-type CashPrice: <"Specifies the nature of a cash price either as a fee type, cash price type, or premium expression.">
-    priceSubType PriceSubTypeEnum (1..1) <"Specifies the type of Cash Price.">
-    premiumExpression PremiumExpression (0..1) <"Specifies a premium when expressed in a way other than an amount, and any required forward starting price definition.">
-    feeType FeeTypeEnum (0..1) <"Specifies the event type associated with a fee.">
-
-    condition PremiumType: <"Premium type can only be specified when the cash price type is a premium.">
-        if premiumExpression exists then priceSubType = Premium
-
 type PriceComposite: <"Defines the inputs required to calculate a price as a simple composite of 2 other values. The inputs consist of 2 numbers and a simple arithmetic operator. This generic data type applies to a variety of use cases where a price is obtained by simple composition, e.g. dirty = clean + accrued (Bond), forward rate = spot rate + forward point (FX) etc.">
     baseValue number (1..1) <"The 1st value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). This 1st operand is called 'baseValue' as it refers to the price anchor in the arithmetic operation: e.g. the clean price (Bond) or the spot rate (FX).">
     operand number (1..1) <"The 2nd value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). The 2nd operand is called 'operand' to distinguish it from the 1st one which is the price anchor.">
@@ -152,25 +139,22 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
     premiumType PremiumTypeEnum (0..1) <"(Optionally) Additional attribute that can further define any premium to the price.">
 
     condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
-        if priceType = PriceTypeEnum -> Variance
-                or priceType = PriceTypeEnum -> Volatility
-                or priceType = PriceTypeEnum -> Correlation
+        if priceType = Variance or priceType = Volatility or priceType = Correlation
         then unit is absent and perUnitOf is absent
         else unit exists and perUnitOf exists
 
     condition PositiveAssetPrice: <"Requires that per FpML rules, the FX rate must be a positive value.">
-        if (priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice)
+        if (priceType = ExchangeRate or priceType = AssetPrice)
                 and arithmeticOperator is absent
-        then value > 0
+        then value > 0 or datedValue -> value all > 0
 
     condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
-        if (priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice)
+        if (priceType = ExchangeRate or priceType = AssetPrice)
                 and composite -> baseValue exists
         then composite -> baseValue > 0
 
-    condition PositiveCashPrice: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
-        if priceType = PriceTypeEnum -> CashPrice
-        then value > 0 or datedValue -> value all > 0
+    condition PositivePremium: <"Requires that any price expressed as a Premium must be positive">
+        if priceType = Premium then value > 0
 
     condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
         if priceType = PriceTypeEnum -> InterestRate
@@ -179,28 +163,27 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
     condition Choice: <"The price can be specified mutually exclusively as an operator (e.g. a spread or multiplier) or a composite.">
         optional choice arithmeticOperator, composite
 
-    condition Premium: <"If we are applying a premium to the price then we must define this as a premium in priceSubType.">
-        if premiumType exists then priceSubType = Premium
-
-    condition PremiumSubType: <"If we define this as a premium then the price must be a cash price.">
-        if priceSubType = Premium then priceType = CashPrice
+    condition Premium: <"If we are applying a premium to the price then we must define this as a premium in priceType.">
+        if premiumType exists then priceType = Premium
 
     condition ArithmeticOperator: <"Operator must not be subtract or divide.">
-        arithmeticOperator <> ArithmeticOperationEnum -> Subtract
-            and arithmeticOperator <> ArithmeticOperationEnum -> Divide
+        arithmeticOperator <> Subtract and arithmeticOperator <> Divide
 
     condition SpreadPrice: <"A spread type can only be specified when the price type is an asset price or an interest rate.">
-        if arithmeticOperator = ArithmeticOperationEnum -> Add
-        then priceType = PriceTypeEnum -> AssetPrice
-                or priceType = PriceTypeEnum -> InterestRate
+        if arithmeticOperator = Add
+        then priceType = AssetPrice or priceType = InterestRate
 
     condition ForwardPoint: <"If composite operand type is ForwardPoint then the price type must be ExchangeRate.">
-        if composite -> operandType = PriceOperandEnum -> ForwardPoint
-        then priceType = PriceTypeEnum -> ExchangeRate
+        if composite -> operandType = ForwardPoint
+        then priceType = ExchangeRate
 
     condition AccruedInterest: <"If composite operand type is AccruedInterest then the price type must be AssetPrice.">
-        if composite -> operandType = PriceOperandEnum -> AccruedInterest
-        then priceType = PriceTypeEnum -> AssetPrice
+        if composite -> operandType = AccruedInterest
+        then priceType = AssetPrice
+
+    condition InterestRateFeeType: <"If a lending fee or rebate fee is specified then the price type must be InterestRate.">
+        if priceSubType = Fee or priceSubType = Rebate
+        then priceType = InterestRate
 
 type Price extends PriceSchedule: <"Specifies a price as a single value to be associated to a financial product. This data type extends PriceSchedule and requires that only the amount value exists.">
 
@@ -236,7 +219,6 @@ type InformationSource: <"A class defining the source for a piece of information
 
     sourceProvider InformationProviderEnum (1..1) <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">
         [metadata scheme]
-        [synonym FIX_5_0_SP2 value "RateSource" tag 1446]
     sourcePage string (0..1) <"A specific page for the source for obtaining a market data point. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">
         [metadata scheme]
     sourcePageHeading string (0..1) <"The heading for the source on a given source page.">
