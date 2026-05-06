@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: windows-latest
@@ -12,6 +16,4 @@ jobs:
       - name: Debug cache
         run: |
           echo "Cache key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}"
-          echo "POM files:"
-          find . -name "pom.xml"
       - uses: ./.github/actions/maven-build
