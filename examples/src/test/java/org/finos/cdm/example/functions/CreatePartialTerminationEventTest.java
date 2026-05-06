@@ -15,8 +15,8 @@ import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
-import cdm.observable.asset.FeeTypeEnum;
 import cdm.observable.asset.PriceQuantity;
+import cdm.product.common.settlement.UnscheduledTransferEnum;
 import jakarta.inject.Inject;
 import org.finos.cdm.example.AbstractExampleTest;
 import org.finos.cdm.example.util.ResourcesUtils;
@@ -93,20 +93,19 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         TransferInstruction transferInstruction = TransferInstruction.builder()
                 .addTransferState(TransferState.builder()
                         .setTransfer(Transfer.builder()
-                                .setTransferExpression(TransferExpression.builder()
-                                        .setUnscheduledTransfer(UnscheduledTransfer.builder()
-                                                .setPriceTransfer(FeeTypeEnum.PARTIAL_TERMINATION).build()))
-                                .setPayerReceiver(PartyReferencePayerReceiver.builder()
-                                        .setPayerPartyReference(payerPartyReference)
-                                        .setReceiverPartyReference(receiverPartyReference))
-                                .setQuantity(NonNegativeQuantity.builder()
-                                        .setValue(BigDecimal.valueOf(2000.00))
-                                        .setUnit(UnitType.builder()
-                                                .setCurrency(FieldWithMetaString.builder()
-                                                        .setValue("USD")
-                                                        .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))
-                                .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
-                                        .setAdjustedDateValue(eventDate))));
+                                .setUnscheduledTransfer(UnscheduledTransfer.builder()
+                                        .setTransferType(UnscheduledTransferEnum.PARTIAL_TERMINATION)
+                                        .setPayerReceiver(PartyReferencePayerReceiver.builder()
+                                                .setPayerPartyReference(payerPartyReference)
+                                                .setReceiverPartyReference(receiverPartyReference))
+                                        .setQuantity(NonNegativeQuantity.builder()
+                                                .setValue(BigDecimal.valueOf(2000.00))
+                                                .setUnit(UnitType.builder()
+                                                        .setCurrency(FieldWithMetaString.builder()
+                                                                .setValue("USD")
+                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))
+                                        .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
+                                                .setAdjustedDateValue(eventDate)).build())));
 
         // Create an Instruction that contains:
         // - before TradeState
@@ -172,8 +171,8 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
 
         // Assert transfer fee
         Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
-        assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getUnscheduledTransfer().getPriceTransfer());
-        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getValue());
+        assertEquals(UnscheduledTransferEnum.PARTIAL_TERMINATION, transfer.getUnscheduledTransfer().getTransferType());
+        assertEquals(new BigDecimal("2000.0"), transfer.getUnscheduledTransfer().getQuantity().getValue());
     }
 
     private <T extends RosettaModelObject> T postProcess(T o) {
