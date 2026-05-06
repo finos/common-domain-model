@@ -1881,14 +1881,19 @@ func MapIdentifiedAssetToAssetListedDerivative:
                             isExchangeListed: if fpmlExchangeId exists
                                     then True,
                             party: assetParty,
-                            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                            partyRole: assetParty
+                                    extract
+                                        MapAssetPartyRole(
+                                                item,
+                                                AssetPartyRoleEnum -> Exchange
+                                            ),
                             ancillaryPartyRole: fpmlRelatedExchangeId
-                            filter value <> fpmlExchangeId -> value
-                            then extract
-                                MapAssetAncillaryPartyRole(
-                                    MapExchangeIdToAssetParty,
-                                    AssetAncillaryPartyRoleEnum->RelatedExchange
-                                ),
+                                    filter value <> fpmlExchangeId -> value
+                                    then extract
+                                        MapAssetAncillaryPartyRole(
+                                                MapExchangeIdToAssetParty,
+                                                AssetAncillaryPartyRoleEnum -> RelatedExchange
+                                            ),
                             assetType: ListedDerivative,
                             ...
                         },
@@ -1905,9 +1910,7 @@ func MapIdentifiedAssetToAssetLoan:
     output:
         asset Asset (0..1)
 
-    alias assetParty:
-          fpmlExchangeId extract MapExchangeIdToAssetParty
-
+    alias assetParty: fpmlExchangeId extract MapExchangeIdToAssetParty
 
     set asset:
         Asset {
@@ -1919,14 +1922,19 @@ func MapIdentifiedAssetToAssetLoan:
                             isExchangeListed: if fpmlExchangeId exists
                                     then True,
                             party: assetParty,
-                            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                            partyRole: assetParty
+                                    extract
+                                        MapAssetPartyRole(
+                                                item,
+                                                AssetPartyRoleEnum -> Exchange
+                                            ),
                             ancillaryPartyRole: fpmlRelatedExchangeId
-                            filter value <> fpmlExchangeId -> value
-                            then extract
-                                MapAssetAncillaryPartyRole(
-                                    MapExchangeIdToAssetParty,
-                                    AssetAncillaryPartyRoleEnum->RelatedExchange
-                                ),
+                                    filter value <> fpmlExchangeId -> value
+                                    then extract
+                                        MapAssetAncillaryPartyRole(
+                                                MapExchangeIdToAssetParty,
+                                                AssetAncillaryPartyRoleEnum -> RelatedExchange
+                                            ),
                             assetType: Loan,
                             ...
                         },
@@ -1968,23 +1976,22 @@ func MapIdentifiedAssetToSecurity:
     output:
         security Security (0..1)
 
-    alias assetParty:
-          fpmlExchangeId extract MapExchangeIdToAssetParty
-
+    alias assetParty: fpmlExchangeId extract MapExchangeIdToAssetParty
 
     set security:
         Security {
             identifier: MapAssetIdentifierList(fpmlIdentifiedAsset),
             isExchangeListed: if fpmlExchangeId exists then True,
             party: assetParty,
-            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+            partyRole: assetParty
+                    extract MapAssetPartyRole(item, AssetPartyRoleEnum -> Exchange),
             ancillaryPartyRole: fpmlRelatedExchangeId
-                            filter value <> fpmlExchangeId -> value
-                            then extract
-                                MapAssetAncillaryPartyRole(
-                                    MapExchangeIdToAssetParty,
-                                    AssetAncillaryPartyRoleEnum->RelatedExchange
-                                ),
+                    filter value <> fpmlExchangeId -> value
+                    then extract
+                        MapAssetAncillaryPartyRole(
+                                MapExchangeIdToAssetParty,
+                                AssetAncillaryPartyRoleEnum -> RelatedExchange
+                            ),
             securityType: securityType,
             assetType: Security,
             ...
@@ -2021,33 +2028,32 @@ func MapEquityIndex:
     output:
         index Index (0..1)
 
-    alias assetParty:
-        fpmlIndex -> exchangeId extract MapExchangeIdToAssetParty
+    alias assetParty: fpmlIndex -> exchangeId extract MapExchangeIdToAssetParty
 
-     set index:
-         Index {
-             EquityIndex:
-                 EquityIndex {
-                     identifier: MapAssetIdentifierList(fpmlIndex),
-                     isExchangeListed: if fpmlIndex -> exchangeId exists
-                             then True,
-                     party: assetParty,
-                     partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
-                     ancillaryPartyRole: fpmlIndex -> exchangeIdentifierModel -> relatedExchangeId
+    set index:
+        Index {
+            EquityIndex:
+                EquityIndex {
+                    identifier: MapAssetIdentifierList(fpmlIndex),
+                    isExchangeListed: if fpmlIndex -> exchangeId exists
+                            then True,
+                    party: assetParty,
+                    partyRole: assetParty
+                            extract MapAssetPartyRole(item, AssetPartyRoleEnum -> Exchange),
+                    ancillaryPartyRole: fpmlIndex -> exchangeIdentifierModel -> relatedExchangeId
                             filter value <> fpmlIndex -> exchangeId -> value
                             then extract
                                 MapAssetAncillaryPartyRole(
-                                    MapExchangeIdToAssetParty,
-                                    AssetAncillaryPartyRoleEnum->RelatedExchange
-                                ),
-                     name: fpmlIndex -> description,
-                     assetClass: Equity,
-                     assetType: Other,
-                     ...
-                 },
-             ...
-         }
-
+                                        MapExchangeIdToAssetParty,
+                                        AssetAncillaryPartyRoleEnum -> RelatedExchange
+                                    ),
+                    name: fpmlIndex -> description,
+                    assetClass: Equity,
+                    assetType: Other,
+                    ...
+                },
+            ...
+        }
 
 func MapBasket:
     inputs:
