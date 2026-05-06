@@ -242,20 +242,20 @@ func MapCreditEventsReferenceWithReference:
             [metadata reference]
 
     alias creditEvents:
-        fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents
+        fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents first
 
     set creditEventsReference:
         CreditEvents {
             failureToPay:
                 FailureToPay {
-                    applicable: creditEvents -> failureToPay -> applicable first,
+                    applicable: creditEvents -> failureToPay -> applicable,
                     paymentRequirement:
                         Money {
-                            value: creditEvents -> failureToPay -> paymentRequirement -> amount first,
+                            value: creditEvents -> failureToPay -> paymentRequirement -> amount,
                             unit:
                                 UnitType {
                                     currency: MapCurrency(
-                                                creditEvents -> failureToPay -> paymentRequirement -> currency first
+                                                creditEvents -> failureToPay -> paymentRequirement -> currency
                                             ),
                                     ...
                                 },
@@ -265,16 +265,16 @@ func MapCreditEventsReferenceWithReference:
                 },
             restructuring:
                 Restructuring {
-                    applicable: creditEvents -> restructuring -> applicable first,
+                    applicable: creditEvents -> restructuring -> applicable,
                     ...
                 },
             defaultRequirement:
                 Money {
-                    value: creditEvents -> defaultRequirement -> amount first,
+                    value: creditEvents -> defaultRequirement -> amount,
                     unit:
                         UnitType {
                             currency: MapCurrency(
-                                        creditEvents -> defaultRequirement -> currency first
+                                        creditEvents -> defaultRequirement -> currency
                                     ),
                             ...
                         },
@@ -283,14 +283,14 @@ func MapCreditEventsReferenceWithReference:
             creditEventNotice:
                 CreditEventNotice {
                     notifyingParty: MapMultipleCounterpartyRoleEnum(
-                                creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference -> href first,
-                                creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference -> href first,
+                                creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference -> href,
+                                creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference -> href,
                                 cdmCounterpartyList
                             ),
                     publiclyAvailableInformation:
                         PubliclyAvailableInformation {
                             publicSource: creditEvents -> creditEventNotice -> publiclyAvailableInformation -> publicSource,
-                            specifiedNumber: creditEvents -> creditEventNotice -> publiclyAvailableInformation -> specifiedNumber first,
+                            specifiedNumber: creditEvents -> creditEventNotice -> publiclyAvailableInformation -> specifiedNumber,
                             ...
                         },
                     ...
