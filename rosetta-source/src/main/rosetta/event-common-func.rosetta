@@ -958,8 +958,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
         else trade -> tradeLot only-element
 
     alias newPriceQuantity: <"Update the PriceQuantity based on the change and direction inputs. For an increase, if the trade lot exists, apply the changes to the existing PriceQuantity; otherwise, add the changed PriceQuantity to the list of TradeLots. For a decrease or replace, apply the changes to the existing PriceQuantity.">
-        if instruction -> direction = QuantityChangeDirectionEnum -> Increase
-                and tradeLotExists = False
+        if instruction -> direction = Increase and tradeLotExists = False
         then instruction -> change
         else UpdateAmountForEachMatchingQuantity(
                 tradeLot -> priceQuantity,
@@ -968,8 +967,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
             )
 
     alias newTradeLots: <"Add or merge updated TradeLot.">
-        if instruction -> direction = QuantityChangeDirectionEnum -> Increase
-                and tradeLotExists = False
+        if instruction -> direction = Increase and tradeLotExists = False
         then AddTradeLot(
                     trade,
                     TradeLot {
@@ -984,11 +982,6 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
                     priceQuantity: newPriceQuantity
                 }
             )
-
-    condition CashPriceOnly: <"Only termination where the termination price is specified as a cash price is supported for now.">
-        if instruction -> direction = QuantityChangeDirectionEnum -> Decrease
-                and instruction -> change -> price exists
-        then instruction -> change -> price -> priceType all = PriceTypeEnum -> CashPrice
 
     set quantityChange: tradeState
 
