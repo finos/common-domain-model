@@ -7,6 +7,7 @@ import cdm.observable.asset.*
 import cdm.observable.common.*
 import cdm.observable.event.*
 import cdm.product.asset.*
+import cdm.product.template.*
 
 type CalculationPeriodData:
     startDate date (1..1)
@@ -313,6 +314,10 @@ type FinalCalculationPeriodDateAdjustment: <"A data to:  define business date co
 
     relevantUnderlyingDateReference AdjustableOrRelativeDates (1..1) <"Reference to the unadjusted cancellation effective dates.">
         [metadata reference]
-    swapStreamReference InterestRatePayout (1..1) <"Reference to the leg, where date adjustments may apply.">
+    swapStreamReference Payout (1..1) <"Reference to the leg, where date adjustments may apply.">
         [metadata reference]
     businessDayConvention BusinessDayConventionEnum (1..1) <"Override business date convention. This takes precedence over leg level information.">
+
+    condition InterestRatePayout: <"condition to check payout is an interest rate payout">
+        if swapStreamReference exists 
+        then swapStreamReference -> InterestRatePayout exists

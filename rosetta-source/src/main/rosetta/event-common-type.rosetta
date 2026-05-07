@@ -100,11 +100,14 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 
     exerciseQuantity PrimitiveInstruction (1..1) <"Contains instructions for exercising the option including a quantity change, and optionally a transfer.">
-    exerciseOption OptionPayout (0..1) <"Specifies the Option Payout being exercised on the trade.">
-        [metadata reference]
+    exerciseOption Payout (0..1) <"Specifies the Option Payout being exercised on the trade.">
+    [metadata reference]
     exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
     exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
     replacementTradeIdentifier TradeIdentifier (0..*) <"Specifies the trade identifier to apply to the replacement trade for physical exercise.">
+    
+    condition OptionPayout: <"Payout must be an OptionPayout">
+        exerciseOption -> OptionPayout exists
 
 type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
     payout Payout (1..*)
@@ -208,27 +211,36 @@ type TransferState: <"Defines the fundamental financial information associated w
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
-choice Transfer: <"The type of transfer.">
-    ScheduledTransfer <"A transfer created from a scheduled event on a contract, e.g. Exercise, Performance, Credit Event">
-    UnscheduledTransfer <"An ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
+type Transfer extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
+    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
+        [metadata scheme]
+    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+    settlementOrigin Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+        [metadata reference]
+    resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
+    transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
 
-type UnscheduledTransfer extends TransferBase: <"An ad-hoc transfer instigated by a party to the contract.">
+type TransferExpression: <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
+    scheduledTransfer ScheduledTransfer (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+    unscheduledTransfer UnscheduledTransfer (0..1) <"Specifies an ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
+
+    condition:
+        one-of
+
+type UnscheduledTransfer: <"An ad-hoc transfer instigated by a party to the contract.">
     transferType UnscheduledTransferEnum (0..1) <"Specifies the type of unscheduled transfer.">
+    priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
 
-type ScheduledTransfer extends TransferBase: <"A scheduled transfer built into the contract.">
+    condition:
+        one-of
+
+type ScheduledTransfer: <"A scheduled transfer built into the contract.">
     transferType ScheduledTransferEnum (1..1) <"Specifies the type of scheduled transfer.">
     corporateActionTransferType CorporateActionTypeEnum (0..1)
-    payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
-        [metadata reference]
 
     condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
         if transferType = ScheduledTransferEnum -> CorporateAction
         then corporateActionTransferType exists
-
-type TransferBase extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
-    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
-        [metadata scheme]
-    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
 
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
     identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">
@@ -646,18 +658,18 @@ type BillingSummary: <"Specifies individual summaries within a billing invoice."
 
     condition GrandTotal:
         if summaryAmountType = RecordAmountTypeEnum -> GrandTotal
-        then summaryTransfer exists and summaryTransfer ->> payerReceiver is absent
+        then summaryTransfer exists and summaryTransfer -> payerReceiver is absent
 
     condition ParentTotal:
         if summaryAmountType = RecordAmountTypeEnum -> ParentTotal
-        then summaryTransfer ->> payerReceiver exists
-                and summaryTransfer ->> payerReceiver -> payerAccountReference is absent
-                and summaryTransfer ->> payerReceiver -> receiverAccountReference is absent
+        then summaryTransfer -> payerReceiver exists
+                and summaryTransfer -> payerReceiver -> payerAccountReference is absent
+                and summaryTransfer -> payerReceiver -> receiverAccountReference is absent
 
     condition AccountTotal:
         if summaryAmountType = RecordAmountTypeEnum -> AccountTotal
-        then summaryTransfer ->> payerReceiver -> payerAccountReference exists
-                and summaryTransfer ->> payerReceiver -> receiverAccountReference exists
+        then summaryTransfer -> payerReceiver -> payerAccountReference exists
+                and summaryTransfer -> payerReceiver -> receiverAccountReference exists
 
 type TradePricingReport: <"The attributes that are specific for consensus based pricing reporting.">
     trade Trade (1..1) <"Represents the cosensus based pricing parameters on a trade basis.">

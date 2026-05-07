@@ -15,7 +15,6 @@ import cdm.ingest.fpml.confirmation.payment.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.observable.asset.*
-import cdm.product.common.settlement.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.business.events.* as fpml
@@ -139,9 +138,7 @@ func MapAmendmentToPrimitiveInstruction:
 
     alias payment: amendment -> tradeAlterationPaymentModel -> payment
     alias feeType:
-        if payment exists
-        then UnscheduledTransferEnum -> Renegotiation
-        else empty
+        if payment exists then FeeTypeEnum -> Renegotiation else empty
 
     set primitiveInstruction:
         PrimitiveInstruction {
@@ -257,6 +254,10 @@ func MapTerminationToPrimitiveInstruction:
 
     alias counterpartyList: MapCounterpartyList(fpmlTrade)
     alias terminationPayment: termination -> tradeAlterationPaymentModel -> payment
+    alias transferExpression:
+        if termination exists
+        then FeeTypeEnum -> Termination
+        else empty
 
     set primitiveInstruction:
         PrimitiveInstruction {
@@ -275,12 +276,12 @@ func MapTerminationToPrimitiveInstruction:
 func MapTransferInstruction:
     inputs:
         fpmlPaymentList fpml.Payment (0..*)
-        transferType UnscheduledTransferEnum (0..1)
+        cdmFeeType FeeTypeEnum (0..1)
     output:
         transferInstruction TransferInstruction (0..1)
     set transferInstruction:
         TransferInstruction {
-            transferState: MapPaymentListToTransferStateList(fpmlPaymentList, transferType)
+            transferState: MapPaymentListToTransferStateList(fpmlPaymentList, cdmFeeType)
         }
 
 func MapQuantityChangeInstruction:
