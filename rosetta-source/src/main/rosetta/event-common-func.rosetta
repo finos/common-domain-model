@@ -498,10 +498,13 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     output:
         exercise TradeState (1..*)
 
-    alias optionPayout: <"Extracts the optionPayout from exerciseInstruction if provided or from the original trade if absent">
+    alias payout: <"Extracts the payout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
         then exerciseInstruction -> exerciseOption
-        else originalTrade -> trade -> product -> economicTerms -> payout -> OptionPayout only-element
+        else originalTrade -> trade -> product -> economicTerms -> payout
+
+    alias optionPayout: <"Extracts the option payout from the payout">
+        payout -> OptionPayout only-element    
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
         optionPayout -> underlier
