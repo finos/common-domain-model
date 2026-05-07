@@ -135,6 +135,69 @@ func UpdateAmount: <"Updates an amount based on the given QuantityChangeDirectio
             Decrease then oldAmount - changeAmount,
             Replace then changeAmount
 
+func InsertDatedValue: <"Build a list of datedValues with the new entry inserted after the last item whose date is either before or the same as the effective date. The value for the new entry is taken from the previous datedValue item. Note that this will append a new entry if the effective date is greater than all the dates in the datedValue list.">
+    inputs:
+        datedValues DatedValue (1..*)
+        changeAmount number (1..1)
+        direction QuantityChangeDirectionEnum (1..1)
+        effectiveDate date (1..1)
+    output:
+        newDatedValues DatedValue (1..*)
+
+    alias priorDatedValues: <"Get all the datedValues prior to and equal to the effective date for the new rate.">
+        datedValues
+            filter item -> date <= effectiveDate
+
+    alias previousDatedValue: <"Get the last datedValue whose date is prior to or equal to the effective date for the new entry. The value from this item will be used in the item we insert.">
+        priorDatedValues
+            last
+
+    alias insertDatedValue: <"Create the datedValue we will insert. If there are no prior dateValues then this is a new entry at the beginning of the list which is only valid when this is a Replace (as you cannot Increase or Decrease an unknown number). If we have datedValues prior to the effective date then take the value from the last of the datedValues whose date is prior to the effective date and apply the requested change to that figure (i.e. Replace, Increase or Decrease).">
+        if previousDatedValue = empty and direction = Replace then
+            DatedValue {
+                date: effectiveDate,
+                value: changeAmount
+            }            
+        else
+            previousDatedValue
+                extract
+                    DatedValue {
+                        date: effectiveDate,
+                        value: UpdateAmount ( item -> value, changeAmount, direction)
+                    }
+
+    alias postDatedValues: <"Get all the datedValues after the effective date.">
+        datedValues
+            filter item -> date > effectiveDate
+
+    set newDatedValues: priorDatedValues
+    add newDatedValues: insertDatedValue
+    add newDatedValues: postDatedValues
+
+func UpdateDatedValue: <"Updates the amount of the dated value that matches the effective date passed in. Only the datedValue item(s) that match the effective date will be updated according to the direction.">
+    inputs:
+        datedValues DatedValue (0..*)
+        changeAmount number (0..1)
+        direction QuantityChangeDirectionEnum (1..1)
+        effectiveDate date (0..1)
+    output:
+        newdatedValues DatedValue (0..*)
+
+    add newdatedValues: <"Update only the item(s) whose date exactly match the effective date.">
+        datedValues
+            extract
+                DatedValue {
+                    date: item -> date,
+                    value: if item -> date = effectiveDate
+                            then (if direction = QuantityChangeDirectionEnum -> Increase
+                            then item -> value + changeAmount
+                            else if direction = QuantityChangeDirectionEnum -> Decrease
+                            then item -> value - changeAmount
+                            else if direction = QuantityChangeDirectionEnum -> Replace
+                            then changeAmount)
+                        else item -> value
+                }
+
 func UpdateDatedValues: <"Updates the amounts of the dated values based on the given QuantityChangeDirectionEnum. For all periods after the effective date of the change, if the direction is Increase, the old amount and change amount are summed, if the direction is Decrease, then the change amount is subtracted from the old amount, and if the direction is Replace then the change amount replaces the old amount.">
     inputs:
         datedValues DatedValue (0..*)
