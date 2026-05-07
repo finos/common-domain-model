@@ -69,33 +69,32 @@ func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the Pric
         change
             filter PriceUnitEquals(item -> price only-element, price)
             then first
-    
+
     alias changedAmount: <"Update the value in the matched PriceSchedule. Note that if the matched PriceSchedule uses the datedValue attribute and not value then this function will have no effect.">
-        if price -> value exists then 
-            UpdateAmount(
-                price -> value, 
-                changeMatching -> price only-element -> value, 
-                direction
-            )
-    
+        if price -> value exists
+        then UpdateAmount(
+                    price -> value,
+                    changeMatching -> price only-element -> value,
+                    direction
+                )
+
     alias changeEffectiveDate: <"The effective date to use for the price update. Required when updating datedValue.">
         AdjustableDateResolution(changeMatching -> effectiveDate -> adjustableDate)
 
     alias containsEffectiveDate: <"Is there already an entry for the effective date of the new price?">
-        price -> datedValue -> date contains changeEffectiveDate 
+        price -> datedValue -> date contains changeEffectiveDate
 
     alias updatedDatedValues: <"If there is already a datedValue for the effective date then update that, otherwise insert a new datedValue for the effective date with the new price.">
-        if containsEffectiveDate then
-            UpdateDatedValue(
+        if containsEffectiveDate
+        then UpdateDatedValue(
                     price -> datedValue,
                     changeMatching -> price only-element -> value,
                     direction,
                     changeEffectiveDate
                 )
-        else
-            InsertDatedValue(
+        else InsertDatedValue(
                 price -> datedValue,
-                changeMatching -> price only-element -> value,  
+                changeMatching -> price only-element -> value,
                 direction,
                 changeEffectiveDate
             )
