@@ -20,19 +20,23 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     party Party (0..*) <"The party with the obligation to pay dividends, coupons, or other payouts to the asset holder.">
     partyRole AssetPartyRole (0..1) <"The role of the payer specific to the asset type, i.e. bond, equity.">
     ancillaryPartyRole AssetAncillaryPartyRole (0..*) <"The role of a party with indirect participation in the asset (i.e. transfer agent).">
-    assetType AssetTypeEnum (1..1) <"Represents a class to allow specification of the asset product type.">
+    assetType AssetTypeEnum (1..1) <"Specifies the type of asset.">
 
 
     condition ExchangeRole: <"If Exchange is specified, it must be an exchange-listed Instrument.">
-         if partyRole -> role any = Exchange
+         if partyRole -> role = Exchange
                   then isExchangeListed = True
 
     condition ExchangeListed: <"if isExchangeListed is true then partyRole is Exchange.">
-         if isExchangeListed then partyRole -> role any = Exchange
+         if isExchangeListed then partyRole -> role = Exchange
 
     condition Issuer: <"If the asset type is a security then the role must be issuer.">
-        if assetType = AssetTypeEnum.Security
-            then partyRole -> role any = Issuer
+        if assetType = Security
+            then partyRole -> role = Issuer
+
+    condition Issuer: <"If the asset type is a security then the role must be issuer.">
+        if assetType = ListedDerivative
+            then partyRole -> role = Exchange
 
     condition LenderBorrower: <"If the asset type is a Loan then the role must be Lender.">
         if assetType = Loan
@@ -178,7 +182,6 @@ type ListedDerivative extends InstrumentBase: <"A securitized derivative on anot
         assetType = ListedDerivative
 
 type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
-    borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
     lien string (0..1) <"Specifies the seniority level of the lien.">
         [metadata scheme]
     facilityType string (0..1) <"Specifies the type of loan facility (letter of credit, revolving, ...).">

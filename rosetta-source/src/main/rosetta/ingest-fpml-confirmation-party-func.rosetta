@@ -276,7 +276,7 @@ func MapParty:
 
     set party:
         Party {
-            partyId: partyModel -> partyId extract MapPartyIdentifier,
+            partyId: partyModel -> partyId extract MapPartyIdentifier(item -> value, item -> partyIdScheme),
             name: MapStringWithScheme(partyName -> value, partyName -> partyNameScheme),
             businessUnit: partyModel -> businessUnit extract MapBusinessUnit,
             person: partyModel -> person extract MapNaturalPerson,
@@ -290,19 +290,35 @@ func MapParty:
 
 func MapPartyIdentifier:
     inputs:
-        fpmlPartyIdentifier fpml.PartyId (0..1)
+        identifierValue string (0..1)
+        identifierScheme string (0..1)
     output:
         partyIdentifier PartyIdentifier (0..1)
 
     set partyIdentifier:
         PartyIdentifier {
             identifier: MapStringWithScheme(
-                        fpmlPartyIdentifier -> value,
-                        fpmlPartyIdentifier -> partyIdScheme
+                        identifierValue,
+                        identifierScheme
                     ),
-            identifierType: MapPartyIdentifierTypeEnum(fpmlPartyIdentifier -> partyIdScheme)
+            ...
         }
 
+func MapExchangeIdToAssetParty:
+     inputs:
+         fpmlExchangeId fpml.ExchangeId (0..1)
+     output:
+         party Party (0..1)
+
+set party:
+    Party {
+        partyId: fpmlExchangeId extract MapPartyIdentifier(value, exchangeIdScheme),
+        name: MapStringWithScheme(
+                    fpmlExchangeId -> value,
+                    fpmlExchangeId -> exchangeIdScheme
+                ),
+        ...
+    }
 func MapBusinessUnit:
     inputs:
         fpmlBusinessUnit fpml.BusinessUnit (0..1)
@@ -776,35 +792,6 @@ func MapExchangeIdToLegalEntity:
                     ),
             ...
         }
-
- func MapExchangeIdToAssetParty:
-     inputs:
-         fpmlExchangeId fpml.ExchangeId (0..1)
-     output:
-         party Party (0..1)
-
-set party:
-    Party {
-        partyId: fpmlExchangeId extract MapExchangeIdToPartyIdentifier,
-        name: MapStringWithScheme(
-                    fpmlExchangeId -> value,
-                    fpmlExchangeId -> exchangeIdScheme
-                ),
-        ...
-    }
-
-func MapExchangeIdToPartyIdentifier:
-    inputs:
-        fpmlExchangeId fpml.ExchangeId (0..1)
-    output:
-        partyId PartyIdentifier (1..1)
-
-    set partyId -> identifier:
-        MapStringWithScheme(
-            fpmlExchangeId -> value,
-            fpmlExchangeId -> exchangeIdScheme
-        )
-
 
 func MapAssetPartyRole:
     inputs:

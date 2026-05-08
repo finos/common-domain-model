@@ -110,7 +110,6 @@ The additional attributes on `Loan` can be used when needed to uniquely identify
 
 ``` Haskell
 type Loan extends InstrumentBase:
-    borrower LegalEntity (0..*)
     lien string (0..1)
         [metadata scheme]
     facilityType string (0..1)
