@@ -32,8 +32,7 @@ steps:
     title: Setup build
     image: alpine/git
     commands:
-      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}" --mask
-      - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
+      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml ${{MVN_CLI_OPT}} -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}" --mask
       - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import" --mask
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
       - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/create-deploy-pom.py"
@@ -71,8 +70,8 @@ steps:
     working_directory: ./
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - mvn ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
-      - MAVEN_OPTS="-Xmx5g -XX:+UseG1GC" mvn ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P "${{MAVEN_BUILD_PROFILES}}"
+      - mvn ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
+      - MAVEN_OPTS="-Xmx5g -XX:+UseG1GC" mvn ${{MVN_DEPLOY_FLAGS}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P "${{MAVEN_BUILD_PROFILES}}"
 
   FailBuildPipeline:
     stage: 'build'
@@ -239,8 +238,8 @@ steps:
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/kotlin
-      - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
+      - mvn -f kotlin-build-pom.xml ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
 
     # DeployPython:
     #   stage: 'build'
