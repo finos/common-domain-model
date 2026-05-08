@@ -498,13 +498,12 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     output:
         exercise TradeState (1..*)
 
-    alias payout: <"Extracts the payout from exerciseInstruction if provided or from the original trade if absent">
+    alias optionPayout: <"Extracts the payout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
-        then exerciseInstruction -> exerciseOption
-        else originalTrade -> trade -> product -> economicTerms -> payout
-
-    alias optionPayout: <"Extracts the option payout from the payout">
-        payout -> OptionPayout only-element    
+        then exerciseInstruction -> exerciseOption -> OptionPayout
+        else originalTrade -> trade -> product -> economicTerms -> payout extract switch
+        OptionPayout then item,
+        default empty
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
         optionPayout -> underlier
@@ -515,7 +514,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
         else Create_NonTransferableProduct(underlier, optionPayout -> payerReceiver)
 
     alias productWithDirection: <"If the option is a Put, then the direction on the result product needs to be flipped from that on the underlier.">
-        if optionPayout -> optionType = OptionTypeEnum -> Put
+        if optionPayout -> optionType all = Put
         then Update_ProductDirection(
                     resultProduct,
                     optionPayout -> payerReceiver -> payer,

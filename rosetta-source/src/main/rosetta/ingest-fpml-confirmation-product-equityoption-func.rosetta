@@ -81,7 +81,7 @@ func MapEquityOptionPayout:
 
     alias perUnitOf: GetPerUnitOfForEquityDerivativeBase(fpmlEquityOption)
     alias prm:
-        fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> payerReceiverModel first
+        fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> payerReceiverModel only-element
     alias apo: fpmlEquityOption -> featureModel -> feature -> asian -> averagingPeriodOut
     alias api: fpmlEquityOption -> featureModel -> feature -> asian -> averagingPeriodIn
 
@@ -140,18 +140,8 @@ func MapEquityOptionPayout:
                                 PassThrough {
                                     passThroughItem:
                                         PassThroughItem {
-                                            payerReceiver:
-                                                PayerReceiver {
-                                                    payer: MapCounterpartyRoleEnum(
-                                                                prm -> payerModel -> payerPartyReference -> href,
-                                                                cdmCounterpartyList
-                                                            ),
-                                                    receiver: MapCounterpartyRoleEnum(
-                                                                prm -> receiverModel -> receiverPartyReference -> href,
-                                                                cdmCounterpartyList
-                                                            )
-                                                },
-                                            passThroughPercentage: fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> passThroughPercentage first
+                                            payerReceiver: prm extract MapPayerReceiver(item, cdmCounterpartyList),
+                                            passThroughPercentage: fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> passThroughPercentage only-element
                             },},
                             ...
                         },
