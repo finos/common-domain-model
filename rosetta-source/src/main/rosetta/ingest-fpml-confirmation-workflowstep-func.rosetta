@@ -211,20 +211,24 @@ func MapBreakdown:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> novatedAmount
     alias changeInNotionalAmount:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> changeInNotionalAmount
+    alias newTradeAmount:
+        changeInNotionalAmount
+            extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+            then default novatedAmount extract MapMoneyToNonNegativeQuantitySchedule
     alias outstandingNotionalAmount:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
     alias remainingAmount:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> remainingAmount
-
-    alias changeInstruction:
-        if outstandingNotionalAmount exists or remainingAmount exists
-        then QuantityChangeDirectionEnum -> Replace
-        else Decrease
-    alias changeAmount:
-        if outstandingNotionalAmount exists
-        then outstandingNotionalAmount
-        else if remainingAmount exists
-        then remainingAmount default novatedAmount
+    alias oldTradeAmount:
+        outstandingNotionalAmount
+            extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+            then default remainingAmount extract MapMoneyToNonNegativeQuantitySchedule
+    alias partyChange: MapPartyChangeInstruction(fpmlPostTradeEventsBaseModel)
+    alias transfer:
+        MapTransferInstruction(
+                fpmlPostTradeEventsBaseModel -> novation -> payment,
+                Novation
+            )
 
     add breakdown:
         PrimitiveInstruction {
@@ -232,21 +236,14 @@ func MapBreakdown:
                 QuantityChangeInstruction {
                     change:
                         PriceQuantity {
-                            quantity: changeInNotionalAmount
-                                    extract MapNonNegativeMoneyNonNegativeQuantitySchedule
-                                    then default novatedAmount
-                                            extract MapMoneyToNonNegativeQuantitySchedule
-                            ,
+                            quantity: newTradeAmount,
                             ...
                         },
-                    direction: changeInstruction,
+                    direction: Replace,
                     ...
                 },
-            partyChange: MapPartyChangeInstruction(fpmlPostTradeEventsBaseModel),
-            transfer: MapTransferInstruction(
-                        fpmlPostTradeEventsBaseModel -> novation -> payment,
-                        Novation
-                    ),
+            partyChange: partyChange,
+            transfer: transfer,
             ...
         }
 
@@ -256,14 +253,12 @@ func MapBreakdown:
                 QuantityChangeInstruction {
                     change:
                         PriceQuantity {
-                            quantity: outstandingNotionalAmount
-                                    extract MapNonNegativeMoneyNonNegativeQuantitySchedule
-                                    then default remainingAmount
-                                            extract MapMoneyToNonNegativeQuantitySchedule
-                            ,
+                            quantity: oldTradeAmount default newTradeAmount,
                             ...
                         },
-                    direction: changeInstruction,
+                    direction: if oldTradeAmount exists
+                            then Replace
+                        else Decrease,
                     ...
                 },
             ...
@@ -347,11 +342,12 @@ func MapQuantityChangeInstruction:
     alias changeAmount:
         MapPriceQuantity(fpmlTradeNotionalChange, fpmlPostTradeEventsBaseModel)
     set quantityChange:
-        QuantityChangeInstruction {
-            change: changeAmount,
-            direction: quantityChangeDirection,
-            ...
-        }
+        if changeAmount exists
+        then QuantityChangeInstruction {
+                change: changeAmount,
+                direction: quantityChangeDirection,
+                ...
+            }
 
 func MapPriceQuantity:
     inputs:
@@ -452,79 +448,58 @@ func MapMessageInformation:
             ...
         }
 
-func GetIntent:
+func MapIntent:
     inputs:
-        fpmlNovation fpml.TradeNovationContent (0..1)
-        fpmlAmendment fpml.TradeAmendmentContent (0..1)
-        fpmlOriginatingEvent fpml.OriginatingEvent (0..1)
-        fpmlTerminatingEvent fpml.TerminatingEvent (0..1)
         fpmlTrade fpml.Trade (0..1)
-    output:
-        intent EventIntentEnum (0..1)
-
-    alias intentToAllocate:
-        (fpmlTrade -> tradeHeader -> partyTradeInformation
-            filter intentToAllocate = True
-            )
-            then exists
-    alias intentToClear:
-        (fpmlTrade -> tradeHeader -> partyTradeInformation
-            filter intentToClear = True
-            )
-            then exists
-
-    set intent:
-        if intentToAllocate
-        then Allocation
-        else if intentToClear
-        then Clearing
-        else if fpmlNovation exists
-        then Novation
-        else if fpmlAmendment exists
-        then ContractTermsAmendment
-        else if MapOriginatingEventToIntent(fpmlOriginatingEvent) exists
-        then MapOriginatingEventToIntent(fpmlOriginatingEvent)
-        else if MapTerminatingEventToIntent(fpmlTerminatingEvent) exists
-        then MapTerminatingEventToIntent(fpmlTerminatingEvent)
-        else if fpmlTrade exists
-        then ContractFormation
-
-func MapOriginatingEventToIntent:
-    inputs:
         fpmlOriginatingEvent fpml.OriginatingEvent (0..1)
-    output:
-        intent EventIntentEnum (0..1)
-
-    alias originatingEventValue: fpmlOriginatingEvent -> value to-string
-
-    set intent:
-        originatingEventValue switch
-            "Allocation" then Allocation,
-            "Netting" then Compression,
-            "PortfolioCompression" then Compression,
-            "CreditEvent" then CreditEvent,
-            "Novation" then Novation,
-            "Exercise" then OptionExercise,
-            "PortfolioRebalancing" then PortfolioRebalancing,
-            "ForwardAgainstFixing" then ContractFormation,
-            "Trade" then ContractFormation,
-            default empty
-
-func MapTerminatingEventToIntent:
-    inputs:
         fpmlTerminatingEvent fpml.TerminatingEvent (0..1)
+        fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
+        fpmlOptionsEventsBaseModel fpml.OptionsEventsBaseModel (0..1)
     output:
         intent EventIntentEnum (0..1)
 
-    alias terminatingEventValue: fpmlTerminatingEvent -> value to-string
+    alias partyTradeInformation: fpmlTrade -> tradeHeader -> partyTradeInformation
+
+    alias clearing:
+        fpmlTrade
+            extract tradeHeader -> partyTradeInformation
+            then filter intentToClear = True
+
+    alias intentToAllocate: partyTradeInformation extract intentToAllocate = True
+    alias postAllocation:
+        partyTradeInformation extract allocationStatus -> value = "PostAllocation"
 
     set intent:
-        terminatingEventValue switch
-            "Allocation" then Allocation,
-            "Netting" then Compression,
-            "PortfolioCompression" then Compression,
-            "PortfolioRebalancing" then PortfolioRebalancing,
-            default empty
+        if fpmlOriginatingEvent -> value = "Novation"
+                or fpmlPostTradeEventsBaseModel -> novation exists
+        then Novation
+        else if fpmlPostTradeEventsBaseModel -> postTradeEventsBaseModelSequence -> termination exists
+        then empty
+        else if fpmlOriginatingEvent -> value = "Netting"
+                or fpmlOriginatingEvent -> value = "PortfolioCompression"
+                or fpmlTerminatingEvent -> value = "PortfolioCompression"
+                or fpmlTerminatingEvent -> value = "Netting"
+        then Compression
+        else if postAllocation first and intentToAllocate exists
+                or fpmlOriginatingEvent -> value = "Allocation"
+                or fpmlTerminatingEvent -> value = "Allocation"
+        then Allocation
+        else if fpmlOriginatingEvent -> value = "PortfolioRebalancing"
+                or fpmlTerminatingEvent -> value = "PortfolioRebalancing"
+        then PortfolioRebalancing
+        else if fpmlOptionsEventsBaseModel -> optionExercise exists
+                or fpmlOriginatingEvent -> value = "Exercise"
+        then OptionExercise
+        else if fpmlPostTradeEventsBaseModel -> amendment exists
+        then ContractTermsAmendment
+        else if clearing exists
+        then Clearing
+        else if fpmlOriginatingEvent -> value = "CreditEvent"
+        then CreditEvent
+        else if fpmlOriginatingEvent -> value = "Trade"
+                or fpmlOriginatingEvent -> value = "ForwardAgainstFixing"
+                or fpmlTrade exists
+        then ContractFormation
 
 func GetEventDate:
     inputs:
