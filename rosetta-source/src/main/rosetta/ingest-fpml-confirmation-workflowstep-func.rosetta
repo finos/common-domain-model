@@ -231,38 +231,40 @@ func MapBreakdown:
             )
 
     add breakdown:
-        PrimitiveInstruction {
-            quantityChange:
-                QuantityChangeInstruction {
-                    change:
-                        PriceQuantity {
-                            quantity: newTradeAmount,
-                            ...
-                        },
-                    direction: Replace,
-                    ...
-                },
-            partyChange: partyChange,
-            transfer: transfer,
-            ...
-        }
+        if newTradeAmount exists
+        then PrimitiveInstruction {
+                quantityChange:
+                    QuantityChangeInstruction {
+                        change:
+                            PriceQuantity {
+                                quantity: newTradeAmount,
+                                ...
+                            },
+                        direction: Replace,
+                        ...
+                    },
+                partyChange: partyChange,
+                transfer: transfer,
+                ...
+            }
 
     add breakdown:
-        PrimitiveInstruction {
-            quantityChange:
-                QuantityChangeInstruction {
-                    change:
-                        PriceQuantity {
-                            quantity: oldTradeAmount default newTradeAmount,
-                            ...
-                        },
-                    direction: if oldTradeAmount exists
-                            then Replace
-                        else Decrease,
-                    ...
-                },
-            ...
-        }
+        if oldTradeAmount exists or newTradeAmount exists
+        then PrimitiveInstruction {
+                quantityChange:
+                    QuantityChangeInstruction {
+                        change:
+                            PriceQuantity {
+                                quantity: oldTradeAmount default newTradeAmount,
+                                ...
+                            },
+                        direction: if oldTradeAmount exists
+                                then Replace
+                            else Decrease,
+                        ...
+                    },
+                ...
+            }
 
 func MapPartyChangeInstruction:
     inputs:
