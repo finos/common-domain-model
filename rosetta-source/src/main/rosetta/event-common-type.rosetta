@@ -221,8 +221,13 @@ type ScheduledTransfer extends TransferBase: <"A scheduled transfer built into t
     payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
         [metadata reference]
 
+type ContingentTransfer: <"A scheduled transfer built into the contract.">
+    contingentTransferType ContingentTransferEnum (0..1) <"Specifies the type of contingent transfer.">
+    settlementOrigin Payout (0..1)
+    corporateActionTransferType CorporateActionTypeEnum (0..1)
+
     condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
-        if transferType = ScheduledTransferEnum -> CorporateAction
+         if contingentTransferType = ContingentTransferEnum -> CorporateAction
         then corporateActionTransferType exists
 
 type TransferBase extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
