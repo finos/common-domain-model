@@ -220,7 +220,7 @@ type Basket extends AssetBase: <"Defines a custom basket by referencing an ident
         assetType = Security
 
 type BasketConstituent: <"Identifies the constituents of the basket">
-    observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference, within the context of a Basket">
+    observable Observable (1..1) <"Specifies the object to be observed for a price, it could be an asset or a reference, within the context of a Basket">
     quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
         [metadata address "pointsTo"=PriceQuantity->quantity]
     initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
@@ -231,7 +231,9 @@ type BasketConstituent: <"Identifies the constituents of the basket">
         [metadata address "pointsTo"=PriceQuantity->price]
 
     condition BasketsOfBaskets: <"To prevent endless looping, baskets of baskets are not supported.">
-        observable -> Basket is absent
+        observable switch
+        Basket then is absent,
+        default empty
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
