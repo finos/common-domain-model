@@ -59,7 +59,7 @@ Deserialisation returns an object of the appropriate type.
 
 ### Not Supported
 
-- **Native Java function implementations** — a subset of CDM functions are implemented natively in Java rather than expressed in Rune DSL. These functions are present in the Python distribution as stubs but will raise `NotImplementedError` at runtime if called without a registered Python replacement. This includes `LoadCodeList` and the majority of the FpML ingestion mapping functions (the `Map*` family under `finos.cdm.ingest`). Python native implementations can be registered via `rune_register_native()` from `rune.runtime.native_registry`.
+- **Native Java function implementations** — a subset of CDM functions are implemented natively in Java rather than expressed in Rune DSL. These functions are present in the Python distribution as stubs but will raise `NotImplementedError` at runtime if called without a registered Python replacement. Python native implementations can be registered via `rune_register_native()` from `rune.runtime.native_registry`.
 - **Code list data loading** — the `CodeList`, `CodeListIdentification`, and `CodeValue` data types are fully generated, but the `LoadCodeList` function that populates them is a native Java stub (see above). Applications that require runtime code list validation must supply their own implementation.
 
 
