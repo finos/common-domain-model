@@ -79,6 +79,7 @@ python3 -m pip install --upgrade pip
 cd "${PYTHON_TARGET}"
 
 # Build and install the generated Python package
+cp "${PROJECT_ROOT}/python/README.md" .
 python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir . .
 WHEEL_FILE=$(ls ./*-*-py3-none-any.whl | head -n 1)
 if [[ ! -f "${WHEEL_FILE}" ]]; then
@@ -90,8 +91,6 @@ python3 -m pip install pytest
 
 # Run unit tests (output will be visible in Docker logs)
 pytest -p no:cacheprovider ${PROJECT_ROOT}/python/test/
-
-cp "${PROJECT_ROOT}/python/README.md" .
 
 deactivate
 rm -rf ./.pyenv
