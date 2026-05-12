@@ -26,13 +26,7 @@ steps:
     image: alpine/git
     commands:
       - cf_export MVN_CLI_OPT="-Dmaven.repo.local=\"${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}_m2/repository\" -s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml"
-      - |
-        cat > ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/.sbt-credentials <<EOF
-        realm=Artifact Registry
-        host=europe-west1-maven.pkg.dev
-        user=_json_key_base64
-        password=${{ARTIFACT_REGISTRY_SA_KEY}}
-        EOF
+      - printf "realm=Artifact Registry\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=${{ARTIFACT_REGISTRY_SA_KEY}}\n" > ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/.sbt-credentials
       - cf_export SBT_CLI_OPT="-Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/sbt-repositories -Dsbt.boot.credentials=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/.sbt-credentials"
 
   SetProperties:
