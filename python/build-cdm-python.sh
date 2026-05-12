@@ -91,5 +91,7 @@ python3 -m pip install pytest
 # Run unit tests (output will be visible in Docker logs)
 pytest -p no:cacheprovider ${PROJECT_ROOT}/python/test/
 
+cp "${PROJECT_ROOT}/python/README.md" .
+
 deactivate
 rm -rf ./.pyenv
