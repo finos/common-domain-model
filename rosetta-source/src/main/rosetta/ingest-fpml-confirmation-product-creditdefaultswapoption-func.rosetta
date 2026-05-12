@@ -8,7 +8,7 @@ import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.product.*
-import cdm.ingest.fpml.confirmation.product.creditdefaultswap.*
+import cdm.ingest.fpml.confirmation.product.creditdefaultswap.* as creditdefaultswap
 import cdm.observable.asset.*
 import cdm.observable.event.*
 import cdm.product.common.settlement.*
@@ -34,8 +34,19 @@ func MapCreditDefaultSwapOptionCounterpartyList:
 func MapCreditDefaultSwapOptionAncillaryPartyList:
     inputs:
         fpmlCreditDefaultSwapOption fpml.CreditDefaultSwapOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapSwaptionPhysicalSettlementToAncillaryParty(
+                fpmlCreditDefaultSwapOption -> clearingInstructions
+            )
+    add ancillaryPartyList:
+        MapExerciseProcedureToAncillaryParty(
+                fpmlCreditDefaultSwapOption -> exerciseProcedure,
+                cdmCounterpartyList
+            )
 
 func MapCreditDefaultSwapOptionNonTransferableProduct:
     inputs:
@@ -104,8 +115,11 @@ func MapCreditDefaultSwapOptionPayout:
                     principalPayment: empty, // MapPrincipalPayments(fpmlTrade, fpmlPartiesAndAccountsModel),
                     settlementTerms:
                         SettlementTerms {
-                            settlementType: Physical,
-                            physicalSettlementTerms: MapPhysicalSettlementtTermsWithReference(
+                            settlementType: fpmlCreditDefaultSwapOption -> optionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+                            settlementCurrency: MapCurrency(
+                                        fpmlCreditDefaultSwapOption -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                                    ),
+                            physicalSettlementTerms: MapPhysicalSettlementTermsWithReference(
                                         fpmlCreditDefaultSwapOption
                                     ),
                             ...
@@ -125,7 +139,7 @@ func MapCreditDefaultSwapOptionPayout:
                         Underlier {
                             Product:
                                 Product {
-                                    NonTransferableProduct: MapCreditDefaultSwapNonTransferableProduct(
+                                    NonTransferableProduct: creditdefaultswap.MapCreditDefaultSwapNonTransferableProduct(
                                                 fpmlCreditDefaultSwapOption -> creditDefaultSwap,
                                                 empty,
                                                 cdmCounterpartyList
@@ -302,7 +316,7 @@ func MapCreditEventsReferenceWithReference:
             reference: fpmlCreditDefaultSwapOption -> feature -> optionFeatureModel -> knock -> knockOut -> trigger -> triggerChoice -> creditEventsReference -> href
         }
 
-func MapPhysicalSettlementtTermsWithReference:
+func MapPhysicalSettlementTermsWithReference:
     inputs:
         fpmlCreditDefaultSwapOption fpml.CreditDefaultSwapOption (0..1)
     output:
@@ -326,7 +340,7 @@ func MapCreditDefaultSwapOptionUnderlier:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            economicTerms: MapCreditDefaultSwapEconomicTerms(
+            economicTerms: creditdefaultswap.MapCreditDefaultSwapEconomicTerms(
                         fpmlCreditDefaultSwapOptionDetailsModel,
                         fpmlTradeHeader,
                         cdmCounterpartyList
@@ -341,13 +355,13 @@ func MapCreditDefaultSwapOptionPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
-        MapFeeLegToPriceQuantity(
+        creditdefaultswap.MapFeeLegToPriceQuantity(
                 fpmlCreditDefaultSwapOption -> creditDefaultSwap -> feeLeg,
                 fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms
             )
 
     add priceQuantityList:
-        MapProtectionTermsToPriceQuantity(
+        creditdefaultswap.MapProtectionTermsToPriceQuantity(
                 fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms
             )
 

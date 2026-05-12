@@ -912,6 +912,48 @@ func MapCommodityRelativePaymentDates:
             ...
         }
 
+func MapCommoditySwapNonPeriodicPaymentDates:
+    inputs:
+        commodityPaymentDatesModel fpml.CommodityPaymentDatesModel (0..1)
+    output:
+        paymentDates PaymentDates (0..1)
+
+    set paymentDates:
+        PaymentDates {
+            paymentDateSchedule: MapCommoditySwapPaymentDateSchedule(
+                        commodityPaymentDatesModel
+                    ),
+            ...
+        }
+
+func MapCommoditySwapPaymentDateSchedule:
+    inputs:
+        fpmlCommodityPaymentDatesModel fpml.CommodityPaymentDatesModel (0..1)
+    output:
+        paymentDateSchedule PaymentDateSchedule (0..1)
+
+    set paymentDateSchedule:
+        PaymentDateSchedule {
+            interimPaymentDates: MapAdjustableDatesOrRelativeDateOffset(
+                        fpmlCommodityPaymentDatesModel -> commodityNonPeriodicPaymentDatesModel -> paymentDates
+                    ),
+            ...
+        }
+
+func MapAdjustableDatesOrRelativeDateOffset:
+    inputs:
+        fpmlAdjustableDatesOrRelativeDateOffset fpml.AdjustableDatesOrRelativeDateOffset (0..1)
+    output:
+        adjustableRelativeOrPeriodicDates AdjustableRelativeOrPeriodicDates (0..1)
+
+    set adjustableRelativeOrPeriodicDates:
+        AdjustableRelativeOrPeriodicDates {
+            adjustableDates: MapAdjustableDates(
+                        fpmlAdjustableDatesOrRelativeDateOffset -> adjustableDates
+                    ),
+            ...
+        }
+
 func MapCommodityPriceDatesToPricingDates:
     inputs:
         fpmlCommodityPricingDates fpml.CommodityPricingDates (0..1)
@@ -1071,24 +1113,50 @@ func MapFpmlDateTimeListToDateTimeList: <"Creates a ZonedDateTime from the provi
             dateTime: fpmldateTime -> dateTime,
         }
 
-func MapEventTimestampQualification:
+func MapEventTimestamp:
     inputs:
         messageHeaderModel fpml.MessageHeaderModel (0..1)
         fpmlTrade fpml.Trade (0..1)
     output:
-        qual EventTimestampQualificationEnum (0..1)
+        eventTimestamp EventTimestamp (0..*)
 
-    alias partyTradeInformation:
-        fpmlTrade -> tradeHeader -> partyTradeInformation distinct only-element
+    alias partyTradeInformation: fpmlTrade -> tradeHeader -> partyTradeInformation
 
-    set qual:
+    add eventTimestamp:
         if messageHeaderModel -> creationTimestamp exists
-        then eventCreationDateTime
-        else if partyTradeInformation -> timestamps -> submittedForClearing exists
-        then clearingReceiptDateTime
-        else if partyTradeInformation -> timestamps -> cleared exists
-        then clearingReceiptDateTime
-        else if partyTradeInformation -> timestamps -> confirmed exists
-        then confirmationDateTime
-        else if partyTradeInformation -> executionDateTime exists
-        then executionDateTime
+        then EventTimestamp {
+                dateTime: messageHeaderModel -> creationTimestamp,
+                qualification: eventCreationDateTime
+            }
+    add eventTimestamp:
+        partyTradeInformation
+            extract
+                if executionDateTime exists
+                then EventTimestamp {
+                        dateTime: executionDateTime -> value,
+                        qualification: EventTimestampQualificationEnum -> executionDateTime
+                    }
+    add eventTimestamp:
+        partyTradeInformation
+            extract
+                if timestamps -> confirmed exists
+                then EventTimestamp {
+                        dateTime: timestamps -> confirmed,
+                        qualification: confirmationDateTime
+                    }
+    add eventTimestamp:
+        partyTradeInformation
+            extract
+                if timestamps -> submittedForClearing exists
+                then EventTimestamp {
+                        dateTime: timestamps -> submittedForClearing,
+                        qualification: clearingReceiptDateTime
+                    }
+    add eventTimestamp:
+        partyTradeInformation
+            extract
+                if timestamps -> cleared exists
+                then EventTimestamp {
+                        dateTime: timestamps -> cleared,
+                        qualification: clearingDateTime
+                    }

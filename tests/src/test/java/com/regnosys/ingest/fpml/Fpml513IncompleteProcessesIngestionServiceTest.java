@@ -43,25 +43,20 @@ public class Fpml513IncompleteProcessesIngestionServiceTest extends IngestionTes
         return readExpectationsFromPath(BASE_DIR);
     }
 
-	public void run() {
+    public void updateExpectations() {
 
-		// Ensure environment is set up
-		setup();
-		fpMLFiles().forEach(e -> {
-			Object[] argsArray = e.get();
-			String expectationFilePath = (String) argsArray[0];
-			Expectation expectation = (Expectation) argsArray[1];
-			String expectationFileName = (String) argsArray[2];
-			try {
-				if (writeActualExpectations) {
-					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
-				} else {
-					ingest(expectationFilePath, expectation, expectationFileName);
-				}
-			} catch (Throwable ex) {
-				throw new RuntimeException(ex);
-			}
+        // Ensure environment is set up
+        setup();
+        fpMLFiles().forEach(e -> {
+            Object[] argsArray = e.get();
+            String expectationFilePath = (String) argsArray[0];
+            Expectation expectation = (Expectation) argsArray[1];
+            try {
+                writeIngestionExpectation(expectationFilePath, expectation);
+            } catch (Throwable ex) {
+                throw new RuntimeException(ex);
+            }
 
-		});
-	}
+        });
+    }
 }

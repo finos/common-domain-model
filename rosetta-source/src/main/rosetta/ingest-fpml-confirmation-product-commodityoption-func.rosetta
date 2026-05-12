@@ -28,12 +28,6 @@ func MapCommodityOptionCounterpartyList:
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(fpmlCommodityOption -> buyerSellerModel)
 
-func MapCommodityOptionAncillaryPartyList:
-    inputs:
-        fpmlCommodityOption fpml.CommodityOption (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
-
 func MapCommodityOptionNonTransferableProduct:
     inputs:
         fpmlCommodityOption fpml.CommodityOption (0..1)
@@ -64,6 +58,9 @@ func MapCommodityOptionEconomicTerms:
                         fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> effectiveDate
                     ),
             payout: MapCommodityOptionPayout(fpmlCommodityOption, cdmCounterpartyList),
+            terminationDate: MapAdjustableOrRelativeDate(
+                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> terminationDate
+                    ),
             ...
         }
 
@@ -142,11 +139,131 @@ func MapCommodityOptionPayout:
                                     empty,
                                     strikeUnit,
                                     strikePerUnitOf
-                                ),
+                                )
+                        else if fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnitSchedule -> strikePricePerUnitStep -> amount exists
+                        then OptionStrike {
+                                strikePrice:
+                                    Price {
+                                        priceType: empty,
+                                        datedValue: MapCommodityOptionToStrikePriceDatedValues(
+                                                    fpmlCommodityOption
+                                                ),
+                                        ...
+                                    },
+                                ...
+                            },
                     ...
                 },
             ...
         }
+
+func MapCommodityOptionToStrikePriceDatedValues:
+    inputs:
+        fpmlCommodityOption fpml.CommodityOption (0..1)
+    output:
+        strikePriceSchedule DatedValue (0..*)
+
+    alias fpmlStrikePriceSchedule:
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnitSchedule
+    alias fpmlCalculationPeriodsSchedule:
+        ExtractCommodityCalculationPeriodsScheduleFromHref(
+                CollectAllCalculationPeriodsSchedules(fpmlCommodityOption),
+                fpmlStrikePriceSchedule -> commodityCalculationPeriodsPointerModel -> calculationPeriodsScheduleReference -> href
+            )
+    alias fpmlCalculationPeriods:
+        ExtractCommodityCalculationPeriodsFromHref(
+                CollectAllCalculationPeriods(fpmlCommodityOption),
+                fpmlStrikePriceSchedule -> commodityCalculationPeriodsPointerModel -> calculationPeriodsReference -> href
+            )
+
+    alias fpmlCommodityOptionFeatures:
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel
+    alias effectiveDate:
+        MapAdjustableOrRelativeDate(fpmlCommodityOptionFeatures -> effectiveDate) -> adjustableDate -> unadjustedDate
+    alias terminationDate:
+        MapAdjustableOrRelativeDate(fpmlCommodityOptionFeatures -> terminationDate) -> adjustableDate -> unadjustedDate
+
+    alias fpmlCommodityStrikePriceDates:
+        if fpmlCalculationPeriods exists
+        then ExtractCommodityCalculationPeriods(fpmlCalculationPeriods)
+        else if fpmlCalculationPeriodsSchedule exists
+        then CalculateCommodityCalculationPeriods(
+                    fpmlCalculationPeriodsSchedule,
+                    effectiveDate,
+                    terminationDate
+                )
+
+    add strikePriceSchedule:
+        MapCommodityOptionStrikePriceSchedule(
+                fpmlStrikePriceSchedule -> strikePricePerUnitStep,
+                fpmlCommodityStrikePriceDates
+            )
+
+func CollectAllCalculationPeriodsSchedules:
+    inputs:
+        fpmlCommodityOption fpml.CommodityOption (0..1)
+    output:
+        fpmlCommodityCalculationPeriodsSchedules fpml.CommodityCalculationPeriodsSchedule (0..*)
+
+    add fpmlCommodityCalculationPeriodsSchedules:
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityOptionFeaturesModelSequence -> commodityAsianModel -> calculationPeriodsSchedule
+    add fpmlCommodityCalculationPeriodsSchedules:
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityAsianModel -> calculationPeriodsSchedule
+    add fpmlCommodityCalculationPeriodsSchedules:
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityFloatingStrikePriceModel -> floatingStrikePricePerUnitSchedule
+
+func ExtractCommodityCalculationPeriodsScheduleFromHref:
+    inputs:
+        fpmlCommodityCalculationPeriodsSchedules fpml.CommodityCalculationPeriodsSchedule (0..*)
+        href string (1..1)
+    output:
+        fpmlCommodityCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
+
+    set fpmlCommodityCalculationPeriodsSchedule:
+        fpmlCommodityCalculationPeriodsSchedules
+            filter id = href
+            then first
+
+func CalculateCommodityCalculationPeriods:
+    [codeImplementation]
+    inputs:
+        fpmlCommodityCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
+        effectiveDate date (0..1)
+        terminationDate date (0..1)
+    output:
+        commodityCalculationPeriods date (0..*)
+
+func CollectAllCalculationPeriods:
+    inputs:
+        fpmlCommodityOption fpml.CommodityOption (0..1)
+    output:
+        fpmlCommodityCalculationPeriods fpml.AdjustableDates (0..*)
+
+    add fpmlCommodityCalculationPeriods:
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityOptionFeaturesModelSequence -> commodityAsianModel -> calculationPeriods
+    add fpmlCommodityCalculationPeriods:
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityAsianModel -> calculationPeriods
+
+func ExtractCommodityCalculationPeriodsFromHref:
+    inputs:
+        fpmlCommodityCalculationPeriodsList fpml.AdjustableDates (0..*)
+        href string (1..1)
+    output:
+        fpmlCommodityCalculationPeriods fpml.AdjustableDates (0..1)
+
+    set fpmlCommodityCalculationPeriods:
+        fpmlCommodityCalculationPeriodsList
+            filter id = href
+            then first
+
+func ExtractCommodityCalculationPeriods:
+    inputs:
+        fpmlCommodityCalculationPeriods fpml.AdjustableDates (0..1)
+    output:
+        commodityCalculationPeriods date (0..*)
+
+    set commodityCalculationPeriods:
+        fpmlCommodityCalculationPeriods -> unadjustedDate -> value -> date
 
 func MapCommodityOptionToObservationTerms:
     inputs:
@@ -155,10 +272,14 @@ func MapCommodityOptionToObservationTerms:
         observationTerms ObservationTerms (0..1)
 
     alias fpmlCalculationPeriodsSchedule:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityOptionFeaturesModelSequence -> commodityAsianModel -> calculationPeriodsSchedule
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel
+            extract
+                commodityOptionFeaturesModelSequence -> commodityAsianModel -> calculationPeriodsSchedule default commodityAsianModel -> calculationPeriodsSchedule
 
     alias fpmlPricingDates:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityOptionFeaturesModelSequence -> commodityAsianModel -> pricingDates
+        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel
+            extract
+                commodityOptionFeaturesModelSequence -> commodityAsianModel -> pricingDates default commodityAsianModel -> pricingDates
 
     set observationTerms:
         ObservationTerms {
