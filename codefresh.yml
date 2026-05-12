@@ -26,8 +26,6 @@ steps:
     image: alpine/git
     commands:
       - cf_export MVN_CLI_OPT="-Dmaven.repo.local=\"${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}_m2/repository\" -s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml"
-      - printf "realm=Artifact Registry\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=${{ARTIFACT_REGISTRY_SA_KEY}}\n" > ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/.sbt-credentials
-      - cf_export SBT_CLI_OPT="-Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/sbt-repositories -Dsbt.boot.credentials=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/.sbt-credentials"
 
   SetProperties:
     stage: 'setup'
@@ -107,10 +105,10 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         commands:
-          - sbt ${{SBT_CLI_OPT}} compile
-          - sbt ${{SBT_CLI_OPT}} package
-          - sbt ${{SBT_CLI_OPT}} doc
-          - sbt ${{SBT_CLI_OPT}} packageDoc packageSrc
+          - sbt compile
+          - sbt package
+          - sbt doc
+          - sbt packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
