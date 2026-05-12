@@ -26,7 +26,7 @@ steps:
     image: alpine/git
     commands:
       - cf_export MVN_CLI_OPT="-Dmaven.repo.local=\"${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}_m2/repository\" -s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml"
-      - cf_export SBT_CLI_OPT="-Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/sbt-repositories -Dcoursier.credentials=europe-west1-maven.pkg.dev _json_key_base64:${{ARTIFACT_REGISTRY_SA_KEY}}"
+      - cf_export SBT_CLI_OPT="-Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/sbt-repositories"
 
   SetProperties:
     stage: 'setup'
@@ -105,6 +105,8 @@ steps:
         image: mozilla/sbt:8u292_1.5.7
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
+        environment:
+          - COURSIER_CREDENTIALS=europe-west1-maven.pkg.dev _json_key_base64 ${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
           - sbt ${{SBT_CLI_OPT}} compile
           - sbt ${{SBT_CLI_OPT}} package
