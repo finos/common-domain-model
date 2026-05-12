@@ -47,8 +47,10 @@ type AssetBase:
     identifier AssetIdentifier (1..*) 
     taxonomy Taxonomy (0..*) 
     isExchangeListed boolean (0..1) 
-    exchange LegalEntity (0..1)  
-    relatedExchange LegalEntity (0..*) 
+    party Party (0..*)
+    partyRole AssetPartyRole (0..1)
+    ancillaryPartyRole AssetAncillaryPartyRole (0..*)
+    assetType AssetTypeEnum (1..1) 
 ```
 
 The data types are designed to carry the minimal amount of information that is needed to uniquely identify the asset

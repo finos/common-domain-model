@@ -776,6 +776,52 @@ func MapExchangeIdToLegalEntity:
             ...
         }
 
+func MapExchangeIdToAssetParty:
+    inputs:
+        fpmlExchangeId fpml.ExchangeId (0..1)
+    output:
+        party Party (0..1)
+
+    set party:
+        Party {
+            partyId: fpmlExchangeId extract MapExchangeIdToPartyIdentifier,
+            name: MapStringWithScheme(
+                        fpmlExchangeId -> value,
+                        fpmlExchangeId -> exchangeIdScheme
+                    ),
+            ...
+        }
+
+func MapExchangeIdToPartyIdentifier:
+    inputs:
+        fpmlExchangeId fpml.ExchangeId (0..1)
+    output:
+        partyId PartyIdentifier (1..1)
+
+    set partyId -> identifier:
+        MapStringWithScheme(fpmlExchangeId -> value, fpmlExchangeId -> exchangeIdScheme)
+
+func MapAssetPartyRole:
+    inputs:
+        assetParty Party (1..1)
+        assetPartyRoleEnum AssetPartyRoleEnum (1..1)
+    output:
+        assetPartyRole AssetPartyRole (1..1)
+
+    set assetPartyRole -> partyReference: assetParty
+    set assetPartyRole -> role: assetPartyRoleEnum
+
+func MapAssetAncillaryPartyRole:
+    inputs:
+        assetAncillaryparty Party (1..1)
+        assetAncillaryPartyRoleEnum AssetAncillaryPartyRoleEnum (1..1)
+    output:
+        assetAncillaryPartyRole AssetAncillaryPartyRole (0..1)
+
+    set assetAncillaryPartyRole -> partyReference: assetAncillaryparty
+
+    set assetAncillaryPartyRole -> role: assetAncillaryPartyRoleEnum
+
 func MapPayerReceiver:
     inputs:
         fpmlPayerReceiverModel fpml.PayerReceiverModel (0..1)

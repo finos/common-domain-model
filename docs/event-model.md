@@ -989,7 +989,7 @@ type EventInstruction:
 ```
 
 ### Next Event
-
+ 
 Parties sometimes pre-agree a follow-on event that is meant to be
 executed after the current event completes, but separately from it. A
 typical scenario is an execution that specifies that the trade is
