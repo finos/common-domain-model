@@ -1,6 +1,51 @@
 namespace cdm.legaldocumentation.master.isla
 version "${project.version}"
 
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
 import cdm.legaldocumentation.master.*
 
 type GlobalMasterSecuritiesLendingAgreement extends MasterAgreementBase: <"The set of elections that define a GMSLA.">
+    collateral CollateralSpecification (1..1) <"The definitions regarding collateral relating to the GMSLA.">
+    baseCurrency BaseCurrency (1..1) <"The definitions regarding base currency determinations relating to the GMSLA.">
+    eventsOfDefault EventsOfDefault (1..1) <"The definitions regarding any different events of default relating to the GMSLA.">
+
+type CollateralSpecification: <"The definitions regarding collateral relating to the GMSLA.">
+    standardDefinitionOfMarketValueUsed boolean (1..1) <"Is the standard definition of 'Market Value' used in the GMSLA?">
+    definitionOfMarketValueNonStandard string (0..1) <"If the definition of 'Market Value' is non standard, it can be specified here.">
+    aggregation Aggregation (1..1) <"How does paragraph 5.4 (aggregation) apply to the GMSLA?">
+    nettingObligationsApply ApplicabilityOfElectionEnum (1..1) <"Does paragraph 5.6 (netting of obligations to deliver Collateral and redeliver Equivalent Collateral) apply to the GMSLA?">
+    failureToDevliverIndemnityApplies ApplicabilityOfElectionEnum (1..1) <"Does paragraph 6.4 (indemnity for failure to redeliver Equivalent Non-Cash Collateral) apply to the GMSLA?">
+    notificationTime BusinessCenterTime (1..1) <"What is the notification time of the GMSLA?">
+
+    condition StandardMarketCondition: <"A validation rule to ensure that if the standard definition of market value is not used, then the definition is provided.">
+        if standardDefinitionOfMarketValueUsed <> True
+        then definitionOfMarketValueNonStandard exists
+
+type BaseCurrency: <"The definitions regarding base currency determinations relating to the GMSLA.">
+    baseCurrency CurrencyCodeEnum (1..1) <"The base currency as defined in the GMSLA.">
+    baseCurrencyMustBeFreelyConvertible boolean (0..1) <"The base currency that is defined must be freely convertible.">
+    baseCurrencyIfOriginalNotFreelyConvertible CurrencyCodeEnum (0..1) <"If the base currency is not freely convertible, the fallback currency can be defined here.">
+
+type EventsOfDefaultElection: <"The specific party elections for events of default.">
+    party CounterpartyRoleEnum (1..1) <"The specified party.">
+    automaticEarlyTerminationApplies ApplicabilityOfElectionEnum (1..1) <"Does automatic early termination apply to the specified party?">
+    existingLoans ApplicabilityOfElectionEnum (0..1) <"Are existing loans covered in the event of default (Only relevant to 2010 GMSLAs)?">
+    automation ApplicabilityOfElectionEnum (0..1) <"Are third party vendors allowed to automate the processing of loans in the event of default (Only relevant to 2010 GMSLAs)?">
+    automaticEarlyTerminationSpecifiedSeparatelyForEachPrinciple boolean (1..1) <"In the case where party is acting as an agent, is automatic early termination specified on a per principle basis?">
+    automaticEarlyTerminationRequiredDueToSystemOfLaw boolean (1..1) <"Automatic early termination only applies if required due to system of law, otherwise it is not applicable.">
+    automaticEarlyTerminationInModifiedForm boolean (1..1) <"Automatic early termination applies in a modified form only.">
+    automaticEarlyTerminationOther string (0..1) <"Optional string to capture any further information regarding the automatic early termination even of default.">
+
+    condition AutomaticEarlyTerminationMustBeApplicable: <"A validation rule to ensure that if aet applies in a modified form or separately for each principle that the applicability is set to be 'applicable'.">
+        if automaticEarlyTerminationInModifiedForm or automaticEarlyTerminationSpecifiedSeparatelyForEachPrinciple
+        then automaticEarlyTerminationApplies = Applicable
+
+type EventsOfDefault: <"The definitions regarding any different events of default relating to the GMSLA.">
+    partyElection EventsOfDefaultElection (2..2) <"The specified events of default elections for the respective parties signing the GMSLA.">
+
+type Aggregation: <"The definitions for whether aggregation applies to the GMSLA, and if so how it applies.">
+    aggregationType AggregationSpecificationEnum (1..1) <"How is the mark to market value determined?">
+    loansCanBeGrouped boolean (1..1) <"The mark to market can be defined separately for different groups of loans.">
+    otherDetails string (0..1) <"Any specfic elections that are not captured by the above options, such as grouping information.">
