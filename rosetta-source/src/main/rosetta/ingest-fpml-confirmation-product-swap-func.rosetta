@@ -36,8 +36,25 @@ func MapSwapCounterpartyList:
 func MapSwapAncillaryPartyList:
     inputs:
         fpmlSwap fpml.Swap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapEarlyTerminationProvisionToAncillaryParty(
+                fpmlSwap -> earlyTerminationProvision,
+                cdmCounterpartyList
+            )
+    add ancillaryPartyList:
+        MapCancelableProvisionToAncillaryParty(
+                fpmlSwap -> cancelableProvision,
+                cdmCounterpartyList
+            )
+    add ancillaryPartyList:
+        MapExtendibleProvisionToAncillaryParty(
+                fpmlSwap -> extendibleProvision,
+                cdmCounterpartyList
+            )
 
 func MapSwapNonTransferableProduct:
     inputs:
@@ -77,6 +94,9 @@ func MapSwapPayout:
         cdmCounterpartyList Counterparty (0..2)
     output:
         payout Payout (0..1)
+
+    alias notionalAmountScheduleCalculation:
+        fpmlSwapStream -> calculationPeriodAmount -> knownAmountSchedule
 
     alias notionalStepScheduleCalculation:
         fpmlSwapStream -> calculationPeriodAmount -> calculation
@@ -118,6 +138,12 @@ func MapSwapPayout:
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
+                            priceSchedule: if notionalAmountScheduleCalculation exists
+                                    then MapScheduleToInterestRatePriceSchedule(
+                                            notionalAmountScheduleCalculation,
+                                            notionalAmountScheduleCalculation -> currency,
+                                            empty
+                                        ),
                             quantitySchedule: if notionalStepScheduleCalculation -> notionalSchedule -> notionalStepSchedule exists
                                     then MapNotionalStepScheduleToQuantityWithAddress(
                                             notionalStepScheduleCalculation -> notionalSchedule -> notionalStepSchedule,
@@ -343,8 +369,45 @@ func MapTerminationProvision:
                         fpmlEarlyTerminationProvision,
                         cdmCounterpartyList
                     ),
-            cancelableProvision: empty, // TODO
+            cancelableProvision: MapCancelableProvision(
+                        fpmlCancelableProvision,
+                        cdmCounterpartyList
+                    ), // TODO
             extendibleProvision: empty, // TODO
+            ...
+        }
+
+func MapCancelableProvision:
+    inputs:
+        fpmlCancelableProvision fpml.CancelableProvision (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        cancelableProvision CancelableProvision (0..1)
+    set cancelableProvision:
+        CancelableProvision {
+            buyer: MapCounterpartyRoleEnum(
+                        fpmlCancelableProvision -> buyerSellerModel -> buyerPartyReference -> href,
+                        cdmCounterpartyList
+                    ),
+            seller: MapCounterpartyRoleEnum(
+                        fpmlCancelableProvision -> buyerSellerModel -> sellerPartyReference -> href,
+                        cdmCounterpartyList
+                    ),
+            followUpConfirmation: fpmlCancelableProvision -> followUpConfirmation,
+            exerciseNotice: fpmlCancelableProvision -> exerciseNotice
+                    extract
+                        ExerciseNotice {
+                            businessCenter: businessCenter -> value to-enum BusinessCenterEnum,
+                            exerciseNoticeGiver: empty,
+                            ...
+                        },
+            exerciseTerms: MapExerciseTerms(
+                        fpmlCancelableProvision -> exercise,
+                        empty,
+                        empty,
+                        empty,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -697,11 +760,12 @@ func MapCalculationPeriodAmountToPriceList:
         MapSpreadScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
 
     add priceSchedules:
-        MapCapRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
+        MapFloatingRateMultiplerScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
 
-    add priceSchedules:
-        MapFloorRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
-
+// add priceSchedules:
+// MapCapRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
+// add priceSchedules:
+// MapFloorRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
 func GetInterestRatePriceCurrency:
     inputs:
         fpmlCalculationPeriodAmount fpml.CalculationPeriodAmount (0..1)
