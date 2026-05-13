@@ -70,19 +70,25 @@ func MapSettlementProvisionToSettlementTerms:
             ...
         }
 
-func MapReturnSwapAmountToSettlementTerms:
+func MapReturnSwapLegToSettlementTerms:
     inputs:
-        amount fpml.ReturnSwapAmount (0..1)
+        fpmlReturnLeg fpml.ReturnLeg (0..1)
     output:
         settlementTerms SettlementTerms (0..1)
 
     set settlementTerms:
         SettlementTerms {
-            settlementType: if amount -> cashSettlement = True
-                    then Cash,
-            settlementCurrency: MapCurrency(
-                        amount -> currencyAndDeterminationMethodModel -> currency
-                    ),
+            settlementType: if fpmlReturnLeg -> amount -> cashSettlement = True
+                    then Cash
+                else fpmlReturnLeg -> optionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+            settlementCurrency: if fpmlReturnLeg -> amount exists
+                    then MapCurrency(
+                            fpmlReturnLeg -> amount -> currencyAndDeterminationMethodModel -> currency
+                        )
+                else if fpmlReturnLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency exists
+                then MapCurrency(
+                            fpmlReturnLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                        ),
             ...
         }
 
@@ -516,9 +522,12 @@ func MapFxCashSettlementToSettlementTerms:
     output:
         settlementTerms SettlementTerms (0..1)
 
+    alias settlementType:
+        if fpmlFxCashSettlement exists then SettlementTypeEnum -> Cash
+
     set settlementTerms:
         SettlementTerms {
-            settlementType: Cash,
+            settlementType: settlementType,
             settlementCurrency: MapCurrency(fpmlFxCashSettlement -> settlementCurrency),
             settlementDate:
                 SettlementDate {
@@ -537,12 +546,12 @@ func MapFxCashSettlementToSettlementTerms:
                         ValuationMethod {
                             valuationSource:
                                 ValuationSource {
-                                    quotedCurrencyPair: empty,
-                                    informationSource:
-                                        FxSpotRateSource {
-                                            primarySource: empty,
-                                            ...
-                                        },
+                                    quotedCurrencyPair: MapQuotedCurrencyPair(
+                                                fpmlFxCashSettlement -> fixing -> quotedCurrencyPair
+                                            ),
+                                    informationSource: MapFxSpotRateSource(
+                                                fpmlFxCashSettlement -> fixing -> fxSpotRateSource
+                                            ),
                                     referenceBanks: empty,
                                     ...
                                 },
@@ -550,6 +559,26 @@ func MapFxCashSettlementToSettlementTerms:
                             cashCollateralValuationMethod: empty,
                             ...
                         },
+                    valuationDate:
+                        ValuationDate {
+                            fxFixingDate:
+                                FxFixingDate {
+                                    period: empty,
+                                    periodMultiplier: empty,
+                                    fxFixingDate:
+                                        AdjustableOrRelativeDate {
+                                            adjustableDate:
+                                                AdjustableDate {
+                                                    adjustedDate: fpmlFxCashSettlement -> fixing -> fixingDate -> date,
+                                                    ...
+                                                },
+                                            ...
+                                        },
+                                    ...
+                                },
+                            ...
+                        },
+                    valuationTime: empty,
                     ...
                 },
             ...
@@ -734,6 +763,7 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
         else if cash exists
         then SettlementTerms {
                 settlementType: SettlementTypeEnum -> Cash,
+                settlementCurrency: MapCurrency(cash -> settlementCurrency),
                 cashSettlementTerms:
                     CashSettlementTerms {
                         recoveryFactor: cash -> fixedRecoveryModel -> recoveryFactor,
@@ -784,7 +814,7 @@ func MapFxPerformanceSwapToSettlementTerms:
             ...
         }
 
-func MapCorrelationLegToSettlmentTerms:
+func MapCorrelationLegToSettlementTerms:
     inputs:
         fpmlCorrelationLeg fpml.CorrelationLeg (0..1)
     output:
@@ -795,6 +825,9 @@ func MapCorrelationLegToSettlmentTerms:
     set settlementTerms:
         SettlementTerms {
             settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+            settlementCurrency: MapCurrency(
+                        fpmlOptionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                    ),
             settlementDate:
                 SettlementDate {
                     adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
@@ -829,5 +862,17 @@ func MapCommodityExerciseToSettlementTerms:
                         },
                     ...
                 },
+            ...
+        }
+
+func MapCommoditySwaptionSettlementTerms:
+    inputs:
+        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if fpmlCommoditySwaption -> physicalExercise exists
+                    then Physical,
             ...
         }
