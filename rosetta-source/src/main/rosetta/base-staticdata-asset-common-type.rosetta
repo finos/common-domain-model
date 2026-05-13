@@ -23,22 +23,22 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     assetType AssetTypeEnum (1..1) <"Specifies the type of asset.">
 
 
-    condition ExchangeRole: <"If Exchange is specified, it must be an exchange-listed Instrument.">
+    condition RoleIsExchange: <"If Exchange is specified, it must be an exchange-listed Instrument.">
          if partyRole -> role = Exchange
                   then isExchangeListed = True
 
     condition ExchangeListed: <"if isExchangeListed is true then partyRole is Exchange.">
          if isExchangeListed then partyRole -> role = Exchange
 
-    condition Issuer: <"If the asset type is a security then the role must be issuer.">
+    condition IssuerRole: <"If the asset type is a security then the role must be issuer.">
         if assetType = Security
             then partyRole -> role = Issuer
 
-    condition Issuer: <"If the asset type is a security then the role must be issuer.">
+    condition ExchangeRole: <"If the asset type is a listed derivative then the role must be exchange.">
         if assetType = ListedDerivative
             then partyRole -> role = Exchange
 
-    condition LenderBorrower: <"If the asset type is a Loan then the role must be Lender.">
+    condition LenderBorrowerRole: <"If the asset type is a Loan then the role must be Lender.">
         if assetType = Loan
             then partyRole -> role =  Lender or partyRole -> role = Borrower
 
