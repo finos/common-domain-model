@@ -2,17 +2,17 @@
 
 The Release schedule is currently being identified and will then be approved by the Steering WG.
 
-Draft version - as of May 2026
+Draft version - as of December 2025
 
 ## Draft 2026 Timeline
 
-| Version  | Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec | 1Q27 | 2Q27 
-|-------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+| Version  | Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec | 1Q27 
+|-------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
 | **CDM 5** | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |     |
-| **CDM 6** | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 |🟧 | ⬜ | 
-| **CDM 7** | 🟦 | 🟦 | 🟦 | 🟦 | 🟦 | 🟦 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 |🟩 | 🟧 |
-| **CDM 8** | | |  |  |  |  | 🟦 | 🟦 | 🟦| 🟦 | 🟦 | 🟦 |🟦 | 🟩 |
-| **CDM 9** | | |  |  |  |  |  |  |   |  |  |  |  |🟦 |
+| **CDM 6** | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | ⬜ | 
+| **CDM 7** | 🟦 | 🟦 | 🟦 | 🟦 | 🟦 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟧 |
+| **CDM 8** | | |  |  |  | 🟦 | 🟦 | 🟦 | 🟦| 🟦 | 🟦 | 🟦 | 🟩 |
+| **CDM 9** | | |  |  |  |  |  |  |   |  |  |  | 🟦 |
 
 See definitions below.
 
