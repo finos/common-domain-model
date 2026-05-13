@@ -26,12 +26,6 @@ func MapEquityOptionTransactionSupplementCounterpartyList:
                 fpmlEquityOptionTransactionSupplement -> buyerSellerModel
             )
 
-func MapEquityOptionTransactionSupplementAncillaryPartyList:
-    inputs:
-        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
-
 func MapEquityOptionTransactionSupplementNonTransferableProduct:
     inputs:
         fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
@@ -85,7 +79,9 @@ func MapEquityOptionTransactionSupplementPayout:
         }
 
     alias perUnitOf:
-        GetPerUnitOfForEquityDerivativeBase(fpmlEquityOptionTransactionSupplement)
+        GetUnitTypeForUnderlyingAsset(
+                fpmlEquityOptionTransactionSupplement -> underlyer -> singleUnderlyer -> underlyingAsset
+            )
 
     set payout:
         Payout {
@@ -150,7 +146,8 @@ func MapEquityOptionTransactionSupplementPriceQuantityList:
             quantity: MapEquityDerivativeBaseQuantityListWithLocation(
                         fpmlEquityOptionTransactionSupplement,
                         fpmlEquityOptionTransactionSupplement -> numberOfOptions,
-                        fpmlEquityOptionTransactionSupplement -> optionEntitlement
+                        fpmlEquityOptionTransactionSupplement -> optionEntitlement,
+                        empty
                     ),
             observable: MapUnderlyerToObservableWithLocation(
                         fpmlEquityOptionTransactionSupplement -> underlyer

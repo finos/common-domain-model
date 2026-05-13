@@ -30,12 +30,6 @@ func MapDividendSwapTransactionSupplementCounterpartyList:
                 fpmlDividendSwapTransactionSupplement -> dividendLeg -> payerReceiverModel
             )
 
-func MapDividendSwapTransactionSupplementAncillaryPartyList:
-    inputs:
-        fpmlDividendSwapTransactionSupplement fpml.DividendSwapTransactionSupplement (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
-
 func MapDividendSwapTransactionSupplementNonTransferableProduct:
     inputs:
         fpmlDividendSwapTransactionSupplement fpml.DividendSwapTransactionSupplement (0..1)
@@ -64,12 +58,16 @@ func MapDividendSwapTransactionSupplementEconomicTerms:
     output:
         economicTerms EconomicTerms (0..1)
 
+    alias dividendLeg: fpmlDividendSwapTransactionSupplement -> dividendLeg
+
     set economicTerms:
         EconomicTerms {
             payout: MapDividendSwapTransactionSupplementPayoutList(
                         fpmlDividendSwapTransactionSupplement,
                         cdmCounterpartyList
                     ),
+            effectiveDate: MapAdjustableOrRelativeDate(dividendLeg -> effectiveDate),
+            terminationDate: MapAdjustableOrRelativeDate(dividendLeg -> terminationDate),
             ...
         }
 
@@ -319,7 +317,7 @@ func MapSingleUnderlyerToNonNegativeQuantityScheduleWithLocation:
                         value: singleUnderlyer -> openUnits,
                         unit:
                             UnitType {
-                                financialUnit: IndexUnit,
+                                financialUnit: Share,
                                 ...
                             },
                         ...

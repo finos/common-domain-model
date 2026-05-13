@@ -4,7 +4,8 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
-import cdm.ingest.fpml.confirmation.product.commodityswap.*
+import cdm.ingest.fpml.confirmation.product.commodityswap.* as commodityswap
+import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
@@ -24,8 +25,14 @@ func MapCommoditySwaptionCounterpartyList:
 func MapCommoditySwaptionAncillaryPartyList:
     inputs:
         fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapSwaptionPhysicalSettlementToAncillaryParty(
+                fpmlCommoditySwaption -> physicalExercise -> clearingInstructions
+            )
 
 func MapCommoditySwaptionNonTransferableProduct:
     inputs:
@@ -72,7 +79,9 @@ func MapCommoditySwaptionPayout:
                                 fpmlCommoditySwaption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
-                    settlementTerms: empty,
+                    settlementTerms: MapCommoditySwaptionSettlementTerms(
+                                fpmlCommoditySwaption
+                            ),
                     buyerSeller: MapBuyerSeller(
                                 fpmlCommoditySwaption -> buyerSellerModel,
                                 cdmCounterpartyList
@@ -89,7 +98,7 @@ func MapCommoditySwaptionPayout:
                                 },
                             ...
                         },
-                    optionType: empty,
+                    optionType: fpmlCommoditySwaption -> optionType to-enum OptionTypeEnum,
                     exerciseTerms: MapExerciseTerms(
                                 GetFpmlCommodityPhysicalExercise(
                                         fpmlCommoditySwaption -> physicalExercise
@@ -114,7 +123,7 @@ func MapUnderlierNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            economicTerms: MapCommoditySwapEconomicTerms(
+            economicTerms: commodityswap.MapCommoditySwapEconomicTerms(
                         fpmlCommoditySwapDetailsModel,
                         cdmCounterpartyList
                     ),
@@ -126,6 +135,23 @@ func MapCommoditySwaptionPriceQuantityList:
         fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
+
+    alias fpmlCommoditySwaptionLegList:
+        fpmlCommoditySwaption -> commoditySwap -> commoditySwapDetailsModel -> commoditySwapLeg
+
+    add priceQuantityList:
+        fpmlCommoditySwaptionLegList
+            extract
+                item switch
+                    fpml.FixedLeg then commodityswap.MapFixedLegToPriceQuantity,
+                    default empty
+
+    add priceQuantityList:
+        fpmlCommoditySwaptionLegList
+            extract
+                item switch
+                    fpml.FloatingLeg then commodityswap.MapFloatingLegToPriceQuantity,
+                    default empty
 
 func MapCommoditySwaptionAccountPartyReference:
     inputs:
