@@ -103,10 +103,11 @@ func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation
         if tradeLots count > 0
         then tradeLots
                 extract [
-                    if item -> priceQuantity -> price -> priceType contains PriceTypeEnum -> CashPrice
+                    if priceQuantity -> price -> priceType contains AssetPrice
+                            or priceQuantity -> price -> priceType contains ExchangeRate
                     then CashPriceQuantityNoOfUnitsTriangulation(
-                                item -> priceQuantity -> quantity,
-                                item -> priceQuantity -> price
+                                priceQuantity -> quantity,
+                                priceQuantity -> price
                             )
                     else True
                 ] all = True
@@ -120,14 +121,14 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
     output:
         success boolean (1..1) <"Validation result">
 
-func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows that correspond to a settlement payout. One leg is the asset leg, that settles the asset according to the quantity, direction and date defined in the settlement payout. The other is the price leg, that settles the price as a currency amount going in the opposite direction. The function's applicability is limited on purpose to a single asset with a single price and quantity specified.">
+func Create_AssetFlowFromSettlementPayout: <"Generates two opposite cashflows that correspond to a settlement payout. One leg is the asset leg, that settles the asset according to the quantity, direction and date defined in the settlement payout. The other is the price leg, that settles the price as a currency amount going in the opposite direction. The function's applicability is limited on purpose to a single asset with a single price and quantity specified.">
     inputs:
         payout SettlementPayout (1..1) <"The settlement payout from which the cashflows are generated.">
     output:
-        cashflows Cashflow (2..2) <"The two generated cashflows (asset leg and price leg) going in opposite directions.">
+        cashflows AssetFlow (2..2) <"The two generated assetflows (asset leg and price leg) going in opposite directions.">
 
     alias assetLeg: <"The asset leg consists in a cashflow which has the same attributes (asset, quantity, date and direction) as the settlement payout that generates it.">
-        Cashflow {
+        AssetFlow {
             quantity:
                 NonNegativeQuantity {
                     value: payout -> priceQuantity -> quantitySchedule -> value,
@@ -137,11 +138,7 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
             asset: payout -> underlier -> Observable -> Asset,
             settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
             payerReceiver: payout -> payerReceiver,
-            cashflowType:
-                CashflowType {
-                    cashflowType: Principal,
-                    ...
-                },
+            assetFlowType: Principal,
             ...
         }
 
@@ -157,8 +154,8 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
             receiver: payout -> payerReceiver -> payer
         }
 
-    alias priceLeg: <"The price leg consists in a cashflow whose attributes (asset, quantity, date and direction) are inferred from the settlement payout. The quantity / unit is the currency amount to pay for the asset and the payer/receiver direction is flipped.">
-        Cashflow {
+    alias priceLeg: <"The price leg consists in an asset flow whose attributes (asset, quantity, date and direction) are inferred from the settlement payout. The quantity / unit is the currency amount to pay for the asset and the payer/receiver direction is flipped.">
+        AssetFlow {
             quantity:
                 NonNegativeQuantity {
                     value: priceLegAmount,
@@ -185,11 +182,7 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
                 },
             settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
             payerReceiver: priceLegPayerReceiver,
-            cashflowType:
-                CashflowType {
-                    cashflowType: Principal,
-                    ...
-                },
+            assetFlowType: Principal,
             ...
         }
 

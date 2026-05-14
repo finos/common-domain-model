@@ -548,7 +548,7 @@ a new template that is not yet in use across the industry).
 Some of those calculations are presented below:
 
 ``` Haskell
-func EquityCashSettlementAmount:
+func EquityCashSettlementAmount: 
     inputs:
         tradeState TradeState (1..1)
         date date (1..1)
@@ -556,11 +556,10 @@ func EquityCashSettlementAmount:
         equityCashSettlementAmount Transfer (1..1)
 
     alias payout:
-        tradeState -> trade -> product -> economicTerms -> payout 
-            filter PerformancePayout exists 
+        tradeState -> trade -> product -> economicTerms -> payout
+            filter PerformancePayout exists
             then only-element
-    alias equityPerformancePayout:
-        payout -> PerformancePayout
+    alias equityPerformancePayout: payout -> PerformancePayout
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -578,20 +577,19 @@ func EquityCashSettlementAmount:
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> quantity -> value:
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value: 
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> quantity -> unit -> currency:
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency: 
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
-    set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
-    set equityCashSettlementAmount -> settlementDate -> adjustedDate:
+    set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin:
-        payout as-key
+    set equityCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
 ```
 
 ``` Haskell
