@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static util.ResourcesUtils.getObject;
+import static org.finos.cdm.util.ResourcesUtils.getObject;
 
 class SimpleMergerTest {
 
