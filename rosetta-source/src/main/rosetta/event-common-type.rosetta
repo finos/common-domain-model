@@ -208,36 +208,27 @@ type TransferState: <"Defines the fundamental financial information associated w
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
-type Transfer extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
-    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
-        [metadata scheme]
-    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
-    settlementOrigin Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
-        [metadata reference]
-    resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
-    transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
+choice Transfer: <"The type of transfer.">
+    ScheduledTransfer <"A transfer created from a scheduled event on a contract, e.g. Exercise, Performance, Credit Event">
+    UnscheduledTransfer <"An ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
 
-type TransferExpression: <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
-    scheduledTransfer ScheduledTransfer (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
-    unscheduledTransfer UnscheduledTransfer (0..1) <"Specifies an ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
-
-    condition:
-        one-of
-
-type UnscheduledTransfer: <"An ad-hoc transfer instigated by a party to the contract.">
+type UnscheduledTransfer extends TransferBase: <"An ad-hoc transfer instigated by a party to the contract.">
     transferType UnscheduledTransferEnum (0..1) <"Specifies the type of unscheduled transfer.">
-    priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
 
-    condition:
-        one-of
-
-type ScheduledTransfer: <"A scheduled transfer built into the contract.">
+type ScheduledTransfer extends TransferBase: <"A scheduled transfer built into the contract.">
     transferType ScheduledTransferEnum (1..1) <"Specifies the type of scheduled transfer.">
     corporateActionTransferType CorporateActionTypeEnum (0..1)
+    payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+        [metadata reference]
 
     condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
         if transferType = ScheduledTransferEnum -> CorporateAction
         then corporateActionTransferType exists
+
+type TransferBase extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
+    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
+        [metadata scheme]
+    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
 
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
     identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">
@@ -336,7 +327,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
     condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = Debt
                         and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
@@ -345,7 +336,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement exists)
 
     condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = Debt
                         and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
@@ -354,7 +345,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown exists)
 
     condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = Debt
                         and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents exists
@@ -534,14 +525,14 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
 
 type AdjustmentFactor: <"Describes the terms involved for adjusting the price of the underlier impacted by a Corporate Action.">
 
-    value number (1..1) <"The multipler value applied to the price of the underlier impacted by a Corporate Action.">
+    value number (1..1) <"The multiplier value applied to the price of the underlier impacted by a Corporate Action.">
     calculationTerms AdjustmentFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
 
 type AdjustmentFactorCalculationTerms: <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
     shareForShareRatio number (0..1) <"Multiple value, say 'M/N' where 'M' is the number of shares after the event and 'N' is the number of shares prior to the event. ">
     shareForRightsRatio number (0..1) <"Multiple value, say 'M/N' where 'M' is the number of rights after the event, and 'N' of shares prior to the event. ">
     rightsSubscriptionPrice Price (0..1) <"The price to pay per each right.">
-    dividendRatio number (0..1) <"Multipler value (e.g. 85 %, etc.) to calculate net dividend amount, given gross amount before taking into account the relevant fiscal features.">
+    dividendRatio number (0..1) <"Multiplier value (e.g. 85 %, etc.) to calculate net dividend amount, given gross amount before taking into account the relevant fiscal features.">
     spinOff SpinOff (0..1) <"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as the respective price observation for each.">
     merger Merger (0..1) <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Spin Off corporate action, as well as the respective price observation for each.">
     accrualFactor AccrualFactor (0..1) <"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to last fixing and applying accruals for each remaining underlier price fixing date required i.e. for each, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
@@ -578,8 +569,7 @@ type SpinOff: <"Defines the underlier for both the Parent Company and the Child 
     childSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Child Company.">
 
     condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
-        parentSecurity -> instrumentType = InstrumentTypeEnum -> Equity
-            and childSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+        parentSecurity -> securityType = Equity and childSecurity -> securityType = Equity
 
 type Merger: <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Merger corporate action, as well as th respective price observation for each.">
     purchaserSecurity Security (1..1) <"Defines the underlier for the Purchaser Company involved in Merger corporate action.">
@@ -588,8 +578,8 @@ type Merger: <"Defines the underlier for both the Purchaser Company and the Acqu
     acquiredSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Acquired Company.">
 
     condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
-        purchaserSecurity -> instrumentType = InstrumentTypeEnum -> Equity
-            and acquiredSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+        purchaserSecurity -> securityType = Equity
+            and acquiredSecurity -> securityType = Equity
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
@@ -656,18 +646,18 @@ type BillingSummary: <"Specifies individual summaries within a billing invoice."
 
     condition GrandTotal:
         if summaryAmountType = RecordAmountTypeEnum -> GrandTotal
-        then summaryTransfer exists and summaryTransfer -> payerReceiver is absent
+        then summaryTransfer exists and summaryTransfer ->> payerReceiver is absent
 
     condition ParentTotal:
         if summaryAmountType = RecordAmountTypeEnum -> ParentTotal
-        then summaryTransfer -> payerReceiver exists
-                and summaryTransfer -> payerReceiver -> payerAccountReference is absent
-                and summaryTransfer -> payerReceiver -> receiverAccountReference is absent
+        then summaryTransfer ->> payerReceiver exists
+                and summaryTransfer ->> payerReceiver -> payerAccountReference is absent
+                and summaryTransfer ->> payerReceiver -> receiverAccountReference is absent
 
     condition AccountTotal:
         if summaryAmountType = RecordAmountTypeEnum -> AccountTotal
-        then summaryTransfer -> payerReceiver -> payerAccountReference exists
-                and summaryTransfer -> payerReceiver -> receiverAccountReference exists
+        then summaryTransfer ->> payerReceiver -> payerAccountReference exists
+                and summaryTransfer ->> payerReceiver -> receiverAccountReference exists
 
 type TradePricingReport: <"The attributes that are specific for consensus based pricing reporting.">
     trade Trade (1..1) <"Represents the cosensus based pricing parameters on a trade basis.">

@@ -269,17 +269,37 @@ func MapNumberOfOptionsAndOptionEntitlementToQuantity:
                         financialUnit: Contract,
                         ...
                     },
-                multiplier: if fpmlOptionEntitlement exists
-                        then Measure {
-                            value: fpmlOptionEntitlement,
-                            unit:
-                                UnitType {
-                                    currency: if fpmlCurrency exists
-                                            then MapCurrency(fpmlCurrency),
-                                    financialUnit: if fpmlFinancialUnit exists
-                                            then fpmlFinancialUnit,
-                                    ...
+                multiplier:
+                    Measure {
+                        value: fpmlOptionEntitlement,
+                        unit:
+                            UnitType {
+                                currency: if fpmlOptionEntitlement exists
+                                        then MapCurrency(fpmlCurrency),
+                                financialUnit: if fpmlFinancialUnit exists
+                                        then fpmlFinancialUnit,
+                                ...
                 }},
+                ...
+            }
+
+func MapOpenUnitsToQuantity:
+    inputs:
+        fpmlOpenUnits number (0..1)
+        fpmlFinancialUnit FinancialUnitEnum (0..1)
+        fpmlCurrency fpml.Currency (0..1)
+    output:
+        nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
+
+    set nonNegativeQuantitySchedule:
+        if fpmlOpenUnits exists
+        then NonNegativeQuantitySchedule {
+                value: fpmlOpenUnits,
+                unit:
+                    UnitType {
+                        financialUnit: fpmlFinancialUnit,
+                        ...
+                    },
                 ...
             }
 
@@ -485,9 +505,24 @@ func MapEquityDerivativeBaseQuantityListWithLocation:
         fpmlEquityDerivativeBase fpml.EquityDerivativeBase (0..1)
         fpmlNumberOfOptions fpml.NonNegativeDecimal (0..1)
         fpmlOptionEntitlement fpml.PositiveDecimal (0..1)
+        fpmlOpenUnits fpml.NonNegativeDecimal (0..1)
     output:
         quantityList NonNegativeQuantitySchedule (0..*)
             [metadata location]
+
+    add quantityList:
+        if fpmlNumberOfOptions exists or fpmlOptionEntitlement exists
+        then CreateQuantityWithLocation(
+                    MapNumberOfOptionsAndOptionEntitlementToQuantity(
+                            fpmlNumberOfOptions,
+                            GetMultiplierUnitTypeUnderlyingAsset(
+                                    fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
+                                ) -> financialUnit,
+                            fpmlOptionEntitlement,
+                            fpmlEquityDerivativeBase -> notional -> currency
+                        ),
+                    CreateQuantityKey("numberOfOptions", empty)
+                )
 
     add quantityList:
         if fpmlEquityDerivativeBase -> notional exists
@@ -502,26 +537,17 @@ func MapEquityDerivativeBaseQuantityListWithLocation:
                 )
 
     add quantityList:
-        if fpmlNumberOfOptions exists or fpmlOptionEntitlement exists
+        if fpmlOpenUnits exists
         then CreateQuantityWithLocation(
-                    MapNumberOfOptionsAndOptionEntitlementToQuantity(
-                            fpmlNumberOfOptions,
-                            MapEquityBaseFinancialUnit(fpmlEquityDerivativeBase),
-                            fpmlOptionEntitlement,
-                            fpmlEquityDerivativeBase -> notional -> currency
+                    MapOpenUnitsToQuantity(
+                            fpmlOpenUnits,
+                            GetUnitTypeForUnderlyingAsset(
+                                    fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
+                                ) -> financialUnit,
+                            empty
                         ),
-                    CreateQuantityKey("numberOfOptions", empty)
+                    CreateQuantityKey("openUnits", empty)
                 )
-
-func MapEquityBaseFinancialUnit:
-    inputs:
-        fpmlEquityDerivativeBase fpml.EquityDerivativeBase (0..1)
-    output:
-        financialUnit FinancialUnitEnum (0..1)
-
-    set financialUnit:
-        if fpmlEquityDerivativeBase -> equityExercise exists
-        then Share
 
 func MapEquityDerivativeBaseQuantityListWithAddress:
     inputs:
@@ -532,9 +558,7 @@ func MapEquityDerivativeBaseQuantityListWithAddress:
             [metadata address]
 
     set quantityList:
-        if fpmlEquityDerivativeBase -> notional exists
-        then CreateQuantityWithAddress(CreateQuantityKey("notional", empty))
-        else if fpmlNumberOfOptions exists
+        if fpmlNumberOfOptions exists
         then CreateQuantityWithAddress(CreateQuantityKey("numberOfOptions", empty))
 
 func MapFxCoreDetailsModelQuantityListWithLocation:
@@ -580,13 +604,16 @@ func MapFxCoreDetailsModelQuantityWithAddress:
         quantity NonNegativeQuantitySchedule (0..1)
             [metadata address]
 
-    alias quotedCurrencyPair: 
-        fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
+    alias quotedCurrencyPair: fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
 
     set quantity:
         if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
-        then CreateQuantityWithAddress(CreateQuantityKey(quotedCurrencyPair -> currency1 -> value, fpmlLeg))
-        else CreateQuantityWithAddress(CreateQuantityKey(quotedCurrencyPair -> currency2 -> value, fpmlLeg))
+        then CreateQuantityWithAddress(
+                    CreateQuantityKey(quotedCurrencyPair -> currency1 -> value, fpmlLeg)
+                )
+        else CreateQuantityWithAddress(
+                CreateQuantityKey(quotedCurrencyPair -> currency2 -> value, fpmlLeg)
+            )
 
 func GetFpmlExchangedCurrency:
     inputs:
@@ -594,8 +621,7 @@ func GetFpmlExchangedCurrency:
     output:
         fpmlExchangedCurrency fpml.Payment (0..1)
 
-    alias quotedCurrencyPair: 
-        fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
+    alias quotedCurrencyPair: fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
 
     alias currency:
         if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
@@ -672,7 +698,7 @@ func MapCommodityNotionalQuantityToQuantityListWithLocation:
     add nonNegativeQuantitySchedule:
         MapCommodityTotalNotionalQuantityToQuantityWithLocation(
                 fpmlQuantityModel -> totalNotionalQuantity,
-                fpmlQuantityModel -> notionalQuantity -> quantityUnit,
+                fpmlQuantityModel -> notionalQuantity -> quantityUnit default fpmlQuantityModel -> notionalQuantitySchedule -> notionalStep first -> quantityUnit,
                 fpmlLeg
             )
 
@@ -774,7 +800,7 @@ func MapCommodityTotalNotionalQuantityToQuantityWithLocation:
                             fpmlQuantityUnit,
                             empty
                         ),
-                    CreateQuantityKey("totalNotionalAmount", fpmlLeg)
+                    CreateQuantityKey("totalNotionalQuantity", fpmlLeg)
                 )
 
 func MapCommodityTotalNotionalQuantityToQuantityWithAddress:
@@ -787,7 +813,7 @@ func MapCommodityTotalNotionalQuantityToQuantityWithAddress:
 
     set nonNegativeQuantitySchedule:
         if fpmlTotalNotionalAmount exists
-        then CreateQuantityWithAddress(CreateQuantityKey("totalNotionalAmount", fpmlLeg))
+        then CreateQuantityWithAddress(CreateQuantityKey("totalNotionalQuantity", fpmlLeg))
 
 func MapQuantityUnitAmountToQuantity:
     inputs:
@@ -900,6 +926,28 @@ func MapFixedRateScheduleToPriceWithAddress:
     set priceSchedule:
         if fpmlFixedRateSchedule exists
         then CreatePriceWithAddress(CreatePriceKey("fixedRateSchedule", fpmlLeg))
+
+func MapFloatingRateMultiplierScheduleToPriceWithLocation:
+    inputs:
+        fpmlRate fpml.Rate (0..1)
+        fpmlCurrency fpml.Currency (0..1)
+        fpmlLeg fpml.Leg (0..1)
+    output:
+        priceSchedule PriceSchedule (0..*)
+            [metadata location]
+
+    alias floatingRateMultiplierSchedule:
+        fpmlRate switch
+            fpml.FloatingRateCalculation then floatingRateModel -> floatingRateMultiplierSchedule,
+            default empty
+
+    add priceSchedule:
+        floatingRateMultiplierSchedule
+            extract
+                CreatePriceWithLocation(
+                        MapScheduleToInterestRatePriceSchedule(item, fpmlCurrency, Multiply),
+                        CreatePriceKey("floatingRateMultiplierSchedule", fpmlLeg)
+                    )
 
 func MapSpreadScheduleToPriceWithLocation:
     inputs:
@@ -1429,7 +1477,7 @@ func MapCommmodityFixedPriceToPriceSchedule:
             value: fpmlCommodityFixedPrice -> price,
             unit: unit,
             perUnitOf: perUnitOf,
-            priceType: CashPrice,
+            priceType: InterestRate,
             priceSubType: Fee,
             ...
         }
@@ -1468,10 +1516,18 @@ func MapCommmodityFixedPriceScheduleToPriceSchedule:
                         },
             unit: unit,
             perUnitOf: perUnitOf,
-            priceType: CashPrice,
+            priceType: InterestRate,
             priceSubType: Fee,
             ...
         }
+
+func MapCommodityOptionStrikePriceSchedule:
+    [codeImplementation]
+    inputs:
+        fpmlStrikePricePerUnitStep fpml.NonNegativeMoney (0..*)
+        fpmlCommodityStrikePriceDates date (0..*)
+    output:
+        strikePriceSchedule DatedValue (0..*)
 
 func CreateObservableKey:
     inputs:
@@ -1631,6 +1687,7 @@ func MapFloatingRateIndex:
             assetClass: InterestRate,
             floatingRateIndex: MapFloatingRateIndexEnum(model -> floatingRateIndex -> value),
             indexTenor: MapPeriod(model -> indexTenor),
+            assetType: Other,
             ...
         }
 
@@ -1650,6 +1707,7 @@ func MapInflationIndex:
                         model -> floatingRateIndex -> value
                     ),
             indexTenor: MapPeriod(model -> indexTenor),
+            assetType: Other,
             ...
         }
 
@@ -1705,6 +1763,7 @@ func MapFloatingRateIndexToRateOptionWithLocation:
                                             fpmlFloatingRateIndex -> value
                                         ),
                                 indexTenor: MapPeriod(fpmlIndexTenor),
+                                assetType: Other,
                                 ...
                             },
                         ...
@@ -1826,7 +1885,7 @@ func MapAsset:
     set asset:
         fpmlAsset switch
             fpml.ExchangeTradedFund then
-                MapIdentifiedAssetToAssetListedDerivative(
+                MapIdentifiedAssetToAssetSecurity(
                         item,
                         exchangeId,
                         exchangeIdentifierModel -> relatedExchangeId,
@@ -1836,8 +1895,7 @@ func MapAsset:
                 MapIdentifiedAssetToAssetListedDerivative(
                         item,
                         exchangeId,
-                        exchangeIdentifierModel -> relatedExchangeId,
-                        ListedDerivative
+                        exchangeIdentifierModel -> relatedExchangeId
                     ),
             fpml.Loan then
                 MapIdentifiedAssetToAssetSecurity(item, exchangeId, empty, Debt),
@@ -1861,7 +1919,6 @@ func MapIdentifiedAssetToAssetListedDerivative:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1877,7 +1934,7 @@ func MapIdentifiedAssetToAssetListedDerivative:
                             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
                             relatedExchange: fpmlRelatedExchangeId
                                     extract MapExchangeIdToLegalEntity,
-                            instrumentType: instrumentType,
+                            assetType: ListedDerivative,
                             ...
                         },
                     ...
@@ -1890,7 +1947,6 @@ func MapIdentifiedAssetToAssetLoan:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1906,7 +1962,7 @@ func MapIdentifiedAssetToAssetLoan:
                             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
                             relatedExchange: fpmlRelatedExchangeId
                                     extract MapExchangeIdToLegalEntity,
-                            instrumentType: instrumentType,
+                            assetType: Loan,
                             ...
                         },
                     ...
@@ -1919,7 +1975,7 @@ func MapIdentifiedAssetToAssetSecurity:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1931,7 +1987,8 @@ func MapIdentifiedAssetToAssetSecurity:
                                 fpmlIdentifiedAsset,
                                 fpmlExchangeId,
                                 fpmlRelatedExchangeId,
-                                instrumentType
+                                securityType,
+                                empty
                             ),
                     ...
                 },
@@ -1943,7 +2000,8 @@ func MapIdentifiedAssetToSecurity:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
+        seniority string (0..1)
     output:
         security Security (0..1)
 
@@ -1953,7 +2011,15 @@ func MapIdentifiedAssetToSecurity:
             isExchangeListed: if fpmlExchangeId exists then True,
             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
             relatedExchange: fpmlRelatedExchangeId extract MapExchangeIdToLegalEntity,
-            instrumentType: instrumentType,
+            securityType: securityType,
+            assetType: Security,
+            debtType:
+                DebtType {
+                    debtEconomics:
+                        DebtEconomics {
+                            seniority: seniority to-enum DebtSeniorityEnum,
+                            ...
+            }},
             ...
         }
 
@@ -1976,6 +2042,7 @@ func MapAssetCommodity:
                             deliveryNearby: MapCommodityDeliveryDates(fpmlCommodity),
                             ...
                         },
+                    assetType: Commodity,
                     ...
                 },
             ...
@@ -1999,6 +2066,7 @@ func MapEquityIndex:
                             extract MapExchangeIdToLegalEntity,
                     name: fpmlIndex -> description,
                     assetClass: Equity,
+                    assetType: Other,
                     ...
                 },
             ...
@@ -2015,6 +2083,7 @@ func MapBasket:
             identifier: empty,
             basketConstituent: fpmlBasket -> basketConstituent
                     extract MapBasketConstituentWithLocation,
+            assetType: Security,
             ...
         }
 
@@ -2133,6 +2202,21 @@ func MapAssetIdentifierList:
                 identifierType: Name
             }
 
+func MapIndexNameToAssetIdentifier:
+    inputs:
+        fpmlIndexName fpml.IndexName (0..1)
+    output:
+        assetIdentifier AssetIdentifier (0..1)
+
+    set assetIdentifier:
+        AssetIdentifier {
+            identifier: MapStringWithScheme(
+                        fpmlIndexName -> value,
+                        fpmlIndexName -> indexNameScheme
+                    ),
+            identifierType: Name
+        }
+
 func MapIndexIdToAssetIdentifier:
     inputs:
         fpmlIndexId fpml.IndexId (0..1)
@@ -2145,7 +2229,7 @@ func MapIndexIdToAssetIdentifier:
                         fpmlIndexId -> value,
                         fpmlIndexId -> indexIdScheme
                     ),
-            identifierType: Name
+            identifierType: MapAssetIdType(fpmlIndexId -> indexIdScheme) default Name
         }
 
 func MapAssetIdType:
@@ -2214,6 +2298,7 @@ func MapCurrencyToAssetCash:
                             identifier: MapCurrency(fpmlCurrency),
                             identifierType: CurrencyCode
                         },
+                    assetType: Cash,
                     ...
                 },
             ...
@@ -2244,6 +2329,7 @@ func MapQuotedCurrencyPairToObservableWithLocation:
                                     sourceProvider: empty,
                                     ...
                                 },
+                            assetType: Other,
                             ...
                         },
                     ...
@@ -2311,6 +2397,9 @@ func MapCommodityClassificationListToObservableCommodity:
                             priceQuoteType: empty,
                             taxonomy: fpmlCommodityClassificationList
                                     extract MapCommodityClassificationToTaxonomy,
+                            assetType: if fpmlCommodityClassificationList exists
+                                    then Commodity
+                                else empty,
                             ...
                         },
                     ...

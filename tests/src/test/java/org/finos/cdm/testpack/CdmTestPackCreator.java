@@ -2,18 +2,19 @@ package org.finos.cdm.testpack;
 
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToTradeState;
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToWorkflowStep;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
-import com.regnosys.rosetta.common.transform.PipelineModel;
+import com.regnosys.testing.TestingExpectationUtil;
+import org.finos.cdm.functions.FunctionCreator;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
 import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
-import fpml.consolidated.doc.Document;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
+import org.finos.cdm.functions.FunctionInputCreator;
+import org.finos.cdm.functions.SecLendingFunctionInputCreationTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,10 @@ public class CdmTestPackCreator {
             Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
             injector.injectMembers(testPackConfigCreator);
 
-            testPackConfigCreator.run();
+            testPackConfigCreator.runFunctionIngest();
+
+            testPackConfigCreator.runFunctionCreators();
+
             System.exit(0);
         } catch (Exception e) {
             LOGGER.error("Error executing {}.main()", CdmTestPackCreator.class.getName(), e);
@@ -53,7 +57,22 @@ public class CdmTestPackCreator {
         }
     }
 
-    private void run() throws IOException {
+    private void runFunctionCreators() throws Exception {
+        LOGGER.info(" ** Updating Function Input Samples");
+
+        FunctionInputCreator functionInputCreator = new FunctionInputCreator();
+        functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
+
+        SecLendingFunctionInputCreationTest SecLendingFunctionInputCreationTest = new SecLendingFunctionInputCreationTest();
+        SecLendingFunctionInputCreationTest.run();
+
+        LOGGER.info(" ** Updating Function Output Samples");
+
+        FunctionCreator functionCreator = new FunctionCreator();
+        functionCreator.run();
+    }
+
+    private void runFunctionIngest() throws IOException {
         pipelineConfigWriter.writePipelinesAndTestPacks(createTreeConfig());
     }
 

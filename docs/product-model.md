@@ -140,22 +140,26 @@ for purposes of brevity.
 Security has a set of additional attributes, as shown below:
 
 ``` Haskell
-type Security extends InstrumentBase: 
+type Security extends InstrumentBase:
+    securityType SecurityTypeEnum (1..1) 
     debtType DebtType (0..1)
     equityType EquityType (0..1) 
     fundType FundProductTypeEnum (0..1)
 
     condition DebtSubType:
-        if instrumentType <> InstrumentTypeEnum -> Debt
+        if securityType <> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if instrumentType <> InstrumentTypeEnum -> Equity
+        if securityType <> Equity
         then equityType is absent
 
     condition FundSubType:
-        if instrumentType <> InstrumentTypeEnum -> Fund
+        if securityType <> Fund
         then fundType is absent
+    
+    condition AssetType:
+        assetType = Security
 ```
 
 The asset identifier will uniquely identify the security. The
@@ -370,7 +374,9 @@ here in the interests of brevity.
 ``` Haskell
 type EconomicTerms:
   effectiveDate AdjustableOrRelativeDate (0..1)
+  effectiveTime DirectOrRelativeTime (0..1)
   terminationDate AdjustableOrRelativeDate (0..1)
+  terminationTime DirectOrRelativeTime (0..1)
   dateAdjustments BusinessDayAdjustments (0..1)
   payout Payout (1..*)
   terminationProvision TerminationProvision (0..1)
@@ -1195,7 +1201,6 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
   [qualification Product]
   inputs: economicTerms EconomicTerms (1..1)
   output: is_product boolean (1..1)
-    [synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
   set is_product:
     Qualify_BaseProduct_Inflation(economicTerms) = True
     and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
