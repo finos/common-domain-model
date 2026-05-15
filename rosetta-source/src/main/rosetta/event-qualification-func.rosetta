@@ -689,18 +689,18 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-    
+
     alias transferInstructions:
         businessEvent -> instruction -> primitiveInstruction -> transfer
     alias beforeTransfers: businessEvent -> instruction -> before -> transferHistory
     alias afterTransfers: businessEvent -> after -> transferHistory
-    
+
     set is_event:
         (businessEvent -> instruction
                 extract primitiveInstruction -> transfer only exists
                 ) all = True
             and beforeTransfers count + transferInstructions count = afterTransfers count
-            and transferInstructions -> transferState -> transfer ->> asset -> Instrument -> Security exists 
+            and transferInstructions -> transferState -> transfer ->> asset -> Instrument -> Security exists
 
 func Qualify_Shaping: <"The qualification of a shaping event from the fact that (i) the only primitive is a split where the original trade is closed, (ii) the parties before and after the split remain the same (by contrast with an allocation, for instance) and (iii) the split trades contain a package component in their execution details. This package ties together the resulting shapes trades' identifiers and must be the same across all shaped trades. Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.">
     [qualification BusinessEvent]
