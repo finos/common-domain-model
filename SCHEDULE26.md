@@ -1,10 +1,10 @@
 # 2026+ Release schedule
 
-The Release schedule is currently being identified and will then be approved by the Steering WG.
+The Release schedule has been approved by the Steering WG on [CDM Steering Working Group - May 12th 2026](https://github.com/finos/common-domain-model/discussions/4702).
 
-Draft version - as of May 2026
+As of May 2026
 
-## Draft 2026 Timeline
+## 2026 Timeline
 
 | Version  | Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec | 1Q27 | 2Q27 
 |-------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
