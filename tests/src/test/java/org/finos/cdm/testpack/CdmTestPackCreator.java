@@ -1,10 +1,15 @@
 package org.finos.cdm.testpack;
 
+import cdm.event.common.TradeState;
+import cdm.event.workflow.WorkflowStep;
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToTradeState;
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToWorkflowStep;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
+import com.regnosys.rosetta.common.transform.PipelineModel;
 import com.regnosys.testing.TestingExpectationUtil;
+import fpml.consolidated.doc.Document;
 import org.finos.cdm.functions.FunctionCreator;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
@@ -80,10 +85,17 @@ public class CdmTestPackCreator {
         PipelineTestPackFilter filter = PipelineTestPackFilter.create()
                 .withTestPacksSpecificToFunctions(getEventsTestPackFilter());
 
+        ImmutableMap<Class<?>, PipelineModel.Serialisation.Format> outputSerialisationFormat =
+                ImmutableMap.<Class<?>, PipelineModel.Serialisation.Format>builder()
+                        .put(TradeState.class, PipelineModel.Serialisation.Format.RUNE_JSON)
+                        .put(WorkflowStep.class, PipelineModel.Serialisation.Format.RUNE_JSON)
+                        .build();
+
         return new PipelineTreeConfig()
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToTradeState.class)
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToWorkflowStep.class)
                 .withInputSerialisationFormatMap(RuneFpmlModelConfig.TYPE_TO_FORMAT_MAP)
+//                .withOutputSerialisationFormatMap(outputSerialisationFormat)
                 .withXmlConfigMap(RuneFpmlModelConfig.TYPE_TO_XML_CONFIG_MAP)
                 .withTestPackFilter(filter)
                 .strictUniqueIds()
