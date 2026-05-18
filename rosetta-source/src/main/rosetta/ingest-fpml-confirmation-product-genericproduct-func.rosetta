@@ -25,12 +25,6 @@ func MapGenericProductCounterpartyList:
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(fpmlGenericProduct -> buyerSellerModel)
 
-func MapGenericProductAncillaryPartyList:
-    inputs:
-        fpmlGenericProduct fpml.GenericProduct (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
-
 func MapGenericProductNonTransferableProduct:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
@@ -98,13 +92,26 @@ func MapGenericProductPayout:
                                         buyerSellerModel,
                                         cdmCounterpartyList
                                     ),
-                            priceQuantity: empty,
+                            priceQuantity:
+                                ResolvablePriceQuantity {
+                                    quantitySchedule: MapNotionalAmountToQuantityWithAddress(
+                                                notional -> amount first,
+                                                empty
+                                            ),
+                                    ...
+                                },
                             settlementTerms:
                                 SettlementTerms {
                                     settlementType: settlementType to-enum SettlementTypeEnum,
                                     ...
                                 },
-                            underlier: empty,
+                            underlier:
+                                Underlier {
+                                    Observable: MapAssetToObservableWithAddress(
+                                                underlyer -> underlyingAsset first
+                                            ),
+                                    ...
+                                },
                             ...
                         },
                     ...
@@ -113,21 +120,36 @@ func MapGenericProductPayout:
 func MapGenericProductPriceQuantityList:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
+        quotationModel fpml.asset.QuotationModel (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
+
+    alias quotationModelValue: quotationModel -> value / 100
+    alias unitFromQuotation:
+        if quotationModel -> quotationCharacteristicsModel -> currency exists
+        then quotationModel -> quotationCharacteristicsModel
+            then extract MapCurrency(if currency exists then currency)
+
+    alias unitFromNotional:
+        fpmlGenericProduct -> notional
+            then extract MapCurrency(if currency exists then currency)
+            then only-element
+
     add priceQuantityList:
         PriceQuantity {
             price:
                 PriceSchedule {
-                    value: empty,
+                    value: quotationModelValue,
                     unit:
                         UnitType {
-                            currency: fpmlGenericProduct -> notional
-                                    then extract
-                                        MapCurrency(
-                                                if currency exists
-                                                then currency
-                                            ),
+                            currency: if unitFromQuotation exists
+                                    then unitFromQuotation
+                                else unitFromNotional,
+                            ...
+                        },
+                    perUnitOf:
+                        UnitType {
+                            currency: unitFromNotional,
                             ...
                         },
                     priceType: AssetPrice,
@@ -160,3 +182,14 @@ func MapGenericProductAccountPartyReference:
                 fpmlAccount,
                 fpmlGenericProduct -> buyerSellerModel
             )
+
+func MapGenericProductBaseQuantityListWithAddress:
+    inputs:
+        fpmlGenericProduct fpml.GenericProduct (0..1)
+    output:
+        quantityList NonNegativeQuantitySchedule (0..1)
+            [metadata address]
+
+    set quantityList:
+        if fpmlGenericProduct -> notional exists
+        then CreateQuantityWithAddress(CreateQuantityKey("notional", empty))
