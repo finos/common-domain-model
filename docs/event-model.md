@@ -302,16 +302,21 @@ type TransferState:
 ``` Haskell
 choice Transfer: 
     ScheduledTransfer
-    UnscheduledTransfer    
+    UnscheduledTransfer  
+    ContingentTransfer  
 
 type UnscheduledTransfer extends TransferBase: 
     transferType UnscheduledTransferEnum (0..1) 
 
 type ScheduledTransfer extends TransferBase: 
     transferType ScheduledTransferEnum (1..1)
-    corporateActionTransferType CorporateActionTypeEnum (0..1)
     payoutReference Payout (0..1) 
         [metadata reference]
+
+type ContingentTransfer extends TransferBase: 
+    transferType ContingentTransferEnum (0..1)
+    payoutReference Payout (0..1)
+    corporateActionTransferType CorporateActionTypeEnum (0..1)
 ```
 
 ## Primitive Events {#primitive-event}
