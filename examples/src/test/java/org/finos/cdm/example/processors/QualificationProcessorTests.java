@@ -151,26 +151,26 @@ final class QualificationProcessorTests extends AbstractProcessorTest {
         QualificationReport report = qualify(acceptedWorkflow.toBuilder());
 
         report.getResults().forEach(result -> {
-            logger.debug("Qualified Object Type: " + result.getQualifiedRosettaObjectType());
-            logger.debug("Qualified Object Details: " + result.getUniqueSuccessQualifyResult().orElse(null));
-            logger.debug("Qualified Object Name: " + result.getUniqueSuccessQualifyResult().map(QualifyResult::getName).orElse("Unknown"));
-            logger.debug("Is Success: " + result.isSuccess());
+            logger.info("Qualified Object Type: " + result.getQualifiedRosettaObjectType());
+            logger.info("Qualified Object Details: " + result.getUniqueSuccessQualifyResult().orElse(null));
+            logger.info("Qualified Object Name: " + result.getUniqueSuccessQualifyResult().map(QualifyResult::getName).orElse("Unknown"));
+            logger.info("Is Success: " + result.isSuccess());
         });
 
         // Verify that the product taxonomy contains the expected label
         //assertEquals(((WorkflowStep) (report.getResultObject().build())).getBusinessEvent().getAfter().get(0).getTrade().getProduct().getTaxonomy().stream().map(ProductTaxonomy::getProductQualifier).filter(it -> it.equalsIgnoreCase(expectedLabel)).findFirst().orElse(""), expectedLabel, "This test should have retrieved the expected label");
 
-        // Verify that there is exactly three results in the qualification report
-        assertEquals(4, report.getResults().size(), "There should be exactly three results in the qualification report");
+        // Verify that there is exactly four results in the qualification report
+        assertEquals(4, report.getResults().size(), "There should be exactly four results in the qualification report");
 
         // Verify that the qualification results indicate success
         assertTrue(report.getResults().stream().map(QualificationResult::isSuccess).allMatch(Predicate.isEqual(true)), "The qualification result should indicate success");
 
         // Verify that there is exactly one Business Event qualified
-        assertEquals(1, report.getResults().stream().map(QualificationResult::getQualifiedRosettaObjectType).filter(reportType -> reportType.getName() == "cdm.event.common.BusinessEvent").count(), "There must be one Business event in the qualification results.");
+        assertEquals(1, report.getResults().stream().map(QualificationResult::getQualifiedRosettaObjectType).filter(reportType -> reportType.getName().equals("cdm.event.common.BusinessEvent")).count(), "There must be one Business event in the qualification results.");
 
         // Verify that there are exactly three Economic Terms qualified
-        assertEquals(3, report.getResults().stream().map(QualificationResult::getQualifiedRosettaObjectType).filter(reportType -> reportType.getName() == "cdm.product.template.EconomicTerms").count(), "There must be three Economic Terms in the qualification results.");
+        assertEquals(3, report.getResults().stream().map(QualificationResult::getQualifiedRosettaObjectType).filter(reportType -> reportType.getName().equals("cdm.product.template.EconomicTerms")).count(), "There must be three Economic Terms in the qualification results.");
 
         // Verify that the qualified object type is as expected
         assertEquals(report.getResultObject().getClass(),WorkflowStep.builder().getClass(), "The qualified object type should match the expected type");

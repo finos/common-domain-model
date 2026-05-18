@@ -4,13 +4,15 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
-import cdm.ingest.fpml.confirmation.product.swap.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.swap.* as swap
 import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.ird.* as fpml
 import fpml.consolidated.shared.* as fpml
 
@@ -26,8 +28,24 @@ func MapSwaptionCounterpartyList:
 func MapSwaptionAncillaryPartyList:
     inputs:
         fpmlSwaption fpml.Swaption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapSwaptionPhysicalSettlementToAncillaryParty(fpmlSwaption -> physicalSettlement)
+    add ancillaryPartyList:
+        MapExerciseProcedureToAncillaryParty(
+                fpmlSwaption -> exerciseProcedure,
+                cdmCounterpartyList
+            )
+    add ancillaryPartyList:
+        MapEarlyTerminationProvisionToAncillaryParty(
+                fpmlSwaption -> earlyTerminationProvision,
+                cdmCounterpartyList
+            )
+    add ancillaryPartyList:
+        MapCalculationAgentIndependentToAncillaryParty(fpmlSwaption -> calculationAgent)
 
 func MapSwaptionNonTransferableProduct:
     inputs:
@@ -53,7 +71,7 @@ func MapSwaptionEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: MapSwaptionPayout(fpmlSwaption, cdmCounterpartyList),
-            terminationProvision: MapTerminationProvision(
+            terminationProvision: swap.MapTerminationProvision(
                         fpmlSwaption -> earlyTerminationProvision,
                         empty,
                         empty,
@@ -92,7 +110,7 @@ func MapSwaptionPayout:
                         Underlier {
                             Product:
                                 Product {
-                                    NonTransferableProduct: MapSwapNonTransferableProduct(
+                                    NonTransferableProduct: swap.MapSwapNonTransferableProduct(
                                                 fpmlSwaption -> swap,
                                                 cdmCounterpartyList
                                             ),
@@ -101,7 +119,9 @@ func MapSwaptionPayout:
                             ...
                         },
                     optionType: if fpmlSwaption -> swaptionStraddle = True
-                            then Straddle,
+                            then Straddle
+                        else if fpmlSwaption -> optionType to-enum fpml.SwaptionTypeEnum = Payer
+                        then Payer,
                     exerciseTerms: MapExerciseTerms(
                                 fpmlSwaption -> exercise,
                                 fpmlSwaption -> exerciseProcedure,
@@ -138,7 +158,7 @@ func MapSwaptionPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    add priceQuantityList: MapSwapPriceQuantityList(fpmlSwaption -> swap)
+    add priceQuantityList: swap.MapSwapPriceQuantityList(fpmlSwaption -> swap)
 
 func MapSwaptionAccountPartyReference:
     inputs:
