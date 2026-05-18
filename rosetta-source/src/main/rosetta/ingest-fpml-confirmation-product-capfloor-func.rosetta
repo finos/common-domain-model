@@ -4,7 +4,8 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
-import cdm.ingest.fpml.confirmation.product.swap.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.product.swap.* as swap
 import cdm.observable.asset.*
 import cdm.product.template.*
 
@@ -26,8 +27,15 @@ func MapCapFloorCounterpartyList:
 func MapCapFloorAncillaryPartyList:
     inputs:
         fpmlCapFloor fpml.CapFloor (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapEarlyTerminationProvisionToAncillaryParty(
+                fpmlCapFloor -> earlyTerminationProvision,
+                cdmCounterpartyList
+            )
 
 func MapCapFloorNonTransferableProduct:
     inputs:
@@ -51,8 +59,8 @@ func MapCapFloorEconomicTerms:
         economicTerms EconomicTerms (0..1)
     set economicTerms:
         EconomicTerms {
-            payout: MapSwapPayout(fpmlCapFloor -> capFloorStream, cdmCounterpartyList),
-            terminationProvision: MapTerminationProvision(
+            payout: swap.MapSwapPayout(fpmlCapFloor -> capFloorStream, cdmCounterpartyList),
+            terminationProvision: swap.MapTerminationProvision(
                         fpmlCapFloor -> earlyTerminationProvision,
                         empty,
                         empty,
@@ -67,7 +75,58 @@ func MapCapFloorPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    add priceQuantityList: fpmlCapFloor -> capFloorStream extract MapSwapPriceQuantity
+    add priceQuantityList: fpmlCapFloor -> capFloorStream extract MapCapfloorPriceQuantity
+
+func MapCapfloorPriceQuantity:
+    inputs:
+        capFloorStream fpml.InterestRateStream (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    alias calculationPeriodAmount: capFloorStream -> calculationPeriodAmount
+
+    set priceQuantity:
+        PriceQuantity {
+            price: MapCapfloorCalculationPeriodAmountToPriceList(
+                        calculationPeriodAmount,
+                        capFloorStream
+                    ),
+            quantity: swap.MapCalculationPeriodAmountToQuantityList(
+                        calculationPeriodAmount,
+                        capFloorStream
+                    ),
+            observable: MapRateOptionToObservableWithLocation(
+                        calculationPeriodAmount -> calculation -> rateCalculation,
+                        capFloorStream
+                    ),
+            ...
+        }
+
+func MapCapfloorCalculationPeriodAmountToPriceList:
+    inputs:
+        fpmlCalculationPeriodAmount fpml.CalculationPeriodAmount (0..1)
+        fpmlLeg fpml.Leg (0..1)
+    output:
+        priceSchedules PriceSchedule (0..*)
+            [metadata location]
+
+    alias fpmlRate: fpmlCalculationPeriodAmount -> calculation -> rateCalculation
+
+    alias fpmlCurrency: swap.GetInterestRatePriceCurrency(fpmlCalculationPeriodAmount)
+
+    alias fixedRateSchedule:
+        fpmlCalculationPeriodAmount -> calculation -> calculationSequence -> fixedRateSchedule default fpmlCalculationPeriodAmount -> calculation -> calculationSequence1 -> fixedRateSchedule
+
+    add priceSchedules:
+        MapFixedRateScheduleToPriceWithLocation(fixedRateSchedule, fpmlCurrency, fpmlLeg)
+
+    add priceSchedules:
+        MapSpreadScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
+
+    add priceSchedules:
+        MapCapRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
+    add priceSchedules:
+        MapFloorRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
 
 func MapCapFloorAccountPartyReference:
     inputs:
