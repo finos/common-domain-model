@@ -494,10 +494,11 @@ public class SecLendingFunctionInputCreationTest {
         URL expectedURL = SecLendingFunctionInputCreationTest.class.getResource(inputJson);
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
-
-        assertEquals(readResource(inputJson),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
+        if (!TestingExpectationUtil.WRITE_EXPECTATIONS) {
+            assertEquals(readResource(inputJson),
+                    STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                    "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
+        }
         return actual;
     }
 
