@@ -103,9 +103,9 @@ steps:
         image: mozilla/sbt:8u292_1.5.7
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
-        environment:
-          - SBT_OPTS=-Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/sbt-repositories
         commands:
+          - sed "s|\${ARTIFACT_REGISTRY_SA_KEY}|${{ARTIFACT_REGISTRY_SA_KEY}}|g" ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/sbt-repositories > /tmp/sbt-repositories
+          - export SBT_OPTS="-Dsbt.override.build.repos=true -Dsbt.repository.config=/tmp/sbt-repositories"
           - sbt compile
           - sbt package
           - sbt doc
