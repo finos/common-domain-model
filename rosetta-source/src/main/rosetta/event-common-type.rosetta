@@ -70,12 +70,12 @@ type BusinessEvent extends EventInstruction: <"A business event represents a lif
     condition EventDate:
         eventDate exists
 
-type AgreementEvent: <"An agreement event represents a life cycle event of a legal document. The combination of legal term amendments, contracting party cchanges or agreement status changes that are represented by an amendment agreement or application of a protocol that represents a change to the overal Legal agreement representation.">
+type AgreementEvent: <"An agreement event represents a life cycle event of a legal document. The combination of legal term amendments, contracting party changes or agreement status changes that are represented by an amendment agreement or application of a protocol that represents a change to the overal Legal agreement representation.">
     [metadata key]
     [rootType]
 
-    agreementEventInstruction EventBase (0..1) <"Specifies the date of the event and the effective date of the event associated with the agreement event triggered by an amendment">
-    agreementInstruction AgreementInstruction (0..*) <"Specifies the instruction associated with the agreement event triggered by an amendment.">
+    eventInstruction EventBase (0..1) <"Specifies the date of the event and the effective date of the event associated with the agreement event triggered by an amendment">
+    instruction AgreementInstruction (0..*) <"Specifies the instruction associated with the agreement event triggered by an amendment.">
     eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
     afterAgreement LegalAgreement (0..*) <"The agreement as it looks after the event">
 
@@ -85,26 +85,21 @@ type AgreementEventInstruction: <"Specifies the date of the event and the effect
 
 type AgreementInstruction: <"Instruction to a function that will be used to perform an agreement event">
     [rootType]
-    primitiveInstruction AgreementPrimitiveInstruction (0..1) <"Specifies the primitive instructions that will be used to call the primitive Event function">
-    beforeAgreement LegalAgreement (0..1) <"Specifies the Legal Agreement that will be acted upon by the primitive event function.">
-        [metadata reference]
-
-type AgreementPrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding AgreementPrimitiveEvent function.">
     vmCSAPrimitiveInstruction VMCSAPrimitiveInstruction (0..1) <"A Primitive Instruction set for a VM CSA Agreement.">
     imCSAPrimitiveInstruction IMCSAPrimitiveInstruction (0..1) <"A Primitive Instruction set for a VM CSA Agreement.">
     legacyCSAPrimitiveInstruction LegacyCSAPrimitiveInstruction (0..1) <"A Primitive Instruction set for a VM CSA Agreement.">
-    partyChange AgreementPartyChange  (0..1) <"A primitive Instruction set to capture any Party changes applicable to the agreement.">
-
-type AgreementPartyChange extends PartyChangeInstruction: <"A primitive instruction to capture agreement party changes due to an amendment.">
+    partyChange PartyChangeInstruction  (0..1) <"A primitive Instruction set to capture any Party changes applicable to the agreement.">
+    beforeAgreement LegalAgreement (0..1) <"Specifies the Legal Agreement that will be acted upon by the primitive event function.">
+        [metadata reference]
 
 type VMCSAPrimitiveInstruction: <"A Primitive Instruction set for a VM CSA Agreement.">
-    termsChange cdm.legaldocumentation.csa.VMCSAElections (0..1) <"Specifies instructions describing a terms change primitive event.">
+    termsChange cdm.legaldocumentation.csa.CreditSupportAgreementVariationMarginElections (0..1) <"Specifies instructions describing a terms change primitive event.">
 
 type IMCSAPrimitiveInstruction: <"A Primitive Instruction set for a VM CSA Agreement.">
-    termsChange cdm.legaldocumentation.csa.IMCSAElections (0..1) <"Specifies instructions describing a terms change primitive event.">
+    termsChange cdm.legaldocumentation.csa.CreditSupportAgreementInitialMarginElections (0..1) <"Specifies instructions describing a terms change primitive event.">
 
 type LegacyCSAPrimitiveInstruction: <"A Primitive Instruction set for a VM CSA Agreement.">
-    termsChange cdm.legaldocumentation.csa.LegacyCSAElections (0..1) <"Specifies instructions describing a terms change primitive event.">
+    termsChange cdm.legaldocumentation.csa.CreditSupportAgreementLegacyElections (0..1) <"Specifies instructions describing a terms change primitive event.">
 
 type CounterpartyPositionBusinessEvent: <"A business event represents a life cycle event of a position. The combination of the state changes results in a qualifiable life cycle event.">
     intent PositionEventIntentEnum (1..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those.">

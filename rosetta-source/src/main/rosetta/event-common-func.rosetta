@@ -19,6 +19,7 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 import cdm.product.template.*
+import cdm.legaldocumentation.csa.*
 
 func QuantityIncreased:
     inputs:
@@ -2397,18 +2398,18 @@ func Create_AgreementEvent: <"Creates a agreement event from instructions contai
     output:
         agreementEvent AgreementEvent (1..1)
     
-    add agreementEvent -> agreementInstruction: agreementInstruction
+    add agreementEvent -> instruction: agreementInstruction
 
-    set agreementEvent -> agreementEventInstruction -> eventDate: eventDate
+    set agreementEvent -> eventInstruction -> eventDate: eventDate
 
-    set agreementEvent -> agreementEventInstruction -> effectiveDate: effectiveDate
+    set agreementEvent -> eventInstruction -> effectiveDate: effectiveDate
 
     add agreementEvent -> afterAgreement:
         agreementInstruction
             extract 
-                if primitiveInstruction -> partyChange exists
+                if partyChange exists
                 then Create_AgreementPartyChange(
-                        primitiveInstruction -> partyChange,
+                        partyChange,
                         beforeAgreement
                 )
 
@@ -2418,25 +2419,27 @@ func Create_LegalAgreement: <"Creates a Legal Agreement record based on a before
             - party change
             - terms change">
     inputs:
-        primitiveInstruction AgreementPrimitiveInstruction (0..1) <"The set of primitive instructions to apply to the trade.">
+        vmCSAPrimitiveInstruction VMCSAPrimitiveInstruction (0..1) <"A set of instructions that define the amended terms for an Variation Margin Credit Support Annex as per an amendment document.">
+        imCSAPrimitiveInstruction IMCSAPrimitiveInstruction (0..1) <"A set of instructions that define the amended terms for an Initial Margin Credit Support Annex as per an amendment document.">
+        legacyCSAPrimitiveInstruction LegacyCSAPrimitiveInstruction (0..1) <"A set of instructions that define the amended terms for an Legacy Credit Support Annex as per an amendment document.">
         before LegalAgreement (0..1) <"The original Legal agreement terms on which the primitive instructions are applied">
     output:
         after LegalAgreement (1..1) <"The returned Legal agreement terms representing the updated Legal agreement terms based on te application of the amended terms covered by a defined amendment agreement.">
 
     alias VMCSAAgreementTermsChange: <"Create execution if instruction exists, if not, then before must exist.">
-        if primitiveInstruction -> vmCSAPrimitiveInstruction -> termsChange is absent
+        if vmCSAPrimitiveInstruction -> termsChange is absent
         then before
-        else Create_VMAgreementTermsChange(primitiveInstruction -> vmCSAPrimitiveInstruction -> termsChange, after)
+        else Create_VMAgreementTermsChange(vmCSAPrimitiveInstruction -> termsChange, after)
 
     alias imAgreementTermsChange: <"Create execution if instruction exists, if not, then before must exist.">
-        if primitiveInstruction -> imCSAPrimitiveInstruction -> termsChange is absent
+        if imCSAPrimitiveInstruction -> termsChange is absent
         then before
-        else Create_IMAgreementTermsChange(primitiveInstruction -> imCSAPrimitiveInstruction -> termsChange, after)
+        else Create_IMAgreementTermsChange(imCSAPrimitiveInstruction -> termsChange, after)
 
     alias LegacyCSAAgreementTermsChange: <"Create execution if instruction exists, if not, then before must exist.">
-        if primitiveInstruction -> legacyCSAPrimitiveInstruction -> termsChange is absent
+        if legacyCSAPrimitiveInstruction -> termsChange is absent
         then before
-        else Create_LegacyAgreementTermsChange(primitiveInstruction -> legacyCSAPrimitiveInstruction -> termsChange, after)
+        else Create_LegacyAgreementTermsChange(legacyCSAPrimitiveInstruction -> termsChange, after)
 
 func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change to the parties.">
     inputs:
