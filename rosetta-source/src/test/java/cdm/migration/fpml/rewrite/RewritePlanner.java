@@ -16,6 +16,7 @@ import cdm.migration.fpml.model.RosettaAttributeInfo;
 import cdm.migration.fpml.model.RosettaModelInventory;
 
 public class RewritePlanner {
+    private static final String CONTEXT_FIELD_ONLY = "__CONTEXT_FIELD_ONLY__";
     public final List<String> unresolved = new ArrayList<String>();
     public final List<String> ambiguous = new ArrayList<String>();
     public final List<String> cardinalityWarnings = new ArrayList<String>();
@@ -34,9 +35,23 @@ public class RewritePlanner {
             if (!reachableFunctions.contains(function.name)) {
                 continue;
             }
+            List<RosettaPathExpression> orderedPaths = new ArrayList<RosettaPathExpression>(function.pathExpressions);
+            Collections.sort(orderedPaths, (a, b) -> Integer.compare(a.startOffset, b.startOffset));
             Map<String, String> aliases = ingestAnalysis.importAliasesByFile.get(function.file);
-            for (RosettaPathExpression path : function.pathExpressions) {
+            for (RosettaPathExpression path : orderedPaths) {
                 String rootType = typeResolver.resolveRootType(function, path, oldModel, aliases);
+                if (rootType == null) {
+                    rootType = inferContextualRootType(
+                            function,
+                            path,
+                            orderedPaths,
+                            oldModel,
+                            typeResolver,
+                            aliases);
+                }
+                if (CONTEXT_FIELD_ONLY.equals(rootType)) {
+                    continue;
+                }
                 if (rootType == null) {
                     if (looksLikeEnumRoot(path.rootVariable)) {
                         continue;
@@ -103,6 +118,84 @@ public class RewritePlanner {
             return Integer.compare(a.startOffset, b.startOffset);
         });
         return out;
+    }
+
+    private String inferContextualRootType(
+            RosettaFunctionInfo function,
+            RosettaPathExpression targetPath,
+            List<RosettaPathExpression> orderedPaths,
+            RosettaModelInventory oldModel,
+            TypeResolver typeResolver,
+            Map<String, String> aliases) {
+        if (targetPath.rootVariable == null || targetPath.rootVariable.trim().isEmpty()) {
+            return null;
+        }
+        String rootToken = targetPath.rootVariable.trim();
+        for (RosettaPathExpression prior : orderedPaths) {
+            if (prior.startOffset >= targetPath.startOffset) {
+                break;
+            }
+            int distance = targetPath.startOffset - prior.endOffset;
+            if (distance < 0 || distance > 1200) {
+                continue;
+            }
+            if (prior.rootVariable == null) {
+                continue;
+            }
+            String priorRoot = typeResolver.resolveRootType(function, prior, oldModel, aliases);
+            if (priorRoot == null) {
+                continue;
+            }
+            String extractedElementType = typeResolver.resolveTerminalType(oldModel, priorRoot, prior.segments);
+            if (extractedElementType == null) {
+                continue;
+            }
+            if (!isExtractContext(function.body, function.startOffset, prior, targetPath)) {
+                continue;
+            }
+            String elementType = normalizeType(extractedElementType);
+            if ("item".equals(rootToken)) {
+                return elementType;
+            }
+            cdm.migration.fpml.model.RosettaTypeInfo element = oldModel.typeByQualifiedName.get(elementType);
+            if (element == null) {
+                continue;
+            }
+            cdm.migration.fpml.model.RosettaAttributeInfo attr = oldModel.findAttributeIncludingInherited(element, rootToken);
+            if (attr == null) {
+                continue;
+            }
+            if (attr.typeQualifiedName != null) {
+                return attr.typeQualifiedName;
+            }
+            String resolvedAttrType = typeResolver.resolveTypeRef(attr.typeName, oldModel, aliases);
+            if (resolvedAttrType != null) {
+                return resolvedAttrType;
+            }
+            return CONTEXT_FIELD_ONLY;
+        }
+        return null;
+    }
+
+    private boolean isExtractContext(String functionBody, int functionStartOffset, RosettaPathExpression prior, RosettaPathExpression target) {
+        int priorEndLocal = Math.max(0, prior.endOffset - functionStartOffset);
+        int targetStartLocal = Math.max(0, target.startOffset - functionStartOffset);
+        if (targetStartLocal <= priorEndLocal || priorEndLocal >= functionBody.length()) {
+            return false;
+        }
+        int end = Math.min(targetStartLocal, functionBody.length());
+        String between = functionBody.substring(priorEndLocal, end).toLowerCase();
+        return between.contains("extract");
+    }
+
+    private String normalizeType(String t) {
+        if (t == null) {
+            return null;
+        }
+        if (t.endsWith("[]")) {
+            return t.substring(0, t.length() - 2);
+        }
+        return t;
     }
 
     private boolean looksLikeEnumRoot(String rootVariable) {
