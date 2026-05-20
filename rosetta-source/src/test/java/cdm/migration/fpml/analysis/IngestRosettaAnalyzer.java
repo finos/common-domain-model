@@ -22,7 +22,7 @@ public class IngestRosettaAnalyzer {
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?m)^\\s*func\\s+([A-Za-z0-9_]+)\\s*:");
     private static final Pattern INPUT_LINE_PATTERN = Pattern.compile("^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s+([A-Za-z_][A-Za-z0-9_.]*)\\s*\\([^)]*\\).*");
     private static final Pattern OUTPUT_LINE_PATTERN = Pattern.compile("^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s+([A-Za-z_][A-Za-z0-9_.]*)\\s*\\([^)]*\\).*");
-    private static final Pattern ALIAS_LINE_PATTERN = Pattern.compile("^\\s*alias\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*:\\s*(.+)$");
+    private static final Pattern ALIAS_LINE_PATTERN = Pattern.compile("^\\s*alias\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*:\\s*(.*)$");
     private static final Pattern CALL_PATTERN = Pattern.compile("\\b([A-Z][A-Za-z0-9_]*)\\s*\\(");
     private static final Pattern SWITCH_CALL_PATTERN = Pattern.compile("\\bthen\\s+([A-Z][A-Za-z0-9_]*)\\b");
     private final RosettaXtextLoader xtextLoader;
@@ -173,10 +173,37 @@ public class IngestRosettaAnalyzer {
 
     private void parseAliases(RosettaFunctionInfo functionInfo) {
         String[] lines = functionInfo.body.split("\\R", -1);
-        for (String line : lines) {
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
             Matcher matcher = ALIAS_LINE_PATTERN.matcher(line);
             if (matcher.find()) {
-                functionInfo.aliasExpressions.put(matcher.group(1), matcher.group(2).trim());
+                String aliasName = matcher.group(1);
+                String rhs = matcher.group(2) == null ? "" : matcher.group(2).trim();
+                if (rhs.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    int j = i + 1;
+                    while (j < lines.length) {
+                        String next = lines[j];
+                        String trimmed = next.trim();
+                        if (trimmed.startsWith("alias ")
+                                || trimmed.startsWith("set ")
+                                || trimmed.startsWith("func ")
+                                || trimmed.startsWith("inputs:")
+                                || trimmed.startsWith("output:")
+                                || trimmed.startsWith("condition ")) {
+                            break;
+                        }
+                        if (!trimmed.isEmpty()) {
+                            if (sb.length() > 0) {
+                                sb.append(" ");
+                            }
+                            sb.append(trimmed);
+                        }
+                        j++;
+                    }
+                    rhs = sb.toString().trim();
+                }
+                functionInfo.aliasExpressions.put(aliasName, rhs);
             }
         }
     }
