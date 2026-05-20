@@ -56,6 +56,9 @@ public class RewritePlanner {
                     if (looksLikeEnumRoot(path.rootVariable)) {
                         continue;
                     }
+                    if (isNonFpmlRoot(function, path.rootVariable)) {
+                        continue;
+                    }
                     unresolved.add(function.file + ":" + path.line + " [" + function.name + "] unresolved root type for " + path.expression);
                     continue;
                 }
@@ -207,5 +210,20 @@ public class RewritePlanner {
             return true;
         }
         return v.matches("[A-Z][A-Za-z0-9_]*");
+    }
+
+    private boolean isNonFpmlRoot(RosettaFunctionInfo function, String rootVariable) {
+        if (rootVariable == null) {
+            return false;
+        }
+        String typeRef = function.inputTypes.get(rootVariable);
+        if (typeRef == null) {
+            typeRef = function.aliasTypes.get(rootVariable);
+        }
+        if (typeRef == null) {
+            return false;
+        }
+        String normalized = typeRef.trim().toLowerCase();
+        return !normalized.startsWith("fpml.") && !normalized.contains(".fpml.");
     }
 }

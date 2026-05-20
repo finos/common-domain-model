@@ -16,6 +16,10 @@ public class RosettaFunctionInfo {
     public final Map<String, String> inputTypes = new HashMap<String, String>();
     public final Map<String, Integer> inputLines = new HashMap<String, Integer>();
     public final List<String> inputOrder = new ArrayList<String>();
+    public String outputName;
+    public String outputType;
+    public final Map<String, String> aliasExpressions = new HashMap<String, String>();
+    public final Map<String, String> aliasTypes = new HashMap<String, String>();
     public final List<String> calledFunctions = new ArrayList<String>();
     public final List<FunctionCallSite> callSites = new ArrayList<FunctionCallSite>();
     public final List<RosettaPathExpression> pathExpressions = new ArrayList<RosettaPathExpression>();

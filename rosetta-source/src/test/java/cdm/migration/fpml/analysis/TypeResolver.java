@@ -1,14 +1,23 @@
 package cdm.migration.fpml.analysis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cdm.migration.fpml.model.RosettaAttributeInfo;
 import cdm.migration.fpml.model.RosettaModelInventory;
 import cdm.migration.fpml.model.RosettaTypeInfo;
 
 public class TypeResolver {
+    private static final List<String> OPERATOR_TOKENS = Arrays.asList(
+            "first", "last", "extract", "filter", "then", "switch", "with-meta", "to-enum", "to-string", "distinct", "only-element");
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("([A-Za-z_\\^][A-Za-z0-9_\\.\\^]*)");
+
     public String resolveRootType(
             RosettaFunctionInfo function,
             RosettaPathExpression pathExpression,
@@ -16,7 +25,10 @@ public class TypeResolver {
             Map<String, String> aliasImports) {
         String typeRef = function.inputTypes.get(pathExpression.rootVariable);
         if (typeRef == null) {
-            return null;
+            typeRef = function.aliasTypes.get(pathExpression.rootVariable);
+        }
+        if (typeRef == null) {
+            return resolveAliasTypeByExpression(function, pathExpression.rootVariable, oldModel, aliasImports, new HashSet<String>());
         }
         return resolveTypeRef(typeRef, oldModel, aliasImports);
     }
@@ -112,5 +124,106 @@ public class TypeResolver {
             }
         }
         return null;
+    }
+
+    private String resolveAliasTypeByExpression(
+            RosettaFunctionInfo function,
+            String aliasName,
+            RosettaModelInventory model,
+            Map<String, String> aliasImports,
+            Set<String> visitedAliases) {
+        if (aliasName == null || !visitedAliases.add(aliasName)) {
+            return null;
+        }
+        String expr = function.aliasExpressions.get(aliasName);
+        if (expr == null) {
+            return null;
+        }
+        ParsedPath p = parsePath(expr);
+        if (p == null || p.segments.isEmpty()) {
+            return null;
+        }
+        String rootType = resolveSymbolType(function, p.rootToken, model, aliasImports, visitedAliases);
+        if (rootType == null) {
+            return null;
+        }
+        String terminal = resolveTerminalType(model, rootType, p.segments);
+        if (terminal != null) {
+            function.aliasTypes.put(aliasName, terminal);
+        }
+        return terminal;
+    }
+
+    private String resolveSymbolType(
+            RosettaFunctionInfo function,
+            String symbol,
+            RosettaModelInventory model,
+            Map<String, String> aliasImports,
+            Set<String> visitedAliases) {
+        String typeRef = function.inputTypes.get(symbol);
+        if (typeRef != null) {
+            return resolveTypeRef(typeRef, model, aliasImports);
+        }
+        String aliasTypeRef = function.aliasTypes.get(symbol);
+        if (aliasTypeRef != null) {
+            String resolved = resolveTypeRef(aliasTypeRef, model, aliasImports);
+            return resolved == null ? aliasTypeRef : resolved;
+        }
+        if (function.aliasExpressions.containsKey(symbol)) {
+            return resolveAliasTypeByExpression(function, symbol, model, aliasImports, visitedAliases);
+        }
+        return null;
+    }
+
+    private ParsedPath parsePath(String expression) {
+        if (expression == null || !expression.contains("->")) {
+            return null;
+        }
+        String[] parts = expression.split("->");
+        if (parts.length < 2) {
+            return null;
+        }
+        String root = firstIdentifier(parts[0]);
+        if (root == null) {
+            return null;
+        }
+        List<String> segments = new ArrayList<String>();
+        for (int i = 1; i < parts.length; i++) {
+            String token = firstIdentifier(parts[i]);
+            if (token == null) {
+                continue;
+            }
+            if (isOperatorOnly(parts[i], token)) {
+                continue;
+            }
+            segments.add(token);
+        }
+        if (segments.isEmpty()) {
+            return null;
+        }
+        return new ParsedPath(root, segments);
+    }
+
+    private String firstIdentifier(String text) {
+        Matcher m = IDENTIFIER_PATTERN.matcher(text == null ? "" : text);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
+    }
+
+    private boolean isOperatorOnly(String part, String token) {
+        String normalized = part == null ? "" : part.trim().toLowerCase();
+        return OPERATOR_TOKENS.contains(token.toLowerCase()) && normalized.equals(token.toLowerCase());
+    }
+
+    private static class ParsedPath {
+        private final String rootToken;
+        private final List<String> segments;
+
+        private ParsedPath(String rootToken, List<String> segments) {
+            this.rootToken = rootToken;
+            this.segments = segments;
+        }
     }
 }
