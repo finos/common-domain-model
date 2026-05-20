@@ -33,6 +33,36 @@ public class TypeResolver {
         return resolveTypeRef(typeRef, oldModel, aliasImports);
     }
 
+    public ExpandedAliasPath expandAliasPath(
+            RosettaFunctionInfo function,
+            String aliasName,
+            List<String> suffixSegments,
+            RosettaModelInventory oldModel,
+            Map<String, String> aliasImports) {
+        if (aliasName == null) {
+            return null;
+        }
+        String expr = function.aliasExpressions.get(aliasName);
+        if (expr == null) {
+            return null;
+        }
+        ParsedPath aliasPath = parsePath(expr);
+        if (aliasPath == null) {
+            return null;
+        }
+        Set<String> visited = new HashSet<String>();
+        String baseRootType = resolveSymbolType(function, aliasPath.rootToken, oldModel, aliasImports, visited);
+        if (baseRootType == null) {
+            return null;
+        }
+        List<String> combined = new ArrayList<String>();
+        combined.addAll(aliasPath.segments);
+        if (suffixSegments != null) {
+            combined.addAll(suffixSegments);
+        }
+        return new ExpandedAliasPath(aliasPath.rootToken, baseRootType, combined);
+    }
+
     public String resolveTypeRef(String typeRef, RosettaModelInventory model, Map<String, String> aliasImports) {
         if (typeRef == null) {
             return null;
@@ -223,6 +253,18 @@ public class TypeResolver {
 
         private ParsedPath(String rootToken, List<String> segments) {
             this.rootToken = rootToken;
+            this.segments = segments;
+        }
+    }
+
+    public static class ExpandedAliasPath {
+        public final String rootVariable;
+        public final String rootType;
+        public final List<String> segments;
+
+        public ExpandedAliasPath(String rootVariable, String rootType, List<String> segments) {
+            this.rootVariable = rootVariable;
+            this.rootType = rootType;
             this.segments = segments;
         }
     }
