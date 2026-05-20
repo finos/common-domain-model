@@ -39,6 +39,9 @@ public class RewritePlanner {
             Collections.sort(orderedPaths, (a, b) -> Integer.compare(a.startOffset, b.startOffset));
             Map<String, String> aliases = ingestAnalysis.importAliasesByFile.get(function.file);
             for (RosettaPathExpression path : orderedPaths) {
+                if (isNonFpmlOutputAssignment(function, path)) {
+                    continue;
+                }
                 String rootType = typeResolver.resolveRootType(function, path, oldModel, aliases);
                 String effectiveRootVariable = path.rootVariable;
                 List<String> effectiveOldPath = path.segments;
@@ -69,6 +72,9 @@ public class RewritePlanner {
                 }
                 if (rootType == null) {
                     if (looksLikeEnumRoot(path.rootVariable)) {
+                        continue;
+                    }
+                    if (isReferenceHrefProjection(path)) {
                         continue;
                     }
                     if (isNonFpmlRoot(function, path.rootVariable)) {
@@ -256,6 +262,34 @@ public class RewritePlanner {
         return t.startsWith("fpml.");
     }
 
+    private boolean isNonFpmlOutputAssignment(RosettaFunctionInfo function, RosettaPathExpression path) {
+        if (function == null || path == null || path.rootVariable == null) {
+            return false;
+        }
+        if (function.outputName == null || function.outputType == null) {
+            return false;
+        }
+        if (!path.rootVariable.equals(function.outputName)) {
+            return false;
+        }
+        String outType = function.outputType.toLowerCase();
+        if (outType.startsWith("fpml.") || outType.contains(".fpml.")) {
+            return false;
+        }
+        int localStart = path.startOffset - function.startOffset;
+        if (localStart < 0 || localStart > function.body.length()) {
+            return false;
+        }
+        int lineStart = function.body.lastIndexOf('\n', Math.max(0, localStart - 1));
+        lineStart = lineStart < 0 ? 0 : lineStart + 1;
+        int lineEnd = function.body.indexOf('\n', localStart);
+        if (lineEnd < 0) {
+            lineEnd = function.body.length();
+        }
+        String line = function.body.substring(lineStart, lineEnd).trim();
+        return line.startsWith("set " + path.rootVariable + " ->");
+    }
+
     private boolean isScalarProjectionPath(
             String rootType,
             List<String> oldPath,
@@ -286,5 +320,22 @@ public class RewritePlanner {
                 || "minute".equals(tailLower)
                 || "second".equals(tailLower)
                 || "timezone".equals(tailLower);
+    }
+
+    private boolean isReferenceHrefProjection(RosettaPathExpression path) {
+        if (path == null || path.rootVariable == null || path.segments == null) {
+            return false;
+        }
+        if (path.segments.size() != 1) {
+            return false;
+        }
+        String seg = path.segments.get(0);
+        if (!"href".equalsIgnoreCase(seg) && !"reference".equalsIgnoreCase(seg)) {
+            return false;
+        }
+        String root = path.rootVariable;
+        return root.endsWith("Reference")
+                || root.endsWith("accountReference")
+                || root.endsWith("partyReference");
     }
 }
