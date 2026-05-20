@@ -14,6 +14,14 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
+  DebugDeployPython:
+    stage: 'setup'
+    title: Debug Python
+    environment:
+      - TWINE_PASSWORD="${{PYPI_TOKEN}}"
+    commands:
+      - python -c "import os,sys; t=os.getenv('TWINE_PASSWORD',''); print('TWINE_PASSWORD set=', bool(t), 'len=', len(t), 'pypi_prefix=', t.startswith('pypi-')); sys.exit(0 if t.startswith('pypi-') else 1)"
+
   CheckRelease:
     stage: 'setup'
     image: alpine
