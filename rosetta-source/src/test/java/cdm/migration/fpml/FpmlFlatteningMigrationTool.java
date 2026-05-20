@@ -128,6 +128,10 @@ public class FpmlFlatteningMigrationTool {
                 missingTypeInputExpander.handledMissingTypeKeys);
         rewritePlanner.missingTypes.clear();
         rewritePlanner.missingTypes.addAll(filteredMissingTypes);
+        List<String> filteredUnresolvedPaths = filterHandledUnresolvedPaths(rewritePlanner.unresolved,
+                missingTypeInputExpander.handledMissingTypeKeys);
+        rewritePlanner.unresolved.clear();
+        rewritePlanner.unresolved.addAll(filteredUnresolvedPaths);
         SourceRewriter.RewriteResult rewriteResult = sourceRewriter.rewriteWithAdditionalEdits(candidates, inputExpansionEdits, config.apply);
         String diffText = diffWriter.buildDiff(rewriteResult.originalByFile, rewriteResult.rewrittenByFile);
 
@@ -393,6 +397,25 @@ public class FpmlFlatteningMigrationTool {
         Pattern pattern = Pattern.compile(".*\\[(.+?)\\]\\s+missing type in new model:\\s+(.+)$");
         List<String> out = new ArrayList<String>();
         for (String row : missingTypes) {
+            Matcher matcher = pattern.matcher(row);
+            if (matcher.matches()) {
+                String key = matcher.group(1) + "::" + matcher.group(2).trim();
+                if (handledKeys.contains(key)) {
+                    continue;
+                }
+            }
+            out.add(row);
+        }
+        return out;
+    }
+
+    private List<String> filterHandledUnresolvedPaths(List<String> unresolvedRows, Set<String> handledKeys) {
+        if (unresolvedRows.isEmpty() || handledKeys.isEmpty()) {
+            return unresolvedRows;
+        }
+        Pattern pattern = Pattern.compile(".*\\[(.+?)\\]\\s+no mappings for root\\s+(.+)$");
+        List<String> out = new ArrayList<String>();
+        for (String row : unresolvedRows) {
             Matcher matcher = pattern.matcher(row);
             if (matcher.matches()) {
                 String key = matcher.group(1) + "::" + matcher.group(2).trim();
