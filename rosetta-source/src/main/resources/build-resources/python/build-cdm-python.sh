@@ -1,21 +1,21 @@
 #!/bin/bash
+
 set -euo pipefail
 set -x
 IFS=$'\n\t'
 
-export PROJECT_ROOT=$(pwd)
-export CDM_ROSETTA="rosetta-source/src/main/rosetta"
-export PYTHON_TARGET="rosetta-source/src/generated/python"
+PROJECT_ROOT=$(pwd)
+CDM_ROSETTA="rosetta-source/src/main/rosetta"
+PYTHON_TARGET="rosetta-source/src/generated/python"
+PYTHON_PACKAGE_NAME="finos-cdm"
+NAMESPACE_PREFIX="finos"
+CDM_VERSION="${1:-0.0.0}"
 
-# Extract and set ROSETTA_CODE_GEN_VERSION to the rosetta.dsl.version in the parent POM
-export ROSETTA_CODE_GEN_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
-echo "rosetta.code-gen.version: ${ROSETTA_CODE_GEN_VERSION}"
-
-# Find the latest release tag that matches the DSL version (x.y.z.n)
-DSL_VERSION="${ROSETTA_CODE_GEN_VERSION}"
+# Extract and set DSL_VERSION to the rosetta.dsl.version in the parent POM
+DSL_VERSION=$(mvn -s $(pwd)/settings.xml help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
 GENERATOR_REPO="finos/rune-python-generator"
-echo "Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
-echo "Fetching tags from GitHub API..."
+echo "***** Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
+echo "***** Fetching tags from GitHub API..."
 RAW_TAGS=$(curl -s "https://api.github.com/repos/${GENERATOR_REPO}/tags?per_page=100")
 if [[ -z "${RAW_TAGS}" ]]; then
   echo "ERROR: No response from GitHub API"
@@ -29,7 +29,7 @@ LATEST_TAG=$(echo "${RAW_TAGS}" \
   | sort -t. -k4 -n \
   | tail -n 1) || true
 
-echo "Latest matching generator tag: ${LATEST_TAG}"
+echo "***** Latest matching generator tag: ${LATEST_TAG}"
 
 if [[ -z "${LATEST_TAG}" ]]; then
   echo "ERROR: No generator release found for DSL version ${DSL_VERSION}"
@@ -38,7 +38,7 @@ fi
 
 GENERATOR_JAR="python-${LATEST_TAG}.jar"
 GENERATOR_URL="https://github.com/${GENERATOR_REPO}/releases/download/${LATEST_TAG}/${GENERATOR_JAR}"
-echo "Attempting to download ${GENERATOR_URL}"
+echo "***** Attempting to download ${GENERATOR_URL}"
 
 if ! wget -q --spider "${GENERATOR_URL}"; then
   echo "ERROR: Generator jar ${GENERATOR_JAR} not found for tag ${LATEST_TAG}"
@@ -47,33 +47,50 @@ fi
 
 wget -O "/tmp/${GENERATOR_JAR}" "${GENERATOR_URL}" || { echo "Failed to download generator JAR"; exit 1; }
 
+# Check for rune-fpml dependency in pom.xml
+FPML_VERSION=$(sed -n 's/.*<rune-fpml[-.]version>\(.*\)<\/rune-fpml[-.]version>.*/\1/p' pom.xml | head -n 1)
+
+if [[ -n "${FPML_VERSION}" ]]; then
+  echo "***** Found rune-fpml-version: ${FPML_VERSION}, pulling FpML definitions from rune-fpml"
+  mkdir -p "${CDM_ROSETTA}/rune-fpml"
+  TEMP_FPML=$(mktemp -d)
+  pushd "${TEMP_FPML}"
+  git init
+  git config core.sparseCheckout true
+  echo "rosetta-source/src/main/rosetta/*" >> .git/info/sparse-checkout
+  git remote add origin https://github.com/rosetta-models/rune-fpml.git
+  git pull --depth 1 origin "${FPML_VERSION}" || {
+    echo "WARNING: Failed to pull rune-fpml version ${FPML_VERSION}, falling back to master"
+    git pull --depth 1 origin master
+  }
+  cp -r rosetta-source/src/main/rosetta/* "${PROJECT_ROOT}/${CDM_ROSETTA}/rune-fpml/"
+  popd
+  rm -rf "${TEMP_FPML}"
+fi
+
 # Run the generator
-java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}"
+java -cp "/tmp/${GENERATOR_JAR}" com.regnosys.rosetta.generator.python.PythonCodeGeneratorCLI -s "${CDM_ROSETTA}" -t "${PYTHON_TARGET}" -p "${PYTHON_PACKAGE_NAME}" -x "${NAMESPACE_PREFIX}" -v "${CDM_VERSION}"
 
 export PYTHONDONTWRITEBYTECODE=1
-python3 -m venv /tmp/.pyenv
-source /tmp/.pyenv/bin/activate
+python3 -m venv ./.pyenv
+source ./.pyenv/bin/activate
 python3 -m pip install --upgrade pip
 
 cd "${PYTHON_TARGET}"
 
-# Download the latest rune-python-runtime wheel from GitHub releases
-export RUNTIME_WHEEL_URL=$(curl -s https://api.github.com/repos/finos/rune-python-runtime/releases/latest | grep browser_download_url | grep whl | cut -d '"' -f 4)
-export RUNTIME_WHEEL_NAME=$(basename "${RUNTIME_WHEEL_URL}")
-
-echo "Downloading latest runtime wheel: ${RUNTIME_WHEEL_NAME}"
-wget -O "${RUNTIME_WHEEL_NAME}" "${RUNTIME_WHEEL_URL}" || { echo "Failed to download runtime wheel"; exit 1; }
-python3 -m pip install "${RUNTIME_WHEEL_NAME}"
-
 # Build and install the generated Python package
+cp "${PROJECT_ROOT}/python/README.md" .
 python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir . .
-WHEEL_FILE=$(ls ./python_cdm-*-py3-none-any.whl | head -n 1)
+WHEEL_FILE=$(ls ./*-*-py3-none-any.whl | head -n 1)
 if [[ ! -f "${WHEEL_FILE}" ]]; then
-  echo "Wheel file not found!"
+  echo "***** Wheel file not found!"
   exit 1
 fi
 python3 -m pip install "${WHEEL_FILE}"
-# python3 -m pip install pytest
-# 
-# # Run unit tests (output will be visible in Docker logs)
-# pytest -p no:cacheprovider ${PROJECT_ROOT}/cdm-python/test/
+python3 -m pip install pytest
+
+# Run unit tests (output will be visible in Docker logs)
+pytest -p no:cacheprovider ${PROJECT_ROOT}/python/test/
+
+deactivate
+rm -rf ./.pyenv
