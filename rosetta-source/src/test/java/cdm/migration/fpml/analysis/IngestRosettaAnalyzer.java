@@ -21,6 +21,8 @@ public class IngestRosettaAnalyzer {
     private static final Pattern IMPORT_PATTERN = Pattern.compile("^\\s*import\\s+([A-Za-z0-9_.*]+)(?:\\s+as\\s+([A-Za-z0-9_]+))?");
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("(?m)^\\s*func\\s+([A-Za-z0-9_]+)\\s*:");
     private static final Pattern INPUT_LINE_PATTERN = Pattern.compile("^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s+([A-Za-z_][A-Za-z0-9_.]*)\\s*\\([^)]*\\).*");
+    private static final Pattern OUTPUT_LINE_PATTERN = Pattern.compile("^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s+([A-Za-z_][A-Za-z0-9_.]*)\\s*\\([^)]*\\).*");
+    private static final Pattern ALIAS_LINE_PATTERN = Pattern.compile("^\\s*alias\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*:\\s*(.+)$");
     private static final Pattern CALL_PATTERN = Pattern.compile("\\b([A-Z][A-Za-z0-9_]*)\\s*\\(");
     private static final Pattern SWITCH_CALL_PATTERN = Pattern.compile("\\bthen\\s+([A-Z][A-Za-z0-9_]*)\\b");
     private final RosettaXtextLoader xtextLoader;
@@ -45,6 +47,7 @@ public class IngestRosettaAnalyzer {
         for (RosettaSourceFile file : files) {
             parseFile(file, result);
         }
+        resolveAliasTypes(result);
         return result;
     }
 
@@ -66,6 +69,8 @@ public class IngestRosettaAnalyzer {
             int line = lineOfOffset(text, slice.start);
             RosettaFunctionInfo functionInfo = new RosettaFunctionInfo(file.getLogicalPath(), namespace, slice.name, slice.start, end, line, body);
             parseInputs(functionInfo, text);
+            parseOutput(functionInfo);
+            parseAliases(functionInfo);
             parseCalls(functionInfo);
             parseCallSites(functionInfo, text);
             parsePathExpressions(functionInfo, text);
@@ -142,6 +147,40 @@ public class IngestRosettaAnalyzer {
         }
     }
 
+    private void parseOutput(RosettaFunctionInfo functionInfo) {
+        String[] lines = functionInfo.body.split("\\R", -1);
+        boolean inOutput = false;
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.startsWith("output:")) {
+                inOutput = true;
+                continue;
+            }
+            if (inOutput && (trimmed.startsWith("set ") || trimmed.startsWith("alias ") || trimmed.startsWith("inputs:")
+                    || trimmed.startsWith("func ") || trimmed.startsWith("condition "))) {
+                inOutput = false;
+            }
+            if (inOutput) {
+                Matcher matcher = OUTPUT_LINE_PATTERN.matcher(line);
+                if (matcher.find()) {
+                    functionInfo.outputName = matcher.group(1);
+                    functionInfo.outputType = matcher.group(2);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void parseAliases(RosettaFunctionInfo functionInfo) {
+        String[] lines = functionInfo.body.split("\\R", -1);
+        for (String line : lines) {
+            Matcher matcher = ALIAS_LINE_PATTERN.matcher(line);
+            if (matcher.find()) {
+                functionInfo.aliasExpressions.put(matcher.group(1), matcher.group(2).trim());
+            }
+        }
+    }
+
     private int offsetInString(String text, String targetLine, int lineNumber) {
         int offset = 0;
         int currentLine = 0;
@@ -200,6 +239,23 @@ public class IngestRosettaAnalyzer {
             parseArguments(body, functionInfo.startOffset, cursor + 1, close, callSite);
             functionInfo.callSites.add(callSite);
             i = close + 1;
+        }
+    }
+
+    private void resolveAliasTypes(IngestAnalysisResult result) {
+        Pattern callExpr = Pattern.compile("^([A-Z][A-Za-z0-9_]*)\\s*\\(");
+        for (RosettaFunctionInfo fn : result.functions) {
+            for (Map.Entry<String, String> alias : fn.aliasExpressions.entrySet()) {
+                String expr = alias.getValue();
+                Matcher matcher = callExpr.matcher(expr);
+                if (matcher.find()) {
+                    String called = matcher.group(1);
+                    RosettaFunctionInfo callee = result.functionByName.get(called);
+                    if (callee != null && callee.outputType != null) {
+                        fn.aliasTypes.put(alias.getKey(), callee.outputType);
+                    }
+                }
+            }
         }
     }
 
