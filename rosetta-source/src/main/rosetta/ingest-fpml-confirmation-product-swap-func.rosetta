@@ -30,7 +30,8 @@ func MapSwapCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlSwap -> swapStream first -> payerReceiverModel
+                fpmlSwap -> swapStream first -> payerReceiverModel -> payerModel,
+                fpmlSwap -> swapStream first -> payerReceiverModel -> receiverModel
             )
 
 func MapSwapAncillaryPartyList:
@@ -65,8 +66,12 @@ func MapSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlSwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlSwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlSwap -> productModel -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlSwap -> productModel -> primaryAssetClass,
+                        fpmlSwap -> productModel -> secondaryAssetClass,
+                        fpmlSwap -> productModel -> productType
+                    ),
             economicTerms: MapSwapEconomicTerms(fpmlSwap, cdmCounterpartyList)
         }
 
@@ -101,7 +106,8 @@ func MapSwapPayout:
     alias notionalStepScheduleCalculation:
         fpmlSwapStream -> calculationPeriodAmount -> calculation
 
-    alias fpmlRateCalculation: notionalStepScheduleCalculation -> rateCalculation
+    alias fpmlRateCalculation:
+        fpmlSwapStream -> calculationPeriodAmount -> calculation -> rateCalculation
 
     alias floatingRateSpecification:
         fpmlRateCalculation switch
@@ -116,10 +122,10 @@ func MapSwapPayout:
             default empty
 
     alias principalPaymentCurrency:
-        fpmlSwapStream -> settlementProvision -> settlementCurrency default notionalStepScheduleCalculation -> notionalSchedule -> notionalStepSchedule -> currency
+        fpmlSwapStream -> settlementProvision -> settlementCurrency default fpmlSwapStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule -> currency
 
     alias fixedRateSchedule:
-        notionalStepScheduleCalculation -> calculationSequence -> fixedRateSchedule default notionalStepScheduleCalculation -> calculationSequence1 -> fixedRateSchedule
+        fpmlSwapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule default fpmlSwapStream -> calculationPeriodAmount -> calculation -> fixedRateSchedule
 
     set payout:
         Payout {
@@ -133,7 +139,8 @@ func MapSwapPayout:
                                 cdmCounterpartyList
                             ),
                     payerReceiver: MapPayerReceiver(
-                                fpmlSwapStream -> payerReceiverModel,
+                                fpmlSwapStream -> payerReceiverModel -> payerModel,
+                                fpmlSwapStream -> payerReceiverModel -> receiverModel,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -141,12 +148,12 @@ func MapSwapPayout:
                             priceSchedule: if notionalAmountScheduleCalculation exists
                                     then MapScheduleToInterestRatePriceSchedule(
                                             notionalAmountScheduleCalculation,
-                                            notionalAmountScheduleCalculation -> currency,
+                                            fpmlSwapStream -> calculationPeriodAmount -> knownAmountSchedule -> currency,
                                             empty
                                         ),
-                            quantitySchedule: if notionalStepScheduleCalculation -> notionalSchedule -> notionalStepSchedule exists
+                            quantitySchedule: if fpmlSwapStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule exists
                                     then MapNotionalStepScheduleToQuantityWithAddress(
-                                            notionalStepScheduleCalculation -> notionalSchedule -> notionalStepSchedule,
+                                            fpmlSwapStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule,
                                             fpmlSwapStream
                                         )
                                 else if fpmlSwapStream -> calculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule exists
@@ -155,13 +162,13 @@ func MapSwapPayout:
                                             fpmlSwapStream
                                         ),
                             quantityReference: MapResolvablePriceQuantityReference(
-                                        notionalStepScheduleCalculation -> fxLinkedNotionalSchedule -> constantNotionalScheduleReference -> href
+                                        fpmlSwapStream -> calculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule -> constantNotionalScheduleReference -> href
                                     ),
                             quantityMultiplier: MapQuantityMultiplier(
                                         notionalStepScheduleCalculation
                                     ),
                             futureValueNotional: MapFutureValueAmount(
-                                        fpmlSwapStream -> calculationPeriodAmount -> calculation -> calculationSequence -> futureValueNotional
+                                        fpmlSwapStream -> calculationPeriodAmount -> calculation -> futureValueNotional
                                     ),
                             ...
                         },
@@ -187,12 +194,12 @@ func MapSwapPayout:
                             InflationRateSpecification: inflationRateSpecification
                         },
                     dayCountFraction: MapDayCountFractionEnum(
-                                notionalStepScheduleCalculation -> dayCountFraction -> value
+                                fpmlSwapStream -> calculationPeriodAmount -> calculation -> dayCountFraction -> value
                             ),
                     calculationPeriodDates: MapSwapCalculationPeriodDates(
                                 fpmlSwapStream -> calculationPeriodDates
                             ),
-                    compoundingMethod: notionalStepScheduleCalculation -> compoundingMethod to-enum CompoundingMethodEnum,
+                    compoundingMethod: fpmlSwapStream -> calculationPeriodAmount -> calculation -> compoundingMethod to-enum CompoundingMethodEnum,
                     paymentDates: MapSwapPaymentDates(fpmlSwapStream -> paymentDates),
                     stubPeriod: MapStubCalculationPeriodAmountToStubPeriod(
                                 fpmlSwapStream -> stubCalculationPeriodAmount
@@ -263,25 +270,25 @@ func MapFloatingRateSpecification:
         FloatingRateSpecification {
             rateOption: MapRateOptionWithAddress(fpmlFloatingRateCalculation, fpmlLeg),
             spreadSchedule: MapSpreadScheduleWithAddress(
-                        fpmlFloatingRateCalculation -> floatingRateModel,
+                        fpmlFloatingRateCalculation -> floatingRateModel -> spreadSchedule,
                         fpmlLeg
                     ),
             capRateSchedule: MapCapRateScheduleWithAddress(
-                        fpmlFloatingRateCalculation -> floatingRateModel,
+                        fpmlFloatingRateCalculation -> floatingRateModel -> capRateSchedule,
                         fpmlLeg
                     ),
             floorRateSchedule: MapFloorRateScheduleWithAddress(
-                        fpmlFloatingRateCalculation -> floatingRateModel,
+                        fpmlFloatingRateCalculation -> floatingRateModel -> floorRateSchedule,
                         fpmlLeg
                     ),
             initialRate: MapInitialRate(
-                        fpmlFloatingRateCalculation -> floatingRateCalculationModel,
+                        fpmlFloatingRateCalculation -> floatingRateCalculationModel -> initialRate,
                         fpmlFloatingRateCalculation -> floatingRateIndexModel
                     ),
             finalRateRounding: MapFinalRateRounding(
-                        fpmlFloatingRateCalculation -> floatingRateCalculationModel -> finalRateRounding
+                        fpmlFloatingRateCalculation -> finalRateRounding
                     ),
-            rateTreatment: fpmlFloatingRateCalculation -> floatingRateModel -> rateTreatment to-enum RateTreatmentEnum,
+            rateTreatment: fpmlFloatingRateCalculation -> rateTreatment to-enum RateTreatmentEnum,
             ...
         }
 
@@ -296,25 +303,25 @@ func MapInflationRateSpecification:
         InflationRateSpecification {
             rateOption: MapRateOptionWithAddress(fpmlInflationRateCalculation, fpmlLeg),
             spreadSchedule: MapSpreadScheduleWithAddress(
-                        fpmlInflationRateCalculation -> floatingRateModel,
+                        fpmlInflationRateCalculation -> floatingRateModel -> spreadSchedule,
                         fpmlLeg
                     ),
             capRateSchedule: MapCapRateScheduleWithAddress(
-                        fpmlInflationRateCalculation -> floatingRateModel,
+                        fpmlInflationRateCalculation -> floatingRateModel -> capRateSchedule,
                         fpmlLeg
                     ),
             floorRateSchedule: MapFloorRateScheduleWithAddress(
-                        fpmlInflationRateCalculation -> floatingRateModel,
+                        fpmlInflationRateCalculation -> floatingRateModel -> floorRateSchedule,
                         fpmlLeg
                     ),
             initialRate: MapInitialRate(
-                        fpmlInflationRateCalculation -> floatingRateCalculationModel,
+                        fpmlInflationRateCalculation -> floatingRateCalculationModel -> initialRate,
                         fpmlInflationRateCalculation -> floatingRateIndexModel
                     ),
             finalRateRounding: MapFinalRateRounding(
-                        fpmlInflationRateCalculation -> floatingRateCalculationModel -> finalRateRounding
+                        fpmlInflationRateCalculation -> finalRateRounding
                     ),
-            rateTreatment: fpmlInflationRateCalculation -> floatingRateModel -> rateTreatment to-enum RateTreatmentEnum,
+            rateTreatment: fpmlInflationRateCalculation -> rateTreatment to-enum RateTreatmentEnum,
             inflationLag: empty,
             indexSource: empty,
             mainPublication: empty,
@@ -325,15 +332,15 @@ func MapInflationRateSpecification:
 
 func MapInitialRate:
     inputs:
-        fpmlFloatingRateCalculationModel fpml.FloatingRateCalculationModel (0..1)
+        initialRate fpml.number (0..1)
         fpmlFloatingRateIndexModel fpml.FloatingRateIndexModel (0..1)
     output:
         initialRate Price (0..1)
 
     set initialRate:
-        if fpmlFloatingRateCalculationModel -> initialRate exists
+        if initialRate exists
         then Price {
-                value: fpmlFloatingRateCalculationModel -> initialRate,
+                value: initialRate,
                 unit: empty,
                 perUnitOf: empty,
                 priceType: if fpmlFloatingRateIndexModel exists
@@ -386,11 +393,11 @@ func MapCancelableProvision:
     set cancelableProvision:
         CancelableProvision {
             buyer: MapCounterpartyRoleEnum(
-                        fpmlCancelableProvision -> buyerSellerModel -> buyerPartyReference -> href,
+                        fpmlCancelableProvision -> buyerPartyReference -> href,
                         cdmCounterpartyList
                     ),
             seller: MapCounterpartyRoleEnum(
-                        fpmlCancelableProvision -> buyerSellerModel -> sellerPartyReference -> href,
+                        fpmlCancelableProvision -> sellerPartyReference -> href,
                         cdmCounterpartyList
                     ),
             followUpConfirmation: fpmlCancelableProvision -> followUpConfirmation,
@@ -421,11 +428,11 @@ func MapEarlyTerminationProvision:
     set earlyTerminationProvision:
         EarlyTerminationProvision {
             optionalEarlyTermination: MapOptionalEarlyTermination(
-                        fpmlEarlyTerminationProvision -> optionalEarlyTerminationModel -> optionalEarlyTermination,
+                        fpmlEarlyTerminationProvision -> optionalEarlyTermination,
                         cdmCounterpartyList
                     ),
             mandatoryEarlyTermination: MapMandatoryEarlyTermination(
-                        fpmlEarlyTerminationProvision -> earlyTerminationProvisionSequence -> mandatoryEarlyTerminationModel -> mandatoryEarlyTermination,
+                        fpmlEarlyTerminationProvision -> mandatoryEarlyTermination,
                         cdmCounterpartyList
                     ),
             ...
@@ -491,9 +498,7 @@ func MapStubCalculationPeriodAmountToStubPeriod:
         StubPeriod {
             calculationPeriodDatesReference: empty,
             finalStub: MapStubValue(fpmlStubCalculationPeriodAmount -> finalStub),
-            initialStub: MapStubValue(
-                        fpmlStubCalculationPeriodAmount -> stubCalculationPeriodAmountSequence -> initialStub
-                    )
+            initialStub: MapStubValue(fpmlStubCalculationPeriodAmount -> initialStub)
         }
     set stubPeriod -> calculationPeriodDatesReference -> reference:
         fpmlStubCalculationPeriodAmount -> calculationPeriodDatesReference -> href
@@ -806,5 +811,6 @@ func MapSwapAccountPartyReference:
     set partyReference:
         MapPayerReceiverToAccountPartyReference(
                 fpmlAccount,
-                fpmlSwap -> swapStream -> payerReceiverModel
+                fpmlSwap -> swapStream -> payerReceiverModel -> payerModel,
+                fpmlSwap -> swapStream -> payerReceiverModel -> receiverModel
             )

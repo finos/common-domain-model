@@ -26,7 +26,11 @@ func MapFraCounterpartyList:
     output:
         counterpartyList Counterparty (0..2)
 
-    add counterpartyList: MapBuyerSellerModelToCounterpartyList(fpmlFra -> buyerSellerModel)
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlFra -> buyerSellerModel -> buyerPartyReference,
+                fpmlFra -> buyerSellerModel -> sellerPartyReference
+            )
 
 func MapFraNonTransferableProduct:
     inputs:
@@ -37,8 +41,12 @@ func MapFraNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlFra -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlFra -> productModel),
+            identifier: MapProductIdentifierList(fpmlFra -> productModel -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlFra -> productModel -> primaryAssetClass,
+                        fpmlFra -> productModel -> secondaryAssetClass,
+                        fpmlFra -> productModel -> productType
+                    ),
             economicTerms: MapFraEconomicTerms(fpmlFra, cdmCounterpartyList)
         }
 
@@ -63,7 +71,11 @@ func MapFraPayoutList:
         payoutList Payout (0..2)
 
     alias floatingPayerReceiver:
-        MapSellerAsPayerAndBuyerAsReceiver(fpmlFra -> buyerSellerModel, cdmCounterpartyList)
+        MapSellerAsPayerAndBuyerAsReceiver(
+                fpmlFra -> buyerSellerModel -> sellerPartyReference,
+                fpmlFra -> buyerSellerModel -> buyerPartyReference,
+                cdmCounterpartyList
+            )
 
     alias dayCountFraction: MapDayCountFractionEnum(fpmlFra -> dayCountFraction -> value)
 

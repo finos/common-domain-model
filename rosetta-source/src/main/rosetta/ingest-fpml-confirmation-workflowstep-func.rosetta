@@ -51,8 +51,10 @@ func MapWorkflowStep:
                             Instruction {
                                 primitiveInstruction: MapPrimitiveInstruction(
                                             fpmlTrade,
-                                            fpmlPostTradeEventsBaseModel,
-                                            tradingEventsBaseModel
+                                            fpmlPostTradeEventsBaseModel -> novation,
+                                            fpmlPostTradeEventsBaseModel -> postTradeEventsBaseModelSequence,
+                                            fpmlPostTradeEventsBaseModel -> amendment,
+                                            tradingEventsBaseModel -> tradingEventsBaseModelSequence
                                         ),
                                 before: MapTradeState(
                                             fpmlTrade,
@@ -64,9 +66,13 @@ func MapWorkflowStep:
                         ],
                     ...
                 },
-            timestamp: MapEventTimestamp(messageHeaderModel, fpmlTrade),
+            timestamp: MapEventTimestamp(messageHeaderModel -> creationTimestamp, fpmlTrade),
             eventIdentifier: MapEventIdentifier(messageId, tradingEvents),
-            messageInformation: MapMessageInformation(messageId, messageHeaderModel),
+            messageInformation: MapMessageInformation(
+                        messageId,
+                        messageHeaderModel -> sentBy,
+                        messageHeaderModel -> sendTo
+                    ),
             action: action,
             nextEvent: MapNextEvent(fpmlTrade -> tradeHeader -> partyTradeInformation),
             ...
@@ -128,27 +134,22 @@ func MapPrimitiveInstruction:
     inputs:
         fpmlTrade fpml.Trade (0..1)
         fpmlTradeNotionalChange fpml.PostTradeEventsBaseModel (0..1)
-        fpmlTradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
+        tradingEventsBaseModelSequence fpml.TradingEventsBaseModelSequence (0..1)
     output:
         primitiveInstruction PrimitiveInstruction (0..1)
 
     set primitiveInstruction:
-        if fpmlTradeNotionalChange -> novation exists
+        if novation exists
         then MapNovationToPrimitiveInstruction(fpmlTradeNotionalChange)
-        else if fpmlTradeNotionalChange -> postTradeEventsBaseModelSequence -> termination exists
+        else if postTradeEventsBaseModelSequence -> termination exists
         then MapTerminationToPrimitiveInstruction(
                     fpmlTrade,
-                    fpmlTradeNotionalChange -> postTradeEventsBaseModelSequence -> termination
+                    postTradeEventsBaseModelSequence -> termination
                 )
-        else if fpmlTradeNotionalChange -> amendment exists
-        then MapAmendmentToPrimitiveInstruction(
-                    fpmlTrade,
-                    fpmlTradeNotionalChange -> amendment
-                )
+        else if amendment exists
+        then MapAmendmentToPrimitiveInstruction(fpmlTrade, amendment)
         else if fpmlTradingEventsBaseModel exists
-        then MapTradeToPrimitiveInstruction(
-                    fpmlTradingEventsBaseModel -> tradingEventsBaseModelSequence -> trade
-                )
+        then MapTradeToPrimitiveInstruction(tradingEventsBaseModelSequence -> trade)
         else if fpmlTrade exists
         then MapTradeToPrimitiveInstruction(fpmlTrade)
 
@@ -179,7 +180,7 @@ func MapAmendmentToPrimitiveInstruction:
     output:
         primitiveInstruction PrimitiveInstruction (0..1)
 
-    alias payment: amendment -> tradeAlterationPaymentModel -> payment
+    alias payment: amendment -> payment
     alias feeType:
         if payment exists then FeeTypeEnum -> Renegotiation else empty
 
@@ -310,7 +311,7 @@ func MapTerminationToPrimitiveInstruction:
         primitiveInstruction PrimitiveInstruction (0..1)
 
     alias counterpartyList: MapCounterpartyList(fpmlTrade)
-    alias terminationPayment: termination -> tradeAlterationPaymentModel -> payment
+    alias terminationPayment: termination -> payment
     alias transferExpression:
         if termination exists
         then FeeTypeEnum -> Termination
@@ -343,7 +344,7 @@ func MapQuantityChangeInstruction:
         quantityChange QuantityChangeInstruction (0..1)
 
     alias changeAmount:
-        MapPriceQuantity(fpmlTradeNotionalChange, fpmlPostTradeEventsBaseModel)
+        MapPriceQuantity(fpmlTradeNotionalChange, fpmlPostTradeEventsBaseModel -> novation)
     set quantityChange:
         if changeAmount exists
         then QuantityChangeInstruction {
@@ -355,32 +356,32 @@ func MapQuantityChangeInstruction:
 func MapPriceQuantity:
     inputs:
         fpmlTradeNotionalChange fpml.TradeNotionalChange (0..1)
-        fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
+        novation fpml.TradeNovationContent (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
     alias outstandingTradeNotional:
-        fpmlTradeNotionalChange -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0 -> outstandingNotionalAmount
+        fpmlTradeNotionalChange -> outstandingNotionalAmount
             extract MapNonNegativeMoneyNonNegativeQuantitySchedule
 
     alias outstandingSizeChange:
-        fpmlTradeNotionalChange -> sizeChange -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
+        fpmlTradeNotionalChange -> sizeChange -> outstandingNotionalAmount
             extract MapNonNegativeMoneyNonNegativeQuantitySchedule
 
     alias novatedAmount:
-        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> novatedAmount
+        novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> novatedAmount
             extract MapMoneyToNonNegativeQuantitySchedule
 
     alias changeInNotionalAmount:
-        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> changeInNotionalAmount
+        novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> changeInNotionalAmount
             extract MapNonNegativeMoneyNonNegativeQuantitySchedule
 
     alias outstandingNotionalAmount:
-        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
+        novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
             extract MapNonNegativeMoneyNonNegativeQuantitySchedule
 
     alias remainingAmount:
-        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> remainingAmount
+        novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> remainingAmount
             extract MapMoneyToNonNegativeQuantitySchedule
 
     alias q:
@@ -432,22 +433,15 @@ func MapNonNegativeMoneyNonNegativeQuantitySchedule:
 func MapMessageInformation:
     inputs:
         messageId fpml.MessageId (0..1)
-        messageHeaderModel fpml.MessageHeaderModel (0..1)
+        sentBy fpml.MessageAddress (0..1)
+        sendTo fpml.MessageAddress (0..*)
     output:
         messageInfo MessageInformation (0..1)
     set messageInfo:
         MessageInformation {
             messageId: MapStringWithScheme(messageId -> value, messageId -> messageIdScheme),
-            sentBy: MapStringWithScheme(
-                        messageHeaderModel -> sentBy -> value,
-                        messageHeaderModel -> sentBy -> messageAddressScheme
-                    ),
-            sentTo: [
-                    MapStringWithScheme(
-                            messageHeaderModel -> sendTo only-element -> value,
-                            messageHeaderModel -> sendTo only-element -> messageAddressScheme
-                        )
-                ],
+            sentBy: MapStringWithScheme(sentBy -> value, sentBy -> messageAddressScheme),
+            sentTo: [MapStringWithScheme(sendTo -> value, sendTo -> messageAddressScheme)],
             ...
         }
 
@@ -457,7 +451,7 @@ func MapIntent:
         fpmlOriginatingEvent fpml.OriginatingEvent (0..1)
         fpmlTerminatingEvent fpml.TerminatingEvent (0..1)
         fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
-        fpmlOptionsEventsBaseModel fpml.OptionsEventsBaseModel (0..1)
+        optionExercise fpml.OptionExercise (0..1)
     output:
         intent EventIntentEnum (0..1)
 
@@ -473,10 +467,9 @@ func MapIntent:
         partyTradeInformation extract allocationStatus -> value = "PostAllocation"
 
     set intent:
-        if fpmlOriginatingEvent -> value = "Novation"
-                or fpmlPostTradeEventsBaseModel -> novation exists
+        if fpmlOriginatingEvent -> value = "Novation" or novation exists
         then Novation
-        else if fpmlPostTradeEventsBaseModel -> postTradeEventsBaseModelSequence -> termination exists
+        else if postTradeEventsBaseModelSequence -> termination exists
         then empty
         else if fpmlOriginatingEvent -> value = "Netting"
                 or fpmlOriginatingEvent -> value = "PortfolioCompression"
@@ -490,10 +483,9 @@ func MapIntent:
         else if fpmlOriginatingEvent -> value = "PortfolioRebalancing"
                 or fpmlTerminatingEvent -> value = "PortfolioRebalancing"
         then PortfolioRebalancing
-        else if fpmlOptionsEventsBaseModel -> optionExercise exists
-                or fpmlOriginatingEvent -> value = "Exercise"
+        else if optionExercise exists or fpmlOriginatingEvent -> value = "Exercise"
         then OptionExercise
-        else if fpmlPostTradeEventsBaseModel -> amendment exists
+        else if amendment exists
         then ContractTermsAmendment
         else if clearing exists
         then Clearing
@@ -514,22 +506,18 @@ func GetEventDate:
         eventDate date (0..1)
 
     set eventDate:
-        if fpmlAmendment -> agreementAndEffectiveDatesModel -> agreementDate exists
-        then MapZoneDateTimeToDate(
-                    fpmlAmendment -> agreementAndEffectiveDatesModel -> agreementDate
-                )
-        else if fpmlTermination -> agreementAndEffectiveDatesModel -> agreementDate exists
-        then MapZoneDateTimeToDate(
-                    fpmlTermination -> agreementAndEffectiveDatesModel -> agreementDate
-                )
+        if fpmlAmendment -> agreementDate exists
+        then MapZoneDateTimeToDate(fpmlAmendment -> agreementDate)
+        else if fpmlTermination -> agreementDate exists
+        then MapZoneDateTimeToDate(fpmlTermination -> agreementDate)
         else if fpmlTrade -> tradeHeader -> partyTradeInformation -> executionDateTime -> value exists
         then MapZoneDateTimeToDate(
                     fpmlTrade -> tradeHeader -> partyTradeInformation -> executionDateTime -> value
                         filter exists
                         then only-element
                 )
-        else if fpmlNovation -> novationDatesModel -> novationDate exists
-        then MapZoneDateTimeToDate(fpmlNovation -> novationDatesModel -> novationDate)
+        else if fpmlNovation -> novationDate exists
+        then MapZoneDateTimeToDate(fpmlNovation -> novationDate)
 
 func GetEffectiveDate:
     inputs:
@@ -540,13 +528,9 @@ func GetEffectiveDate:
         effectiveDate date (0..1)
 
     set effectiveDate:
-        if fpmlAmendment -> agreementAndEffectiveDatesModel -> effectiveDate exists
-        then MapZoneDateTimeToDate(
-                    fpmlAmendment -> agreementAndEffectiveDatesModel -> effectiveDate
-                )
-        else if fpmlTermination -> agreementAndEffectiveDatesModel -> effectiveDate exists
-        then MapZoneDateTimeToDate(
-                    fpmlTermination -> agreementAndEffectiveDatesModel -> effectiveDate
-                )
-        else if fpmlNovation -> novationDatesModel -> novationDate exists
-        then MapZoneDateTimeToDate(fpmlNovation -> novationDatesModel -> novationDate)
+        if fpmlAmendment -> effectiveDate exists
+        then MapZoneDateTimeToDate(fpmlAmendment -> effectiveDate)
+        else if fpmlTermination -> effectiveDate exists
+        then MapZoneDateTimeToDate(fpmlTermination -> effectiveDate)
+        else if fpmlNovation -> novationDate exists
+        then MapZoneDateTimeToDate(fpmlNovation -> novationDate)

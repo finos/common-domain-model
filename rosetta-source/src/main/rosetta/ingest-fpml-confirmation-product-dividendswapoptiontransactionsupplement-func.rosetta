@@ -21,7 +21,8 @@ func MapDividendSwapOptionTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(
-                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel
+                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel -> buyerPartyReference,
+                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel -> sellerPartyReference
             )
 
 func MapDividendSwapOptionTransactionSupplementAncillaryPartyList:
@@ -46,10 +47,12 @@ func MapDividendSwapOptionTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlDividendSwapOptionTransactionSupplement -> productModel
+                        fpmlDividendSwapOptionTransactionSupplement -> productModel -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlDividendSwapOptionTransactionSupplement -> productModel
+                        fpmlDividendSwapOptionTransactionSupplement -> productModel -> primaryAssetClass,
+                        fpmlDividendSwapOptionTransactionSupplement -> productModel -> secondaryAssetClass,
+                        fpmlDividendSwapOptionTransactionSupplement -> productModel -> productType
                     ),
             economicTerms: MapDividendSwapOptionTransactionSupplementEconomicTerms(
                         fpmlDividendSwapOptionTransactionSupplement,
@@ -85,7 +88,8 @@ func MapDividendSwapOptionTransactionSupplementPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel -> sellerPartyReference,
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
@@ -93,7 +97,8 @@ func MapDividendSwapOptionTransactionSupplementPayout:
                                 empty
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel -> buyerPartyReference,
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:

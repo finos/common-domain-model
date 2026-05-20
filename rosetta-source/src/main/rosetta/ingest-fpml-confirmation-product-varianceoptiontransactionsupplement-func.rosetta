@@ -21,7 +21,8 @@ func MapVarianceOptionTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(
-                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel
+                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel -> buyerPartyReference,
+                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel -> sellerPartyReference
             )
 
 func MapVarianceOptionTransactionSupplementAncillaryPartyList:
@@ -46,10 +47,12 @@ func MapVarianceOptionTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlVarianceOptionTransactionSupplement -> productModel
+                        fpmlVarianceOptionTransactionSupplement -> productModel -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlVarianceOptionTransactionSupplement -> productModel
+                        fpmlVarianceOptionTransactionSupplement -> productModel -> primaryAssetClass,
+                        fpmlVarianceOptionTransactionSupplement -> productModel -> secondaryAssetClass,
+                        fpmlVarianceOptionTransactionSupplement -> productModel -> productType
                     ),
             economicTerms: MapVarianceOptionTransactionSupplementEconomicTerms(
                         fpmlVarianceOptionTransactionSupplement,
@@ -85,7 +88,8 @@ func MapVarianceOptionTransactionSupplementPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel -> sellerPartyReference,
+                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
@@ -93,7 +97,8 @@ func MapVarianceOptionTransactionSupplementPayout:
                                 fpmlVarianceOptionTransactionSupplement -> clearingInstructions
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel -> buyerPartyReference,
+                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:

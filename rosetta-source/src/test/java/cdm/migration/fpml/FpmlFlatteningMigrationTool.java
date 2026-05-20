@@ -72,8 +72,8 @@ public class FpmlFlatteningMigrationTool {
                 entryFunctions,
                 Confidence.MEDIUM,
                 FidelityMode.MAXIMUM,
-                true,
                 false,
+                true,
                 projectRoot.resolve("target/fpml-migration"));
     }
 

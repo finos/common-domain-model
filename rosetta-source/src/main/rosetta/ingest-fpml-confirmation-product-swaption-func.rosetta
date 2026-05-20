@@ -23,7 +23,10 @@ func MapSwaptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlSwaption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlSwaption -> buyerSellerModel -> buyerPartyReference,
+                fpmlSwaption -> buyerSellerModel -> sellerPartyReference
+            )
 
 func MapSwaptionAncillaryPartyList:
     inputs:
@@ -56,8 +59,12 @@ func MapSwaptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlSwaption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlSwaption -> productModel),
+            identifier: MapProductIdentifierList(fpmlSwaption -> productModel -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlSwaption -> productModel -> primaryAssetClass,
+                        fpmlSwaption -> productModel -> secondaryAssetClass,
+                        fpmlSwaption -> productModel -> productType
+                    ),
             economicTerms: MapSwaptionEconomicTerms(fpmlSwaption, cdmCounterpartyList)
         }
 
@@ -92,7 +99,8 @@ func MapSwaptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> buyerSellerModel -> sellerPartyReference,
+                                fpmlSwaption -> buyerSellerModel -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: if fpmlSwaption -> cashSettlement exists
@@ -103,7 +111,8 @@ func MapSwaptionPayout:
                                 fpmlSwaption -> physicalSettlement
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> buyerSellerModel -> buyerPartyReference,
+                                fpmlSwaption -> buyerSellerModel -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
