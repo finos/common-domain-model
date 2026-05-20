@@ -27,12 +27,14 @@ func MapVarianceOptionTransactionSupplementCounterpartyList:
 func MapVarianceOptionTransactionSupplementAncillaryPartyList:
     inputs:
         fpmlVarianceOptionTransactionSupplement fpml.VarianceOptionTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
 
     add ancillaryPartyList:
-        fpmlVarianceOptionTransactionSupplement -> clearingInstructions -> predeterminedClearingOrganizationPartyReference
-            extract MapAncillaryParty(PredeterminedClearingOrganizationParty, href)
+        MapSwaptionPhysicalSettlementToAncillaryParty(
+                fpmlVarianceOptionTransactionSupplement -> clearingInstructions
+            )
 
 func MapVarianceOptionTransactionSupplementNonTransferableProduct:
     inputs:

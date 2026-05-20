@@ -5,7 +5,7 @@ import cdm.product.template.EconomicTerms;
 import javax.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
-import util.ResourcesUtils;
+import org.finos.cdm.util.ResourcesUtils;
 
 import java.io.IOException;
 
