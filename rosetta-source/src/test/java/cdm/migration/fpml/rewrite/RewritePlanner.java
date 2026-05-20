@@ -40,6 +40,21 @@ public class RewritePlanner {
             Map<String, String> aliases = ingestAnalysis.importAliasesByFile.get(function.file);
             for (RosettaPathExpression path : orderedPaths) {
                 String rootType = typeResolver.resolveRootType(function, path, oldModel, aliases);
+                String effectiveRootVariable = path.rootVariable;
+                List<String> effectiveOldPath = path.segments;
+                if (function.aliasExpressions.containsKey(path.rootVariable)) {
+                    TypeResolver.ExpandedAliasPath expanded = typeResolver.expandAliasPath(
+                            function,
+                            path.rootVariable,
+                            path.segments,
+                            oldModel,
+                            aliases);
+                    if (expanded != null) {
+                        rootType = expanded.rootType;
+                        effectiveRootVariable = expanded.rootVariable;
+                        effectiveOldPath = expanded.segments;
+                    }
+                }
                 if (rootType == null) {
                     rootType = inferContextualRootType(
                             function,
@@ -62,6 +77,9 @@ public class RewritePlanner {
                     unresolved.add(function.file + ":" + path.line + " [" + function.name + "] unresolved root type for " + path.expression);
                     continue;
                 }
+                if (!isFpmlType(rootType)) {
+                    continue;
+                }
                 if (!newModel.typeByQualifiedName.containsKey(rootType)) {
                     missingTypes.add(function.file + ":" + path.line + " [" + function.name + "] missing type in new model: " + rootType);
                 }
@@ -70,7 +88,7 @@ public class RewritePlanner {
                     unresolved.add(function.file + ":" + path.line + " [" + function.name + "] no mappings for root " + rootType);
                     continue;
                 }
-                String oldPathKey = String.join("->", path.segments);
+                String oldPathKey = String.join("->", effectiveOldPath);
                 PathMapping mapping = perRoot.get(oldPathKey);
                 if (mapping == null) {
                     unresolved.add(function.file + ":" + path.line + " [" + function.name + "] no mapping for path " + oldPathKey + " under " + rootType);
@@ -86,7 +104,7 @@ public class RewritePlanner {
                 if (mapping.confidence == Confidence.UNRESOLVED || mapping.newPath.isEmpty()) {
                     continue;
                 }
-                String rewritten = path.rootVariable + " -> " + String.join(" -> ", mapping.newPath);
+                String rewritten = effectiveRootVariable + " -> " + String.join(" -> ", mapping.newPath);
                 if (rewritten.equals(path.expression)) {
                     continue;
                 }
@@ -109,7 +127,7 @@ public class RewritePlanner {
                         mapping.confidence,
                         mapping.reason,
                         rootType,
-                        path.segments,
+                        effectiveOldPath,
                         mapping.newPath));
             }
         }
@@ -225,5 +243,13 @@ public class RewritePlanner {
         }
         String normalized = typeRef.trim().toLowerCase();
         return !normalized.startsWith("fpml.") && !normalized.contains(".fpml.");
+    }
+
+    private boolean isFpmlType(String typeQName) {
+        if (typeQName == null) {
+            return false;
+        }
+        String t = typeQName.toLowerCase();
+        return t.startsWith("fpml.");
     }
 }
