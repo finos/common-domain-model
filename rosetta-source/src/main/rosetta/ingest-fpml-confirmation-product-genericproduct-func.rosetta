@@ -23,10 +23,7 @@ func MapGenericProductCounterpartyList:
     output:
         counterpartyList Counterparty (0..2)
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(
-                fpmlGenericProduct -> buyerSellerModel -> buyerPartyReference,
-                fpmlGenericProduct -> buyerSellerModel -> sellerPartyReference
-            )
+        MapBuyerSellerModelToCounterpartyList(fpmlGenericProduct -> buyerSellerModel)
 
 func MapGenericProductNonTransferableProduct:
     inputs:
@@ -38,14 +35,8 @@ func MapGenericProductNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(
-                        fpmlGenericProduct -> productModel -> productId
-                    ),
-            taxonomy: MapProductTaxonomyList(
-                        fpmlGenericProduct -> productModel -> primaryAssetClass,
-                        fpmlGenericProduct -> productModel -> secondaryAssetClass,
-                        fpmlGenericProduct -> productModel -> productType
-                    ),
+            identifier: MapProductIdentifierList(fpmlGenericProduct -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlGenericProduct -> productModel),
             economicTerms: MapGenericProductEconomicTerms(
                         fpmlGenericProduct,
                         cdmCounterpartyList,
@@ -98,8 +89,7 @@ func MapGenericProductPayout:
                     SettlementPayout:
                         SettlementPayout {
                             payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                        buyerSellerModel -> sellerPartyReference,
-                                        buyerSellerModel -> buyerPartyReference,
+                                        buyerSellerModel,
                                         cdmCounterpartyList
                                     ),
                             priceQuantity:

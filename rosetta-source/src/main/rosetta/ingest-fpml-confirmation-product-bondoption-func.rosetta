@@ -22,10 +22,7 @@ func MapBondOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(
-                fpmlBondOption -> buyerSellerModel -> buyerPartyReference,
-                fpmlBondOption -> buyerSellerModel -> sellerPartyReference
-            )
+        MapBuyerSellerModelToCounterpartyList(fpmlBondOption -> buyerSellerModel)
 
 func MapBondOptionAncillaryPartyList:
     inputs:
@@ -49,14 +46,8 @@ func MapBondOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(
-                        fpmlBondOption -> productModel -> productId
-                    ),
-            taxonomy: MapProductTaxonomyList(
-                        fpmlBondOption -> productModel -> primaryAssetClass,
-                        fpmlBondOption -> productModel -> secondaryAssetClass,
-                        fpmlBondOption -> productModel -> productType
-                    ),
+            identifier: MapProductIdentifierList(fpmlBondOption -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlBondOption -> productModel),
             economicTerms: MapBondOptionEconomicTerms(fpmlBondOption, cdmCounterpartyList)
         }
 
@@ -81,15 +72,14 @@ func MapBondOptionPayout:
         payout Payout (0..1)
 
     alias fpmlUnderlyingAsset:
-        fpmlBondOption -> bond default fpmlBondOption -> convertibleBond
+        fpmlBondOption -> bondChoiceModel -> bond default fpmlBondOption -> bondChoiceModel -> convertibleBond
 
     set payout:
         Payout {
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlBondOption -> buyerSellerModel -> sellerPartyReference,
-                                fpmlBondOption -> buyerSellerModel -> buyerPartyReference,
+                                fpmlBondOption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -100,13 +90,10 @@ func MapBondOptionPayout:
                             ...
                         },
                     settlementTerms: MapOptionSettlementModelToSettlementTerms(
-                                fpmlBondOption -> optionSettlementModel -> settlementType,
-                                fpmlBondOption -> optionSettlementModel -> settlementAmountOrCurrencyModel,
-                                fpmlBondOption -> optionSettlementModel -> settlementDate
+                                fpmlBondOption -> optionSettlementModel
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlBondOption -> buyerSellerModel -> buyerPartyReference,
-                                fpmlBondOption -> buyerSellerModel -> sellerPartyReference,
+                                fpmlBondOption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -163,7 +150,7 @@ func MapBondOptionPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     alias fpmlUnderlyingAsset:
-        fpmlBondOption -> bond default fpmlBondOption -> convertibleBond
+        fpmlBondOption -> bondChoiceModel -> bond default fpmlBondOption -> bondChoiceModel -> convertibleBond
 
     add priceQuantityList:
         PriceQuantity {

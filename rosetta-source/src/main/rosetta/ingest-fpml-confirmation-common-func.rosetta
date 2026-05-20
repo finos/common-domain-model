@@ -29,24 +29,23 @@ import fpml.consolidated.shared.* as fpml
 func GetFpmlTrade:
     inputs:
         fpmlTradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
-        postTradeEventsBaseModelSequence fpml.PostTradeEventsBaseModelSequence (0..1)
-        novation fpml.TradeNovationContent (0..1)
+        fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
         fpmlChangeEventsBaseModel fpml.ChangeEventsBaseModel (0..1)
         fpmlTradeAmendmentContent fpml.TradeAmendmentContent (0..1)
     output:
         fpmlTrade fpml.Trade (0..1)
 
     set fpmlTrade:
-        if tradePackage -> trade exists
-        then tradePackage -> trade only-element
-        else if tradingEventsBaseModelSequence -> trade exists
-        then tradingEventsBaseModelSequence -> trade
-        else if postTradeEventsBaseModelSequence -> termination -> originalTrade exists
-        then postTradeEventsBaseModelSequence -> termination -> originalTrade
-        else if novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade exists
-        then novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade
-        else if novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade exists
-        then novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade
+        if fpmlTradingEventsBaseModel -> tradePackage -> trade exists
+        then fpmlTradingEventsBaseModel -> tradePackage -> trade only-element
+        else if fpmlTradingEventsBaseModel -> tradingEventsBaseModelSequence -> trade exists
+        then fpmlTradingEventsBaseModel -> tradingEventsBaseModelSequence -> trade
+        else if fpmlPostTradeEventsBaseModel -> postTradeEventsBaseModelSequence -> termination -> originalTrade exists
+        then fpmlPostTradeEventsBaseModel -> postTradeEventsBaseModelSequence -> termination -> originalTrade
+        else if fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade exists
+        then fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade
+        else if fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade exists
+        then fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade
         else if fpmlTradeAmendmentContent -> trade exists
         then fpmlTradeAmendmentContent -> trade
 
@@ -110,27 +109,25 @@ func MapResolvablePriceQuantityReference:
 
 func MapProductTaxonomyList:
     inputs:
-        primaryAssetClass fpml.AssetClass (0..1)
-        secondaryAssetClass fpml.AssetClass (0..*)
-        productType fpml.ProductType (0..*)
+        fpmlProductModel fpml.ProductModel (0..1)
     output:
         taxonomy ProductTaxonomy (0..*)
 
     add taxonomy:
         ProductTaxonomy {
             primaryAssetClass: MapAssetClassWithScheme(
-                        primaryAssetClass -> value,
-                        primaryAssetClass -> assetClassScheme
+                        fpmlProductModel -> primaryAssetClass -> value,
+                        fpmlProductModel -> primaryAssetClass -> assetClassScheme
                     ),
             secondaryAssetClass: MapAssetClassWithScheme(
-                        secondaryAssetClass -> value,
-                        secondaryAssetClass -> assetClassScheme
+                        fpmlProductModel -> secondaryAssetClass first -> value,
+                        fpmlProductModel -> secondaryAssetClass first -> assetClassScheme
                     ),
             ...
         }
 
     add taxonomy:
-        productType
+        fpmlProductModel -> productType
             extract
                 ProductTaxonomy {
                     source: MapTaxonomySourceEnum(productTypeScheme),
@@ -283,11 +280,11 @@ func MapFeeTypeEnumWithScheme:
 
 func MapProductIdentifierList:
     inputs:
-        productId fpml.ProductId (0..*)
+        fpmlProductModel fpml.ProductModel (0..1)
     output:
         productIdentifierList ProductIdentifier (0..*)
 
-    add productIdentifierList: productId extract MapProductIdentifier
+    add productIdentifierList: fpmlProductModel -> productId extract MapProductIdentifier
 
 func MapProductIdentifier:
     inputs:
@@ -524,10 +521,10 @@ func GetFpmlFxDigitalExercise:
         fpmlDigitalExercise fpml.Exercise (1..1)
 
     set fpmlDigitalExercise:
-        if fpmlFxDigitalOption -> europeanExercise exists
-        then fpmlFxDigitalOption -> europeanExercise
-        else if fpmlFxDigitalOption -> americanExercise exists
-        then fpmlFxDigitalOption -> americanExercise
+        if fpmlFxDigitalOption -> fxDigitalOptionSequence1 -> europeanExercise exists
+        then fpmlFxDigitalOption -> fxDigitalOptionSequence1 -> europeanExercise
+        else if fpmlFxDigitalOption -> fxDigitalOptionSequence0 -> americanExercise exists
+        then fpmlFxDigitalOption -> fxDigitalOptionSequence0 -> americanExercise
 
 func MapExerciseTerms:
     inputs:
@@ -610,12 +607,7 @@ func MapExerciseProcedure:
     output:
         exerciseProcedure ExerciseProcedure (1..1)
 
-    alias buyerSeller:
-        MapBuyerSeller(
-                fpmlBuyerSellerModel -> buyerPartyReference,
-                fpmlBuyerSellerModel -> sellerPartyReference,
-                cdmCounterpartyList
-            )
+    alias buyerSeller: MapBuyerSeller(fpmlBuyerSellerModel, cdmCounterpartyList)
 
     set exerciseProcedure:
         ExerciseProcedure {
@@ -671,10 +663,10 @@ func MapEuropeanExerciseTerms:
             partialExercise:
                 PartialExercise {
                     notionaReference: empty with-meta {
-                            reference: fpmlEuropeanExercise -> partialExercise -> notionalReference -> href first
+                            reference: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> notionalReference -> href first
                         },
-                    integralMultipleAmount: fpmlEuropeanExercise -> partialExercise -> integralMultipleAmount,
-                    minimumNotionalAmount: fpmlEuropeanExercise -> partialExercise -> minimumNotionalAmount,
+                    integralMultipleAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> integralMultipleAmount,
+                    minimumNotionalAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> minimumNotionalAmount,
                     ...
                 },
             ...
@@ -699,9 +691,9 @@ func MapEquityEuropeanExerciseTerms:
                         fpmlEquityEuropeanExercise -> expirationDate
                     ),
             expirationTime: MapBusinessCenterTime(
-                        fpmlEquityEuropeanExercise -> equityExpirationTime
+                        equityExpirationModel -> equityExpirationTime
                     ),
-            expirationTimeType: fpmlEquityEuropeanExercise -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
+            expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             exerciseProcedure: cdmExerciseProcedure,
             ...
         } with-meta {
@@ -801,7 +793,7 @@ func MapEquityBermudaExerciseTerms:
     set exerciseTerms:
         ExerciseTerms {
             style: Bermuda,
-            expirationTimeType: fpmlEquityBermudaExercise -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
+            expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             commencementDate: MapAdjustableOrRelativeDate(
                         fpmlEquityBermudaExercise -> commencementDate
                     ),
@@ -818,7 +810,7 @@ func MapEquityBermudaExerciseTerms:
                         fpmlEquityBermudaExercise -> latestExerciseTime
                     ),
             expirationTime: MapBusinessCenterTime(
-                        fpmlEquityBermudaExercise -> equityExpirationTime
+                        equityExpirationModel -> equityExpirationTime
                     ),
             exerciseProcedure: cdmExerciseProcedure,
             ...
@@ -869,12 +861,12 @@ func MapMultipleExercise:
 
     set multipleExercise:
         MultipleExercise {
-            integralMultipleAmount: fpmlMultipleExercise -> integralMultipleAmount,
-            minimumNumberOfOptions: fpmlMultipleExercise -> minimumNumberOfOptions,
+            integralMultipleAmount: fpmlMultipleExercise -> partialExerciseModel -> integralMultipleAmount,
+            minimumNumberOfOptions: fpmlMultipleExercise -> partialExerciseModel -> minimumNumberOfOptions,
             maximumNumberOfOptions: fpmlMultipleExercise -> maximumNumberOfOptions,
-            minimumNotionalAmount: fpmlMultipleExercise -> minimumNotionalAmount,
+            minimumNotionalAmount: fpmlMultipleExercise -> partialExerciseModel -> minimumNotionalAmount,
             notionaReference: empty with-meta {
-                    reference: fpmlMultipleExercise -> notionalReference -> href first
+                    reference: fpmlMultipleExercise -> partialExerciseModel -> notionalReference -> href first
                 },
             ...
         }
@@ -902,9 +894,9 @@ func MapEquityAmericanExerciseTerms:
                         fpmlEqutiyAmericanExercise -> latestExerciseTime
                     ),
             expirationTime: MapBusinessCenterTime(
-                        fpmlEqutiyAmericanExercise -> equityExpirationTime
+                        equityExpirationModel -> equityExpirationTime
                     ),
-            expirationTimeType: fpmlEqutiyAmericanExercise -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
+            expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             exerciseProcedure: cdmExerciseProcedure,
             multipleExercise: MapEquityMultipleExercise(
                         fpmlEqutiyAmericanExercise -> equityMultipleExercise
@@ -939,10 +931,10 @@ func MapCommodityAmericanExerciseTerms:
     set exerciseTerms:
         ExerciseTerms {
             style: American,
-            commencementDate: fpmlCommodityAmericanExercise -> exercisePeriod
+            commencementDate: fpmlCommodityAmericanExercise -> commodityAmericanExerciseSequence -> exercisePeriod
                     extract MapAdjustableOrRelativeDate(commencementDate)
                     then first,
-            expirationDate: fpmlCommodityAmericanExercise -> exercisePeriod
+            expirationDate: fpmlCommodityAmericanExercise -> commodityAmericanExerciseSequence -> exercisePeriod
                     extract MapAdjustableOrRelativeDate(expirationDate),
             latestExerciseTime: MapBusinessCenterTime(
                         fpmlCommodityAmericanExercise -> latestExerciseTime

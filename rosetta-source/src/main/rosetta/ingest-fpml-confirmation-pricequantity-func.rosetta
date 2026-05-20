@@ -476,13 +476,13 @@ func MapOptionBaseExtendedQuantityListWithLocation:
                 )
 
     add quantityList:
-        if fpmlOptionBaseExtended -> numberOfOptions exists
+        if optionDenominationModel -> numberOfOptions exists
         then CreateQuantityWithLocation(
                     MapNumberOfOptionsAndOptionEntitlementToQuantity(
-                            fpmlOptionBaseExtended -> numberOfOptions,
+                            optionDenominationModel -> numberOfOptions,
                             Contract,
-                            fpmlOptionBaseExtended -> optionEntitlement,
-                            fpmlOptionBaseExtended -> entitlementCurrency
+                            optionDenominationModel -> optionEntitlement,
+                            optionDenominationModel -> entitlementCurrency
                         ),
                     CreateQuantityKey("numberOfOptions", empty)
                 )
@@ -497,7 +497,7 @@ func MapOptionBaseExtendedQuantityListWithAddress:
     set quantityList:
         if fpmlOptionBaseExtended -> notionalAmount exists
         then CreateQuantityWithAddress(CreateQuantityKey("notionalAmount", empty))
-        else if fpmlOptionBaseExtended -> numberOfOptions exists
+        else if fpmlOptionBaseExtended -> optionDenominationModel -> numberOfOptions exists
         then CreateQuantityWithAddress(CreateQuantityKey("numberOfOptions", empty))
 
 func MapEquityDerivativeBaseQuantityListWithLocation:
@@ -563,15 +563,14 @@ func MapEquityDerivativeBaseQuantityListWithAddress:
 
 func MapFxCoreDetailsModelQuantityListWithLocation:
     inputs:
-        exchangedCurrency1 fpml.consolidated.shared.Payment (1..1)
-        exchangedCurrency2 fpml.consolidated.shared.Payment (1..1)
+        fpmlFxCoreDetailsModel fpml.FxCoreDetailsModel (1..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         quantityList NonNegativeQuantitySchedule (0..*)
             [metadata location]
 
-    alias quantity1: exchangedCurrency1 -> paymentAmount
-    alias quantity2: exchangedCurrency2 -> paymentAmount
+    alias quantity1: fpmlFxCoreDetailsModel -> exchangedCurrency1 -> paymentAmount
+    alias quantity2: fpmlFxCoreDetailsModel -> exchangedCurrency2 -> paymentAmount
 
     add quantityList:
         if quantity1 exists
@@ -599,13 +598,13 @@ func MapFxCoreDetailsModelQuantityListWithLocation:
 
 func MapFxCoreDetailsModelQuantityWithAddress:
     inputs:
-        exchangeRate fpml.ExchangeRate (0..1)
+        fpmlFxCoreDetailsModel fpml.FxCoreDetailsModel (1..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         quantity NonNegativeQuantitySchedule (0..1)
             [metadata address]
 
-    alias quotedCurrencyPair: exchangeRate -> quotedCurrencyPair
+    alias quotedCurrencyPair: fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
 
     set quantity:
         if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
@@ -618,13 +617,11 @@ func MapFxCoreDetailsModelQuantityWithAddress:
 
 func GetFpmlExchangedCurrency:
     inputs:
-        exchangeRate fpml.ExchangeRate (0..1)
-        exchangedCurrency1 fpml.consolidated.shared.Payment (1..1)
-        exchangedCurrency2 fpml.consolidated.shared.Payment (1..1)
+        fpmlFxCoreDetailsModel fpml.FxCoreDetailsModel (0..1)
     output:
         fpmlExchangedCurrency fpml.Payment (0..1)
 
-    alias quotedCurrencyPair: exchangeRate -> quotedCurrencyPair
+    alias quotedCurrencyPair: fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
 
     alias currency:
         if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
@@ -632,10 +629,10 @@ func GetFpmlExchangedCurrency:
         else quotedCurrencyPair -> currency2
 
     set fpmlExchangedCurrency:
-        if exchangedCurrency1 -> paymentAmount -> currency = currency
-        then exchangedCurrency1
-        else if exchangedCurrency2 -> paymentAmount -> currency = currency
-        then exchangedCurrency2
+        if fpmlFxCoreDetailsModel -> exchangedCurrency1 -> paymentAmount -> currency = currency
+        then fpmlFxCoreDetailsModel -> exchangedCurrency1
+        else if fpmlFxCoreDetailsModel -> exchangedCurrency2 -> paymentAmount -> currency = currency
+        then fpmlFxCoreDetailsModel -> exchangedCurrency2
 
 func MapFxOptionToQuantityListWithLocation:
     inputs:
@@ -680,13 +677,14 @@ func MapFxOptionQuantityWithAddress:
 
 func MapCommodityNotionalQuantityToQuantityListWithLocation:
     inputs:
-        commodityNotionalQuantityModelSequence fpml.CommodityNotionalQuantityModelSequence (0..1)
+        fpmlCommodityNotionalQuantityModel fpml.CommodityNotionalQuantityModel (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..*)
             [metadata location]
 
-    alias fpmlQuantityModel: commodityNotionalQuantityModelSequence
+    alias fpmlQuantityModel:
+        fpmlCommodityNotionalQuantityModel -> commodityNotionalQuantityModelSequence
 
     add nonNegativeQuantitySchedule:
         MapCommodityNotionalQuantityToQuantityWithLocation(
@@ -706,7 +704,7 @@ func MapCommodityNotionalQuantityToQuantityListWithLocation:
 
 func MapCommodityNotionalQuantityToQuantityWithAddress:
     inputs:
-        commodityNotionalQuantityModelSequence fpml.CommodityNotionalQuantityModelSequence (0..1)
+        fpmlCommodityNotionalQuantityModel fpml.CommodityNotionalQuantityModel (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
@@ -714,7 +712,7 @@ func MapCommodityNotionalQuantityToQuantityWithAddress:
 
     set nonNegativeQuantitySchedule:
         MapCommodityTotalNotionalQuantityToQuantityWithAddress(
-                commodityNotionalQuantityModelSequence -> totalNotionalQuantity,
+                fpmlCommodityNotionalQuantityModel -> commodityNotionalQuantityModelSequence -> totalNotionalQuantity,
                 fpmlLeg
             )
 
@@ -976,13 +974,13 @@ func MapSpreadScheduleToPriceWithLocation:
 
 func MapSpreadScheduleWithAddress:
     inputs:
-        spreadSchedule fpml.SpreadSchedule (0..*)
+        fpmlFloatingRateModel fpml.FloatingRateModel (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         spreadSchedule SpreadSchedule (0..1)
 
     set spreadSchedule:
-        if spreadSchedule exists
+        if fpmlFloatingRateModel -> spreadSchedule exists
         then SpreadSchedule {
                 price: CreatePriceWithAddress(CreatePriceKey("spreadSchedule", fpmlLeg)),
                 ...
@@ -1014,13 +1012,13 @@ func MapCapRateScheduleToPriceWithLocation:
 
 func MapCapRateScheduleWithAddress:
     inputs:
-        capRateSchedule fpml.StrikeSchedule (0..*)
+        fpmlFloatingRateModel fpml.FloatingRateModel (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         strikeSchedule StrikeSchedule (0..1)
 
     set strikeSchedule:
-        if capRateSchedule exists
+        if fpmlFloatingRateModel -> capRateSchedule exists
         then StrikeSchedule {
                 price: CreatePriceWithAddress(CreatePriceKey("capRateSchedule", fpmlLeg)),
                 ...
@@ -1052,13 +1050,13 @@ func MapFloorRateScheduleToPriceWithLocation:
 
 func MapFloorRateScheduleWithAddress:
     inputs:
-        floorRateSchedule fpml.StrikeSchedule (0..*)
+        fpmlFloatingRateModel fpml.FloatingRateModel (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         strikeSchedule StrikeSchedule (0..1)
 
     set strikeSchedule:
-        if floorRateSchedule exists
+        if fpmlFloatingRateModel -> floorRateSchedule exists
         then StrikeSchedule {
                 price: CreatePriceWithAddress(CreatePriceKey("floorRateSchedule", fpmlLeg)),
                 ...
@@ -1240,16 +1238,16 @@ func MapNetPriceToPriceListWithLocation:
         priceSchedules PriceSchedule (0..*)
             [metadata location]
 
-    alias fpmlNetPrice: fpmlPrice -> netPrice
+    alias fpmlNetPrice: fpmlPrice -> equityPriceModel -> netPrice
 
     add priceSchedules:
         if fpmlNetPrice exists
         then CreatePriceWithLocation(
                     PriceSchedule {
-                        value: fpmlPrice -> netPrice -> amount,
+                        value: fpmlNetPrice -> amount,
                         unit:
                             UnitType {
-                                currency: MapCurrency(fpmlPrice -> netPrice -> currency),
+                                currency: MapCurrency(fpmlNetPrice -> currency),
                                 ...
                             },
                         perUnitOf:
@@ -1257,7 +1255,7 @@ func MapNetPriceToPriceListWithLocation:
                                 financialUnit: Share,
                                 ...
                             },
-                        priceExpression: fpmlPrice -> netPrice -> priceExpression to-enum PriceExpressionEnum,
+                        priceExpression: fpmlNetPrice -> priceExpression to-enum PriceExpressionEnum,
                         priceType: AssetPrice,
                         ...
                     },
@@ -1271,22 +1269,16 @@ func MapFxCoreDetailsModelPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    alias exchangedCurrency:
-        GetFpmlExchangedCurrency(
-                fpmlFxCoreDetailsModel -> exchangeRate,
-                fpmlFxCoreDetailsModel -> exchangedCurrency1,
-                fpmlFxCoreDetailsModel -> exchangedCurrency2
-            )
+    alias exchangedCurrency: GetFpmlExchangedCurrency(fpmlFxCoreDetailsModel)
 
     add priceQuantityList:
         PriceQuantity {
             price: MapFxCoreDetailsModelPriceListWithLocation(
-                        fpmlFxCoreDetailsModel -> exchangeRate,
+                        fpmlFxCoreDetailsModel,
                         fpmlLeg
                     ),
             quantity: MapFxCoreDetailsModelQuantityListWithLocation(
-                        fpmlFxCoreDetailsModel -> exchangedCurrency1,
-                        fpmlFxCoreDetailsModel -> exchangedCurrency2,
+                        fpmlFxCoreDetailsModel,
                         fpmlLeg
                     ),
             observable: MapCurrencyToObservableCashWithLocation(
@@ -1298,29 +1290,29 @@ func MapFxCoreDetailsModelPriceQuantityList:
 
 func MapFxCoreDetailsModelPriceListWithLocation:
     inputs:
-        exchangeRate fpml.ExchangeRate (0..1)
+        fpmlFxCoreDetailsModel fpml.FxCoreDetailsModel (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         priceList PriceSchedule (0..*)
             [metadata location]
 
     add priceList:
-        if exchangeRate exists
+        if fpmlFxCoreDetailsModel -> exchangeRate exists
         then CreatePriceWithLocation(
-                    MapExchangeRateToPrice(exchangeRate),
+                    MapExchangeRateToPrice(fpmlFxCoreDetailsModel -> exchangeRate),
                     CreatePriceKey("exchangeRate", fpmlLeg)
                 )
 
 func MapFxCoreDetailsModelPriceWithAddress:
     inputs:
-        exchangeRate fpml.ExchangeRate (0..1)
+        fpmlFxCoreDetailsModel fpml.FxCoreDetailsModel (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         price PriceSchedule (0..1)
             [metadata address]
 
     set price:
-        if exchangeRate exists
+        if fpmlFxCoreDetailsModel -> exchangeRate exists
         then CreatePriceWithAddress(CreatePriceKey("exchangeRate", fpmlLeg))
 
 func MapExchangeRateToPrice:
@@ -1330,19 +1322,20 @@ func MapExchangeRateToPrice:
         price PriceSchedule (0..1)
 
     alias rate: fpmlExchangeRate -> rate
-    alias spotRate: fpmlExchangeRate -> spotRate
-    alias forwardPoints: fpmlExchangeRate -> forwardPoints
+    alias spotRate: fpmlExchangeRate -> exchangeRateSequence -> spotRate
+    alias forwardPoints:
+        fpmlExchangeRate -> exchangeRateSequence -> exchangeRateSequenceSequence -> forwardPoints
     alias quotedCurrencyPair: fpmlExchangeRate -> quotedCurrencyPair
 
     alias fpmlCurrency:
-        if fpmlExchangeRate -> quotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
-        then fpmlExchangeRate -> quotedCurrencyPair -> currency1
-        else fpmlExchangeRate -> quotedCurrencyPair -> currency2
+        if quotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+        then quotedCurrencyPair -> currency1
+        else quotedCurrencyPair -> currency2
 
     alias fpmlPerCurrency:
-        if fpmlExchangeRate -> quotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
-        then fpmlExchangeRate -> quotedCurrencyPair -> currency2
-        else fpmlExchangeRate -> quotedCurrencyPair -> currency1
+        if quotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+        then quotedCurrencyPair -> currency2
+        else quotedCurrencyPair -> currency1
 
     set price:
         if rate exists
@@ -1414,20 +1407,21 @@ func MapCommoditySpreadToPriceWithAddress:
 
 func MapCommodityFixedLegToPriceWithLocation:
     inputs:
-        commodityFixedPriceModelChoice fpml.CommodityFixedPriceModelChoice (0..1)
-        fixedPriceSchedule fpml.CommodityFixedPriceSchedule (0..1)
+        fpmlCommodityFixedPriceModel fpml.CommodityFixedPriceModel (1..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         priceSchedule PriceSchedule (0..1)
             [metadata location]
 
     alias fixedPrice:
-        if commodityFixedPriceModelChoice -> fixedPrice exists
+        if fpmlCommodityFixedPriceModel -> commodityFixedPriceModelChoice -> fixedPrice exists
         then MapCommmodityFixedPriceToPriceSchedule(
-                    commodityFixedPriceModelChoice -> fixedPrice
+                    fpmlCommodityFixedPriceModel -> commodityFixedPriceModelChoice -> fixedPrice
                 )
-        else if fixedPriceSchedule exists
-        then MapCommmodityFixedPriceScheduleToPriceSchedule(fixedPriceSchedule)
+        else if fpmlCommodityFixedPriceModel -> fixedPriceSchedule exists
+        then MapCommmodityFixedPriceScheduleToPriceSchedule(
+                    fpmlCommodityFixedPriceModel -> fixedPriceSchedule
+                )
 
     set priceSchedule:
         if fixedPrice exists
@@ -1435,20 +1429,21 @@ func MapCommodityFixedLegToPriceWithLocation:
 
 func MapCommodityFixedLegToPriceWithAddress:
     inputs:
-        commodityFixedPriceModelChoice fpml.CommodityFixedPriceModelChoice (0..1)
-        fixedPriceSchedule fpml.CommodityFixedPriceSchedule (0..1)
+        fpmlCommodityFixedPriceModel fpml.CommodityFixedPriceModel (1..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         priceSchedule PriceSchedule (0..1)
             [metadata address]
 
     alias fixedPrice:
-        if commodityFixedPriceModelChoice -> fixedPrice exists
+        if fpmlCommodityFixedPriceModel -> commodityFixedPriceModelChoice -> fixedPrice exists
         then MapCommmodityFixedPriceToPriceSchedule(
-                    commodityFixedPriceModelChoice -> fixedPrice
+                    fpmlCommodityFixedPriceModel -> commodityFixedPriceModelChoice -> fixedPrice
                 )
-        else if fixedPriceSchedule exists
-        then MapCommmodityFixedPriceScheduleToPriceSchedule(fixedPriceSchedule)
+        else if fpmlCommodityFixedPriceModel -> fixedPriceSchedule exists
+        then MapCommmodityFixedPriceScheduleToPriceSchedule(
+                    fpmlCommodityFixedPriceModel -> fixedPriceSchedule
+                )
 
     set priceSchedule:
         if fixedPrice exists
@@ -1465,16 +1460,16 @@ func MapCommmodityFixedPriceToPriceSchedule:
     alias unit:
         UnitType {
             currency: MapStringWithScheme(
-                        fpmlCommodityFixedPrice -> priceCurrency -> value,
-                        fpmlCommodityFixedPrice -> priceCurrency -> currencyScheme
+                        commodityPriceModel -> priceCurrency -> value,
+                        commodityPriceModel -> priceCurrency -> currencyScheme
                     ),
             ...
         }
 
     alias perUnitOf:
         MapUnitTypeWithScheme(
-                fpmlCommodityFixedPrice -> priceUnit -> value,
-                fpmlCommodityFixedPrice -> priceUnit -> quantityUnitScheme
+                commodityPriceModel -> priceUnit -> value,
+                commodityPriceModel -> priceUnit -> quantityUnitScheme
             )
 
     set priceSchedule:
@@ -1503,16 +1498,16 @@ func MapCommmodityFixedPriceScheduleToPriceSchedule:
     alias unit:
         UnitType {
             currency: MapStringWithScheme(
-                        fpmlCommodityFixedPriceSchedule -> fixedPriceStep -> priceCurrency -> value,
-                        fpmlCommodityFixedPriceSchedule -> fixedPriceStep -> priceCurrency -> currencyScheme
+                        commodityPriceModel -> priceCurrency -> value,
+                        commodityPriceModel -> priceCurrency -> currencyScheme
                     ),
             ...
         }
 
     alias perUnitOf:
         MapUnitTypeWithScheme(
-                fpmlCommodityFixedPriceSchedule -> fixedPriceStep -> priceUnit -> value,
-                fpmlCommodityFixedPriceSchedule -> fixedPriceStep -> priceUnit -> quantityUnitScheme
+                commodityPriceModel -> priceUnit -> value,
+                commodityPriceModel -> priceUnit -> quantityUnitScheme
             )
 
     set priceSchedule:
@@ -1694,14 +1689,12 @@ func MapFloatingRateIndex:
         FloatingRateIndex {
             identifier:
                 AssetIdentifier {
-                    identifier: fpmlFloatingRateCalculation -> floatingRateIndex -> value,
+                    identifier: model -> floatingRateIndex -> value,
                     identifierType: Other // This will require contains syntax to derive correctly
                 },
             assetClass: InterestRate,
-            floatingRateIndex: MapFloatingRateIndexEnum(
-                        fpmlFloatingRateCalculation -> floatingRateIndex -> value
-                    ),
-            indexTenor: MapPeriod(fpmlFloatingRateCalculation -> indexTenor),
+            floatingRateIndex: MapFloatingRateIndexEnum(model -> floatingRateIndex -> value),
+            indexTenor: MapPeriod(model -> indexTenor),
             ...
         }
 
@@ -1718,9 +1711,9 @@ func MapInflationIndex:
             identifier: empty,
             assetClass: InterestRate,
             inflationRateIndex: MapInflationRateIndexEnum(
-                        fpmlInflationRateCalculation -> floatingRateIndex -> value
+                        model -> floatingRateIndex -> value
                     ),
-            indexTenor: MapPeriod(fpmlInflationRateCalculation -> indexTenor),
+            indexTenor: MapPeriod(model -> indexTenor),
             ...
         }
 
@@ -2051,7 +2044,7 @@ func MapAssetCommodity:
                 Commodity {
                     identifier: MapAssetIdentifierList(fpmlCommodity),
                     priceQuoteType: MapQuotationSideEnum(
-                                fpmlCommodity -> specifiedPrice to-string
+                                fpmlCommodity -> commodityProductModel -> specifiedPrice to-string
                             ),
                     deliveryDateReference:
                         DeliveryDateParameters {

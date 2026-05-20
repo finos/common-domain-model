@@ -26,10 +26,7 @@ func MapFxOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(
-                fpmlFxOption -> buyerSellerModel -> buyerPartyReference,
-                fpmlFxOption -> buyerSellerModel -> sellerPartyReference
-            )
+        MapBuyerSellerModelToCounterpartyList(fpmlFxOption -> buyerSellerModel)
 
 func MapFxOptionAncillaryPartyList:
     inputs:
@@ -53,12 +50,8 @@ func MapFxOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlFxOption -> productModel -> productId),
-            taxonomy: MapProductTaxonomyList(
-                        fpmlFxOption -> productModel -> primaryAssetClass,
-                        fpmlFxOption -> productModel -> secondaryAssetClass,
-                        fpmlFxOption -> productModel -> productType
-                    ),
+            identifier: MapProductIdentifierList(fpmlFxOption -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlFxOption -> productModel),
             economicTerms: MapFxOptionEconomicTerms(fpmlFxOption, cdmCounterpartyList)
         }
 
@@ -90,8 +83,7 @@ func MapFxOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlFxOption -> buyerSellerModel -> sellerPartyReference,
-                                fpmlFxOption -> buyerSellerModel -> buyerPartyReference,
+                                fpmlFxOption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -101,8 +93,7 @@ func MapFxOptionPayout:
                         },
                     settlementTerms: MapFxOptionToSettlementTerms(fpmlFxOption),
                     buyerSeller: MapBuyerSeller(
-                                fpmlFxOption -> buyerSellerModel -> buyerPartyReference,
-                                fpmlFxOption -> buyerSellerModel -> sellerPartyReference,
+                                fpmlFxOption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
                     observationTerms: MapFxOptionFeaturesToObservationTerms(
@@ -140,7 +131,7 @@ func MapFxOptionFeaturesToObservationTerms:
         observationTerms ObservationTerms (0..1)
 
     set observationTerms:
-        fpmlFeatures -> asian
+        fpmlFeatures -> fxOptionFeaturesSequence -> asian
             then extract
                 ObservationTerms {
                     observationTime: MapBusinessCenterTime(fixingTime),

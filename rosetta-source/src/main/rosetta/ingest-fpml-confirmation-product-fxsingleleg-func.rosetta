@@ -22,8 +22,7 @@ func MapFxSingleLegCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                GetFpmlExchangedCurrency(fpmlFxSingleLeg -> fxCoreDetailsModel) -> payerReceiverModel -> payerModel,
-                GetFpmlExchangedCurrency(fpmlFxSingleLeg -> fxCoreDetailsModel) -> payerReceiverModel -> receiverModel
+                GetFpmlExchangedCurrency(fpmlFxSingleLeg -> fxCoreDetailsModel) -> payerReceiverModel
             )
 
 func MapFxSingleLegNonTransferableProduct:
@@ -35,14 +34,8 @@ func MapFxSingleLegNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(
-                        fpmlFxSingleLeg -> productModel -> productId
-                    ),
-            taxonomy: MapProductTaxonomyList(
-                        fpmlFxSingleLeg -> productModel -> primaryAssetClass,
-                        fpmlFxSingleLeg -> productModel -> secondaryAssetClass,
-                        fpmlFxSingleLeg -> productModel -> productType
-                    ),
+            identifier: MapProductIdentifierList(fpmlFxSingleLeg -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlFxSingleLeg -> productModel),
             economicTerms: MapFxSingleLegEconomicTerms(fpmlFxSingleLeg, cdmCounterpartyList)
         }
 
@@ -56,8 +49,7 @@ func MapFxSingleLegEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: MapFxCoreDetailsModelToSettlementPayout(
-                        fpmlFxSingleLeg -> fxCoreDetailsModel -> nonDeliverableSettlement,
-                        fpmlFxSingleLeg -> fxCoreDetailsModel -> valueDate,
+                        fpmlFxSingleLeg -> fxCoreDetailsModel,
                         empty,
                         cdmCounterpartyList
                     ),
@@ -66,44 +58,37 @@ func MapFxSingleLegEconomicTerms:
 
 func MapFxCoreDetailsModelToSettlementPayout:
     inputs:
-        nonDeliverableSettlement fpml.consolidated.shared.FxCashSettlement (0..1)
-        valueDate fpml.zonedDateTime (0..1)
+        fpmlFxCoreDetailsModel fpml.FxCoreDetailsModel (0..1)
         fpmlLeg fpml.Leg (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         payout Payout (0..1)
 
-    alias exchangedCurrency:
-        GetFpmlExchangedCurrency(
-                fpmlFxCoreDetailsModel -> exchangeRate,
-                fpmlFxCoreDetailsModel -> exchangedCurrency1,
-                fpmlFxCoreDetailsModel -> exchangedCurrency2
-            )
+    alias exchangedCurrency: GetFpmlExchangedCurrency(fpmlFxCoreDetailsModel)
 
     set payout:
         Payout {
             SettlementPayout:
                 SettlementPayout {
                     payerReceiver: MapPayerReceiver(
-                                exchangedCurrency -> payerReceiverModel -> payerModel,
-                                exchangedCurrency -> payerReceiverModel -> receiverModel,
+                                exchangedCurrency -> payerReceiverModel,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
                             quantitySchedule: MapFxCoreDetailsModelQuantityWithAddress(
-                                        fpmlFxCoreDetailsModel -> exchangeRate,
+                                        fpmlFxCoreDetailsModel,
                                         fpmlLeg
                                     ),
                             priceSchedule: MapFxCoreDetailsModelPriceWithAddress(
-                                        fpmlFxCoreDetailsModel -> exchangeRate,
+                                        fpmlFxCoreDetailsModel,
                                         fpmlLeg
                                     ),
                             ...
                         },
                     settlementTerms: MapFxCashSettlementToSettlementTerms(
-                                nonDeliverableSettlement,
-                                valueDate -> date
+                                fpmlFxCoreDetailsModel -> nonDeliverableSettlement,
+                                fpmlFxCoreDetailsModel -> valueDate -> date
                             ),
                     underlier:
                         Underlier {
@@ -138,7 +123,5 @@ func MapFxSingleLegAccountPartyReference:
     set partyReference:
         MapPayerReceiverToAccountPartyReference(
                 fpmlAccount,
-                [
-                fpmlFxSingleLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel -> payerModel,
-                [fpmlFxSingleLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel -> receiverModel, fpmlFxSingleLeg -> fxCoreDetailsModel -> exchangedCurrency2 -> payerReceiverModel]
+                [fpmlFxSingleLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel, fpmlFxSingleLeg -> fxCoreDetailsModel -> exchangedCurrency2 -> payerReceiverModel]
             )

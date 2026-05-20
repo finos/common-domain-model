@@ -36,13 +36,13 @@ func MapCreditDefaultSwapCounterpartyList:
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party1,
-                fpmlCreditDefaultSwap -> generalTerms -> sellerPartyReference
+                buyerSellerModel -> sellerPartyReference
             )
 
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party2,
-                fpmlCreditDefaultSwap -> generalTerms -> buyerPartyReference
+                buyerSellerModel -> buyerPartyReference
             )
 
 func MapCreditDefaultSwapNonTransferableProduct:
@@ -55,14 +55,8 @@ func MapCreditDefaultSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(
-                        fpmlCreditDefaultSwap -> productModel -> productId
-                    ),
-            taxonomy: MapProductTaxonomyList(
-                        fpmlCreditDefaultSwap -> productModel -> primaryAssetClass,
-                        fpmlCreditDefaultSwap -> productModel -> secondaryAssetClass,
-                        fpmlCreditDefaultSwap -> productModel -> productType
-                    ),
+            identifier: MapProductIdentifierList(fpmlCreditDefaultSwap -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwap -> productModel),
             economicTerms: MapCreditDefaultSwapEconomicTerms(
                         fpmlCreditDefaultSwap,
                         fpmlTradeHeader,
@@ -105,8 +99,7 @@ func MapCreditDefaultSwapPayoutList:
 
     alias generalTermsPayerReceiver:
         MapSellerAsPayerAndBuyerAsReceiver(
-                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel -> sellerPartyReference,
-                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel -> buyerPartyReference,
+                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel,
                 cdmCounterpartyList
             )
     add payouts:
@@ -242,10 +235,11 @@ func MapCreditIndex:
     output:
         creditIndex CreditIndex (0..1)
 
-    alias indexName: fpmlIndexReferenceInformation -> indexName
+    alias indexName:
+        fpmlIndexReferenceInformation -> indexReferenceInformationSequence0 -> indexName
 
     alias indexId:
-        fpmlIndexReferenceInformation -> indexId default fpmlIndexReferenceInformation -> indexId
+        fpmlIndexReferenceInformation -> indexReferenceInformationSequence0 -> indexId default fpmlIndexReferenceInformation -> indexReferenceInformationSequence1 -> indexId
 
     set creditIndex:
         if fpmlIndexReferenceInformation exists
@@ -254,10 +248,7 @@ func MapCreditIndex:
                         indexName extract MapIndexNameToAssetIdentifier,
                         indexId extract MapIndexIdToAssetIdentifier
                     ],
-                name: MapStringWithScheme(
-                            fpmlIndexReferenceInformation -> indexName -> value,
-                            fpmlIndexReferenceInformation -> indexName -> indexNameScheme
-                        ),
+                name: MapStringWithScheme(indexName -> value, indexName -> indexNameScheme),
                 provider: empty,
                 assetClass: Credit,
                 indexSeries: fpmlIndexReferenceInformation -> indexSeries,
@@ -274,8 +265,8 @@ func MapCreditIndex:
                 settledEntityMatrix: MapSettledEntityMatrix(
                             fpmlIndexReferenceInformation -> settledEntityMatrix
                         ),
-                indexFactor: fpmlIndexReferenceInformation -> indexFactor,
-                seniority: fpmlIndexReferenceInformation -> seniority -> value to-enum CreditSeniorityEnum,
+                indexFactor: fpmlIndexReferenceInformation -> indexReferenceInformationSequence2 -> indexFactor,
+                seniority: fpmlIndexReferenceInformation -> indexReferenceInformationSequence2 -> seniority -> value to-enum CreditSeniorityEnum,
                 ...
             }
 
@@ -301,7 +292,8 @@ func MapBasketReferenceInformation:
     output:
         basketReferenceInformation BasketReferenceInformation (0..1)
 
-    alias basketName: fpmlBasketReferenceInformation -> basketName
+    alias basketName:
+        fpmlBasketReferenceInformation -> basketIdentifierModel -> basketIdentifierModelSequence -> basketName
 
     alias basketIdList:
         fpmlBasketReferenceInformation -> basketIdentifierModel
@@ -311,8 +303,8 @@ func MapBasketReferenceInformation:
         if fpmlBasketReferenceInformation exists
         then BasketReferenceInformation {
                 basketName: MapStringWithScheme(
-                            fpmlBasketReferenceInformation -> basketName -> value,
-                            fpmlBasketReferenceInformation -> basketName -> basketNameScheme
+                            basketName -> value,
+                            basketName -> basketNameScheme
                         ),
                 basketId: basketIdList extract MapStringWithScheme(value, basketIdScheme),
                 referencePool:
@@ -320,8 +312,8 @@ func MapBasketReferenceInformation:
                         referencePoolItem: fpmlBasketReferenceInformation -> referencePool -> referencePoolItem
                                 extract MapReferencePoolItem
                     },
-                nthToDefault: fpmlBasketReferenceInformation -> nthToDefault,
-                mthToDefault: fpmlBasketReferenceInformation -> mthToDefault,
+                nthToDefault: fpmlBasketReferenceInformation -> basketReferenceInformationSequence -> nthToDefault,
+                mthToDefault: fpmlBasketReferenceInformation -> basketReferenceInformationSequence -> mthToDefault,
                 tranche: MapTranche(fpmlBasketReferenceInformation -> tranche),
             }
 
@@ -402,35 +394,33 @@ func MapProtectionTerms:
         ProtectionTerms {
             creditEvents:
                 CreditEvents {
-                    bankruptcy: fpmlProtectionTerms -> creditEvents -> bankruptcy,
+                    bankruptcy: creditEvents -> bankruptcy,
                     failureToPay:
                         FailureToPay {
-                            applicable: fpmlProtectionTerms -> creditEvents -> failureToPay -> applicable,
+                            applicable: creditEvents -> failureToPay -> applicable,
                             gracePeriodExtension:
                                 GracePeriodExtension {
-                                    applicable: fpmlProtectionTerms -> creditEvents -> failureToPay -> gracePeriodExtension -> applicable,
+                                    applicable: creditEvents -> failureToPay -> gracePeriodExtension -> applicable,
                                     ...
                                 },
                             paymentRequirement: MapMoney(
-                                        fpmlProtectionTerms -> creditEvents -> failureToPay -> paymentRequirement
+                                        creditEvents -> failureToPay -> paymentRequirement
                                     )
                         },
-                    obligationAcceleration: fpmlProtectionTerms -> creditEvents -> obligationAcceleration,
-                    repudiationMoratorium: fpmlProtectionTerms -> creditEvents -> repudiationMoratorium,
+                    obligationAcceleration: creditEvents -> obligationAcceleration,
+                    repudiationMoratorium: creditEvents -> repudiationMoratorium,
                     restructuring:
                         Restructuring {
-                            applicable: fpmlProtectionTerms -> creditEvents -> restructuring -> applicable,
+                            applicable: creditEvents -> restructuring -> applicable,
                             restructuringType: MapRestructuringEnum(
-                                        fpmlProtectionTerms -> creditEvents -> restructuring -> restructuringType -> value
+                                        creditEvents -> restructuring -> restructuringType -> value
                                     ),
-                            multipleHolderObligation: fpmlProtectionTerms -> creditEvents -> restructuring -> multipleHolderObligation,
-                            multipleCreditEventNotices: fpmlProtectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices,
+                            multipleHolderObligation: creditEvents -> restructuring -> multipleHolderObligation,
+                            multipleCreditEventNotices: creditEvents -> restructuring -> multipleCreditEventNotices,
                         },
-                    defaultRequirement: MapMoney(
-                                fpmlProtectionTerms -> creditEvents -> defaultRequirement
-                            ),
+                    defaultRequirement: MapMoney(creditEvents -> defaultRequirement),
                     creditEventNotice: MapCreditEventNotice(
-                                fpmlProtectionTerms -> creditEvents -> creditEventNotice,
+                                creditEvents -> creditEventNotice,
                                 cdmCounterpartyList
                             ),
                     ...
@@ -516,11 +506,11 @@ func MapFeeLegToInterestRateLegPayout:
                     payerReceiver: FlipPayerAndReceiver(cdmGeneralTermsPayerReceiver),
                     priceQuantity:
                         ResolvablePriceQuantity {
-                            quantitySchedule: if fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount exists
-                                        or fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> calculationAmount exists
+                            quantitySchedule: if fixedAmountCalculation -> calculationAmount exists
+                                        or floatingAmountCalculation -> calculationAmount exists
                                     then MapFixedOrFloatingCalculationAmountToQuantityListWithAddress(
-                                            fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount,
-                                            fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> calculationAmount,
+                                            fixedAmountCalculation -> calculationAmount,
+                                            floatingAmountCalculation -> calculationAmount,
                                             fpmlFeeLeg
                                         )
                                 else MapNotionalAmountToQuantityWithAddress(
@@ -535,9 +525,9 @@ func MapFeeLegToInterestRateLegPayout:
                                 FixedRateSpecification {
                                     rateSchedule:
                                         RateSchedule {
-                                            price: if fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> fixedRate exists
+                                            price: if fixedAmountCalculation -> fixedRate exists
                                                     then MapFixedRateToPriceScheduleWithAddress(
-                                                            fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> fixedRate -> value,
+                                                            fixedAmountCalculation -> fixedRate -> value,
                                                             fpmlFeeLeg
                                                         )
                             }},
@@ -549,7 +539,7 @@ func MapFeeLegToInterestRateLegPayout:
                             ...
                         },
                     dayCountFraction: MapDayCountFractionEnum(
-                                fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> dayCountFraction -> value
+                                fixedAmountCalculation -> dayCountFraction -> value
                             ),
                     calculationPeriodDates:
                         CalculationPeriodDates {
@@ -573,7 +563,7 @@ func MapFeeLegToInterestRateLegPayout:
                                     ...
                                 },
                             finalFixingDate: MapAdjustableDate(
-                                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> finalFixingDate
+                                        floatingAmountCalculation -> finalFixingDate
                                     ),
                             ...
                         },

@@ -25,8 +25,7 @@ func MapVarianceSwapCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlVarianceSwap -> varianceLeg first -> payerReceiverModel -> payerModel,
-                fpmlVarianceSwap -> varianceLeg first -> payerReceiverModel -> receiverModel
+                fpmlVarianceSwap -> varianceLeg first -> payerReceiverModel
             )
 
 func MapVarianceSwapNonTransferableProduct:
@@ -38,14 +37,8 @@ func MapVarianceSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(
-                        fpmlVarianceSwap -> productModel -> productId
-                    ),
-            taxonomy: MapProductTaxonomyList(
-                        fpmlVarianceSwap -> productModel -> primaryAssetClass,
-                        fpmlVarianceSwap -> productModel -> secondaryAssetClass,
-                        fpmlVarianceSwap -> productModel -> productType
-                    ),
+            identifier: MapProductIdentifierList(fpmlVarianceSwap -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlVarianceSwap -> productModel),
             economicTerms: MapVarianceSwapEconomicTerms(
                         fpmlVarianceSwap,
                         cdmCounterpartyList
@@ -64,10 +57,10 @@ func MapVarianceSwapEconomicTerms:
     set economicTerms:
         EconomicTerms {
             effectiveDate: MapAdjustableOrRelativeDate(
-                        fpmlVarianceSwap -> varianceLeg -> effectiveDate first
+                        fpmlEffectiveDates -> effectiveDate first
                     ),
             terminationDate: MapAdjustableOrRelativeDate(
-                        fpmlVarianceSwap -> varianceLeg -> terminationDate first
+                        (fpmlVarianceSwap -> varianceLeg filter terminationDate exists) -> terminationDate first
                     ),
             payout: fpmlVarianceSwap -> varianceLeg
                     extract MapVarianceLegToPerformancePayout(item, cdmCounterpartyList),
@@ -86,8 +79,7 @@ func MapVarianceLegToPerformancePayout:
             PerformancePayout:
                 PerformancePayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlVarianceLeg -> payerReceiverModel -> payerModel,
-                                fpmlVarianceLeg -> payerReceiverModel -> receiverModel,
+                                fpmlVarianceLeg -> payerReceiverModel,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -99,9 +91,7 @@ func MapVarianceLegToPerformancePayout:
                             ...
                         },
                     settlementTerms: MapOptionSettlementModelToSettlementTerms(
-                                fpmlVarianceLeg -> optionSettlementModel -> settlementType,
-                                fpmlVarianceLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel,
-                                fpmlVarianceLeg -> optionSettlementModel -> settlementDate
+                                fpmlVarianceLeg -> optionSettlementModel
                             ),
                     observationTerms: MapAdjustableOrRelativeDateToObservationTerms(
                                 fpmlVarianceLeg -> amount -> observationStartDate
@@ -153,14 +143,14 @@ func MapVarianceLegToVarianceReturnTerms:
                 },
             dividendApplicability:
                 DividendApplicability {
-                    optionsExchangeDividends: fpmlVarianceLeg -> amount -> optionsExchangeDividends,
-                    additionalDividends: fpmlVarianceLeg -> amount -> additionalDividends,
-                    allDividends: fpmlVarianceLeg -> amount -> allDividends
+                    optionsExchangeDividends: fpmlVarianceLeg -> amount -> dividendsModel -> optionsExchangeDividends,
+                    additionalDividends: fpmlVarianceLeg -> amount -> dividendsModel -> additionalDividends,
+                    allDividends: fpmlVarianceLeg -> amount -> dividendsModel -> allDividends
                 },
-            initialLevel: fpmlVarianceLeg -> amount -> variance -> initialLevel,
-            varianceStrikePrice: if fpmlVarianceLeg -> amount -> variance -> varianceStrikePrice exists
+            initialLevel: fpmlVariance -> calculationFromObservationChoice -> calculationFromObservationChoiceSequence -> initialLevel,
+            varianceStrikePrice: if fpmlVariance -> varianceStrikePrice exists
                     then Price {
-                        value: fpmlVarianceLeg -> amount -> variance -> varianceStrikePrice,
+                        value: fpmlVariance -> varianceStrikePrice,
                         priceType: Variance,
                         ...
                     },
@@ -168,21 +158,21 @@ func MapVarianceLegToVarianceReturnTerms:
                 VarianceCapFloor {
                     boundedVariance:
                         BoundedVariance {
-                            realisedVarianceMethod: fpmlVarianceLeg -> amount -> variance -> boundedVariance -> realisedVarianceMethod to-enum RealisedVarianceMethodEnum,
-                            daysInRangeAdjustment: fpmlVarianceLeg -> amount -> variance -> boundedVariance -> daysInRangeAdjustment,
-                            upperBarrier: fpmlVarianceLeg -> amount -> variance -> boundedVariance -> upperBarrier,
-                            lowerBarrier: fpmlVarianceLeg -> amount -> variance -> boundedVariance -> lowerBarrier
+                            realisedVarianceMethod: fpmlVariance -> boundedVariance -> realisedVarianceMethod to-enum RealisedVarianceMethodEnum,
+                            daysInRangeAdjustment: fpmlVariance -> boundedVariance -> daysInRangeAdjustment,
+                            upperBarrier: fpmlVariance -> boundedVariance -> upperBarrier,
+                            lowerBarrier: fpmlVariance -> boundedVariance -> lowerBarrier
                         },
-                    varianceCap: fpmlVarianceLeg -> amount -> variance -> varianceCap,
+                    varianceCap: fpmlVariance -> varianceCap,
                     ...
                 },
             vegaNotionalAmount:
                 NonNegativeQuantitySchedule {
-                    value: fpmlVarianceLeg -> amount -> variance -> vegaNotionalAmount,
+                    value: fpmlVariance -> vegaNotionalAmount,
                     unit:
                         UnitType {
-                            currency: if fpmlVarianceLeg -> amount -> variance -> vegaNotionalAmount exists
-                                    then fpmlVarianceLeg -> amount -> variance -> varianceAmount -> currency -> value,
+                            currency: if fpmlVariance -> vegaNotionalAmount exists
+                                    then fpmlVariance -> varianceAmount -> currency -> value,
                             ...
                         },
                     ...
@@ -193,7 +183,7 @@ func MapVarianceLegToVarianceReturnTerms:
                             then MapAsset(fpmlAsset),
                     ...
                 },
-            expectedN: fpmlVarianceLeg -> amount -> variance -> expectedN,
+            expectedN: fpmlVariance -> expectedN,
             ...
         }
 
@@ -235,6 +225,5 @@ func MapVarianceSwapAccountPartyReference:
     set partyReference:
         MapPayerReceiverToAccountPartyReference(
                 fpmlAccount,
-                fpmlVarianceSwap -> varianceLeg -> payerReceiverModel -> payerModel,
-                fpmlVarianceSwap -> varianceLeg -> payerReceiverModel -> receiverModel
+                fpmlVarianceSwap -> varianceLeg -> payerReceiverModel
             )

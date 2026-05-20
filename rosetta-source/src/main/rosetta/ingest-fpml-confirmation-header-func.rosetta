@@ -18,11 +18,11 @@ func MapTradeIdentifierList:
         cdmTradeIdentifierList TradeIdentifier (0..*)
 
     add cdmTradeIdentifierList:
-        fpmlTradeHeader -> partyTradeIdentifier
+        fpmlTradeHeader -> tradeIdentifiersModel -> partyTradeIdentifier
             extract MapPartyTradeIdentifierToTradeIdentifierList
             then flatten
     add cdmTradeIdentifierList:
-        fpmlTradeHeader -> partyTradeIdentifier
+        fpmlTradeHeader -> tradeIdentifiersModel -> tradeIdentifiersModelSequence -> partyTradeIdentifier
             extract MapPartyTradeIdentifierToTradeIdentifierList
             then flatten
     add cdmTradeIdentifierList:
@@ -107,16 +107,21 @@ func MapTradeIdentifierSequenceToTradeIdentifier:
 
 func MapIssuerTradeIdModelToIdentifier:
     inputs:
-        issuer fpml.IssuerId (1..1)
-        tradeId fpml.TradeId (1..1)
+        fpmlIssuerTradeIdModel fpml.IssuerTradeIdModel (0..1)
     output:
         cdmTradeIdentifier Identifier (0..1)
 
     set cdmTradeIdentifier:
         TradeIdentifier {
-            issuer: MapStringWithScheme(issuer -> value, issuer -> issuerIdScheme),
-            assignedIdentifier: MapTradeIdToAssignedIdentifier(tradeId, empty),
-            identifierType: MapTradeIdToIdentifierType(tradeId),
+            issuer: MapStringWithScheme(
+                        fpmlIssuerTradeIdModel -> issuer -> value,
+                        fpmlIssuerTradeIdModel -> issuer -> issuerIdScheme
+                    ),
+            assignedIdentifier: MapTradeIdToAssignedIdentifier(
+                        fpmlIssuerTradeIdModel -> tradeId,
+                        empty
+                    ),
+            identifierType: MapTradeIdToIdentifierType(fpmlIssuerTradeIdModel -> tradeId),
             ...
         }
 

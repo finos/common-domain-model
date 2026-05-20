@@ -80,29 +80,31 @@ func MapReturnSwapLegToSettlementTerms:
         SettlementTerms {
             settlementType: if fpmlReturnLeg -> amount -> cashSettlement = True
                     then Cash
-                else fpmlReturnLeg -> settlementType to-enum SettlementTypeEnum,
+                else fpmlReturnLeg -> optionSettlementModel -> settlementType to-enum SettlementTypeEnum,
             settlementCurrency: if fpmlReturnLeg -> amount exists
-                    then MapCurrency(fpmlReturnLeg -> amount -> currency)
-                else if fpmlReturnLeg -> settlementCurrency exists
-                then MapCurrency(fpmlReturnLeg -> settlementCurrency),
+                    then MapCurrency(
+                            fpmlReturnLeg -> amount -> currencyAndDeterminationMethodModel -> currency
+                        )
+                else if fpmlReturnLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency exists
+                then MapCurrency(
+                            fpmlReturnLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                        ),
             ...
         }
 
 func MapOptionSettlementModelToSettlementTerms:
     inputs:
-        settlementType fpml.consolidated.fpmlenum.SettlementTypeEnum (0..1)
-        settlementAmountOrCurrencyModel fpml.consolidated.shared.SettlementAmountOrCurrencyModel (0..1)
-        settlementDate fpml.consolidated.shared.AdjustableOrRelativeDate (0..1)
+        fpmlOptionSettlementModel fpml.OptionSettlementModel (0..1)
     output:
         settlementTerms SettlementTerms (0..1)
 
     set settlementTerms:
         SettlementTerms {
-            settlementType: settlementType to-enum SettlementTypeEnum,
+            settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
             settlementCurrency: MapCurrency(
-                        settlementAmountOrCurrencyModel -> settlementCurrency
+                        fpmlOptionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
                     ),
-            settlementDate: settlementDate
+            settlementDate: fpmlOptionSettlementModel -> settlementDate
                     extract
                         SettlementDate {
                             adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
@@ -172,24 +174,24 @@ func GetFpmlCashSettlementCurrency:
         fpmlCurrency fpml.Currency (0..*)
 
     add fpmlCurrency:
-        if fpmlCashSettlement -> midMarketValuation -> indicativeQuotations exists
-        then fpmlCashSettlement -> midMarketValuation -> indicativeQuotations -> cashSettlementCurrency
-        else if fpmlCashSettlement -> midMarketValuation -> indicativeQuotationsAlternate exists
-        then fpmlCashSettlement -> midMarketValuation -> indicativeQuotationsAlternate -> cashSettlementCurrency
-        else if fpmlCashSettlement -> midMarketValuation -> calculationAgentDetermination exists
-        then fpmlCashSettlement -> midMarketValuation -> calculationAgentDetermination -> cashSettlementCurrency
-        else if fpmlCashSettlement -> replacementValue -> firmQuotations exists
-        then fpmlCashSettlement -> replacementValue -> firmQuotations -> cashSettlementCurrency
-        else if fpmlCashSettlement -> replacementValue -> calculationAgentDetermination exists
-        then fpmlCashSettlement -> replacementValue -> calculationAgentDetermination -> cashSettlementCurrency
-        else if fpmlCashSettlement -> collateralizedCashPriceMethod exists
-        then fpmlCashSettlement -> collateralizedCashPriceMethod -> cashSettlementCurrency
-        else if fpmlCashSettlement -> cashPriceMethod exists
-        then fpmlCashSettlement -> cashPriceMethod -> cashSettlementCurrency
-        else if fpmlCashSettlement -> cashPriceAlternateMethod exists
-        then fpmlCashSettlement -> cashPriceAlternateMethod -> cashSettlementCurrency
-        else if fpmlCashSettlement -> crossCurrencyMethod exists
-        then fpmlCashSettlement -> crossCurrencyMethod -> cashSettlementCurrency
+        if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotations exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotations -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotationsAlternate exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotationsAlternate -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> calculationAgentDetermination exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> calculationAgentDetermination -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> firmQuotations exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> firmQuotations -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> calculationAgentDetermination exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> calculationAgentDetermination -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> collateralizedCashPriceMethod exists
+        then fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> collateralizedCashPriceMethod -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceMethod exists
+        then fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceMethod -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceAlternateMethod exists
+        then fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceAlternateMethod -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> crossCurrencyMethod exists
+        then fpmlCashSettlement -> cashSettlementMethods2006Model -> crossCurrencyMethod -> cashSettlementCurrency
 
 func MapCashSettlementToCashSettlementTerms:
     inputs:
@@ -198,61 +200,61 @@ func MapCashSettlementToCashSettlementTerms:
         cashSettlementTerms CashSettlementTerms (0..1)
 
     set cashSettlementTerms:
-        if fpmlCashSettlement -> midMarketValuation -> indicativeQuotations exists
+        if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotations exists
         then MapMidMarketValuationMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> midMarketValuation -> indicativeQuotations,
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotations,
                     MidMarketIndicativeQuotations
                 )
-        else if fpmlCashSettlement -> midMarketValuation -> indicativeQuotationsAlternate exists
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotationsAlternate exists
         then MapMidMarketValuationMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> midMarketValuation -> indicativeQuotationsAlternate,
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotationsAlternate,
                     MidMarketIndicativeQuotationsAlternate
                 )
-        else if fpmlCashSettlement -> midMarketValuation -> calculationAgentDetermination exists
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> calculationAgentDetermination exists
         then MapMidMarketValuationMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> midMarketValuation -> calculationAgentDetermination,
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> calculationAgentDetermination,
                     MidMarketCalculationAgentDetermination
                 )
-        else if fpmlCashSettlement -> replacementValue -> firmQuotations exists
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> firmQuotations exists
         then MapReplacementValueFirmQuotationsMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> replacementValue -> firmQuotations
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> firmQuotations
                 )
-        else if fpmlCashSettlement -> replacementValue -> calculationAgentDetermination exists
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> calculationAgentDetermination exists
         then MapReplacementValueCalculationAgentDeterminationMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> replacementValue -> calculationAgentDetermination
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> calculationAgentDetermination
                 )
-        else if fpmlCashSettlement -> parYieldCurveUnadjustedMethod exists
+        else if fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> parYieldCurveUnadjustedMethod exists
         then MapYieldCurveMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> parYieldCurveUnadjustedMethod,
+                    fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> parYieldCurveUnadjustedMethod,
                     ParYieldCurveUnadjustedMethod
                 )
-        else if fpmlCashSettlement -> collateralizedCashPriceMethod exists
+        else if fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> collateralizedCashPriceMethod exists
         then MapCollateralizedCashPriceMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> collateralizedCashPriceMethod
+                    fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> collateralizedCashPriceMethod
                 )
-        else if fpmlCashSettlement -> cashPriceMethod exists
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceMethod exists
         then MapCashPriceMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> cashPriceMethod,
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceMethod,
                     CashPriceMethod
                 )
-        else if fpmlCashSettlement -> cashPriceAlternateMethod exists
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceAlternateMethod exists
         then MapCashPriceMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> cashPriceAlternateMethod,
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceAlternateMethod,
                     CashPriceAlternateMethod
                 )
-        else if fpmlCashSettlement -> parYieldCurveAdjustedMethod exists
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> parYieldCurveAdjustedMethod exists
         then MapYieldCurveMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> parYieldCurveAdjustedMethod,
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> parYieldCurveAdjustedMethod,
                     ParYieldCurveAdjustedMethod
                 )
-        else if fpmlCashSettlement -> zeroCouponYieldAdjustedMethod exists
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> zeroCouponYieldAdjustedMethod exists
         then MapYieldCurveMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> zeroCouponYieldAdjustedMethod,
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> zeroCouponYieldAdjustedMethod,
                     ZeroCouponYieldAdjustedMethod
                 )
-        else if fpmlCashSettlement -> crossCurrencyMethod exists
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> crossCurrencyMethod exists
         then MapCrossCurrencyMethodToCashSettlementTerms(
-                    fpmlCashSettlement -> crossCurrencyMethod
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> crossCurrencyMethod
                 )
     set cashSettlementTerms -> valuationDate:
         ValuationDate {
@@ -675,8 +677,10 @@ func MapFxDigitalOptionToSettlementTerms:
     output:
         settlementTerms SettlementTerms (0..1)
 
-    alias AmericanExercise: fpmlFxDigitalOption -> americanExercise -> latestValueDate
-    alias EuropeanExercise: fpmlFxDigitalOption -> europeanExercise -> valueDate
+    alias AmericanExercise:
+        fpmlFxDigitalOption -> fxDigitalOptionSequence0 -> americanExercise -> latestValueDate
+    alias EuropeanExercise:
+        fpmlFxDigitalOption -> fxDigitalOptionSequence1 -> europeanExercise -> valueDate
 
     alias settlementDate:
         if EuropeanExercise exists
@@ -701,59 +705,57 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
     output:
         settlementTerms SettlementTerms (0..1)
 
-    alias physical: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms
-    alias cash: fpmlCreditDefaultSwapChoice -> cashSettlementTerms
+    alias physical: fpmlCreditDefaultSwapChoice first -> physicalSettlementTerms
+    alias cash: fpmlCreditDefaultSwapChoice first -> cashSettlementTerms
 
     set settlementTerms:
         if physical exists
         then SettlementTerms {
                 settlementType: SettlementTypeEnum -> Physical,
-                settlementCurrency: MapCurrency(
-                            fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> settlementCurrency
-                        ),
+                settlementCurrency: MapCurrency(physical -> settlementCurrency),
                 physicalSettlementTerms:
                     PhysicalSettlementTerms {
                         physicalSettlementPeriod:
                             PhysicalSettlementPeriod {
-                                businessDaysNotSpecified: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> physicalSettlementPeriod -> businessDaysNotSpecified,
-                                businessDays: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> physicalSettlementPeriod -> businessDays,
-                                maximumBusinessDays: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> physicalSettlementPeriod -> maximumBusinessDays,
+                                businessDaysNotSpecified: physical -> physicalSettlementPeriod -> businessDaysNotSpecified,
+                                businessDays: physical -> physicalSettlementPeriod -> businessDays,
+                                maximumBusinessDays: physical -> physicalSettlementPeriod -> maximumBusinessDays,
                             },
                         deliverableObligations:
                             DeliverableObligations {
-                                accruedInterest: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> accruedInterest,
+                                accruedInterest: physical -> deliverableObligations -> accruedInterest,
                                 category: MapObligationCategoryEnum(
-                                            fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> category to-string
+                                            physical -> deliverableObligations -> category to-string
                                         ),
-                                notSubordinated: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> notSubordinated,
-                                notSovereignLender: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender,
-                                notDomesticLaw: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw,
-                                notContingent: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> notContingent,
-                                notDomesticIssuance: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance,
+                                notSubordinated: physical -> deliverableObligations -> notSubordinated,
+                                notSovereignLender: physical -> deliverableObligations -> notSovereignLender,
+                                notDomesticLaw: physical -> deliverableObligations -> notDomesticLaw,
+                                notContingent: physical -> deliverableObligations -> notContingent,
+                                notDomesticIssuance: physical -> deliverableObligations -> notDomesticIssuance,
                                 specifiedCurrency:
                                     SpecifiedCurrency {
-                                        applicable: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency -> applicable,
+                                        applicable: physical -> deliverableObligations -> specifiedCurrency -> applicable,
                                         ...
                                     },
                                 assignableLoan:
                                     PCDeliverableObligationCharac {
-                                        applicable: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> assignableLoan -> applicable,
+                                        applicable: physical -> deliverableObligations -> assignableLoan -> applicable,
                                         ...
                                     },
                                 consentRequiredLoan:
                                     PCDeliverableObligationCharac {
-                                        applicable: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan -> applicable,
+                                        applicable: physical -> deliverableObligations -> consentRequiredLoan -> applicable,
                                         ...
                                     },
-                                transferable: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> transferable,
+                                transferable: physical -> deliverableObligations -> transferable,
                                 maximumMaturity: MapPeriod(
-                                            fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity
+                                            physical -> deliverableObligations -> maximumMaturity
                                         ),
-                                notBearer: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> deliverableObligations -> notBearer,
+                                notBearer: physical -> deliverableObligations -> notBearer,
                                 ...
                             },
-                        escrow: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> escrow,
-                        sixtyBusinessDaySettlementCap: fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> sixtyBusinessDaySettlementCap,
+                        escrow: physical -> escrow,
+                        sixtyBusinessDaySettlementCap: physical -> sixtyBusinessDaySettlementCap,
                         ...
                     },
                 ...
@@ -761,12 +763,10 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
         else if cash exists
         then SettlementTerms {
                 settlementType: SettlementTypeEnum -> Cash,
-                settlementCurrency: MapCurrency(
-                            fpmlCreditDefaultSwapChoice -> cashSettlementTerms -> settlementCurrency
-                        ),
+                settlementCurrency: MapCurrency(cash -> settlementCurrency),
                 cashSettlementTerms:
                     CashSettlementTerms {
-                        recoveryFactor: fpmlCreditDefaultSwapChoice -> cashSettlementTerms -> recoveryFactor,
+                        recoveryFactor: cash -> fixedRecoveryModel -> recoveryFactor,
                         ...
                     },
                 ...
@@ -774,17 +774,17 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
 
 func MapCommoditySettlementModelToSettlementTerms:
     inputs:
-        settlementCurrency fpml.consolidated.shared.IdentifiedCurrency (0..1)
+        fpmlCommoditySwapDetailsModel fpml.CommoditySwapDetailsModel (0..1)
     output:
         settlementTerms SettlementTerms (0..1)
 
     set settlementTerms:
         SettlementTerms {
-            settlementType: if settlementCurrency exists
+            settlementType: if fpmlCommoditySwapDetailsModel -> settlementCurrency exists
                     then SettlementTypeEnum -> Cash,
             settlementCurrency: MapStringWithScheme(
-                        settlementCurrency -> value,
-                        settlementCurrency -> currencyScheme
+                        fpmlCommoditySwapDetailsModel -> settlementCurrency -> value,
+                        fpmlCommoditySwapDetailsModel -> settlementCurrency -> currencyScheme
                     ),
             ...
         }
@@ -824,14 +824,16 @@ func MapCorrelationLegToSettlementTerms:
 
     set settlementTerms:
         SettlementTerms {
-            settlementType: fpmlCorrelationLeg -> settlementType to-enum SettlementTypeEnum,
-            settlementCurrency: MapCurrency(fpmlCorrelationLeg -> settlementCurrency),
+            settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+            settlementCurrency: MapCurrency(
+                        fpmlOptionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                    ),
             settlementDate:
                 SettlementDate {
                     adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
                                 empty,
-                                fpmlCorrelationLeg -> settlementDate -> adjustableDate,
-                                fpmlCorrelationLeg -> settlementDate -> relativeDate
+                                fpmlOptionSettlementModel -> settlementDate -> adjustableDate,
+                                fpmlOptionSettlementModel -> settlementDate -> relativeDate
                             ),
                     ...
                 },
@@ -854,7 +856,7 @@ func MapCommodityExerciseToSettlementTerms:
                     adjustableOrRelativeDate:
                         AdjustableOrAdjustedOrRelativeDate {
                             relativeDate: MapDateOffsetToRelativeDateOffset(
-                                        fpmlCommodityExercise -> relativePaymentDates -> paymentDaysOffset
+                                        fpmlCommodityExercise -> commodityPaymentDatesModel -> relativePaymentDates -> paymentDaysOffset
                                     ),
                             ...
                         },
