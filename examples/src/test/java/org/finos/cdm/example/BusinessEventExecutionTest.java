@@ -51,6 +51,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -429,19 +430,18 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         AdjustableOrAdjustedDate eventDate = new AdjustableOrAdjustedDate.AdjustableOrAdjustedDateBuilderImpl();
 
         // Creation of the option exercise instruction
-//        ExerciseInstruction exerciseInstruction = buildExercisePrimitiveInstruction(beforeTradeState, eventDate);
-
+        ExerciseInstruction exerciseInstruction = buildExercisePrimitiveInstruction(beforeTradeState, eventDate);
 
         // Adding the option exercise instruction to the primitive instruction that will be included in the resulting workflow step
-//        PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setExercise(exerciseInstruction).build();
+        PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setExercise(exerciseInstruction).build();
 
         // Creation of the workflow step of an option exercise event
-//        WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.OPTION_EXERCISE);
+        WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.OPTION_EXERCISE);
 
-//        assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "The resulting workflow step must contain only one instruction in the business event");
-//        assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getExercise(), "The resulting workflow step must contain the Option Exercise instruction in the busines event");
+        assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "The resulting workflow step must contain only one instruction in the business event");
+        assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getExercise(), "The resulting workflow step must contain the Option Exercise instruction in the busines event");
     }
-// TODO fix
+
     /**
      * Transfer
      * The intent is to transfer the position to another clearing member
@@ -1002,22 +1002,33 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      */
     public static ExerciseInstruction buildExercisePrimitiveInstruction(TradeState tradeState, AdjustableOrAdjustedDate eventDate) {
 
-        // Create a reference to the option payout as part of the exercise process.
-//        ReferenceWithMetaOptionPayout option = ReferenceWithMetaOptionPayout.builder()
-//                .setValue(OptionPayout.builder().build()) // Build a basic OptionPayout structure.
-//                .build();
-//
-//        // Initialize and build the ExerciseInstruction.
-//        return ExerciseInstruction.builder()
-//                .setExerciseDate(eventDate)                                                 // Set the date on which the option is exercised.
-//                .setExerciseTime(BusinessCenterTime.builder().build())                      // Set a placeholder exercise time, typically defined as business center time.
-//                .setExerciseOptionValue(OptionPayout.builder().build())                     // Define the value of the exercised option.
-//                .setExerciseQuantity(PrimitiveInstruction.builder().build())                // Set the quantity to be exercised, typically linked to a primitive instruction.
-//                .setExerciseOption(option)                                                  // Associate the exercise with the referenced option.
-//                .addReplacementTradeIdentifier(tradeState.getTrade().getTradeIdentifier())  // Add a replacement trade identifier from the trade state for tracking purposes.
-//                .build();                                                                   // Build and return the finalized ExerciseInstruction.
+        Payout exerciseOptionPayout = Payout.builder().build();
 
-   return null;//TODO fix
+        if (exerciseOptionPayout.getOptionPayout() == null) {
+            OptionPayout fromTrade = tradeState.getTrade().getProduct().getEconomicTerms().getPayout().stream()
+                    .map(Payout::getOptionPayout)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElseThrow();
+            exerciseOptionPayout = Payout.builder()
+                    .setOptionPayout(fromTrade)
+                    .build();
+        }
+
+        // Create a reference to the option payout as part of the exercise process.
+        ReferenceWithMetaPayout option = ReferenceWithMetaPayout.builder()
+                .setValue(exerciseOptionPayout)  // Build a basic OptionPayout structure.
+                .build();
+
+        // Initialize and build the ExerciseInstruction.
+        return ExerciseInstruction.builder()
+                .setExerciseDate(eventDate)                                                 // Set the date on which the option is exercised.
+                .setExerciseTime(BusinessCenterTime.builder().build())                      // Set a placeholder exercise time, typically defined as business center time.
+                .setExerciseOptionValue(exerciseOptionPayout)                     // Define the value of the exercised option.
+                .setExerciseQuantity(PrimitiveInstruction.builder().build())                // Set the quantity to be exercised, typically linked to a primitive instruction.
+                .setExerciseOption(option)                                                  // Associate the exercise with the referenced option.
+                .addReplacementTradeIdentifier(tradeState.getTrade().getTradeIdentifier())  // Add a replacement trade identifier from the trade state for tracking purposes.
+                .build();                                                                   // Build and return the finalized ExerciseInstruction.
     }
 
     /**
