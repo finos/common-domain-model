@@ -21,7 +21,7 @@ func MapCapFloorCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlCapFloor -> capFloorStream -> payerReceiverModel
+                fpmlCapFloor -> capFloorStream -> payerReceiverModel -> payerModel, fpmlCapFloor -> capFloorStream -> payerReceiverModel -> receiverModel
             )
 
 func MapCapFloorAncillaryPartyList:
@@ -46,8 +46,8 @@ func MapCapFloorNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlCapFloor -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlCapFloor -> productModel),
+            identifier: MapProductIdentifierList(fpmlCapFloor -> productModel -> productId),
+            taxonomy: MapProductTaxonomyList(fpmlCapFloor -> productModel -> primaryAssetClass, fpmlCapFloor -> productModel -> secondaryAssetClass, fpmlCapFloor -> productModel -> productType),
             economicTerms: MapCapFloorEconomicTerms(fpmlCapFloor, cdmCounterpartyList)
         }
 
@@ -139,5 +139,5 @@ func MapCapFloorAccountPartyReference:
     set partyReference:
         MapPayerReceiverToAccountPartyReference(
                 fpmlAccount,
-                fpmlCapFloor -> capFloorStream -> payerReceiverModel
+                fpmlCapFloor -> capFloorStream -> payerReceiverModel -> payerModel, fpmlCapFloor -> capFloorStream -> payerReceiverModel -> receiverModel
             )

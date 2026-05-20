@@ -27,12 +27,12 @@ func MapFxVarianceSwapCounterpartyList:
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party1,
-                fpmlFxVarianceSwap -> floatingLeg -> payerModel -> payerPartyReference
+                fpmlFxVarianceSwap -> floatingLeg -> payerPartyReference
             )
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party2,
-                fpmlFxVarianceSwap -> fixedLeg -> payerModel -> payerPartyReference
+                fpmlFxVarianceSwap -> fixedLeg -> payerPartyReference
             )
 
 func MapFxVarianceSwapNonTransferableProduct:
@@ -44,8 +44,8 @@ func MapFxVarianceSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlFxVarianceSwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlFxVarianceSwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlFxVarianceSwap -> productModel -> productId),
+            taxonomy: MapProductTaxonomyList(fpmlFxVarianceSwap -> productModel -> primaryAssetClass, fpmlFxVarianceSwap -> productModel -> secondaryAssetClass, fpmlFxVarianceSwap -> productModel -> productType),
             economicTerms: MapFxVarianceSwapEconomicTerms(
                         fpmlFxVarianceSwap,
                         cdmCounterpartyList
@@ -84,11 +84,11 @@ func MapFxVarianceSwapPayout:
                     payerReceiver:
                         PayerReceiver {
                             payer: MapCounterpartyRoleEnum(
-                                        fpmlFxVarianceSwap -> floatingLeg -> payerModel -> payerPartyReference -> href,
+                                        fpmlFxVarianceSwap -> floatingLeg -> payerPartyReference -> href,
                                         cdmCounterpartyList
                                     ),
                             receiver: MapCounterpartyRoleEnum(
-                                        fpmlFxVarianceSwap -> fixedLeg -> payerModel -> payerPartyReference -> href,
+                                        fpmlFxVarianceSwap -> fixedLeg -> payerPartyReference -> href,
                                         cdmCounterpartyList
                                     )
                         },
@@ -166,12 +166,12 @@ func MapFxPerformanceSwapToObservationTerms:
     set observationTerms:
         ObservationTerms {
             observationTime: MapBusinessCenterTime(
-                        fpmlFixingInformationSource -> fixingTime
+                        fpmlFxPerformanceSwap -> fixingInformationSource -> fixingTime
                     ),
             informationSource:
                 FxSpotRateSource {
                     primarySource: MapInformationSource(
-                                fpmlFixingInformationSource -> primaryRateSource
+                                fpmlFxPerformanceSwap -> fixingInformationSource -> primaryRateSource
                             ),
                     ...
                 },
@@ -193,13 +193,13 @@ func MapFxFixingScheduleToObservationDates:
             periodicSchedule:
                 PeriodicDates {
                     startDate: MapUnadjustedDateToAdjustableOrRelativeDate(
-                                if fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate exists
+                                if fpmlFixingSchedule -> startDate exists
                                 then fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate -> date
                                 else fpmlFixingSchedule -> startDate -> date,
                                 empty
                             ),
                     endDate: MapUnadjustedDateToAdjustableOrRelativeDate(
-                                if fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> endDate exists
+                                if fpmlFixingSchedule -> endDate exists
                                 then fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> endDate -> date
                                 else fpmlFixingSchedule -> endDate -> date,
                                 empty
@@ -208,7 +208,7 @@ func MapFxFixingScheduleToObservationDates:
                         BusinessDayAdjustments {
                             businessDayConvention: empty,
                             businessCenters: MapBusinessCenterOrBusinessCenterReference(
-                                        fpmlFixingSchedule -> businessCentersOrReferenceModel
+                                        fpmlFixingSchedule -> businessCentersOrReferenceModel -> businessCenters, fpmlFixingSchedule -> businessCentersOrReferenceModel -> businessCentersReference
                             ),
                         },
                     dayType: fpmlFixingSchedule -> dayType to-enum DayTypeEnum,
@@ -236,7 +236,7 @@ func MapFxValuationDateOffsetToValuationDates:
                                     period: fpmlFxValuationDateOffset -> period to-enum PeriodEnum,
                                     dayType: fpmlFxValuationDateOffset -> dayType to-enum DayTypeEnum,
                                     businessCenters: MapBusinessCenters(
-                                                fpmlFxValuationDateOffset -> businessCentersOrReferenceModel -> businessCenters
+                                                fpmlFxValuationDateOffset -> businessCenters
                                             ),
                                     ...
                                 },
@@ -269,17 +269,17 @@ func MapFxPerformanceSwapToReturnTerms:
                             unit:
                                 UnitType {
                                     currency: if fpmlQuoteBasis = Currency1PerCurrency2
-                                            then fpmlQuotedCurrencyPair -> currency1 -> value
+                                            then fpmlFxPerformanceSwap -> quotedCurrencyPair -> currency1 -> value
                                         else if fpmlQuoteBasis = Currency2PerCurrency1
-                                        then fpmlQuotedCurrencyPair -> currency2 -> value,
+                                        then fpmlFxPerformanceSwap -> quotedCurrencyPair -> currency2 -> value,
                                     ...
                                 },
                             perUnitOf:
                                 UnitType {
                                     currency: if fpmlQuoteBasis = Currency1PerCurrency2
-                                            then fpmlQuotedCurrencyPair -> currency2 -> value
+                                            then fpmlFxPerformanceSwap -> quotedCurrencyPair -> currency2 -> value
                                         else if fpmlQuoteBasis = Currency2PerCurrency1
-                                        then fpmlQuotedCurrencyPair -> currency1 -> value,
+                                        then fpmlFxPerformanceSwap -> quotedCurrencyPair -> currency1 -> value,
                                     ...
                                 },
                             priceType: InterestRate,

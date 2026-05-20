@@ -28,7 +28,7 @@ func MapCreditDefaultSwapOptionCounterpartyList:
 
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(
-                fpmlCreditDefaultSwapOption -> buyerSellerModel
+                fpmlCreditDefaultSwapOption -> buyerSellerModel -> buyerPartyReference, fpmlCreditDefaultSwapOption -> buyerSellerModel -> sellerPartyReference
             )
 
 func MapCreditDefaultSwapOptionAncillaryPartyList:
@@ -59,9 +59,9 @@ func MapCreditDefaultSwapOptionNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlCreditDefaultSwapOption -> productModel
+                        fpmlCreditDefaultSwapOption -> productModel -> productId
                     ),
-            taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwapOption -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwapOption -> productModel -> primaryAssetClass, fpmlCreditDefaultSwapOption -> productModel -> secondaryAssetClass, fpmlCreditDefaultSwapOption -> productModel -> productType),
             economicTerms: MapCreditDefaultSwapOptionEconomicTerms(
                         fpmlCreditDefaultSwapOption,
                         cdmCounterpartyList,
@@ -102,7 +102,7 @@ func MapCreditDefaultSwapOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlCreditDefaultSwapOption -> buyerSellerModel,
+                                fpmlCreditDefaultSwapOption -> buyerSellerModel -> sellerPartyReference, fpmlCreditDefaultSwapOption -> buyerSellerModel -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -115,9 +115,9 @@ func MapCreditDefaultSwapOptionPayout:
                     principalPayment: empty, // MapPrincipalPayments(fpmlTrade, fpmlPartiesAndAccountsModel),
                     settlementTerms:
                         SettlementTerms {
-                            settlementType: fpmlCreditDefaultSwapOption -> optionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+                            settlementType: fpmlCreditDefaultSwapOption -> settlementType to-enum SettlementTypeEnum,
                             settlementCurrency: MapCurrency(
-                                        fpmlCreditDefaultSwapOption -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                                        fpmlCreditDefaultSwapOption -> settlementCurrency
                                     ),
                             physicalSettlementTerms: MapPhysicalSettlementTermsWithReference(
                                         fpmlCreditDefaultSwapOption
@@ -125,7 +125,7 @@ func MapCreditDefaultSwapOptionPayout:
                             ...
                         },
                     buyerSeller: MapBuyerSeller(
-                                fpmlCreditDefaultSwapOption -> buyerSellerModel,
+                                fpmlCreditDefaultSwapOption -> buyerSellerModel -> buyerPartyReference, fpmlCreditDefaultSwapOption -> buyerSellerModel -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     feature: MapSwapOptionFeature(
@@ -178,7 +178,7 @@ func MapSwapOptionFeature:
     set feature:
         OptionFeature {
             barrier: MapBarrier(
-                        fpmlCreditDefaultSwapOption -> feature -> optionFeatureModel -> knock,
+                        fpmlCreditDefaultSwapOption -> feature -> knock,
                         fpmlCreditDefaultSwapOption,
                         cdmCounterpartyList
                     ),
@@ -194,14 +194,14 @@ func MapBarrier:
         barrier Barrier (0..1)
     set barrier:
         Barrier {
-            knockIn: if fpmlKnock -> knockSequence -> knockIn exists
+            knockIn: if fpmlKnock -> knockIn exists
                     then MapTriggerEvent(
-                            fpmlKnock -> knockSequence -> knockIn,
+                            fpmlKnock -> knockIn,
                             fpmlCreditDefaultSwapOption,
                             cdmCounterpartyList
                         ),
             knockOut: if fpmlKnock -> knockOut exists
-                        or fpmlKnock -> knockSequence -> knockOut exists
+                        or fpmlKnock -> knockOut exists
                     then MapTriggerEvent(
                             fpmlKnock -> knockOut,
                             fpmlCreditDefaultSwapOption,
@@ -238,7 +238,7 @@ func MapTrigger:
     set trigger:
         Trigger {
             creditEventsReference: MapCreditEventsReferenceWithReference(
-                        fpmlTrigger -> triggerChoice -> creditEventsReference,
+                        fpmlTrigger -> creditEventsReference,
                         fpmlCreditDefaultSwapOption,
                         cdmCounterpartyList
                     ),
@@ -262,14 +262,14 @@ func MapCreditEventsReferenceWithReference:
         CreditEvents {
             failureToPay:
                 FailureToPay {
-                    applicable: creditEvents -> failureToPay -> applicable,
+                    applicable: fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> failureToPay -> applicable,
                     paymentRequirement:
                         Money {
-                            value: creditEvents -> failureToPay -> paymentRequirement -> amount,
+                            value: fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> failureToPay -> paymentRequirement -> amount,
                             unit:
                                 UnitType {
                                     currency: MapCurrency(
-                                                creditEvents -> failureToPay -> paymentRequirement -> currency
+                                                fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> failureToPay -> paymentRequirement -> currency
                                             ),
                                     ...
                                 },
@@ -279,16 +279,16 @@ func MapCreditEventsReferenceWithReference:
                 },
             restructuring:
                 Restructuring {
-                    applicable: creditEvents -> restructuring -> applicable,
+                    applicable: fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> restructuring -> applicable,
                     ...
                 },
             defaultRequirement:
                 Money {
-                    value: creditEvents -> defaultRequirement -> amount,
+                    value: fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> defaultRequirement -> amount,
                     unit:
                         UnitType {
                             currency: MapCurrency(
-                                        creditEvents -> defaultRequirement -> currency
+                                        fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> defaultRequirement -> currency
                                     ),
                             ...
                         },
@@ -297,14 +297,14 @@ func MapCreditEventsReferenceWithReference:
             creditEventNotice:
                 CreditEventNotice {
                     notifyingParty: MapMultipleCounterpartyRoleEnum(
-                                creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference -> href,
-                                creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference -> href,
+                                fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> buyerPartyReference -> href,
+                                fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> notifyingParty -> sellerPartyReference -> href,
                                 cdmCounterpartyList
                             ),
                     publiclyAvailableInformation:
                         PubliclyAvailableInformation {
-                            publicSource: creditEvents -> creditEventNotice -> publiclyAvailableInformation -> publicSource,
-                            specifiedNumber: creditEvents -> creditEventNotice -> publiclyAvailableInformation -> specifiedNumber,
+                            publicSource: fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> publiclyAvailableInformation -> publicSource,
+                            specifiedNumber: fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> creditEventNotice -> publiclyAvailableInformation -> specifiedNumber,
                             ...
                         },
                     ...
@@ -313,7 +313,7 @@ func MapCreditEventsReferenceWithReference:
         } with-meta {
             key: fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> id first
         } with-meta {
-            reference: fpmlCreditDefaultSwapOption -> feature -> optionFeatureModel -> knock -> knockOut -> trigger -> triggerChoice -> creditEventsReference -> href
+            reference: fpmlCreditDefaultSwapOption -> feature -> knock -> knockOut -> trigger -> creditEventsReference -> href
         }
 
 func MapPhysicalSettlementTermsWithReference:

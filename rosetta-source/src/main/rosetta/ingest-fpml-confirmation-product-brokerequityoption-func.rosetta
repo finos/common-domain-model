@@ -22,7 +22,7 @@ func MapBrokerEquityOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlBrokerEquityOption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(fpmlBrokerEquityOption -> buyerSellerModel -> buyerPartyReference, fpmlBrokerEquityOption -> buyerSellerModel -> sellerPartyReference)
 
 func MapBrokerEquityOptionNonTransferableProduct:
     inputs:
@@ -33,8 +33,8 @@ func MapBrokerEquityOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlBrokerEquityOption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlBrokerEquityOption -> productModel),
+            identifier: MapProductIdentifierList(fpmlBrokerEquityOption -> productModel -> productId),
+            taxonomy: MapProductTaxonomyList(fpmlBrokerEquityOption -> productModel -> primaryAssetClass, fpmlBrokerEquityOption -> productModel -> secondaryAssetClass, fpmlBrokerEquityOption -> productModel -> productType),
             economicTerms: MapBrokerEquityOptionEconomicTerms(
                         fpmlBrokerEquityOption,
                         cdmCounterpartyList
@@ -79,7 +79,7 @@ func MapBrokerEquityOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlBrokerEquityOption -> buyerSellerModel,
+                                fpmlBrokerEquityOption -> buyerSellerModel -> sellerPartyReference, fpmlBrokerEquityOption -> buyerSellerModel -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -95,7 +95,7 @@ func MapBrokerEquityOptionPayout:
                                 empty
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlBrokerEquityOption -> buyerSellerModel,
+                                fpmlBrokerEquityOption -> buyerSellerModel -> buyerPartyReference, fpmlBrokerEquityOption -> buyerSellerModel -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -111,13 +111,13 @@ func MapBrokerEquityOptionPayout:
                                         fpmlBrokerEquityOption -> equityExercise
                                     ),
                                 empty,
-                                fpmlBrokerEquityOption -> equityExercise -> equityExerciseValuationSettlementSequence -> automaticExercise,
+                                fpmlBrokerEquityOption -> equityExercise -> automaticExercise,
                                 fpmlBrokerEquityOption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
                     strike: MapOptionStrikePrice(
                                 fpmlBrokerEquityOption -> strike -> strikePrice,
-                                fpmlBrokerEquityOption -> strike -> equityStrikeSequence -> strikePercentage,
+                                fpmlBrokerEquityOption -> strike -> strikePercentage,
                                 unit,
                                 perUnitOf
                             ),
