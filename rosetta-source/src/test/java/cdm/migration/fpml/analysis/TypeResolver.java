@@ -72,7 +72,7 @@ public class TypeResolver {
         }
         String terminal = rootTypeQname;
         for (String seg : pathSegments) {
-            RosettaAttributeInfo attr = findAttribute(current, seg);
+            RosettaAttributeInfo attr = findAttribute(model, current, seg);
             if (attr == null) {
                 return null;
             }
@@ -89,7 +89,7 @@ public class TypeResolver {
         }
         RosettaAttributeInfo terminal = null;
         for (String seg : pathSegments) {
-            terminal = findAttribute(current, seg);
+            terminal = findAttribute(model, current, seg);
             if (terminal == null) {
                 return null;
             }
@@ -98,10 +98,17 @@ public class TypeResolver {
         return terminal;
     }
 
-    private RosettaAttributeInfo findAttribute(RosettaTypeInfo typeInfo, String name) {
-        for (RosettaAttributeInfo attr : typeInfo.attributes) {
-            if (attr.name.equals(name)) {
-                return attr;
+    private RosettaAttributeInfo findAttribute(RosettaModelInventory model, RosettaTypeInfo typeInfo, String name) {
+        if (typeInfo == null) {
+            return null;
+        }
+        RosettaAttributeInfo attr = model.findAttributeIncludingInherited(typeInfo, name);
+        if (attr != null) {
+            return attr;
+        }
+        for (RosettaAttributeInfo direct : typeInfo.attributes) {
+            if (direct.name.equals(name)) {
+                return direct;
             }
         }
         return null;
