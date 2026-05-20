@@ -8,7 +8,7 @@ import cdm.migration.fpml.source.RosettaSourceFile;
 
 public class ModelInventoryExtractor {
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("^\\s*namespace\\s+([A-Za-z0-9_.]+)");
-    private static final Pattern TYPE_PATTERN = Pattern.compile("^\\s*type\\s+([A-Za-z0-9_^]+)\\b");
+    private static final Pattern TYPE_PATTERN = Pattern.compile("^\\s*type\\s+([A-Za-z0-9_^]+)(?:\\s+extends\\s+([A-Za-z0-9_.^]+))?\\s*:");
     private static final Pattern ENUM_PATTERN = Pattern.compile("^\\s*enum\\s+([A-Za-z0-9_^]+)\\b");
     private static final Pattern TYPE_ALIAS_PATTERN = Pattern.compile("^\\s*typeAlias\\s+([A-Za-z0-9_^]+)\\s*:");
     private static final Pattern ATTRIBUTE_PATTERN = Pattern.compile(
@@ -37,21 +37,22 @@ public class ModelInventoryExtractor {
 
             Matcher typeAliasMatcher = TYPE_ALIAS_PATTERN.matcher(line);
             if (typeAliasMatcher.find()) {
-                currentType = new RosettaTypeInfo(namespace, typeAliasMatcher.group(1), "typeAlias", file.getLogicalPath(), i + 1);
+                currentType = new RosettaTypeInfo(namespace, typeAliasMatcher.group(1), "typeAlias", null, file.getLogicalPath(), i + 1);
                 inventory.addType(currentType);
                 continue;
             }
 
             Matcher typeMatcher = TYPE_PATTERN.matcher(line);
             if (typeMatcher.find()) {
-                currentType = new RosettaTypeInfo(namespace, typeMatcher.group(1), "data", file.getLogicalPath(), i + 1);
+                String extendsTypeName = typeMatcher.group(2);
+                currentType = new RosettaTypeInfo(namespace, typeMatcher.group(1), "data", extendsTypeName, file.getLogicalPath(), i + 1);
                 inventory.addType(currentType);
                 continue;
             }
 
             Matcher enumMatcher = ENUM_PATTERN.matcher(line);
             if (enumMatcher.find()) {
-                currentType = new RosettaTypeInfo(namespace, enumMatcher.group(1), "enum", file.getLogicalPath(), i + 1);
+                currentType = new RosettaTypeInfo(namespace, enumMatcher.group(1), "enum", null, file.getLogicalPath(), i + 1);
                 inventory.addType(currentType);
                 continue;
             }
@@ -85,6 +86,12 @@ public class ModelInventoryExtractor {
 
     private void resolveAttributeQualifiedType(RosettaModelInventory inventory) {
         for (RosettaTypeInfo typeInfo : inventory.types) {
+            if (typeInfo.extendsTypeName != null) {
+                RosettaTypeInfo parent = inventory.findType(typeInfo.namespace, typeInfo.extendsTypeName);
+                if (parent != null) {
+                    typeInfo.extendsTypeQualifiedName = parent.qualifiedName;
+                }
+            }
             for (int i = 0; i < typeInfo.attributes.size(); i++) {
                 RosettaAttributeInfo attr = typeInfo.attributes.get(i);
                 RosettaTypeInfo resolved = inventory.findType(typeInfo.namespace, attr.typeName);

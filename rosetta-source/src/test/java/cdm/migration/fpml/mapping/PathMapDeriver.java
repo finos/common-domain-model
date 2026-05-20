@@ -126,7 +126,7 @@ public class PathMapDeriver {
         if (!visitedTypePath.add(currentType.qualifiedName + "/" + pathKey(path))) {
             return;
         }
-        for (RosettaAttributeInfo attr : currentType.attributes) {
+        for (RosettaAttributeInfo attr : model.attributesIncludingInherited(currentType)) {
             List<String> childPath = new ArrayList<String>(path);
             childPath.add(attr.name);
             List<String> childIntermediates = new ArrayList<String>(intermediateTypes);

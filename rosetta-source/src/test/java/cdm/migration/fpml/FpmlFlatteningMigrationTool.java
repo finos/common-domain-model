@@ -286,6 +286,8 @@ public class FpmlFlatteningMigrationTool {
             t.put("simpleName", type.simpleName);
             t.put("qualifiedName", type.qualifiedName);
             t.put("kind", type.kind);
+            t.put("extendsTypeName", type.extendsTypeName);
+            t.put("extendsTypeQualifiedName", type.extendsTypeQualifiedName);
             t.put("sourceFile", type.sourceFile);
             t.put("sourceLine", type.sourceLine);
             List<Object> attrs = new ArrayList<Object>();
