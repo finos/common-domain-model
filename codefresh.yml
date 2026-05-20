@@ -112,6 +112,14 @@ steps:
       - TWINE_PASSWORD="${{PYPI_TOKEN}}"
     commands:
       - pip install twine
+      - echo "Checking PYPI_TOKEN..."
+      - |
+        if [ -z "$TWINE_PASSWORD" ]; then
+          echo "ERROR: PYPI_TOKEN is not set or is empty"
+          exit 1
+        else
+          echo "PYPI_TOKEN is set (length: $${#TWINE_PASSWORD})"
+        fi
       - twine upload --verbose --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
 
   FailDeployPipeline:
