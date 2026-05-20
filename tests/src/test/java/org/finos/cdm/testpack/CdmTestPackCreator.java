@@ -4,13 +4,10 @@ import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToT
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToWorkflowStep;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
-import com.regnosys.functions.FunctionCreator;
-import com.regnosys.ingest.createiq.CreateiQIngestionServiceTest;
-import com.regnosys.ingest.fis.FisIngestionTest;
-import com.regnosys.ingest.ore.OreTradeTest;
+import com.regnosys.testing.TestingExpectationUtil;
+import org.finos.cdm.functions.FunctionCreator;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
-import com.regnosys.testing.TestingExpectationUtil;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
 import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
@@ -43,24 +40,13 @@ public class CdmTestPackCreator {
     @Inject
     PipelineConfigWriter pipelineConfigWriter;
 
-    @Inject
-    OreTradeTest oreTradeTest;
-
-    @Inject
-    FisIngestionTest fisIngestionTest;
-
-    @Inject
-    CreateiQIngestionServiceTest createiQIngestionServiceTest;
-
     public static void main(String[] args) {
         try {
             CdmTestPackCreator testPackConfigCreator = new CdmTestPackCreator();
             Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
             injector.injectMembers(testPackConfigCreator);
 
-            testPackConfigCreator.run();
-
-            testPackConfigCreator.runIngestion();
+            testPackConfigCreator.runFunctionIngest();
 
             testPackConfigCreator.runFunctionCreators();
 
@@ -71,21 +57,7 @@ public class CdmTestPackCreator {
         }
     }
 
-    private void runIngestion() {
-
-        LOGGER.info(" ** Updating expectations for FisIngestion");
-        fisIngestionTest.run();
-
-        LOGGER.info(" ** Updating expectations for CreateiQIngestionServiceTest");
-        createiQIngestionServiceTest.run();
-
-        LOGGER.info(" ** Updating expectations for OreTradeTest");
-        oreTradeTest.run();
-
-    }
-
     private void runFunctionCreators() throws Exception {
-
         LOGGER.info(" ** Updating Function Input Samples");
 
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();
@@ -100,7 +72,7 @@ public class CdmTestPackCreator {
         functionCreator.run();
     }
 
-    private void run() throws IOException {
+    private void runFunctionIngest() throws IOException {
         pipelineConfigWriter.writePipelinesAndTestPacks(createTreeConfig());
     }
 

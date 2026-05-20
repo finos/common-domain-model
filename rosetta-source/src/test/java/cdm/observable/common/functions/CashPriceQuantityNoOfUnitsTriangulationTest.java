@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static util.ResourcesUtils.getObject;
+import static org.finos.cdm.util.ResourcesUtils.getObject;
 
 public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctionTest {
 
