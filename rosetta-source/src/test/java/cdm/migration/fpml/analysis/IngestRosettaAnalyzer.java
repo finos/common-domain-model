@@ -10,7 +10,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.regnosys.rosetta.rosetta.RosettaModel;
+
 import cdm.migration.fpml.source.RosettaSourceFile;
+import cdm.migration.fpml.xtext.RosettaAstExtractor;
+import cdm.migration.fpml.xtext.RosettaXtextLoader;
 
 public class IngestRosettaAnalyzer {
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("^\\s*namespace\\s+([A-Za-z0-9_.]+)");
@@ -19,6 +23,22 @@ public class IngestRosettaAnalyzer {
     private static final Pattern INPUT_LINE_PATTERN = Pattern.compile("^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s+([A-Za-z_][A-Za-z0-9_.]*)\\s*\\([^)]*\\).*");
     private static final Pattern CALL_PATTERN = Pattern.compile("\\b([A-Z][A-Za-z0-9_]*)\\s*\\(");
     private static final Pattern SWITCH_CALL_PATTERN = Pattern.compile("\\bthen\\s+([A-Z][A-Za-z0-9_]*)\\b");
+    private final RosettaXtextLoader xtextLoader;
+    private final RosettaAstExtractor astExtractor;
+
+    public IngestRosettaAnalyzer() {
+        RosettaXtextLoader loader = null;
+        RosettaAstExtractor extractor = null;
+        try {
+            loader = new RosettaXtextLoader();
+            extractor = new RosettaAstExtractor();
+        } catch (Throwable t) {
+            loader = null;
+            extractor = null;
+        }
+        this.xtextLoader = loader;
+        this.astExtractor = extractor;
+    }
 
     public IngestAnalysisResult analyze(List<RosettaSourceFile> files) {
         IngestAnalysisResult result = new IngestAnalysisResult();
@@ -51,6 +71,19 @@ public class IngestRosettaAnalyzer {
             parsePathExpressions(functionInfo, text);
             result.functions.add(functionInfo);
             result.functionByName.put(functionInfo.name, functionInfo);
+        }
+        enrichFromAstIfAvailable(file, result);
+    }
+
+    private void enrichFromAstIfAvailable(RosettaSourceFile file, IngestAnalysisResult result) {
+        if (xtextLoader == null || astExtractor == null) {
+            return;
+        }
+        try {
+            RosettaModel model = xtextLoader.loadModel(java.nio.file.Paths.get(file.getLogicalPath()));
+            astExtractor.enrichIngestResult(model, file, result);
+        } catch (Throwable ignored) {
+            // Text fallback remains active.
         }
     }
 

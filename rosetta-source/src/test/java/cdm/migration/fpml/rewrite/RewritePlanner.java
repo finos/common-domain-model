@@ -38,6 +38,9 @@ public class RewritePlanner {
             for (RosettaPathExpression path : function.pathExpressions) {
                 String rootType = typeResolver.resolveRootType(function, path, oldModel, aliases);
                 if (rootType == null) {
+                    if (looksLikeEnumRoot(path.rootVariable)) {
+                        continue;
+                    }
                     unresolved.add(function.file + ":" + path.line + " [" + function.name + "] unresolved root type for " + path.expression);
                     continue;
                 }
@@ -100,5 +103,16 @@ public class RewritePlanner {
             return Integer.compare(a.startOffset, b.startOffset);
         });
         return out;
+    }
+
+    private boolean looksLikeEnumRoot(String rootVariable) {
+        if (rootVariable == null) {
+            return false;
+        }
+        String v = rootVariable.trim();
+        if (v.endsWith("Enum")) {
+            return true;
+        }
+        return v.matches("[A-Z][A-Za-z0-9_]*");
     }
 }
