@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cdm.migration.fpml.Confidence;
 import cdm.migration.fpml.analysis.IngestAnalysisResult;
@@ -17,6 +19,8 @@ import cdm.migration.fpml.model.RosettaModelInventory;
 
 public class RewritePlanner {
     private static final String CONTEXT_FIELD_ONLY = "__CONTEXT_FIELD_ONLY__";
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("([A-Za-z_\\^][A-Za-z0-9_\\.\\^]*)");
+    private static final Pattern EXTRACT_SOURCE_PATTERN = Pattern.compile("([A-Za-z_\\^][A-Za-z0-9_\\.\\^]*(?:\\s*->\\s*[A-Za-z_\\^][A-Za-z0-9_\\.\\^]*)*)\\s*$");
     public final List<String> unresolved = new ArrayList<String>();
     public final List<String> ambiguous = new ArrayList<String>();
     public final List<String> cardinalityWarnings = new ArrayList<String>();
@@ -39,6 +43,9 @@ public class RewritePlanner {
             Collections.sort(orderedPaths, (a, b) -> Integer.compare(a.startOffset, b.startOffset));
             Map<String, String> aliases = ingestAnalysis.importAliasesByFile.get(function.file);
             for (RosettaPathExpression path : orderedPaths) {
+                if (isMetadataKeyProjection(function, path)) {
+                    continue;
+                }
                 if (isNonFpmlOutputAssignment(function, path)) {
                     continue;
                 }
@@ -75,6 +82,9 @@ public class RewritePlanner {
                         continue;
                     }
                     if (isReferenceHrefProjection(path)) {
+                        continue;
+                    }
+                    if (isLocalTemporalFieldProjection(function, path)) {
                         continue;
                     }
                     if (isNonFpmlRoot(function, path.rootVariable)) {
@@ -161,6 +171,13 @@ public class RewritePlanner {
             return null;
         }
         String rootToken = targetPath.rootVariable.trim();
+        String extractElementType = resolveExtractElementTypeFromText(function, targetPath, oldModel, typeResolver, aliases);
+        if (extractElementType != null) {
+            String inferredFromExtract = inferRootTypeFromElement(rootToken, extractElementType, oldModel, typeResolver, aliases);
+            if (inferredFromExtract != null) {
+                return inferredFromExtract;
+            }
+        }
         for (RosettaPathExpression prior : orderedPaths) {
             if (prior.startOffset >= targetPath.startOffset) {
                 break;
@@ -184,25 +201,117 @@ public class RewritePlanner {
                 continue;
             }
             String elementType = normalizeType(extractedElementType);
-            if ("item".equals(rootToken)) {
-                return elementType;
+            String inferred = inferRootTypeFromElement(rootToken, elementType, oldModel, typeResolver, aliases);
+            if (inferred != null) {
+                return inferred;
             }
-            cdm.migration.fpml.model.RosettaTypeInfo element = oldModel.typeByQualifiedName.get(elementType);
-            if (element == null) {
-                continue;
+        }
+        return null;
+    }
+
+    private String inferRootTypeFromElement(
+            String rootToken,
+            String extractedElementType,
+            RosettaModelInventory oldModel,
+            TypeResolver typeResolver,
+            Map<String, String> aliases) {
+        String elementType = normalizeType(extractedElementType);
+        if ("item".equals(rootToken)) {
+            return elementType;
+        }
+        cdm.migration.fpml.model.RosettaTypeInfo element = oldModel.typeByQualifiedName.get(elementType);
+        if (element == null) {
+            return null;
+        }
+        cdm.migration.fpml.model.RosettaAttributeInfo attr = oldModel.findAttributeIncludingInherited(element, rootToken);
+        if (attr == null) {
+            return null;
+        }
+        if (attr.typeQualifiedName != null) {
+            return attr.typeQualifiedName;
+        }
+        String resolvedAttrType = typeResolver.resolveTypeRef(attr.typeName, oldModel, aliases);
+        if (resolvedAttrType != null) {
+            return resolvedAttrType;
+        }
+        return CONTEXT_FIELD_ONLY;
+    }
+
+    private String resolveExtractElementTypeFromText(
+            RosettaFunctionInfo function,
+            RosettaPathExpression targetPath,
+            RosettaModelInventory oldModel,
+            TypeResolver typeResolver,
+            Map<String, String> aliases) {
+        if (function == null || function.body == null || targetPath == null) {
+            return null;
+        }
+        int targetStartLocal = Math.max(0, targetPath.startOffset - function.startOffset);
+        if (targetStartLocal <= 0 || targetStartLocal > function.body.length()) {
+            return null;
+        }
+        String before = function.body.substring(0, targetStartLocal);
+        String beforeLower = before.toLowerCase();
+        int extractIdx = beforeLower.lastIndexOf("extract");
+        if (extractIdx < 0) {
+            return null;
+        }
+        int windowStart = Math.max(0, extractIdx - 1200);
+        String sourceWindow = before.substring(windowStart, extractIdx);
+        Matcher sourceMatcher = EXTRACT_SOURCE_PATTERN.matcher(sourceWindow);
+        if (!sourceMatcher.find()) {
+            return null;
+        }
+        ParsedPath sourcePath = parsePath(sourceMatcher.group(1));
+        if (sourcePath == null || sourcePath.root == null) {
+            return null;
+        }
+        RosettaPathExpression pseudoPath = new RosettaPathExpression(
+                function.file,
+                function.name,
+                targetPath.startOffset,
+                targetPath.startOffset,
+                targetPath.line,
+                sourcePath.root,
+                sourcePath.root,
+                Collections.<String>emptyList());
+        String sourceRootType = typeResolver.resolveRootType(function, pseudoPath, oldModel, aliases);
+        if (sourceRootType == null) {
+            return null;
+        }
+        if (sourcePath.segments.isEmpty()) {
+            return normalizeType(sourceRootType);
+        }
+        String terminalType = typeResolver.resolveTerminalType(oldModel, sourceRootType, sourcePath.segments);
+        return normalizeType(terminalType);
+    }
+
+    private ParsedPath parsePath(String expression) {
+        if (expression == null) {
+            return null;
+        }
+        String[] parts = expression.split("->");
+        if (parts.length == 0) {
+            return null;
+        }
+        String root = firstIdentifier(parts[0]);
+        if (root == null) {
+            return null;
+        }
+        List<String> segments = new ArrayList<String>();
+        for (int i = 1; i < parts.length; i++) {
+            String seg = firstIdentifier(parts[i]);
+            if (seg != null) {
+                segments.add(seg);
             }
-            cdm.migration.fpml.model.RosettaAttributeInfo attr = oldModel.findAttributeIncludingInherited(element, rootToken);
-            if (attr == null) {
-                continue;
-            }
-            if (attr.typeQualifiedName != null) {
-                return attr.typeQualifiedName;
-            }
-            String resolvedAttrType = typeResolver.resolveTypeRef(attr.typeName, oldModel, aliases);
-            if (resolvedAttrType != null) {
-                return resolvedAttrType;
-            }
-            return CONTEXT_FIELD_ONLY;
+        }
+        return new ParsedPath(root, segments);
+    }
+
+    private String firstIdentifier(String text) {
+        Matcher matcher = IDENTIFIER_PATTERN.matcher(text == null ? "" : text);
+        if (matcher.find()) {
+            return matcher.group(1);
         }
         return null;
     }
@@ -337,5 +446,77 @@ public class RewritePlanner {
         return root.endsWith("Reference")
                 || root.endsWith("accountReference")
                 || root.endsWith("partyReference");
+    }
+
+    private boolean isMetadataKeyProjection(RosettaFunctionInfo function, RosettaPathExpression path) {
+        if (function == null || function.body == null || path == null) {
+            return false;
+        }
+        int localStart = path.startOffset - function.startOffset;
+        if (localStart < 0 || localStart > function.body.length()) {
+            return false;
+        }
+        int lineStart = function.body.lastIndexOf('\n', Math.max(0, localStart - 1));
+        lineStart = lineStart < 0 ? 0 : lineStart + 1;
+        int lineEnd = function.body.indexOf('\n', localStart);
+        if (lineEnd < 0) {
+            lineEnd = function.body.length();
+        }
+        String line = function.body.substring(lineStart, lineEnd).toLowerCase();
+        if (!line.contains("key:")) {
+            return false;
+        }
+        int contextStart = Math.max(0, lineStart - 200);
+        String prefix = function.body.substring(contextStart, lineStart).toLowerCase();
+        return prefix.contains("with-meta");
+    }
+
+    private boolean isLocalTemporalFieldProjection(RosettaFunctionInfo function, RosettaPathExpression path) {
+        if (function == null || function.body == null || path == null || path.rootVariable == null || path.segments == null) {
+            return false;
+        }
+        if (path.segments.size() != 1) {
+            return false;
+        }
+        String tail = path.segments.get(0);
+        if (tail == null) {
+            return false;
+        }
+        String tailLower = tail.toLowerCase();
+        boolean temporalProjection = "date".equals(tailLower)
+                || "time".equals(tailLower)
+                || "hour".equals(tailLower)
+                || "minute".equals(tailLower)
+                || "second".equals(tailLower)
+                || "timezone".equals(tailLower);
+        if (!temporalProjection) {
+            return false;
+        }
+        int localStart = path.startOffset - function.startOffset;
+        if (localStart < 0 || localStart > function.body.length()) {
+            return false;
+        }
+        int lineStart = function.body.lastIndexOf('\n', Math.max(0, localStart - 1));
+        lineStart = lineStart < 0 ? 0 : lineStart + 1;
+        int lineEnd = function.body.indexOf('\n', localStart);
+        if (lineEnd < 0) {
+            lineEnd = function.body.length();
+        }
+        String line = function.body.substring(lineStart, lineEnd);
+        String root = path.rootVariable;
+        Pattern assignmentPattern = Pattern.compile(
+                "\\b" + Pattern.quote(root) + "\\b\\s*:\\s*\\b" + Pattern.quote(root) + "\\b\\s*->\\s*\\b" + Pattern.quote(tail) + "\\b",
+                Pattern.CASE_INSENSITIVE);
+        return assignmentPattern.matcher(line).find();
+    }
+
+    private static class ParsedPath {
+        private final String root;
+        private final List<String> segments;
+
+        private ParsedPath(String root, List<String> segments) {
+            this.root = root;
+            this.segments = segments;
+        }
     }
 }

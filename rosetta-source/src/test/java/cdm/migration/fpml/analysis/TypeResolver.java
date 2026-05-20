@@ -39,7 +39,23 @@ public class TypeResolver {
             List<String> suffixSegments,
             RosettaModelInventory oldModel,
             Map<String, String> aliasImports) {
-        if (aliasName == null) {
+        return expandAliasPathRecursive(
+                function,
+                aliasName,
+                suffixSegments,
+                oldModel,
+                aliasImports,
+                new HashSet<String>());
+    }
+
+    private ExpandedAliasPath expandAliasPathRecursive(
+            RosettaFunctionInfo function,
+            String aliasName,
+            List<String> suffixSegments,
+            RosettaModelInventory oldModel,
+            Map<String, String> aliasImports,
+            Set<String> visitedAliases) {
+        if (aliasName == null || !visitedAliases.add(aliasName)) {
             return null;
         }
         String expr = function.aliasExpressions.get(aliasName);
@@ -50,15 +66,31 @@ public class TypeResolver {
         if (aliasPath == null) {
             return null;
         }
-        Set<String> visited = new HashSet<String>();
-        String baseRootType = resolveSymbolType(function, aliasPath.rootToken, oldModel, aliasImports, visited);
-        if (baseRootType == null) {
-            return null;
-        }
         List<String> combined = new ArrayList<String>();
         combined.addAll(aliasPath.segments);
         if (suffixSegments != null) {
             combined.addAll(suffixSegments);
+        }
+        if (function.aliasExpressions.containsKey(aliasPath.rootToken)) {
+            ExpandedAliasPath expandedRoot = expandAliasPathRecursive(
+                    function,
+                    aliasPath.rootToken,
+                    combined,
+                    oldModel,
+                    aliasImports,
+                    visitedAliases);
+            if (expandedRoot != null) {
+                return expandedRoot;
+            }
+        }
+        String baseRootType = resolveSymbolType(
+                function,
+                aliasPath.rootToken,
+                oldModel,
+                aliasImports,
+                new HashSet<String>(visitedAliases));
+        if (baseRootType == null) {
+            return null;
         }
         return new ExpandedAliasPath(aliasPath.rootToken, baseRootType, combined);
     }
