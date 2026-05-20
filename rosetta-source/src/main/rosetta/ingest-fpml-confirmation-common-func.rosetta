@@ -29,7 +29,8 @@ func GetFpmlTrade:
     inputs:
         fpmlTradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
         postTradeEventsBaseModelSequence fpml.PostTradeEventsBaseModelSequence (0..1)
-        novation fpml.TradeNovationContent (0..1)fpmlChangeEventsBaseModel fpml.ChangeEventsBaseModel (0..1)
+        novation fpml.TradeNovationContent (0..1)
+        fpmlChangeEventsBaseModel fpml.ChangeEventsBaseModel (0..1)
         fpmlTradeAmendmentContent fpml.TradeAmendmentContent (0..1)
     output:
         fpmlTrade fpml.Trade (0..1)
@@ -110,7 +111,8 @@ func MapProductTaxonomyList:
     inputs:
         primaryAssetClass fpml.AssetClass (0..1)
         secondaryAssetClass fpml.AssetClass (0..*)
-        productType fpml.ProductType (0..*)output:
+        productType fpml.ProductType (0..*)
+    output:
         taxonomy ProductTaxonomy (0..*)
 
     add taxonomy:
@@ -280,7 +282,8 @@ func MapUnscheduledTransferEnumWithScheme:
 
 func MapProductIdentifierList:
     inputs:
-        productId fpml.ProductId (0..*)output:
+        productId fpml.ProductId (0..*)
+    output:
         productIdentifierList ProductIdentifier (0..*)
 
     add productIdentifierList: productId extract MapProductIdentifier
@@ -606,7 +609,12 @@ func MapExerciseProcedure:
     output:
         exerciseProcedure ExerciseProcedure (1..1)
 
-    alias buyerSeller: MapBuyerSeller(fpmlBuyerSellerModel -> buyerPartyReference, fpmlBuyerSellerModel -> sellerPartyReference, cdmCounterpartyList)
+    alias buyerSeller:
+        MapBuyerSeller(
+                fpmlBuyerSellerModel -> buyerPartyReference,
+                fpmlBuyerSellerModel -> sellerPartyReference,
+                cdmCounterpartyList
+            )
 
     set exerciseProcedure:
         ExerciseProcedure {

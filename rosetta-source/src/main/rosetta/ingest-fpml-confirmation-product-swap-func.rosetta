@@ -30,7 +30,8 @@ func MapSwapCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlSwap -> swapStream first -> payerReceiverModel -> payerModel, fpmlSwap -> swapStream first -> payerReceiverModel -> receiverModel
+                fpmlSwap -> swapStream first -> payerReceiverModel -> payerModel,
+                fpmlSwap -> swapStream first -> payerReceiverModel -> receiverModel
             )
 
 func MapSwapAncillaryPartyList:
@@ -66,7 +67,11 @@ func MapSwapNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(fpmlSwap -> productModel -> productId),
-            taxonomy: MapProductTaxonomyList(fpmlSwap -> productModel -> primaryAssetClass, fpmlSwap -> productModel -> secondaryAssetClass, fpmlSwap -> productModel -> productType),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlSwap -> productModel -> primaryAssetClass,
+                        fpmlSwap -> productModel -> secondaryAssetClass,
+                        fpmlSwap -> productModel -> productType
+                    ),
             economicTerms: MapSwapEconomicTerms(fpmlSwap, cdmCounterpartyList)
         }
 
@@ -101,7 +106,8 @@ func MapSwapPayout:
     alias notionalStepScheduleCalculation:
         fpmlSwapStream -> calculationPeriodAmount -> calculation
 
-    alias fpmlRateCalculation: fpmlSwapStream -> calculationPeriodAmount -> calculation -> rateCalculation
+    alias fpmlRateCalculation:
+        fpmlSwapStream -> calculationPeriodAmount -> calculation -> rateCalculation
 
     alias floatingRateSpecification:
         fpmlRateCalculation switch
@@ -133,7 +139,8 @@ func MapSwapPayout:
                                 cdmCounterpartyList
                             ),
                     payerReceiver: MapPayerReceiver(
-                                fpmlSwapStream -> payerReceiverModel -> payerModel, fpmlSwapStream -> payerReceiverModel -> receiverModel,
+                                fpmlSwapStream -> payerReceiverModel -> payerModel,
+                                fpmlSwapStream -> payerReceiverModel -> receiverModel,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -325,7 +332,8 @@ func MapInflationRateSpecification:
 
 func MapInitialRate:
     inputs:
-        initialRate fpml.number (0..1)fpmlFloatingRateIndexModel fpml.FloatingRateIndexModel (0..1)
+        initialRate fpml.number (0..1)
+        fpmlFloatingRateIndexModel fpml.FloatingRateIndexModel (0..1)
     output:
         initialRate Price (0..1)
 
@@ -490,9 +498,7 @@ func MapStubCalculationPeriodAmountToStubPeriod:
         StubPeriod {
             calculationPeriodDatesReference: empty,
             finalStub: MapStubValue(fpmlStubCalculationPeriodAmount -> finalStub),
-            initialStub: MapStubValue(
-                        fpmlStubCalculationPeriodAmount -> initialStub
-                    )
+            initialStub: MapStubValue(fpmlStubCalculationPeriodAmount -> initialStub)
         }
     set stubPeriod -> calculationPeriodDatesReference -> reference:
         fpmlStubCalculationPeriodAmount -> calculationPeriodDatesReference -> href
@@ -805,5 +811,6 @@ func MapSwapAccountPartyReference:
     set partyReference:
         MapPayerReceiverToAccountPartyReference(
                 fpmlAccount,
-                fpmlSwap -> swapStream -> payerReceiverModel -> payerModel, fpmlSwap -> swapStream -> payerReceiverModel -> receiverModel
+                fpmlSwap -> swapStream -> payerReceiverModel -> payerModel,
+                fpmlSwap -> swapStream -> payerReceiverModel -> receiverModel
             )

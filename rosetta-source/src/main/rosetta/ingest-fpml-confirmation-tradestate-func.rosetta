@@ -90,7 +90,8 @@ func MapTradeState:
 func MapTrade:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        party fpml.Party (0..*)fpmlEventValuationModel fpml.EventValuationModel (0..1)
+        party fpml.Party (0..*)
+        fpmlEventValuationModel fpml.EventValuationModel (0..1)
         fpmlAdditionalPartyTradeIdentifier fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
     output:
         trade Trade (0..1)
@@ -113,22 +114,23 @@ func MapTrade:
                         fpmlAdditionalPartyTradeIdentifier
                     ),
             tradeDate: MapIdentifiedDate(fpmlTrade -> tradeHeader -> tradeDate),
-            party: MapPartyList(
-                        party,
-                        fpmlTrade -> tradeHeader -> partyTradeInformation
-                    ),
+            party: MapPartyList(party, fpmlTrade -> tradeHeader -> partyTradeInformation),
             partyRole: MapPartyRoleList(fpmlTrade),
             contractDetails: MapContractDetails(fpmlTrade, counterpartyList),
             account: MapAccountList(fpmlTrade, fpmlPartiesAndAccountsModel -> account),
             collateral: MapCollateral(fpmlTrade -> tradeHeader),
-            executionDetails: MapExecutionDetails(fpmlTrade, fpmlEventValuationModel -> quote),
+            executionDetails: MapExecutionDetails(
+                        fpmlTrade,
+                        fpmlEventValuationModel -> quote
+                    ),
             ...
         }
 
 func MapExecutionDetails:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        quote fpml.consolidated.asset.BasicQuotation (0..*)output:
+        quote fpml.consolidated.asset.BasicQuotation (0..*)
+    output:
         executionDetails ExecutionDetails (0..1)
 
     alias quotationModel:
@@ -167,7 +169,8 @@ func MapExecutionDetails:
             packageReference:
                 IdentifiedList {
                     listId: MapIssuerTradeIdModelToIdentifier(
-                                fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> issuerTradeIdModel -> issuer, fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> issuerTradeIdModel -> tradeId
+                                fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> issuerTradeIdModel -> issuer,
+                                fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> issuerTradeIdModel -> tradeId
                             ),
                     price:
                         Price {
@@ -362,7 +365,10 @@ func MapNonTransferableProduct:
         }
 
     set nonTransferableProduct -> economicTerms -> calculationAgent:
-        MapCalculationAgent(fpmlTrade -> calculationAgentModel -> calculationAgent, fpmlTrade -> calculationAgentModel -> calculationAgentBusinessCenter)
+        MapCalculationAgent(
+                fpmlTrade -> calculationAgentModel -> calculationAgent,
+                fpmlTrade -> calculationAgentModel -> calculationAgentBusinessCenter
+            )
 
     set nonTransferableProduct -> economicTerms -> nonStandardisedTerms:
         if fpmlTrade -> tradeHeader -> partyTradeInformation -> nonStandardTerms exists
@@ -371,7 +377,8 @@ func MapNonTransferableProduct:
 func MapCalculationAgent:
     inputs:
         calculationAgent fpml.consolidated.shared.CalculationAgent (0..1)
-        calculationAgentBusinessCenter fpml.consolidated.shared.BusinessCenter (0..1)output:
+        calculationAgentBusinessCenter fpml.consolidated.shared.BusinessCenter (0..1)
+    output:
         calculationAgent CalculationAgent (0..1)
 
     set calculationAgent:
@@ -388,7 +395,8 @@ func MapTradeLotList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
         fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
-        quote fpml.consolidated.asset.BasicQuotation (0..*)output:
+        quote fpml.consolidated.asset.BasicQuotation (0..*)
+    output:
         tradeLotList TradeLot (0..*)
 
     alias quotationModel:

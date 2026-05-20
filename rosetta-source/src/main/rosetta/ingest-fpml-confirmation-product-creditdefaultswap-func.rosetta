@@ -55,8 +55,14 @@ func MapCreditDefaultSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlCreditDefaultSwap -> productModel -> productId),
-            taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwap -> productModel -> primaryAssetClass, fpmlCreditDefaultSwap -> productModel -> secondaryAssetClass, fpmlCreditDefaultSwap -> productModel -> productType),
+            identifier: MapProductIdentifierList(
+                        fpmlCreditDefaultSwap -> productModel -> productId
+                    ),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCreditDefaultSwap -> productModel -> primaryAssetClass,
+                        fpmlCreditDefaultSwap -> productModel -> secondaryAssetClass,
+                        fpmlCreditDefaultSwap -> productModel -> productType
+                    ),
             economicTerms: MapCreditDefaultSwapEconomicTerms(
                         fpmlCreditDefaultSwap,
                         fpmlTradeHeader,
@@ -99,7 +105,8 @@ func MapCreditDefaultSwapPayoutList:
 
     alias generalTermsPayerReceiver:
         MapSellerAsPayerAndBuyerAsReceiver(
-                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel -> sellerPartyReference, fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel -> buyerPartyReference,
+                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel -> sellerPartyReference,
+                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel -> buyerPartyReference,
                 cdmCounterpartyList
             )
     add payouts:
@@ -235,8 +242,7 @@ func MapCreditIndex:
     output:
         creditIndex CreditIndex (0..1)
 
-    alias indexName:
-        fpmlIndexReferenceInformation -> indexName
+    alias indexName: fpmlIndexReferenceInformation -> indexName
 
     alias indexId:
         fpmlIndexReferenceInformation -> indexId default fpmlIndexReferenceInformation -> indexId
@@ -248,7 +254,10 @@ func MapCreditIndex:
                         indexName extract MapIndexNameToAssetIdentifier,
                         indexId extract MapIndexIdToAssetIdentifier
                     ],
-                name: MapStringWithScheme(fpmlIndexReferenceInformation -> indexName -> value, fpmlIndexReferenceInformation -> indexName -> indexNameScheme),
+                name: MapStringWithScheme(
+                            fpmlIndexReferenceInformation -> indexName -> value,
+                            fpmlIndexReferenceInformation -> indexName -> indexNameScheme
+                        ),
                 provider: empty,
                 assetClass: Credit,
                 indexSeries: fpmlIndexReferenceInformation -> indexSeries,
@@ -293,8 +302,7 @@ func MapBasketReferenceInformation:
     output:
         basketReferenceInformation BasketReferenceInformation (0..1)
 
-    alias basketName:
-        fpmlBasketReferenceInformation -> basketName
+    alias basketName: fpmlBasketReferenceInformation -> basketName
 
     alias basketIdList:
         fpmlBasketReferenceInformation -> basketIdentifierModel
@@ -419,7 +427,9 @@ func MapProtectionTerms:
                             multipleHolderObligation: fpmlProtectionTerms -> creditEvents -> restructuring -> multipleHolderObligation,
                             multipleCreditEventNotices: fpmlProtectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices,
                         },
-                    defaultRequirement: MapMoney(fpmlProtectionTerms -> creditEvents -> defaultRequirement),
+                    defaultRequirement: MapMoney(
+                                fpmlProtectionTerms -> creditEvents -> defaultRequirement
+                            ),
                     creditEventNotice: MapCreditEventNotice(
                                 fpmlProtectionTerms -> creditEvents -> creditEventNotice,
                                 cdmCounterpartyList

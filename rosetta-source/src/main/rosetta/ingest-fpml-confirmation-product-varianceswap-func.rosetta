@@ -25,7 +25,8 @@ func MapVarianceSwapCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlVarianceSwap -> varianceLeg first -> payerReceiverModel -> payerModel, fpmlVarianceSwap -> varianceLeg first -> payerReceiverModel -> receiverModel
+                fpmlVarianceSwap -> varianceLeg first -> payerReceiverModel -> payerModel,
+                fpmlVarianceSwap -> varianceLeg first -> payerReceiverModel -> receiverModel
             )
 
 func MapVarianceSwapNonTransferableProduct:
@@ -37,8 +38,14 @@ func MapVarianceSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlVarianceSwap -> productModel -> productId),
-            taxonomy: MapProductTaxonomyList(fpmlVarianceSwap -> productModel -> primaryAssetClass, fpmlVarianceSwap -> productModel -> secondaryAssetClass, fpmlVarianceSwap -> productModel -> productType),
+            identifier: MapProductIdentifierList(
+                        fpmlVarianceSwap -> productModel -> productId
+                    ),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlVarianceSwap -> productModel -> primaryAssetClass,
+                        fpmlVarianceSwap -> productModel -> secondaryAssetClass,
+                        fpmlVarianceSwap -> productModel -> productType
+                    ),
             economicTerms: MapVarianceSwapEconomicTerms(
                         fpmlVarianceSwap,
                         cdmCounterpartyList
@@ -79,7 +86,8 @@ func MapVarianceLegToPerformancePayout:
             PerformancePayout:
                 PerformancePayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlVarianceLeg -> payerReceiverModel -> payerModel, fpmlVarianceLeg -> payerReceiverModel -> receiverModel,
+                                fpmlVarianceLeg -> payerReceiverModel -> payerModel,
+                                fpmlVarianceLeg -> payerReceiverModel -> receiverModel,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -91,7 +99,9 @@ func MapVarianceLegToPerformancePayout:
                             ...
                         },
                     settlementTerms: MapOptionSettlementModelToSettlementTerms(
-                                fpmlVarianceLeg -> optionSettlementModel -> settlementType, fpmlVarianceLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel, fpmlVarianceLeg -> optionSettlementModel -> settlementDate
+                                fpmlVarianceLeg -> optionSettlementModel -> settlementType,
+                                fpmlVarianceLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel,
+                                fpmlVarianceLeg -> optionSettlementModel -> settlementDate
                             ),
                     observationTerms: MapAdjustableOrRelativeDateToObservationTerms(
                                 fpmlVarianceLeg -> amount -> observationStartDate
@@ -225,5 +235,6 @@ func MapVarianceSwapAccountPartyReference:
     set partyReference:
         MapPayerReceiverToAccountPartyReference(
                 fpmlAccount,
-                fpmlVarianceSwap -> varianceLeg -> payerReceiverModel -> payerModel, fpmlVarianceSwap -> varianceLeg -> payerReceiverModel -> receiverModel
+                fpmlVarianceSwap -> varianceLeg -> payerReceiverModel -> payerModel,
+                fpmlVarianceSwap -> varianceLeg -> payerReceiverModel -> receiverModel
             )

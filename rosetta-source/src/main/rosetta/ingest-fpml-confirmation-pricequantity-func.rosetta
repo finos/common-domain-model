@@ -565,7 +565,8 @@ func MapEquityDerivativeBaseQuantityListWithAddress:
 func MapFxCoreDetailsModelQuantityListWithLocation:
     inputs:
         exchangedCurrency1 fpml.consolidated.shared.Payment (1..1)
-        exchangedCurrency2 fpml.consolidated.shared.Payment (1..1)fpmlLeg fpml.Leg (0..1)
+        exchangedCurrency2 fpml.consolidated.shared.Payment (1..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         quantityList NonNegativeQuantitySchedule (0..*)
             [metadata location]
@@ -599,7 +600,8 @@ func MapFxCoreDetailsModelQuantityListWithLocation:
 
 func MapFxCoreDetailsModelQuantityWithAddress:
     inputs:
-        exchangeRate fpml.ExchangeRate (0..1)fpmlLeg fpml.Leg (0..1)
+        exchangeRate fpml.ExchangeRate (0..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         quantity NonNegativeQuantitySchedule (0..1)
             [metadata address]
@@ -619,7 +621,8 @@ func GetFpmlExchangedCurrency:
     inputs:
         exchangeRate fpml.ExchangeRate (0..1)
         exchangedCurrency1 fpml.consolidated.shared.Payment (1..1)
-        exchangedCurrency2 fpml.consolidated.shared.Payment (1..1)output:
+        exchangedCurrency2 fpml.consolidated.shared.Payment (1..1)
+    output:
         fpmlExchangedCurrency fpml.Payment (0..1)
 
     alias quotedCurrencyPair: exchangeRate -> quotedCurrencyPair
@@ -678,13 +681,13 @@ func MapFxOptionQuantityWithAddress:
 
 func MapCommodityNotionalQuantityToQuantityListWithLocation:
     inputs:
-        commodityNotionalQuantityModelSequence fpml.CommodityNotionalQuantityModelSequence (0..1)fpmlLeg fpml.Leg (0..1)
+        commodityNotionalQuantityModelSequence fpml.CommodityNotionalQuantityModelSequence (0..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..*)
             [metadata location]
 
-    alias fpmlQuantityModel:
-        commodityNotionalQuantityModelSequence
+    alias fpmlQuantityModel: commodityNotionalQuantityModelSequence
 
     add nonNegativeQuantitySchedule:
         MapCommodityNotionalQuantityToQuantityWithLocation(
@@ -704,7 +707,8 @@ func MapCommodityNotionalQuantityToQuantityListWithLocation:
 
 func MapCommodityNotionalQuantityToQuantityWithAddress:
     inputs:
-        commodityNotionalQuantityModelSequence fpml.CommodityNotionalQuantityModelSequence (0..1)fpmlLeg fpml.Leg (0..1)
+        commodityNotionalQuantityModelSequence fpml.CommodityNotionalQuantityModelSequence (0..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
             [metadata address]
@@ -973,7 +977,8 @@ func MapSpreadScheduleToPriceWithLocation:
 
 func MapSpreadScheduleWithAddress:
     inputs:
-        spreadSchedule fpml.SpreadSchedule (0..*)fpmlLeg fpml.Leg (0..1)
+        spreadSchedule fpml.SpreadSchedule (0..*)
+        fpmlLeg fpml.Leg (0..1)
     output:
         spreadSchedule SpreadSchedule (0..1)
 
@@ -1010,7 +1015,8 @@ func MapCapRateScheduleToPriceWithLocation:
 
 func MapCapRateScheduleWithAddress:
     inputs:
-        capRateSchedule fpml.StrikeSchedule (0..*)fpmlLeg fpml.Leg (0..1)
+        capRateSchedule fpml.StrikeSchedule (0..*)
+        fpmlLeg fpml.Leg (0..1)
     output:
         strikeSchedule StrikeSchedule (0..1)
 
@@ -1047,7 +1053,8 @@ func MapFloorRateScheduleToPriceWithLocation:
 
 func MapFloorRateScheduleWithAddress:
     inputs:
-        floorRateSchedule fpml.StrikeSchedule (0..*)fpmlLeg fpml.Leg (0..1)
+        floorRateSchedule fpml.StrikeSchedule (0..*)
+        fpmlLeg fpml.Leg (0..1)
     output:
         strikeSchedule StrikeSchedule (0..1)
 
@@ -1265,7 +1272,12 @@ func MapFxCoreDetailsModelPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    alias exchangedCurrency: GetFpmlExchangedCurrency(fpmlFxCoreDetailsModel -> exchangeRate, fpmlFxCoreDetailsModel -> exchangedCurrency1, fpmlFxCoreDetailsModel -> exchangedCurrency2)
+    alias exchangedCurrency:
+        GetFpmlExchangedCurrency(
+                fpmlFxCoreDetailsModel -> exchangeRate,
+                fpmlFxCoreDetailsModel -> exchangedCurrency1,
+                fpmlFxCoreDetailsModel -> exchangedCurrency2
+            )
 
     add priceQuantityList:
         PriceQuantity {
@@ -1274,7 +1286,8 @@ func MapFxCoreDetailsModelPriceQuantityList:
                         fpmlLeg
                     ),
             quantity: MapFxCoreDetailsModelQuantityListWithLocation(
-                        fpmlFxCoreDetailsModel -> exchangedCurrency1, fpmlFxCoreDetailsModel -> exchangedCurrency2,
+                        fpmlFxCoreDetailsModel -> exchangedCurrency1,
+                        fpmlFxCoreDetailsModel -> exchangedCurrency2,
                         fpmlLeg
                     ),
             observable: MapCurrencyToObservableCashWithLocation(
@@ -1286,7 +1299,8 @@ func MapFxCoreDetailsModelPriceQuantityList:
 
 func MapFxCoreDetailsModelPriceListWithLocation:
     inputs:
-        exchangeRate fpml.ExchangeRate (0..1)fpmlLeg fpml.Leg (0..1)
+        exchangeRate fpml.ExchangeRate (0..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         priceList PriceSchedule (0..*)
             [metadata location]
@@ -1300,7 +1314,8 @@ func MapFxCoreDetailsModelPriceListWithLocation:
 
 func MapFxCoreDetailsModelPriceWithAddress:
     inputs:
-        exchangeRate fpml.ExchangeRate (0..1)fpmlLeg fpml.Leg (0..1)
+        exchangeRate fpml.ExchangeRate (0..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         price PriceSchedule (0..1)
             [metadata address]
@@ -1317,8 +1332,7 @@ func MapExchangeRateToPrice:
 
     alias rate: fpmlExchangeRate -> rate
     alias spotRate: fpmlExchangeRate -> spotRate
-    alias forwardPoints:
-        fpmlExchangeRate -> forwardPoints
+    alias forwardPoints: fpmlExchangeRate -> forwardPoints
     alias quotedCurrencyPair: fpmlExchangeRate -> quotedCurrencyPair
 
     alias fpmlCurrency:
@@ -1402,7 +1416,8 @@ func MapCommoditySpreadToPriceWithAddress:
 func MapCommodityFixedLegToPriceWithLocation:
     inputs:
         commodityFixedPriceModelChoice fpml.CommodityFixedPriceModelChoice (0..1)
-        fixedPriceSchedule fpml.CommodityFixedPriceSchedule (0..1)fpmlLeg fpml.Leg (0..1)
+        fixedPriceSchedule fpml.CommodityFixedPriceSchedule (0..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         priceSchedule PriceSchedule (0..1)
             [metadata location]
@@ -1413,9 +1428,7 @@ func MapCommodityFixedLegToPriceWithLocation:
                     commodityFixedPriceModelChoice -> fixedPrice
                 )
         else if fixedPriceSchedule exists
-        then MapCommmodityFixedPriceScheduleToPriceSchedule(
-                    fixedPriceSchedule
-                )
+        then MapCommmodityFixedPriceScheduleToPriceSchedule(fixedPriceSchedule)
 
     set priceSchedule:
         if fixedPrice exists
@@ -1424,7 +1437,8 @@ func MapCommodityFixedLegToPriceWithLocation:
 func MapCommodityFixedLegToPriceWithAddress:
     inputs:
         commodityFixedPriceModelChoice fpml.CommodityFixedPriceModelChoice (0..1)
-        fixedPriceSchedule fpml.CommodityFixedPriceSchedule (0..1)fpmlLeg fpml.Leg (0..1)
+        fixedPriceSchedule fpml.CommodityFixedPriceSchedule (0..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         priceSchedule PriceSchedule (0..1)
             [metadata address]
@@ -1435,9 +1449,7 @@ func MapCommodityFixedLegToPriceWithAddress:
                     commodityFixedPriceModelChoice -> fixedPrice
                 )
         else if fixedPriceSchedule exists
-        then MapCommmodityFixedPriceScheduleToPriceSchedule(
-                    fixedPriceSchedule
-                )
+        then MapCommmodityFixedPriceScheduleToPriceSchedule(fixedPriceSchedule)
 
     set priceSchedule:
         if fixedPrice exists
@@ -1679,7 +1691,9 @@ func MapFloatingRateIndex:
                     identifierType: Other // This will require contains syntax to derive correctly
                 },
             assetClass: InterestRate,
-            floatingRateIndex: MapFloatingRateIndexEnum(fpmlFloatingRateCalculation -> floatingRateIndex -> value),
+            floatingRateIndex: MapFloatingRateIndexEnum(
+                        fpmlFloatingRateCalculation -> floatingRateIndex -> value
+                    ),
             indexTenor: MapPeriod(fpmlFloatingRateCalculation -> indexTenor),
             assetType: Other,
             ...
@@ -1916,9 +1930,7 @@ func MapIdentifiedAssetToAssetListedDerivative:
     output:
         asset Asset (0..1)
 
-    alias assetParty:
-          fpmlExchangeId extract MapExchangeIdToAssetParty
-
+    alias assetParty: fpmlExchangeId extract MapExchangeIdToAssetParty
 
     set asset:
         Asset {
@@ -1930,14 +1942,19 @@ func MapIdentifiedAssetToAssetListedDerivative:
                             isExchangeListed: if fpmlExchangeId exists
                                     then True,
                             party: assetParty,
-                            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                            partyRole: assetParty
+                                    extract
+                                        MapAssetPartyRole(
+                                                item,
+                                                AssetPartyRoleEnum -> Exchange
+                                            ),
                             ancillaryPartyRole: fpmlRelatedExchangeId
-                            filter value <> fpmlExchangeId -> value
-                            then extract
-                                MapAssetAncillaryPartyRole(
-                                    MapExchangeIdToAssetParty,
-                                    AssetAncillaryPartyRoleEnum->RelatedExchange
-                                ),
+                                    filter value <> fpmlExchangeId -> value
+                                    then extract
+                                        MapAssetAncillaryPartyRole(
+                                                MapExchangeIdToAssetParty,
+                                                AssetAncillaryPartyRoleEnum -> RelatedExchange
+                                            ),
                             assetType: ListedDerivative,
                             ...
                         },
@@ -1954,9 +1971,7 @@ func MapIdentifiedAssetToAssetLoan:
     output:
         asset Asset (0..1)
 
-    alias assetParty:
-          fpmlExchangeId extract MapExchangeIdToAssetParty
-
+    alias assetParty: fpmlExchangeId extract MapExchangeIdToAssetParty
 
     set asset:
         Asset {
@@ -1968,14 +1983,19 @@ func MapIdentifiedAssetToAssetLoan:
                             isExchangeListed: if fpmlExchangeId exists
                                     then True,
                             party: assetParty,
-                            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                            partyRole: assetParty
+                                    extract
+                                        MapAssetPartyRole(
+                                                item,
+                                                AssetPartyRoleEnum -> Exchange
+                                            ),
                             ancillaryPartyRole: fpmlRelatedExchangeId
-                            filter value <> fpmlExchangeId -> value
-                            then extract
-                                MapAssetAncillaryPartyRole(
-                                    MapExchangeIdToAssetParty,
-                                    AssetAncillaryPartyRoleEnum->RelatedExchange
-                                ),
+                                    filter value <> fpmlExchangeId -> value
+                                    then extract
+                                        MapAssetAncillaryPartyRole(
+                                                MapExchangeIdToAssetParty,
+                                                AssetAncillaryPartyRoleEnum -> RelatedExchange
+                                            ),
                             assetType: Loan,
                             ...
                         },
@@ -2019,23 +2039,22 @@ func MapIdentifiedAssetToSecurity:
     output:
         security Security (0..1)
 
-    alias assetParty:
-          fpmlExchangeId extract MapExchangeIdToAssetParty
-
+    alias assetParty: fpmlExchangeId extract MapExchangeIdToAssetParty
 
     set security:
         Security {
             identifier: MapAssetIdentifierList(fpmlIdentifiedAsset),
             isExchangeListed: if fpmlExchangeId exists then True,
             party: assetParty,
-            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+            partyRole: assetParty
+                    extract MapAssetPartyRole(item, AssetPartyRoleEnum -> Exchange),
             ancillaryPartyRole: fpmlRelatedExchangeId
-                            filter value <> fpmlExchangeId -> value
-                            then extract
-                                MapAssetAncillaryPartyRole(
-                                    MapExchangeIdToAssetParty,
-                                    AssetAncillaryPartyRoleEnum->RelatedExchange
-                                ),
+                    filter value <> fpmlExchangeId -> value
+                    then extract
+                        MapAssetAncillaryPartyRole(
+                                MapExchangeIdToAssetParty,
+                                AssetAncillaryPartyRoleEnum -> RelatedExchange
+                            ),
             securityType: securityType,
             assetType: Security,
             debtType:
@@ -2079,33 +2098,32 @@ func MapEquityIndex:
     output:
         index Index (0..1)
 
-    alias assetParty:
-        fpmlIndex -> exchangeId extract MapExchangeIdToAssetParty
+    alias assetParty: fpmlIndex -> exchangeId extract MapExchangeIdToAssetParty
 
-     set index:
-         Index {
-             EquityIndex:
-                 EquityIndex {
-                     identifier: MapAssetIdentifierList(fpmlIndex),
-                     isExchangeListed: if fpmlIndex -> exchangeId exists
-                             then True,
-                     party: assetParty,
-                     partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
-                     ancillaryPartyRole: fpmlIndex -> exchangeIdentifierModel -> relatedExchangeId
+    set index:
+        Index {
+            EquityIndex:
+                EquityIndex {
+                    identifier: MapAssetIdentifierList(fpmlIndex),
+                    isExchangeListed: if fpmlIndex -> exchangeId exists
+                            then True,
+                    party: assetParty,
+                    partyRole: assetParty
+                            extract MapAssetPartyRole(item, AssetPartyRoleEnum -> Exchange),
+                    ancillaryPartyRole: fpmlIndex -> exchangeIdentifierModel -> relatedExchangeId
                             filter value <> fpmlIndex -> exchangeId -> value
                             then extract
                                 MapAssetAncillaryPartyRole(
-                                    MapExchangeIdToAssetParty,
-                                    RelatedExchange
-                                ),
-                     name: fpmlIndex -> description,
-                     assetClass: Equity,
-                     assetType: Other,
-                     ...
-                 },
-             ...
-         }
-
+                                        MapExchangeIdToAssetParty,
+                                        RelatedExchange
+                                    ),
+                    name: fpmlIndex -> description,
+                    assetClass: Equity,
+                    assetType: Other,
+                    ...
+                },
+            ...
+        }
 
 func MapBasket:
     inputs:

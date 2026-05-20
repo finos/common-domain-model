@@ -26,7 +26,10 @@ func MapFxOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlFxOption -> buyerSellerModel -> buyerPartyReference, fpmlFxOption -> buyerSellerModel -> sellerPartyReference)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlFxOption -> buyerSellerModel -> buyerPartyReference,
+                fpmlFxOption -> buyerSellerModel -> sellerPartyReference
+            )
 
 func MapFxOptionAncillaryPartyList:
     inputs:
@@ -51,7 +54,11 @@ func MapFxOptionNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(fpmlFxOption -> productModel -> productId),
-            taxonomy: MapProductTaxonomyList(fpmlFxOption -> productModel -> primaryAssetClass, fpmlFxOption -> productModel -> secondaryAssetClass, fpmlFxOption -> productModel -> productType),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlFxOption -> productModel -> primaryAssetClass,
+                        fpmlFxOption -> productModel -> secondaryAssetClass,
+                        fpmlFxOption -> productModel -> productType
+                    ),
             economicTerms: MapFxOptionEconomicTerms(fpmlFxOption, cdmCounterpartyList)
         }
 
@@ -83,7 +90,8 @@ func MapFxOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlFxOption -> buyerSellerModel -> sellerPartyReference, fpmlFxOption -> buyerSellerModel -> buyerPartyReference,
+                                fpmlFxOption -> buyerSellerModel -> sellerPartyReference,
+                                fpmlFxOption -> buyerSellerModel -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -93,7 +101,8 @@ func MapFxOptionPayout:
                         },
                     settlementTerms: MapFxOptionToSettlementTerms(fpmlFxOption),
                     buyerSeller: MapBuyerSeller(
-                                fpmlFxOption -> buyerSellerModel -> buyerPartyReference, fpmlFxOption -> buyerSellerModel -> sellerPartyReference,
+                                fpmlFxOption -> buyerSellerModel -> buyerPartyReference,
+                                fpmlFxOption -> buyerSellerModel -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     observationTerms: MapFxOptionFeaturesToObservationTerms(

@@ -82,13 +82,9 @@ func MapReturnSwapLegToSettlementTerms:
                     then Cash
                 else fpmlReturnLeg -> settlementType to-enum SettlementTypeEnum,
             settlementCurrency: if fpmlReturnLeg -> amount exists
-                    then MapCurrency(
-                            fpmlReturnLeg -> amount -> currency
-                        )
+                    then MapCurrency(fpmlReturnLeg -> amount -> currency)
                 else if fpmlReturnLeg -> settlementCurrency exists
-                then MapCurrency(
-                            fpmlReturnLeg -> settlementCurrency
-                        ),
+                then MapCurrency(fpmlReturnLeg -> settlementCurrency),
             ...
         }
 
@@ -96,7 +92,8 @@ func MapOptionSettlementModelToSettlementTerms:
     inputs:
         settlementType fpml.consolidated.fpmlenum.SettlementTypeEnum (0..1)
         settlementAmountOrCurrencyModel fpml.consolidated.shared.SettlementAmountOrCurrencyModel (0..1)
-        settlementDate fpml.consolidated.shared.AdjustableOrRelativeDate (0..1)output:
+        settlementDate fpml.consolidated.shared.AdjustableOrRelativeDate (0..1)
+    output:
         settlementTerms SettlementTerms (0..1)
 
     set settlementTerms:
@@ -678,10 +675,8 @@ func MapFxDigitalOptionToSettlementTerms:
     output:
         settlementTerms SettlementTerms (0..1)
 
-    alias AmericanExercise:
-        fpmlFxDigitalOption -> americanExercise -> latestValueDate
-    alias EuropeanExercise:
-        fpmlFxDigitalOption -> europeanExercise -> valueDate
+    alias AmericanExercise: fpmlFxDigitalOption -> americanExercise -> latestValueDate
+    alias EuropeanExercise: fpmlFxDigitalOption -> europeanExercise -> valueDate
 
     alias settlementDate:
         if EuropeanExercise exists
@@ -713,7 +708,9 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
         if physical exists
         then SettlementTerms {
                 settlementType: SettlementTypeEnum -> Physical,
-                settlementCurrency: MapCurrency(fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> settlementCurrency),
+                settlementCurrency: MapCurrency(
+                            fpmlCreditDefaultSwapChoice -> physicalSettlementTerms -> settlementCurrency
+                        ),
                 physicalSettlementTerms:
                     PhysicalSettlementTerms {
                         physicalSettlementPeriod:
@@ -764,7 +761,9 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
         else if cash exists
         then SettlementTerms {
                 settlementType: SettlementTypeEnum -> Cash,
-                settlementCurrency: MapCurrency(fpmlCreditDefaultSwapChoice -> cashSettlementTerms -> settlementCurrency),
+                settlementCurrency: MapCurrency(
+                            fpmlCreditDefaultSwapChoice -> cashSettlementTerms -> settlementCurrency
+                        ),
                 cashSettlementTerms:
                     CashSettlementTerms {
                         recoveryFactor: fpmlCreditDefaultSwapChoice -> cashSettlementTerms -> recoveryFactor,
@@ -775,7 +774,8 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
 
 func MapCommoditySettlementModelToSettlementTerms:
     inputs:
-        settlementCurrency fpml.consolidated.shared.IdentifiedCurrency (0..1)output:
+        settlementCurrency fpml.consolidated.shared.IdentifiedCurrency (0..1)
+    output:
         settlementTerms SettlementTerms (0..1)
 
     set settlementTerms:
@@ -825,9 +825,7 @@ func MapCorrelationLegToSettlementTerms:
     set settlementTerms:
         SettlementTerms {
             settlementType: fpmlCorrelationLeg -> settlementType to-enum SettlementTypeEnum,
-            settlementCurrency: MapCurrency(
-                        fpmlCorrelationLeg -> settlementCurrency
-                    ),
+            settlementCurrency: MapCurrency(fpmlCorrelationLeg -> settlementCurrency),
             settlementDate:
                 SettlementDate {
                     adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
