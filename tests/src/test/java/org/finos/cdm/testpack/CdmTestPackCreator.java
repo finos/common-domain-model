@@ -4,13 +4,8 @@ import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToT
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToWorkflowStep;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
-import com.regnosys.ingest.cme.CMEClearedConfirmTest;
-import com.regnosys.ingest.cme.CMESubmissionTest;
-import com.regnosys.ingest.dtcc.DtccIngestion11ServiceTest;
-import com.regnosys.ingest.dtcc.DtccIngestion9ServiceTest;
-import com.regnosys.ingest.fis.FisIngestionTest;
-import com.regnosys.ingest.fpml.*;
-import com.regnosys.ingest.ore.OreTradeTest;
+import com.regnosys.testing.TestingExpectationUtil;
+import org.finos.cdm.functions.FunctionCreator;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
@@ -18,11 +13,8 @@ import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
-import org.finos.cdm.functions.FunctionCreator;
 import org.finos.cdm.functions.FunctionInputCreator;
 import org.finos.cdm.functions.SecLendingFunctionInputCreationTest;
-import org.finos.cdm.ingest.diagnostics.IngestBasicDiagnosticsCreator;
-import org.finos.cdm.ingest.diagnostics.IngestExpectationDiffCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +30,8 @@ public class CdmTestPackCreator {
      * This set of test packs need to be excluded for all test packs except the one defined.
      */
     public static final List<String> EVENT_TEST_PACKS =
-            List.of("fpml-5-10-incomplete-processes",
+            List.of("fpml-5-10-native-cdm-events",
+                    "fpml-5-10-incomplete-processes",
                     "fpml-5-10-processes",
                     "fpml-5-12-processes",
                     "fpml-5-13-incomplete-processes-execution-advice",
@@ -47,59 +40,16 @@ public class CdmTestPackCreator {
     @Inject
     PipelineConfigWriter pipelineConfigWriter;
 
-    @Inject
-    OreTradeTest oreTradeTest;
-
-    @Inject
-    FisIngestionTest fisIngestionTest;
-
-    @Inject
-    CMEClearedConfirmTest cmeClearedConfirmTest;
-
-    @Inject
-    CMESubmissionTest cmeSubmissionTest;
-
-    @Inject
-    DtccIngestion9ServiceTest dtccIngestion9ServiceTest;
-    @Inject
-    DtccIngestion11ServiceTest dtccIngestion11ServiceTest;
-    @Inject
-    Fpml510IncompleteProcessesIngestionServiceTest fpml510IncompleteProcessesIngestionServiceTest;
-    @Inject
-    Fpml510IncompleteProductIngestionServiceTest fpml510IncompleteProductIngestionServiceTest;
-    @Inject
-    Fpml510ProcessesIngestionServiceTest fpml510ProcessesIngestionServiceTest;
-    @Inject
-    Fpml510ProductIngestionServiceTest fpml510ProductIngestionServiceTest;
-    @Inject
-    Fpml512IncompleteProductIngestionServiceTest fpml512IncompleteProductIngestionServiceTest;
-    @Inject
-    Fpml512ProcessesIngestionServiceTest fpml512ProcessesIngestionServiceTest;
-    @Inject
-    Fpml512ProductIngestionServiceTest fpml512ProductIngestionServiceTest;
-    @Inject
-    Fpml513IncompleteProcessesIngestionServiceTest fpml513IncompleteProcessesIngestionServiceTest;
-    @Inject
-    Fpml513IncompleteProductIngestionServiceTest fpml513IncompleteProductIngestionServiceTest;
-    @Inject
-    Fpml513ProcessesIngestionServiceTest fpml513ProcessesIngestionServiceTest;
-    @Inject
-    Fpml513ProductIngestionServiceTest fpml513ProductIngestionServiceTest;
-    @Inject
-    InvalidProductTest invalidProductTest;
-    @Inject
-    NativeCdmEventsIngestionServiceTest nativeCdmEventsIngestionServiceTest;
-
     public static void main(String[] args) {
         try {
             CdmTestPackCreator testPackConfigCreator = new CdmTestPackCreator();
             Injector injector = new CdmRuntimeModuleTesting.InjectorProvider().getInjector();
             injector.injectMembers(testPackConfigCreator);
 
-            testPackConfigCreator.runSynonymIngest();
-            testPackConfigCreator.runFunctionIngestAndDiagnostics();
+            testPackConfigCreator.runFunctionIngest();
 
             testPackConfigCreator.runFunctionCreators();
+
             System.exit(0);
         } catch (Exception e) {
             LOGGER.error("Error executing {}.main()", CdmTestPackCreator.class.getName(), e);
@@ -107,60 +57,11 @@ public class CdmTestPackCreator {
         }
     }
 
-    private void runSynonymIngest() {
-        LOGGER.info(" ** Updating expectations for cmeClearedConfirmTest");
-        cmeClearedConfirmTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for cmeSubmissionTest");
-        cmeSubmissionTest.updateExpectations();
-
-        LOGGER.info(" ** Updating expectations for dtccIngestion9ServiceTest");
-        dtccIngestion9ServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for dtccIngestion11ServiceTest");
-        dtccIngestion11ServiceTest.updateExpectations();
-
-        LOGGER.info(" ** Updating expectations for FisIngestion");
-        fisIngestionTest.updateExpectations();
-
-        LOGGER.info(" ** Updating expectations for fpml510IncompleteProcessesIngestionServiceTest");
-        fpml510IncompleteProcessesIngestionServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for fpml510IncompleteProductIngestionServiceTest");
-        fpml510IncompleteProductIngestionServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for fpml510ProcessesIngestionServiceTest");
-        fpml510ProcessesIngestionServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for fpml510ProductIngestionServiceTest");
-        fpml510ProductIngestionServiceTest.updateExpectations();
-
-        LOGGER.info(" ** Updating expectations for fpml512IncompleteProductIngestionServiceTest");
-        fpml512IncompleteProductIngestionServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for fpml512ProcessesIngestionServiceTest");
-        fpml512ProcessesIngestionServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for fpml512ProductIngestionServiceTest");
-        fpml512ProductIngestionServiceTest.updateExpectations();
-
-        LOGGER.info(" ** Updating expectations for fpml513IncompleteProcessesIngestionServiceTest");
-        fpml513IncompleteProcessesIngestionServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for fpml513IncompleteProductIngestionServiceTest");
-        fpml513IncompleteProductIngestionServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for fpml513ProcessesIngestionServiceTest");
-        fpml513ProcessesIngestionServiceTest.updateExpectations();
-        LOGGER.info(" ** Updating expectations for fpml513ProductIngestionServiceTest");
-        fpml513ProductIngestionServiceTest.updateExpectations();
-
-        LOGGER.info(" ** Updating expectations for invalidProductTest");
-        invalidProductTest.updateExpectations();
-
-        LOGGER.info(" ** Updating expectations for nativeCdmEventsIngestionServiceTest");
-        nativeCdmEventsIngestionServiceTest.updateExpectations();
-
-        LOGGER.info(" ** Updating expectations for OreTradeTest");
-        oreTradeTest.updateExpectations();
-    }
-
     private void runFunctionCreators() throws Exception {
         LOGGER.info(" ** Updating Function Input Samples");
 
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();
-        functionInputCreator.run();
+        functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
         SecLendingFunctionInputCreationTest SecLendingFunctionInputCreationTest = new SecLendingFunctionInputCreationTest();
         SecLendingFunctionInputCreationTest.run();
@@ -171,10 +72,8 @@ public class CdmTestPackCreator {
         functionCreator.run();
     }
 
-    private void runFunctionIngestAndDiagnostics() throws IOException {
+    private void runFunctionIngest() throws IOException {
         pipelineConfigWriter.writePipelinesAndTestPacks(createTreeConfig());
-        new IngestBasicDiagnosticsCreator().generateIngestBasicDiagnostics();
-        new IngestExpectationDiffCreator().generateIngestExpectationDiffs();
     }
 
     private PipelineTreeConfig createTreeConfig() {

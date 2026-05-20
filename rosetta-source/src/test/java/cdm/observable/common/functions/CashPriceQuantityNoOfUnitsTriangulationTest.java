@@ -18,11 +18,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static util.ResourcesUtils.getObject;
+import static org.finos.cdm.util.ResourcesUtils.getObject;
 
 public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctionTest {
 
-	private static final String EQUITY_DIR = "result-json-files/fpml-5-10/products/equity/";
+	private static final String EQUITY_DIR = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/";
 	
 	@Inject
 	private CashPriceQuantityNoOfUnitsTriangulation func;

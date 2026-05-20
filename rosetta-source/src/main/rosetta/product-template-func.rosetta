@@ -1,6 +1,7 @@
 namespace cdm.product.template : <"Template feature concepts to define payouts.">
 version "${project.version}"
 
+import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
@@ -9,6 +10,7 @@ import cdm.event.common.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
 import cdm.product.common.settlement.*
+import cdm.product.qualification.*
 
 func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
     inputs:
@@ -101,10 +103,11 @@ func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation
         if tradeLots count > 0
         then tradeLots
                 extract [
-                    if item -> priceQuantity -> price -> priceType contains PriceTypeEnum -> CashPrice
+                    if priceQuantity -> price -> priceType contains AssetPrice
+                            or priceQuantity -> price -> priceType contains ExchangeRate
                     then CashPriceQuantityNoOfUnitsTriangulation(
-                                item -> priceQuantity -> quantity,
-                                item -> priceQuantity -> price
+                                priceQuantity -> quantity,
+                                priceQuantity -> price
                             )
                     else True
                 ] all = True
@@ -118,14 +121,14 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
     output:
         success boolean (1..1) <"Validation result">
 
-func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows that correspond to a settlement payout. One leg is the asset leg, that settles the asset according to the quantity, direction and date defined in the settlement payout. The other is the price leg, that settles the price as a currency amount going in the opposite direction. The function's applicability is limited on purpose to a single asset with a single price and quantity specified.">
+func Create_AssetFlowFromSettlementPayout: <"Generates two opposite cashflows that correspond to a settlement payout. One leg is the asset leg, that settles the asset according to the quantity, direction and date defined in the settlement payout. The other is the price leg, that settles the price as a currency amount going in the opposite direction. The function's applicability is limited on purpose to a single asset with a single price and quantity specified.">
     inputs:
         payout SettlementPayout (1..1) <"The settlement payout from which the cashflows are generated.">
     output:
-        cashflows Cashflow (2..2) <"The two generated cashflows (asset leg and price leg) going in opposite directions.">
+        cashflows AssetFlow (2..2) <"The two generated assetflows (asset leg and price leg) going in opposite directions.">
 
     alias assetLeg: <"The asset leg consists in a cashflow which has the same attributes (asset, quantity, date and direction) as the settlement payout that generates it.">
-        Cashflow {
+        AssetFlow {
             quantity:
                 NonNegativeQuantity {
                     value: payout -> priceQuantity -> quantitySchedule -> value,
@@ -135,11 +138,7 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
             asset: payout -> underlier -> Observable -> Asset,
             settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
             payerReceiver: payout -> payerReceiver,
-            cashflowType:
-                CashflowType {
-                    cashflowType: PrincipalPayment,
-                    ...
-                },
+            assetFlowType: Principal,
             ...
         }
 
@@ -155,8 +154,8 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
             receiver: payout -> payerReceiver -> payer
         }
 
-    alias priceLeg: <"The price leg consists in a cashflow whose attributes (asset, quantity, date and direction) are inferred from the settlement payout. The quantity / unit is the currency amount to pay for the asset and the payer/receiver direction is flipped.">
-        Cashflow {
+    alias priceLeg: <"The price leg consists in an asset flow whose attributes (asset, quantity, date and direction) are inferred from the settlement payout. The quantity / unit is the currency amount to pay for the asset and the payer/receiver direction is flipped.">
+        AssetFlow {
             quantity:
                 NonNegativeQuantity {
                     value: priceLegAmount,
@@ -176,17 +175,14 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
                                     identifier: priceLegCurrency,
                                     identifierType: CurrencyCode
                                 },
+                            assetType: Cash,
                             ...
                         },
                     ...
                 },
             settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
             payerReceiver: priceLegPayerReceiver,
-            cashflowType:
-                CashflowType {
-                    cashflowType: PrincipalPayment,
-                    ...
-                },
+            assetFlowType: Principal,
             ...
         }
 
@@ -195,7 +191,6 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
 
     condition SettlementDate: <"Restricts the function's applicability to the adjustable or relative date for the settlement date.">
         payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
-            or payout -> settlementTerms -> settlementDate -> valueDate exists
 
     condition SinglePriceAndQuantity: <"Restricts the function's applicability to a single quantity and price.">
         payout -> priceQuantity -> quantitySchedule -> value exists
@@ -203,34 +198,34 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
 
     set cashflows: [assetLeg, priceLeg]
 
-func Create_CashflowFromPayout:
+func UnderlierForOptionOrForwardProduct: <"Extracts the underlier from an option or a forward.">
     inputs:
-        payout Payout (1..1) <"The settlement payout from which the cashflows are generated.">
+        product NonTransferableProduct (1..1)
     output:
-        cashflows Cashflow (2..2)
-    alias settlementPayoutFromOptionPayout:
-        payout -> OptionPayout
-            extract
-                SettlementPayout {
-                    priceQuantity:
-                        ResolvablePriceQuantity {
-                            quantitySchedule: item -> priceQuantity -> quantitySchedule,
-                            priceSchedule: item -> strike -> strikePrice,
-                            ...
-                        },
-                    underlier: underlier,
-                    settlementTerms: settlementTerms,
-                    payerReceiver: payerReceiver,
-                    ...
-                }
-    add cashflows:
-        payout
-            extract
-                switch
-                    OptionPayout then
-                        Create_CashflowFromSettlementPayout(
-                                settlementPayoutFromOptionPayout
-                            ),
-                    SettlementPayout then
-                        Create_CashflowFromSettlementPayout(payout -> SettlementPayout),
-                    default empty
+        underlierProduct Underlier (1..1)
+    set underlierProduct:
+        if product -> economicTerms -> payout -> OptionPayout exists
+        then product -> economicTerms -> payout -> OptionPayout only-element -> underlier
+        else if product -> economicTerms -> payout -> SettlementPayout exists
+        then product -> economicTerms -> payout -> SettlementPayout only-element -> underlier
+
+func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based on two criteria: the forward payout with the latest value date or the forward payout with the latest settlement date.">
+    inputs:
+        product NonTransferableProduct (1..1)
+    output:
+        nearLegPayout SettlementPayout (0..1)
+    alias settlementPayout: product -> economicTerms -> payout -> SettlementPayout
+    set nearLegPayout:
+        // value date
+        if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
+                and settlementPayout -> settlementTerms -> settlementDate -> valueDate exists
+        then settlementPayout max [ item -> settlementTerms -> settlementDate -> valueDate ]
+        // adjustable or relative date
+        else if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
+                and settlementPayout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+        then settlementPayout
+            max [
+                AdjustableOrAdjustedOrRelativeDateResolution(
+                        item -> settlementTerms -> settlementDate -> adjustableOrRelativeDate
+                    )
+            ]

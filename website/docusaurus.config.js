@@ -33,7 +33,8 @@ module.exports = {
       },
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
-        {to: 'docs/cdm-materials', label: 'CDM Resources', position: 'right'},
+        {to: 'docs/cdm-resources', label: 'CDM Resources', position: 'right'},
+        {to: 'schemas', label: 'Schemas', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
         {
           href: 'https://github.com/finos/common-domain-model',
@@ -74,9 +75,13 @@ module.exports = {
               label: 'Technology Architecture Working Group',
               href: 'https://cdm.finos.org/docs/CDM-Technology-Architecture-WG',
             },
+             {
+              label: 'Phsyical Risk Working Group',
+              href: 'https://cdm.finos.org/docs/CDM-Physical-Risk-WG',
+            },
             {
-              label: 'Structured Products Working Group',
-              href: 'https://cdm.finos.org/docs/CDM-Structured-Products-WG',
+              label: 'Tokenized Assets Working Group',
+              href: 'https://cdm.finos.org/docs/CDM-Tokenized-Assets-WG',
             }
           ]
         },
@@ -113,6 +118,10 @@ module.exports = {
               href: 'https://github.com/finos/common-domain-model/releases',
             },
             {
+              label: 'Schemas',
+              href: 'https://github.com/finos/common-domain-model/schemas',
+            },
+            {
               label: 'What Is The CDM?',
               to: '/pdfs/Why-CDM.pdf',
               target: '_blank'
@@ -124,7 +133,7 @@ module.exports = {
             },
             {
               label: 'CDM Java Distribution Guidelines',
-              to: 'docs/cdm-guidelines',
+              to: 'docs/cdm-java-distribution',
             },
             {
               label: 'Download Source Code',
@@ -168,6 +177,10 @@ module.exports = {
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
+        },
+        gtag: {
+          trackingID: "G-9ZYPYF37E7",
+          anonymizeIP: true,
         }
       }
     ]

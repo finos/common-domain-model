@@ -1,6 +1,7 @@
 package cdm.ingest.fpml.confirmation.pricequantity.functions;
 
 import fpml.consolidated.shared.QuotedCurrencyPair;
+
 import java.util.Objects;
 import java.util.Optional;
 

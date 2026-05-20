@@ -19,3 +19,8 @@ Finally, another great way to interact with the community is to attend the bi-we
 **Need help?**
 
 Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
+
+## Contacting CDM Maintainers
+Please click [here](maintainers#finos-cdm-project-maintainers) to view the CDM maintainers and their contact details. 
+
+If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). 

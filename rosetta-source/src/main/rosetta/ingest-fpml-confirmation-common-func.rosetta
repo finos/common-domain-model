@@ -16,7 +16,6 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
-import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.business.events.* as fpml
 import fpml.consolidated.com.* as fpml
@@ -152,7 +151,7 @@ func MapAssetClassWithScheme:
             scheme: scheme
         }
 
-func GetMultiplerUnitTypeUnderlyingAsset:
+func GetMultiplierUnitTypeUnderlyingAsset:
     inputs:
         fpmlUnderlyingAsset fpml.Asset (0..1)
     output:
@@ -265,16 +264,16 @@ func MapTaxonomySourceEnum:
         then EMIR
         else Other
 
-func MapFeeTypeEnumWithScheme:
+func MapUnscheduledTransferEnumWithScheme:
     inputs:
         value string (0..1)
         scheme string (0..1)
     output:
-        enumWithScheme FeeTypeEnum (0..1)
+        enumWithScheme UnscheduledTransferEnum (0..1)
             [metadata scheme]
 
     set enumWithScheme:
-        MapFeeTypeEnum(value) with-meta {
+        MapUnscheduledTransferEnum(value) with-meta {
             scheme: scheme
         }
 
@@ -625,7 +624,7 @@ func MapExerciseProcedure:
                                             cdmCounterpartyList
                                         )
                                 then Seller,
-                            businessCenter: fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> businessCenter -> value to-enum BusinessCenterEnum,
+                            businessCenter: fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> businessCenter -> value,
                             ...
                         },
                     ...
@@ -662,7 +661,7 @@ func MapEuropeanExerciseTerms:
             exerciseProcedure: cdmExerciseProcedure,
             partialExercise:
                 PartialExercise {
-                    notionaReference: empty with-meta {
+                    notionalReference: empty with-meta {
                             reference: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> notionalReference -> href first
                         },
                     integralMultipleAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> integralMultipleAmount,
@@ -865,7 +864,7 @@ func MapMultipleExercise:
             minimumNumberOfOptions: fpmlMultipleExercise -> partialExerciseModel -> minimumNumberOfOptions,
             maximumNumberOfOptions: fpmlMultipleExercise -> maximumNumberOfOptions,
             minimumNotionalAmount: fpmlMultipleExercise -> partialExerciseModel -> minimumNotionalAmount,
-            notionaReference: empty with-meta {
+            notionalReference: empty with-meta {
                     reference: fpmlMultipleExercise -> partialExerciseModel -> notionalReference -> href first
                 },
             ...
@@ -917,7 +916,7 @@ func MapEquityMultipleExercise:
             integralMultipleAmount: fpmlEquityMultipleExercise -> integralMultipleExercise,
             minimumNumberOfOptions: fpmlEquityMultipleExercise -> minimumNumberOfOptions,
             maximumNumberOfOptions: fpmlEquityMultipleExercise -> maximumNumberOfOptions,
-            notionaReference: empty,
+            notionalReference: empty,
             ...
         }
 

@@ -1,12 +1,14 @@
 namespace cdm.observable.asset : <"Observable concepts applicable to assets: price, reference price, valuation method etc.">
 version "${project.version}"
 
+import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.equity.*
 import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.party.*
-import cdm.mapping.config.*
 import cdm.observable.common.*
 import cdm.product.asset.*
 
@@ -15,6 +17,9 @@ type IndexBase extends AssetBase: <"Identifies an index by referencing an identi
         [metadata scheme]
     provider LegalEntity (0..1) <"The organisation that creates or maintains the Index.">
     assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
+
+    condition AssetType: <"Asset type must be Other.">
+        assetType = Other
 
 choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
     CreditIndex <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
@@ -79,7 +84,7 @@ type CreditIndex extends IndexBase: <"Specification of an index based on credit 
     condition CreditAssetClass: <"The asset class must be Credit.">
         assetClass = AssetClassEnum -> Credit
 
-type EquityIndex extends IndexBase: <"Specification of an index based on equity securities, e.g. the S&P 500..">
+type EquityIndex extends IndexBase: <"Specification of an index based on equity securities, e.g. the S&P 500.">
 
     condition EquityAssetClass: <"The asset class must be Equity.">
         assetClass = AssetClassEnum -> Equity
@@ -111,20 +116,6 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
     condition InterestRateObservable: <"When the observable is an interest rate index, the price type must be interest rate and the arithmetic operator must be specified.">
         InterestRateObservableCondition
 
-type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
-    premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
-    pricePerOption Money (0..1) <"The amount of premium to be paid expressed as a function of the number of options.">
-    percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
-
-type CashPrice: <"Specifies the nature of a cash price either as a fee type, cash price type, or premium expression.">
-    cashPriceType CashPriceTypeEnum (1..1) <"Specifies the type of Cash Price.">
-    premiumExpression PremiumExpression (0..1) <"Specifies a premium when expressed in a way other than an amount, and any required forward starting price definition.">
-    feeType FeeTypeEnum (0..1) <"Specifies the event type associated with a fee.">
-
-    condition PremiumType: <"Premium type can only be specified when the cash price type is a premium.">
-        if premiumExpression exists
-        then cashPriceType = CashPriceTypeEnum -> Premium
-
 type PriceComposite: <"Defines the inputs required to calculate a price as a simple composite of 2 other values. The inputs consist of 2 numbers and a simple arithmetic operator. This generic data type applies to a variety of use cases where a price is obtained by simple composition, e.g. dirty = clean + accrued (Bond), forward rate = spot rate + forward point (FX) etc.">
     baseValue number (1..1) <"The 1st value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). This 1st operand is called 'baseValue' as it refers to the price anchor in the arithmetic operation: e.g. the clean price (Bond) or the spot rate (FX).">
     operand number (1..1) <"The 2nd value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). The 2nd operand is called 'operand' to distinguish it from the 1st one which is the price anchor.">
@@ -141,59 +132,58 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
 
     perUnitOf UnitType (0..1) <"Provides an attribute to define the unit of the thing being priced. For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
     priceType PriceTypeEnum (1..1) <"Specifies the price type as an enumeration: interest rate, exchange rate, asset price etc. This attribute is mandatory so that prices can always be clasiffied according to their type. The price type implies some constraints on the price's units.">
+    priceSubType PriceSubTypeEnum (0..1) <"Allows further classification of the chosen price type.">
     priceExpression PriceExpressionEnum (0..1) <"(Optionally) Specifies whether the price is expressed in absolute or percentage terms.">
     composite PriceComposite (0..1) <"(Optionally) Specifies the underlying price components if the price can be expressed as a composite: e.g. dirty price = clean price + accrued.">
     arithmeticOperator ArithmeticOperationEnum (0..1) <"(Optionally) When the price is to be understood as an operator to apply to an observable, i.e. a spread, multiplier or min/max.">
-    cashPrice CashPrice (0..1) <"(Optionally when the price type is cash) Additional attributes that further define a cash price, e.g. what type of fee it is.">
+    premiumType PremiumTypeEnum (0..1) <"(Optionally) Additional attribute that can further define any premium to the price.">
 
     condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
-        if priceType = PriceTypeEnum -> Variance
-                or priceType = PriceTypeEnum -> Volatility
-                or priceType = PriceTypeEnum -> Correlation
+        if priceType = Variance or priceType = Volatility or priceType = Correlation
         then unit is absent and perUnitOf is absent
         else unit exists and perUnitOf exists
 
     condition PositiveAssetPrice: <"Requires that per FpML rules, the FX rate must be a positive value.">
-        if (priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice)
+        if (priceType = ExchangeRate or priceType = AssetPrice)
                 and arithmeticOperator is absent
-        then value > 0
+        then value > 0 or datedValue -> value all > 0
 
     condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
-        if (priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice)
+        if (priceType = ExchangeRate or priceType = AssetPrice)
                 and composite -> baseValue exists
         then composite -> baseValue > 0
 
-    condition PositiveCashPrice: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
-        if priceType = PriceTypeEnum -> CashPrice
-        then value > 0 or datedValue -> value all > 0
+    condition PositivePremium: <"Requires that any price expressed as a Premium must be positive">
+        if priceType = Premium then value > 0
 
     condition CurrencyUnitForInterestRate: <"Requires that the unit of amount for an interest rate must be a currency.">
         if priceType = PriceTypeEnum -> InterestRate
         then unit -> currency exists
 
-    condition Choice: <"The price can be specified mutually exclusively as a cashflow, an operator (e.g. a spread or multiplier), or a composite.">
-        optional choice cashPrice, arithmeticOperator, composite
+    condition Choice: <"The price can be specified mutually exclusively as an operator (e.g. a spread or multiplier) or a composite.">
+        optional choice arithmeticOperator, composite
 
-    condition CashPrice: <"If a cash price type is specified, the price type must be cash, otherwise it must be non-cash.">
-        if cashPrice exists
-        then priceType = PriceTypeEnum -> CashPrice
+    condition Premium: <"If we are applying a premium to the price then we must define this as a premium in priceType.">
+        if premiumType exists then priceType = Premium
 
     condition ArithmeticOperator: <"Operator must not be subtract or divide.">
-        arithmeticOperator <> ArithmeticOperationEnum -> Subtract
-            and arithmeticOperator <> ArithmeticOperationEnum -> Divide
+        arithmeticOperator <> Subtract and arithmeticOperator <> Divide
 
     condition SpreadPrice: <"A spread type can only be specified when the price type is an asset price or an interest rate.">
-        if arithmeticOperator = ArithmeticOperationEnum -> Add
-        then priceType = PriceTypeEnum -> AssetPrice
-                or priceType = PriceTypeEnum -> InterestRate
+        if arithmeticOperator = Add
+        then priceType = AssetPrice or priceType = InterestRate
 
     condition ForwardPoint: <"If composite operand type is ForwardPoint then the price type must be ExchangeRate.">
-        if composite -> operandType = PriceOperandEnum -> ForwardPoint
-        then priceType = PriceTypeEnum -> ExchangeRate
+        if composite -> operandType = ForwardPoint
+        then priceType = ExchangeRate
 
     condition AccruedInterest: <"If composite operand type is AccruedInterest then the price type must be AssetPrice.">
-        if composite -> operandType = PriceOperandEnum -> AccruedInterest
-        then priceType = PriceTypeEnum -> AssetPrice
+        if composite -> operandType = AccruedInterest
+        then priceType = AssetPrice
+
+    condition InterestRateFeeType: <"If a lending fee or rebate fee is specified then the price type must be InterestRate.">
+        if priceSubType = Fee or priceSubType = Rebate
+        then priceType = InterestRate
 
 type Price extends PriceSchedule: <"Specifies a price as a single value to be associated to a financial product. This data type extends PriceSchedule and requires that only the amount value exists.">
 
@@ -208,6 +198,9 @@ choice Observable: <"Specifies the object to be observed for a price, it could b
 type Basket extends AssetBase: <"Defines a custom basket by referencing an identifier and its constituents.">
     basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
         [metadata location]
+
+    condition AssetType: <"Asset type must be Security.">
+        assetType = Security
 
 type BasketConstituent extends Observable: <"Identifies the constituents of the basket">
     quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
@@ -226,7 +219,6 @@ type InformationSource: <"A class defining the source for a piece of information
 
     sourceProvider InformationProviderEnum (1..1) <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">
         [metadata scheme]
-        [synonym FIX_5_0_SP2 value "RateSource" tag 1446]
     sourcePage string (0..1) <"A specific page for the source for obtaining a market data point. In FpML, this is specified as a scheme, rateSourcePageScheme, for which no coding Scheme or URI is specified.">
         [metadata scheme]
     sourcePageHeading string (0..1) <"The heading for the source on a given source page.">
@@ -414,7 +406,7 @@ type CalculationAgent: <"A class defining the ISDA calculation agent responsible
 
     calculationAgentParty AncillaryRoleEnum (0..1) <"Specifies the party which is the ISDA Calculation Agent for the trade. If more than one party is referenced then the parties are assumed to be co-calculation agents, i.e. they have joint responsibility.">
     calculationAgentPartyEnum PartyDeterminationEnum (0..1) <"Specifies the ISDA calculation agent responsible for performing duties as defined in the applicable product definitions. For example, the Calculation Agent may be defined as being the Non-exercising Party.">
-    calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
+    calculationAgentBusinessCenter BusinessCenter (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.">
         [metadata scheme]
 
     condition CalculationAgentChoice: <"Choice rule to represent an FpML choice construct.">

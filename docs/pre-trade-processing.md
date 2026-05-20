@@ -51,12 +51,15 @@ pertain to the overall availability and the records held within it should be
 specified. 
 
 ``` Haskell
-type AvailableInventory: 
-    availableInventoryType AvailableInventoryTypeEnum (1..1) 
-    messageInformation MessageInformation (0..1) 
-    party Party (0..*) 
-    partyRole PartyRole (0..*) 
-    availableInventoryRecord AvailableInventoryRecord (0..*) 
+type AvailableInventory:
+    [rootType]
+    availableInventoryType AvailableInventoryTypeEnum (1..1)
+    identifer AssignedIdentifier (0..1)
+    comment string (0..1)
+    messageInformation MessageInformation (0..1)
+    party Party (0..*)
+    partyRole PartyRole (0..*)
+    availableInventoryRecord AvailableInventoryRecord (0..*)
 ```
 
 The attributes available are:
@@ -64,6 +67,10 @@ The attributes available are:
 - The ```availableInventoryType``` is a mandatory enumeration which is used to 
 describe the purpose of this ```AvailableInventory``` instance. For the lender 
 availability use case this should be set to "_AvailableToLend_"
+
+- The optional ```identifier``` type for this group, which can be used to uniquely identify a group of inventory records.
+
+- The ```comment``` type for optional comments for this group of inventory records.
 
 - The optional ```messageInformation``` type allows details related to a message 
 containing the availability to be described if required. 
@@ -118,6 +125,8 @@ type AvailableInventoryRecord extends InventoryRecord:
     partyRole PartyRole (0..*) 
     quantity Quantity (0..1) 
     interestRate Price (0..1) 
+    dividendTerms DividendTerms (0..1)
+    comment string (0..1)
 ```
 
 These attributes are all optional and should be used as follows:
@@ -145,6 +154,10 @@ broadcast the fact that they have a security available to drum up interest.
 for a piece of availability. The _InterestRate_ condition within 
 ```AvailableInventoryRecord``` ensures that the ```interestRate -> priceType``` is set to 
 "_InterestRate_" if ```interestRate``` is included here. 
+
+- The ```dividendTerms``` attribute specifies the dividend requirements if applicable.
+
+- The ```comment``` attribute allows for optional comments for this specific piece of inventory.
 
 #### Examples
 
@@ -329,8 +342,11 @@ _Note: ```SecurityLocate``` is an extension of ```AvailableInventory``` and
 thus inherits all the data points from within it._
 
 ``` Haskell
-type AvailableInventory: 
-    availableInventoryType AvailableInventoryTypeEnum (1..1) 
+type AvailableInventory:
+    [rootType]
+    availableInventoryType AvailableInventoryTypeEnum (1..1)
+    identifer AssignedIdentifier (0..1)
+    comment string (0..1) 
     messageInformation MessageInformation (0..1) 
     party Party (0..*) 
     partyRole PartyRole (0..*) 
@@ -342,6 +358,10 @@ The attributes available in ```SecurityLocate``` are thus:
 - The ```availableInventoryType``` is a mandatory enumeration which is used to 
 describe the purpose of this ```SecurityLocate``` instance. For the borrower 
 request use case this should be set to "_RequestToBorrow_"
+
+- The ```identifier``` attribute is a unique identifier for this group. This can be used to uniquely identify a group of inventory records.
+
+- The ```comment``` attribute allows for optional comments for this group of inventory records.
 
 - The optional ```messageInformation``` type allows details related to a message 
 containing the request to be described if required. 
@@ -394,7 +414,9 @@ type AvailableInventoryRecord extends InventoryRecord:
     collateral CollateralProvisions (0..*) 
     partyRole PartyRole (0..*) 
     quantity Quantity (0..1) 
-    interestRate Price (0..1) 
+    interestRate Price (0..1)
+    dividendTerms DividendTerms (0..1)
+    comment string (0..1)
 ```
 
 These attributes are all optional and should be used as follows:
@@ -421,6 +443,10 @@ they are looking to pay for a loan against this security. The _InterestRate_
 condition within ```AvailableInventoryRecord``` ensures that the 
 ```interestRate -> priceType``` is set to "_InterestRate_" if ```interestRate``` 
 is included here. 
+
+- The ```dividendTerms``` attribute specifies the dividend requirements if applicable.
+
+- The ```comment``` attribute allows for optional comments for this group of inventory records.
 
 #### Examples
 

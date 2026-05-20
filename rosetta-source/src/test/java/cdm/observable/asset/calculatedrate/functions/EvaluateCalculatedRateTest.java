@@ -1,6 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
+
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateIndex;
@@ -39,7 +39,7 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
 
     @Test
     void shouldHandleBasicOISStyle() {
-        FloatingRateCalculationParameters calculationParams = initCalcParameters(true, BusinessCenterEnum.GBLO, CalcMethod.OIS, 0, null, false, false, false);
+        FloatingRateCalculationParameters calculationParams = initCalcParameters(true, "GBLO", CalcMethod.OIS, 0, null, false, false, false);
         Date st = Date.of(2021, 9, 10);
         Date end = Date.of(2021, 12, 10);
         CalculationPeriodBase calculationPeriod = period(st, end);
@@ -60,7 +60,7 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
         checkResults(obsDate, wts, expectedRate, result);
 
         // do compounding
-        calculationParams = initCalcParameters(false, BusinessCenterEnum.GBLO, CalcMethod.OIS, 0, null, false, false, false);
+        calculationParams = initCalcParameters(false, "GBLO", CalcMethod.OIS, 0, null, false, false, false);
         result = func.evaluate(fro, calculationParams, null, calculationPeriod, null, dcf);
         expectedRate = compoundRate(observations, wts, 360.0);
         checkResults(obsDate, wts, expectedRate, result);

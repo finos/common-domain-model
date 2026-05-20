@@ -1,5 +1,6 @@
 package cdm.ingest.fpml.confirmation.pricequantity.functions;
 
+
 import fpml.consolidated.shared.Leg;
 
 import java.util.Objects;

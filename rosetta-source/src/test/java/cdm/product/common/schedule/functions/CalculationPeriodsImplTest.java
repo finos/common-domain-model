@@ -1,12 +1,12 @@
 package cdm.product.common.schedule.functions;
 
 import cdm.base.datetime.*;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -72,8 +72,8 @@ class CalculationPeriodsImplTest extends AbstractFunctionTest {
                             .setDateAdjustments(BusinessDayAdjustments.builder()
                                     .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                     .setBusinessCenters(BusinessCenters.builder()
-                                            .addBusinessCenter(FieldWithMetaBusinessCenterEnum.builder()
-                                                    .setValue(BusinessCenterEnum.EUTA)
+                                            .addBusinessCenter(FieldWithMetaString.builder()
+                                                    .setValue("EUTA")
                                                     .build())
                                             .build())
                                     .build())

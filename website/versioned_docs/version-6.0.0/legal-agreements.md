@@ -387,7 +387,7 @@ specific documents.
 
 For example, the ISDA Foundations model - which is available to all ISDA members
 upon request - can be used to represent the ISDA Credit Support Annexes. To gain
-access to ISDA Foundations please send an email to: <cdminfo@isda.org>
+access to ISDA Foundations please send an email to: [cdminfo@isda.org](mailto:cdminfo@isda.org)
 
 ## Master Agreement Schedule
 

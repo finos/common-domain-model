@@ -18,7 +18,7 @@ of one or more assets in the future - for instance, but not exclusively, future 
 when that asset is cash. These future transfers may be contingent on the future value
 or performance of that asset or other, as in the case of options.
 
-### Asset  {#asset}
+### Asset  
 
 :::tip Definition: Asset
 
@@ -47,8 +47,10 @@ type AssetBase:
     identifier AssetIdentifier (1..*) 
     taxonomy Taxonomy (0..*) 
     isExchangeListed boolean (0..1) 
-    exchange LegalEntity (0..1)  
-    relatedExchange LegalEntity (0..*) 
+    party Party (0..*)
+    partyRole AssetPartyRole (0..1)
+    ancillaryPartyRole AssetAncillaryPartyRole (0..*)
+    assetType AssetTypeEnum (1..1)
 ```
 
 The data types are designed to carry the minimal amount of information that is needed to uniquely identify the asset
@@ -108,7 +110,6 @@ The additional attributes on `Loan` can be used when needed to uniquely identify
 
 ``` Haskell
 type Loan extends InstrumentBase:
-    borrower LegalEntity (0..*)
     lien string (0..1)
         [metadata scheme]
     facilityType string (0..1)
@@ -140,22 +141,26 @@ for purposes of brevity.
 Security has a set of additional attributes, as shown below:
 
 ``` Haskell
-type Security extends InstrumentBase: 
+type Security extends InstrumentBase:
+    securityType SecurityTypeEnum (1..1) 
     debtType DebtType (0..1)
-    equityType EquityTypeEnum (0..1) 
+    equityType EquityType (0..1) 
     fundType FundProductTypeEnum (0..1)
 
     condition DebtSubType:
-        if instrumentType <> InstrumentTypeEnum -> Debt
+        if securityType <> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if instrumentType <> InstrumentTypeEnum -> Equity
+        if securityType <> Equity
         then equityType is absent
 
     condition FundSubType:
-        if instrumentType <> InstrumentTypeEnum -> Fund
+        if securityType <> Fund
         then fundType is absent
+    
+    condition AssetType:
+        assetType = Security
 ```
 
 The asset identifier will uniquely identify the security. The
@@ -370,7 +375,9 @@ here in the interests of brevity.
 ``` Haskell
 type EconomicTerms:
   effectiveDate AdjustableOrRelativeDate (0..1)
+  effectiveTime DirectOrRelativeTime (0..1)
   terminationDate AdjustableOrRelativeDate (0..1)
+  terminationTime DirectOrRelativeTime (0..1)
   dateAdjustments BusinessDayAdjustments (0..1)
   payout Payout (1..*)
   terminationProvision TerminationProvision (0..1)
@@ -471,7 +478,7 @@ type CalculationPeriodDates:
   firstRegularPeriodStartDate date (0..1)
   firstCompoundingPeriodEndDate date (0..1)
   lastRegularPeriodEndDate date (0..1)
-  stubPeriodType StubPeriodTypeEnum (0..1)
+  stubPeriodType StubPeriodTypeEnum (0..2)
   calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 ```
 
@@ -663,7 +670,7 @@ the underlying product may be.
 
 In its simplest form, that trade's terms will specify the settlement date
 in addition to the price and quantity and can be represented using the
-[`SettlementPayout`](#SettlementPayout).
+[`SettlementPayout`](#settlementpayout).
 
 A `TradableProduct` also provides a mechanism to trade indices that
 otherwise cannot be directly transfered. The `Payout` would define how
@@ -796,7 +803,7 @@ one for an upfront fee. By comparison, the purchase or sale of a
 security or listed derivative would typically have a single
 `PriceQuantity` instance in the trade lot.
 
-## PriceQuantity {#price-quantity}
+## PriceQuantity
 
 The price and quantity attributes of a trade, or of a leg of a trade in
 the case of composite products, are part of a data type called
@@ -948,10 +955,11 @@ which together further qualify the price.
 type PriceSchedule extends MeasureSchedule:
   perUnitOf UnitType (0..1)
   priceType PriceTypeEnum (1..1)
+  priceSubType PriceSubTypeEnum (0..1)
   priceExpression PriceExpressionEnum (0..1)
   composite PriceComposite (0..1)
   arithmeticOperator ArithmeticOperationEnum (0..1)
-  cashPrice CashPrice (0..1)
+  premiumType PremiumTypeEnum (0..1)
 ```
 
 Note that the conditions for this data type are excluded from the
@@ -1194,7 +1202,6 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
   [qualification Product]
   inputs: economicTerms EconomicTerms (1..1)
   output: is_product boolean (1..1)
-    [synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
   set is_product:
     Qualify_BaseProduct_Inflation(economicTerms) = True
     and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False

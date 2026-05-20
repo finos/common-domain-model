@@ -438,6 +438,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+<!--                                    <incrementalXtextBuild>false</incrementalXtextBuild>-->
                                     <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
@@ -536,6 +537,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+<!--                                    <incrementalXtextBuild>false</incrementalXtextBuild>-->
                                     <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
@@ -784,6 +786,17 @@
     </profiles>
 
     <build>
+        <!-- CodeList resource lifecycle - Ensure only CodeList JSON files are copied to target/classes/ -->
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <excludes>
+                    <exclude>codelist/xml/**</exclude>
+                    <!--<exclude>codelist/*.xsl</exclude>-->
+                </excludes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -854,6 +867,17 @@
                             <mainClass>org.isda.cdm.documentation.DocumentationCodeValidator</mainClass>
                         </configuration>
                     </execution>
+                    <!-- CodeList resource lifecycle - Run Transformer before copying CodeList JSON files -->
+                    <execution>
+                        <id>transform-codelist-xml-to-json</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.isda.cdm.codelist.CodeListTransformer</mainClass>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -911,6 +935,30 @@
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
+                        </configuration>
+                    </execution>
+                    <!-- CodeList resource lifecycle - Ensure only CodeList JSON files are copied to target/classes/ -->
+                    <execution>
+                        <id>copy-json-codelist-resources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/resources/codelist</directory>
+                                    <includes>
+                                        <include>json/*.json</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>xml/**</exclude>
+                                        <exclude>*.xsl</exclude>
+                                    </excludes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.outputDirectory}/codelist</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -1004,7 +1052,7 @@
                     <release>${maven.compiler.release}</release>
                     <excludes>
                         <exclude>**/*.rosetta</exclude>
-                    </excludes>
+                    </excludes><source>8</source><target>8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -1076,24 +1124,10 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- org.isda.CodeListTransformer dependency -->
         <dependency>
-            <groupId>com.regnosys</groupId>
-            <artifactId>ingest-test-framework</artifactId>
-            <version>${rosetta.bundle.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.regnosys.rosetta</groupId>
-                    <artifactId>com.regnosys.rosetta.xcore</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.service.prefs</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.xtext</groupId>
-                    <artifactId>org.eclipse.xtext.ecore</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -21,16 +21,17 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
-import cdm.observable.asset.Observable;
 import cdm.observable.asset.*;
+import cdm.observable.asset.Observable;
 import cdm.observable.asset.metafields.FieldWithMetaInterestRateIndex;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
-import cdm.product.collateral.*;
+import cdm.product.collateral.Collateral;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
+import cdm.product.common.settlement.UnscheduledTransferEnum;
 import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.Payout;
 import cdm.product.template.TradableProduct;
@@ -47,6 +48,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
@@ -54,9 +56,9 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModule;
+import org.finos.cdm.util.ResourcesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.ResourcesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -68,10 +70,12 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.regnosys.testing.TestingExpectationUtil.TEST_WRITE_BASE_PATH;import static org.finos.cdm.functions.FunctionUtils.guard;import static util.ResourcesUtils.*;
+import static org.finos.cdm.functions.FunctionUtils.guard;
+import static org.finos.cdm.util.ResourcesUtils.*;
 
 public class FunctionInputCreator {
 
+    private Optional<Path> WRITE_BASE_PATH;
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionInputCreator.class);
 
     private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
@@ -109,7 +113,7 @@ public class FunctionInputCreator {
     public static void main(String[] args) {
         try {
             FunctionInputCreator functionInputCreator = new FunctionInputCreator();
-            functionInputCreator.run();
+            functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
             System.exit(0);
         } catch (Exception e) {
@@ -118,7 +122,7 @@ public class FunctionInputCreator {
         }
     }
 
-    public void run() throws Exception {
+    public void run(Optional<Path> writeBasePath) throws Exception {
         Module module = Modules.override(new CdmRuntimeModule())
                 .with(new AbstractModule() {
                     @Override
@@ -129,6 +133,7 @@ public class FunctionInputCreator {
         Injector injector = Guice.createInjector(module);
         injector.injectMembers(this);
 
+        this.WRITE_BASE_PATH = writeBasePath;
         updateContractFormationIrSwapFuncInputJson();
         updateExecutionIrSwapFuncInputJson();
         updateExecutionIrSwapWithInitialFeeFuncInputJson();
@@ -190,65 +195,65 @@ public class FunctionInputCreator {
 
     private void updateExecutionIrSwapFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json",
                 Date.parse("1994-12-12"),
-                "cdm-sample-files/functions/business-event/execution/execution-ir-swap-func-input.json");
+                "functions/business-event/execution/execution-ir-swap-func-input.json");
     }
 
     private void updateExecutionIrSwapWithInitialFeeFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-initial-fee.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-initial-fee.json",
                 Date.parse("2018-02-20"),
-                "cdm-sample-files/functions/business-event/execution/execution-ir-swap-with-fee-func-input.json");
+                "functions/business-event/execution/execution-ir-swap-with-fee-func-input.json");
     }
 
     private void updateExecutionIrSwapWithOtherPartyPaymentFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/swap-with-other-party-payment.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/swap-with-other-party-payment.json",
                 Date.parse("1994-12-12"),
-                "cdm-sample-files/functions/business-event/execution/execution-ir-swap-with-other-party-payment-func-input.json");
+                "functions/business-event/execution/execution-ir-swap-with-other-party-payment-func-input.json");
     }
 
     private void updateExecutionFraFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-ex08-fra.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex08-fra.json",
                 Date.parse("1991-05-14"),
-                "cdm-sample-files/functions/business-event/execution/execution-fra-func-input.json");
+                "functions/business-event/execution/execution-fra-func-input.json");
     }
 
     private void updateExecutionBasisSwapFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/CAD-Long-Initial-Stub-versioned.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/CAD-Long-Initial-Stub-versioned.json",
                 Date.parse("2017-12-18"),
-                "cdm-sample-files/functions/business-event/execution/execution-basis-swap-func-input.json");
+                "functions/business-event/execution/execution-basis-swap-func-input.json");
     }
 
     private void updateExecutionOisSwapFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-ex07-ois-swap-uti.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex07-ois-swap-uti.json",
                 Date.parse("2001-01-25"),
-                "cdm-sample-files/functions/business-event/execution/execution-ois-swap-func-input.json");
+                "functions/business-event/execution/execution-ois-swap-func-input.json");
     }
 
     private void updateExecutionCreditDefaultSwapFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
                 Date.parse("2002-12-04"),
-                "cdm-sample-files/functions/business-event/execution/execution-credit-default-swap-func-input.json");
+                "functions/business-event/execution/execution-credit-default-swap-func-input.json");
     }
 
     private void updateExecutionFxForwardFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
-                "cdm-sample-files/functions/business-event/execution/execution-fx-forward-func-input.json");
+                "functions/business-event/execution/execution-fx-forward-func-input.json");
     }
 
     private void updateExecutionSwaptionFuncInputJson() throws IOException {
         updateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex09-euro-swaption-explicit-versioned.json",
                 Date.parse("2000-08-30"),
-                "cdm-sample-files/functions/business-event/execution/execution-swaption-func-input.json");
+                "functions/business-event/execution/execution-swaption-func-input.json");
     }
 
     private void updateExecutionFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
@@ -287,14 +292,14 @@ public class FunctionInputCreator {
 
     private void updateContractFormationIrSwapFuncInputJson() throws IOException {
         updateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json",
                 Date.parse("1994-12-12"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-ir-swap-func-input.json",
+                "functions/business-event/contract-formation/contract-formation-ir-swap-func-input.json",
                 null);
     }
 
     private void updateContractFormationIrSwapWithLegalAgreementFuncInputJson() throws IOException {
-        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json";
+        String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
         Date date = Date.parse("1994-12-12");
 
@@ -312,55 +317,55 @@ public class FunctionInputCreator {
         updateContractFormationFuncInputJson(
                 tradeStatePath,
                 date,
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-ir-swap-with-legal-agreement-func-input.json",
+                "functions/business-event/contract-formation/contract-formation-ir-swap-with-legal-agreement-func-input.json",
                 legalAgreement);
     }
 
     private void updateContractFormationFraFuncInputJson() throws IOException {
         updateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-ex08-fra.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex08-fra.json",
                 Date.parse("1991-05-14"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-fra-func-input.json",
+                "functions/business-event/contract-formation/contract-formation-fra-func-input.json",
                 null);
     }
 
     private void updateContractFormationBasisSwapFuncInputJson() throws IOException {
         updateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/CAD-Long-Initial-Stub-versioned.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/CAD-Long-Initial-Stub-versioned.json",
                 Date.parse("2017-12-18"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-basis-swap-func-input.json",
+                "functions/business-event/contract-formation/contract-formation-basis-swap-func-input.json",
                 null);
     }
 
     private void updateContractFormationOisSwapFuncInputJson() throws IOException {
         updateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-ex07-ois-swap-uti.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex07-ois-swap-uti.json",
                 Date.parse("2001-01-25"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-ois-swap-func-input.json",
+                "functions/business-event/contract-formation/contract-formation-ois-swap-func-input.json",
                 null);
     }
 
     private void updateContractFormationSwaptionFuncInputJson() throws IOException {
         updateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex09-euro-swaption-explicit-versioned.json",
                 Date.parse("2000-08-30"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-swaption-func-input.json",
+                "functions/business-event/contract-formation/contract-formation-swaption-func-input.json",
                 null);
     }
 
     private void updateContractFormationCreditDefaultSwapFuncInputJson() throws IOException {
         updateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
                 Date.parse("2002-12-04"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-credit-default-swap-func-input.json",
+                "functions/business-event/contract-formation/contract-formation-credit-default-swap-func-input.json",
                 null);
     }
 
     private void updateContractFormationFxForwardFuncInputJson() throws IOException {
         updateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-fx-forward-func-input.json",
+                "functions/business-event/contract-formation/contract-formation-fx-forward-func-input.json",
                 null);
     }
 
@@ -399,12 +404,12 @@ public class FunctionInputCreator {
         updateQuantityChangeFuncInputJson(
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
-                "cdm-sample-files/functions/business-event/quantity-change/full-termination-vanilla-swap-func-input.json",
-                quantityChangeInstruction, FeeTypeEnum.TERMINATION);
+                "functions/business-event/quantity-change/full-termination-vanilla-swap-func-input.json",
+                quantityChangeInstruction, UnscheduledTransferEnum.TERMINATION);
     }
 
     private void updateFullTerminationEquitySwapFuncInputJson() throws IOException {
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json");
 
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
@@ -421,8 +426,8 @@ public class FunctionInputCreator {
         updateQuantityChangeFuncInputJson(
                 tradeState,
                 Date.of(2021, 11, 11),
-                "cdm-sample-files/functions/business-event/quantity-change/full-termination-equity-swap-func-input.json",
-                quantityChangeInstruction, FeeTypeEnum.TERMINATION);
+                "functions/business-event/quantity-change/full-termination-equity-swap-func-input.json",
+                quantityChangeInstruction, UnscheduledTransferEnum.TERMINATION);
     }
 
     private void updatePartialTerminationVanillaSwapFuncInputJson() throws IOException {
@@ -441,8 +446,8 @@ public class FunctionInputCreator {
         updateQuantityChangeFuncInputJson(
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
-                "cdm-sample-files/functions/business-event/quantity-change/partial-termination-vanilla-swap-func-input.json",
-                quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
+                "functions/business-event/quantity-change/partial-termination-vanilla-swap-func-input.json",
+                quantityChangeInstruction, UnscheduledTransferEnum.PARTIAL_TERMINATION);
     }
 
     private void updatePartialTerminationEquitySwapFuncInputJson() throws IOException {
@@ -468,18 +473,18 @@ public class FunctionInputCreator {
         updateQuantityChangeFuncInputJson(
                 getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots(),
                 Date.of(2021, 11, 11),
-                "cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json",
-                quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
+                "functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json",
+                quantityChangeInstruction, UnscheduledTransferEnum.PARTIAL_TERMINATION);
     }
 
     private void updateIncreaseEquitySwapFuncInputJson() throws IOException {
         CreateBusinessEventInput actual = getIncreaseEquitySwapFuncInputJson();
-        writeExpectation("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-input.json", actual);
+        writeExpectation("functions/business-event/quantity-change/increase-equity-swap-func-input.json", actual);
     }
 
     private void updateIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
         CreateBusinessEventInput actual = getIncreaseEquitySwapExistingTradeLotFuncInputJson();
-        writeExpectation("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json", actual);
+        writeExpectation("functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json", actual);
     }
 
     private CreateBusinessEventInput getIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
@@ -537,7 +542,7 @@ public class FunctionInputCreator {
     }
 
     private TradeState getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots() throws IOException {
-        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
         TradableProduct.TradableProductBuilder tradableProductBuilder = tradeStateBuilder.getTrade();
         TradeLot.TradeLotBuilder tradeLot1Builder = tradableProductBuilder.getTradeLot().get(0);
 
@@ -572,7 +577,7 @@ public class FunctionInputCreator {
                                 .setAsset(Asset.builder()
                                         .setInstrument(Instrument.builder()
                                                 .setSecurity(Security.builder()
-                                                        .setInstrumentType(InstrumentTypeEnum.EQUITY)
+                                                        .setSecurityType(SecurityTypeEnum.EQUITY)
                                                         .addIdentifier(AssetIdentifier.builder()
                                                                 .setIdentifierType(AssetIdTypeEnum.OTHER)
                                                                 .setIdentifier(FieldWithMetaString.builder()
@@ -629,7 +634,7 @@ public class FunctionInputCreator {
                 .setBeforeValue(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstructions)
-                        .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
+                        .setTransfer(getTransferInstruction(tradeState, UnscheduledTransferEnum.INCREASE)));
         reKey(instructionBuilder);
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
@@ -638,7 +643,7 @@ public class FunctionInputCreator {
                 null);
     }
 
-    private void updateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction, FeeTypeEnum feeType) throws IOException {
+    private void updateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction, UnscheduledTransferEnum feeType) throws IOException {
         Instruction instructionBuilder = Instruction.builder()
                 .setBeforeValue(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
@@ -655,7 +660,7 @@ public class FunctionInputCreator {
     }
 
 
-    private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState, FeeTypeEnum feeType) {
+    private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState, UnscheduledTransferEnum feeType) {
         Trade trade = tradeState.getTrade();
         List<? extends Counterparty> counterparties = trade.getCounterparty();
         UnitType currencyUnitType = trade.getTradeLot().stream()
@@ -671,15 +676,17 @@ public class FunctionInputCreator {
         return TransferInstruction.builder()
                 .addTransferState(TransferState.builder()
                         .setTransfer(Transfer.builder()
-                                .setTransferExpression(TransferExpression.builder().setPriceTransfer(feeType))
-                                .setPayerReceiver(PartyReferencePayerReceiver.builder()
-                                        .setPayerPartyReference(counterparties.get(0).getPartyReference())
-                                        .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
-                                .setQuantity(NonNegativeQuantity.builder()
-                                        .setValue(BigDecimal.valueOf(2000.00))
-                                        .setUnit(currencyUnitType))
-                                .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
-                                        .setAdjustedDateValue(trade.getTradeDate().getValue()))));
+                                .setUnscheduledTransfer(UnscheduledTransfer.builder()
+                                        .setTransferType(feeType)
+                                        .setPayerReceiver(PartyReferencePayerReceiver.builder()
+                                                .setPayerPartyReference(counterparties.get(0).getPartyReference())
+                                                .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
+                                        .setQuantity(NonNegativeQuantity.builder()
+                                                .setValue(BigDecimal.valueOf(2000.00))
+                                                .setUnit(currencyUnitType))
+                                        .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
+                                                .setAdjustedDateValue(trade.getTradeDate().getValue())))
+                        ));
     }
 
     private void updateCompressionFuncInputJson() throws IOException {
@@ -697,19 +704,19 @@ public class FunctionInputCreator {
 
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-2.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-2.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
 
         instructions.add(Instruction.builder()
-                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-07-Submission-3.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-3.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(terminateInstructions))
                 .build());
@@ -725,12 +732,12 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 3),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/compression/compression-func-input.json", actual);
+        writeExpectation("functions/business-event/compression/compression-func-input.json", actual);
     }
 
     private ExecutionInstruction getCompressionExecutionInstructionInputJson() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder =
-                ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json").toBuilder();
+                ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/USD-Vanilla-swap.json").toBuilder();
 
         Trade.TradeBuilder tradeBuilder = tradeStateBuilder.getTrade();
 
@@ -846,7 +853,7 @@ public class FunctionInputCreator {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-04-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-04-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         reKey(instructions);
@@ -857,7 +864,7 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 3),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/novation/full-novation-func-input.json", actual);
+        writeExpectation("functions/business-event/novation/full-novation-func-input.json", actual);
     }
 
     private void updatePartialNovationFuncInputJson() throws IOException {
@@ -908,7 +915,7 @@ public class FunctionInputCreator {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-05-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-05-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         reKey(instructions);
@@ -919,7 +926,7 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 4),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/novation/partial-novation-func-input.json", actual);
+        writeExpectation("functions/business-event/novation/partial-novation-func-input.json", actual);
     }
 
     private void updateClearingFuncInputJson() throws IOException {
@@ -984,7 +991,7 @@ public class FunctionInputCreator {
                                                                         .setValue("USD"))))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-06-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-06-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         reKey(instructions);
@@ -995,7 +1002,7 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 1),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/clearing/clearing-func-input.json", actual);
+        writeExpectation("functions/business-event/clearing/clearing-func-input.json", actual);
     }
 
     private void updateAllocationFuncInputJson() throws IOException {
@@ -1071,7 +1078,7 @@ public class FunctionInputCreator {
                                                                 .setCurrencyValue("EUR")))))));
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(getProposedEventInstructionBefore("result-json-files/native-cdm-events/Example-11-Submission-1.json"))
+                .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-11-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder().setSplit(splitInstruction));
 
         reKey(instructions);
@@ -1082,11 +1089,11 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 1),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
+        writeExpectation("functions/business-event/allocation/allocation-func-input.json", actual);
     }
 
     ObservationEvent getCreditEventObservationEvent() {
-        ObservationEvent observationEvent = ObservationEvent.builder()
+        return ObservationEvent.builder()
                 .setCreditEvent(CreditEvent.builder()
                         .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
                         .setEventDeterminationDate(Date.of(2022, 2, 4))
@@ -1094,23 +1101,20 @@ public class FunctionInputCreator {
                         .setReferenceInformation(ReferenceInformation.builder()
                                 .setReferenceEntity(
                                         LegalEntity.builder()
-                                                .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
-                                                        .setValue("UE2136O97NLB5BYP9H04")))
                                                 .setName(FieldWithMetaString.builder()
-                                                        .setValue("McDonald's Corporation")))
+                                                        .setValue("McDonald's Corporation"))
+                                                .addEntityIdentifier(EntityIdentifier.builder()
+                                                        .setIdentifierValue("UE2136O97NLB5BYP9H04")
+                                                        .setIdentifierType(EntityIdentifierTypeEnum.LEI)))
                                 .setNoReferenceObligation(true))
-
                 );
-
-        return observationEvent;
     }
 
     private void updateCreditEventFuncInputJson() throws IOException {
-
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(getCreditEventObservationEvent());
 
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/credit/cdindex-ex01-cdx-uti.json");
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cdindex-ex01-cdx-uti.json");
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
                 .setBeforeValue(tradeState)
@@ -1124,12 +1128,12 @@ public class FunctionInputCreator {
                 Date.of(2022, 2, 4),
                 Date.of(2022, 2, 4));
 
-        writeExpectation("cdm-sample-files/functions/business-event/credit-event/credit-event-func-input.json", actual);
+        writeExpectation("functions/business-event/credit-event/credit-event-func-input.json", actual);
     }
 
     private void updateCreditEventWithObservationFuncInputJson() throws IOException {
 
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/credit/cdindex-ex01-cdx-uti.json");
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cdindex-ex01-cdx-uti.json");
         TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(getCreditEventObservationEvent())).build();
 
         ObservationEvent observationEvent = ObservationEvent.builder()
@@ -1139,10 +1143,11 @@ public class FunctionInputCreator {
                         .setAuctionDate(Date.of(2023, 3, 3))
                         .setReferenceInformation(ReferenceInformation.builder()
                                 .setReferenceEntity(LegalEntity.builder()
-                                        .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
-                                                .setValue("UE2136O97NLB5BYP9H04")))
                                         .setName(FieldWithMetaString.builder()
-                                                .setValue("McDonald's Corporation")))
+                                                .setValue("McDonald's Corporation"))
+                                        .addEntityIdentifier(EntityIdentifier.builder()
+                                                .setIdentifierValue("UE2136O97NLB5BYP9H04")
+                                                .setIdentifierType(EntityIdentifierTypeEnum.LEI)))
                                 .setNoReferenceObligation(true))
 
                 );
@@ -1161,7 +1166,7 @@ public class FunctionInputCreator {
                 Date.of(2023, 2, 2),
                 Date.of(2023, 2, 2));
 
-        writeExpectation("cdm-sample-files/functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
+        writeExpectation("functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
     }
 
     private ObservationEvent getCorporateActionObservationEvent() {
@@ -1185,7 +1190,7 @@ public class FunctionInputCreator {
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(getCorporateActionObservationEvent());
 
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex12-on-european-index-underlyer-short-form.json");
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex12-on-european-index-underlyer-short-form.json");
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
                 .setBeforeValue(tradeState)
@@ -1199,12 +1204,12 @@ public class FunctionInputCreator {
                 Date.of(2009, 2, 1),
                 Date.of(2009, 2, 1));
 
-        writeExpectation("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-func-input.json", actual);
+        writeExpectation("functions/business-event/corporate-actions/corporate-actions-func-input.json", actual);
     }
 
     private void updateCorporateActionWithObservationFuncInputJson() throws IOException {
 
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex12-on-european-index-underlyer-short-form.json");
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex12-on-european-index-underlyer-short-form.json");
         TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(getCorporateActionObservationEvent())).build();
 
         ObservationEvent observationEvent = ObservationEvent.builder()
@@ -1235,12 +1240,11 @@ public class FunctionInputCreator {
                 Date.of(2009, 2, 13));
 
 
-        writeExpectation("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-obs-func-input.json", actual);
+        writeExpectation("functions/business-event/corporate-actions/corporate-actions-obs-func-input.json", actual);
     }
 
-
     private void updateExerciseSwaptionFullPhysicalInputJson() throws IOException {
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
 
         ExerciseInstruction.ExerciseInstructionBuilder exerciseInstructionBuilder = ExerciseInstruction.builder();
         exerciseInstructionBuilder.getOrCreateExerciseQuantity()
@@ -1264,11 +1268,11 @@ public class FunctionInputCreator {
                 Date.of(2001, 8, 28),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/exercise/exercise-swaption-full-physical-func-input.json", actual);
+        writeExpectation("functions/business-event/exercise/exercise-swaption-full-physical-func-input.json", actual);
     }
 
     private void updateExerciseCashSettledInputJson() throws IOException {
-        String example8Submission1 = "result-json-files/native-cdm-events/Example-08-Submission-1.json";
+        String example8Submission1 = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-08-Submission-1.json";
         TradeState afterTradeState = getProposedEventInstructionBefore(example8Submission1);
 
         QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = createQuantityChangeInstruction(UnitType.builder().setCurrencyValue("EUR").build(), BigDecimal.ZERO);
@@ -1279,24 +1283,9 @@ public class FunctionInputCreator {
                 .getOrCreateTransferState(0)
                 .getOrCreateTransfer();
 
-        transferBuilder.getOrCreatePayerReceiver()
-                .setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
-                .setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2").build());
-
-        transferBuilder.getOrCreateQuantity()
-                .setValue(BigDecimal.valueOf(2000))
-                .setUnit(UnitType.builder()
-                        .setCurrency(FieldWithMetaString.builder()
-                                .setValue("EUR")
-                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso4217").build())
-                                .build())
-                        .build());
-
-        transferBuilder.getOrCreateSettlementDate()
-                .setAdjustedDateValue(Date.of(2019, 4, 3));
-
-        transferBuilder.getOrCreateTransferExpression()
-                .getOrCreateScheduledTransfer()
+        TransferBase.TransferBaseBuilder transfer = transferBuilder.getOrCreateScheduledTransfer();
+        getOrCreateTransfer(transfer);
+        transferBuilder.getOrCreateScheduledTransfer()
                 .setTransferType(ScheduledTransferEnum.EXERCISE);
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
@@ -1314,11 +1303,31 @@ public class FunctionInputCreator {
                 Date.of(2019, 4, 1),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
+        writeExpectation("functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
+    }
+
+    private static void getOrCreateTransfer(TransferBase.TransferBaseBuilder transfer) {
+
+        transfer.getOrCreatePayerReceiver()
+                .setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
+                .setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2").build());
+
+        transfer.getOrCreateQuantity()
+                .setValue(BigDecimal.valueOf(2000))
+                .setUnit(UnitType.builder()
+                        .setCurrency(FieldWithMetaString.builder()
+                                .setValue("EUR")
+                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso4217").build())
+                                .build())
+                        .build());
+
+        transfer.getOrCreateSettlementDate()
+                .setAdjustedDateValue(Date.of(2019, 4, 3));
+
     }
 
     private void updateExercisePartialExerciseInputJson() throws IOException {
-        String example9Submission1 = "result-json-files/native-cdm-events/Example-09-Submission-1.json";
+        String example9Submission1 = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-09-Submission-1.json";
         TradeState afterTradeState = getProposedEventInstructionBefore(example9Submission1);
 
         Date tradeDate = Date.of(2019, 4, 1);
@@ -1363,11 +1372,11 @@ public class FunctionInputCreator {
                 tradeDate,
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/exercise/exercise-partial-exercise-func-input.json", actual);
+        writeExpectation("functions/business-event/exercise/exercise-partial-exercise-func-input.json", actual);
     }
 
     private void updateExerciseCancellableOptionInputJson() throws IOException {
-        String example10Submission1 = "result-json-files/native-cdm-events/Example-10-Submission-1.json";
+        String example10Submission1 = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-10-Submission-1.json";
         TradeState afterTradeState = getProposedEventInstructionBefore(example10Submission1);
 
         Date tradeDate = Date.of(2019, 4, 1);
@@ -1379,27 +1388,15 @@ public class FunctionInputCreator {
         Transfer.TransferBuilder transferBuilder = transferInstructionBuilder
                 .getOrCreateTransferState(0)
                 .getOrCreateTransfer();
-
-        transferBuilder.getOrCreatePayerReceiver()
-                .setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1"))
-                .setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2"));
-
-        transferBuilder.getOrCreateQuantity()
-                .setValue(BigDecimal.valueOf(2000))
-                .setUnit(UnitType.builder()
-                        .setCurrency(FieldWithMetaString.builder()
-                                .setValue("EUR")
-                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso4217"))
-                        )
-                );
-
-        transferBuilder.setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
-                .setAdjustedDateValue(Date.of(2019, 4, 3))
-        );
-
-        transferBuilder.getOrCreateTransferExpression()
-                .getOrCreateScheduledTransfer()
-                .setTransferType(ScheduledTransferEnum.EXERCISE);
+        TransferBase.TransferBaseBuilder unscheduledTransfer = transferBuilder.getUnscheduledTransfer();
+        if (unscheduledTransfer != null) {
+            getOrCreateTransfer(unscheduledTransfer);
+        } else {
+            ScheduledTransfer.ScheduledTransferBuilder scheduledTransferBuilder = transferBuilder.getOrCreateScheduledTransfer();
+            getOrCreateTransfer(scheduledTransferBuilder);
+            transferBuilder.getOrCreateScheduledTransfer()
+                    .setTransferType(ScheduledTransferEnum.EXERCISE);
+        }
 
         Instruction.InstructionBuilder instruction = Instruction.builder()
                 .setBeforeValue(afterTradeState)
@@ -1416,7 +1413,7 @@ public class FunctionInputCreator {
                 tradeDate,
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
+        writeExpectation("functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
     }
 
 
@@ -1434,7 +1431,7 @@ public class FunctionInputCreator {
      */
 
     private TradeState.TradeStateBuilder getTerminationVanillaSwapTradeState() throws IOException {
-        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json");
+        TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/USD-Vanilla-swap.json");
         // parties
         List<Party> parties = tradeState.getTrade().getParty().stream()
                 .filter(p -> p.getName().getValue().equals("Bank X") || p.getName().getValue().equals("Bank Y"))
@@ -1498,7 +1495,7 @@ public class FunctionInputCreator {
      */
 
     private TradeState getQuantityChangeEquitySwapTradeState() throws IOException {
-        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
         TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradeLot().get(0);
         tradeLotBuilder.addLotIdentifier(Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -1507,7 +1504,7 @@ public class FunctionInputCreator {
     }
 
     private void updateIndexTransitionVanillaSwapFuncInputJson() throws IOException {
-        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex05-long-stub-swap-uti.json";
+        String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex05-long-stub-swap-uti.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
         Instruction instructionBuilder = Instruction.builder()
@@ -1540,11 +1537,11 @@ public class FunctionInputCreator {
                 Date.of(2000, 10, 1),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/index-transition/index-transition-vanilla-swap-func-input.json", actual);
+        writeExpectation("functions/business-event/index-transition/index-transition-vanilla-swap-func-input.json", actual);
     }
 
     private void updateIndexTransitionXccySwapFuncInputJson() throws IOException {
-        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/cdm-xccy-swap-after-usi-uti.json";
+        String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/cdm-xccy-swap-after-usi-uti.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
         Instruction instructionBuilder = Instruction.builder()
@@ -1601,11 +1598,11 @@ public class FunctionInputCreator {
                 Date.of(2018, 6, 17),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/index-transition/index-transition-xccy-swap-func-input.json", actual);
+        writeExpectation("functions/business-event/index-transition/index-transition-xccy-swap-func-input.json", actual);
     }
 
     private void updateStockSplitFuncInputJson() throws IOException {
-        String tradeStatePath = "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json";
+        String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
         Instruction instructionBuilder = Instruction.builder()
@@ -1622,11 +1619,11 @@ public class FunctionInputCreator {
                 Date.of(2001, 11, 1),
                 null);
 
-        writeExpectation("cdm-sample-files/functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
+        writeExpectation("functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
     }
 
     private void updateCorrectionWorkflowFuncInputJson() throws IOException {
-        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json";
+        String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json";
         Date eventDate = Date.of(1994, 12, 12);
 
         // New WorkflowStep containing Execution (with incorrect quantity)
@@ -1672,11 +1669,11 @@ public class FunctionInputCreator {
 
         CreateWorkflowInput actual = new CreateWorkflowInput(steps);
 
-        writeExpectation("cdm-sample-files/functions/workflow-step/correction/correction-func-input.json", actual);
+        writeExpectation("functions/workflow-step/correction/correction-func-input.json", actual);
     }
 
     private void updateCancellationWorkflowFuncInputJson() throws IOException {
-        String tradeStatePath = "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json";
+        String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json";
         Date eventDate = Date.of(1994, 12, 12);
 
         // New WorkflowStep containing Execution (with incorrect quantity)
@@ -1736,7 +1733,7 @@ public class FunctionInputCreator {
 
         CreateWorkflowInput actual = new CreateWorkflowInput(steps);
 
-        writeExpectation("cdm-sample-files/functions/workflow-step/cancellation/cancellation-func-input.json", actual);
+        writeExpectation("functions/workflow-step/cancellation/cancellation-func-input.json", actual);
     }
 
     private WorkflowStep getExecutionWorkflowStep(TradeState tradeState,
@@ -1850,27 +1847,26 @@ public class FunctionInputCreator {
         return workflowStep.build();
     }
 
-
     private void updateBondExecutionInput() throws IOException {
-        BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/bond-execution-func-input.json").toBuilder();
+        BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "functions/repo-and-bond/bond-execution-func-input.json").toBuilder();
         BusinessEvent businessEvent = reKey(businessEventBuilder).build();
         List<Instruction> instruction = (List<Instruction>) businessEvent.getInstruction();
         CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/bond-execution-func-input.json", actual);
+        writeExpectation("functions/repo-and-bond/bond-execution-func-input.json", actual);
     }
 
     private void updateRepoExecutionInput() throws IOException {
-        BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/repo-execution-func-input.json").toBuilder();
+        BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "functions/repo-and-bond/repo-execution-func-input.json").toBuilder();
         BusinessEvent businessEvent = reKey(businessEventBuilder).build();
         List<Instruction> instruction = (List<Instruction>) businessEvent.getInstruction();
         CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/repo-execution-func-input.json", actual);
+        writeExpectation("functions/repo-and-bond/repo-execution-func-input.json", actual);
     }
 
     private void updateRollInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
-        AdjustableOrRelativeDate effectiveRollDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-effective-roll-date.json");
-        AdjustableOrRelativeDate terminationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-termination-date.json");
+        AdjustableOrRelativeDate effectiveRollDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/roll-primitive-instruction-effective-roll-date.json");
+        AdjustableOrRelativeDate terminationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/roll-primitive-instruction-termination-date.json");
         List<? extends PriceQuantity> priceQuantity = executionTradeState.getTrade().getTradeLot().get(0).getPriceQuantity();
 
         PrimitiveInstruction rollPrimitiveInstruction = createRollPrimitiveInstruction.evaluate(executionTradeState,
@@ -1886,12 +1882,12 @@ public class FunctionInputCreator {
         reKey(rollInstructionBuilder);
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(rollInstructionBuilder.build()), null, unadjustedRollDate, unadjustedRollDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/roll-input.json", actual);
+        writeExpectation("functions/repo-and-bond/roll-input.json", actual);
     }
 
     private void updateOnDemandRateChangeInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
-        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/on-demand-rate-change-primitive-instruction-effective-date.json");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/on-demand-rate-change-primitive-instruction-effective-date.json");
         BigDecimal agreedRate = new BigDecimal("0.005");
 
         PrimitiveInstruction onDemandRateChangePrimitiveInstruction = createOnDemandRateChangePrimitiveInstruction.evaluate(executionTradeState, effectiveDate, agreedRate);
@@ -1904,7 +1900,7 @@ public class FunctionInputCreator {
         reKey(onDemandRateChangeInstructionBuilder);
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/on-demand-rate-change-input.json", actual);
+        writeExpectation("functions/repo-and-bond/on-demand-rate-change-input.json", actual);
     }
 
     private void updatePairOffInput() throws IOException {
@@ -1914,23 +1910,22 @@ public class FunctionInputCreator {
         pairReferenceIdentifierBuilder.getOrCreateAssignedIdentifier(0)
                 .setIdentifierValue("Package");
 
-
         List<? extends Instruction> pairOffInstruction = createPairOffInstruction.evaluate(Lists.newArrayList(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
         List<Instruction> rekeyedPairOffInstructions = pairOffInstruction.stream()
                 .map(Instruction::toBuilder)
-                .map(b -> reKey(b))
+                .map(ResourcesUtils::reKey)
                 .map(Instruction::build)
                 .collect(Collectors.toList());
 
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstructions, null, tradeDate, tradeDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/pair-off-input.json", actual);
+        writeExpectation("functions/repo-and-bond/pair-off-input.json", actual);
     }
 
     private void updateCancellationInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
-        AdjustableOrRelativeDate cancellationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/cancellation-primitive-instruction-cancellation-date.json");
+        AdjustableOrRelativeDate cancellationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/cancellation-primitive-instruction-cancellation-date.json");
 
         PrimitiveInstruction cancellationPrimitiveInstruction = createCancellationPrimitiveInstruction.evaluate(executionTradeState, null, cancellationDate);
 
@@ -1942,14 +1937,14 @@ public class FunctionInputCreator {
 
         Date unadjustedCancellationDate = cancellationDate.getAdjustableDate().getUnadjustedDate();
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(cancellationInstructionBuilder.build()), null, unadjustedCancellationDate, unadjustedCancellationDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/cancellation-input.json", actual);
+        writeExpectation("functions/repo-and-bond/cancellation-input.json", actual);
     }
 
     private void updateOnDemandInterestPaymentEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
 
-        Money interestAmount = ResourcesUtils.getObject(Money.class, "cdm-sample-files/functions/repo-and-bond/on-demand-interest-payment-primitive-instruction-interest-amount.json");
-        SettlementDate settlementDate = ResourcesUtils.getObject(SettlementDate.class, "cdm-sample-files/functions/repo-and-bond/on-demand-interest-payment-primitive-instruction-settlement-date.json");
+        Money interestAmount = ResourcesUtils.getObject(Money.class, "functions/repo-and-bond/on-demand-interest-payment-primitive-instruction-interest-amount.json");
+        SettlementDate settlementDate = ResourcesUtils.getObject(SettlementDate.class, "functions/repo-and-bond/on-demand-interest-payment-primitive-instruction-settlement-date.json");
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = createOnDemandInterestPaymentPrimitiveInstruction
                 .evaluate(executionTradeState, interestAmount, settlementDate)
@@ -1964,11 +1959,11 @@ public class FunctionInputCreator {
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/on-demand-interest-payment-input.json", actual);
+        writeExpectation("functions/repo-and-bond/on-demand-interest-payment-input.json", actual);
     }
 
     private void updateShapingPrimitiveInstructionTradeLots() throws IOException {
-        String resourceName = "cdm-sample-files/functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json";
+        String resourceName = "functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json";
         List<TradeLot.TradeLotBuilder> tradeLotBuilders = toBuilder(ResourcesUtils.getObjectList(TradeLot.class, resourceName));
         List<TradeLot> actual = build(reKey(tradeLotBuilders));
         writeExpectation(resourceName, actual);
@@ -1977,8 +1972,8 @@ public class FunctionInputCreator {
     private void updateShapingEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
 
-        List<TradeLot> tradeLots = ResourcesUtils.getObjectList(TradeLot.class, "cdm-sample-files/functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json");
-        Identifier shapeIdentifier = ResourcesUtils.getObject(Identifier.class, "cdm-sample-files/functions/repo-and-bond/shaping-primitive-instruction-shape-identifier.json");
+        List<TradeLot> tradeLots = ResourcesUtils.getObjectList(TradeLot.class, "functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json");
+        Identifier shapeIdentifier = ResourcesUtils.getObject(Identifier.class, "functions/repo-and-bond/shaping-primitive-instruction-shape-identifier.json");
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = createShapingInstruction.evaluate(executionTradeState, tradeLots, shapeIdentifier).toBuilder();
 
@@ -1991,11 +1986,11 @@ public class FunctionInputCreator {
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/shaping-input.json", actual);
+        writeExpectation("functions/repo-and-bond/shaping-input.json", actual);
     }
 
     private void updatePartialDeliveryDeliveredPriceQuantity() throws IOException {
-        String resourceName = "cdm-sample-files/functions/repo-and-bond/partial-delivery-delivered-price-quantity.json";
+        String resourceName = "functions/repo-and-bond/partial-delivery-delivered-price-quantity.json";
         List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilder = toBuilder(ResourcesUtils.getObjectList(PriceQuantity.class, resourceName));
         List<PriceQuantity> actual = build(reKey(priceQuantityBuilder));
         writeExpectation(resourceName, actual);
@@ -2003,8 +1998,8 @@ public class FunctionInputCreator {
 
     private void updatePartialDeliveryEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
-        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-effective-date.json");
-        List<? extends PriceQuantity> deliveredPriceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-delivered-price-quantity.json");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/partial-delivery-effective-date.json");
+        List<? extends PriceQuantity> deliveredPriceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "functions/repo-and-bond/partial-delivery-delivered-price-quantity.json");
 
         PrimitiveInstruction partialDeliveryPrimitiveInstruction = createPartialDeliveryPrimitiveInstruction.evaluate(executionTradeState, deliveredPriceQuantity).toBuilder();
 
@@ -2017,14 +2012,14 @@ public class FunctionInputCreator {
         Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/partial-delivery-input.json", actual);
+        writeExpectation("functions/repo-and-bond/partial-delivery-input.json", actual);
     }
 
     private void updateRepriceEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         BigDecimal newAllinPrice = new BigDecimal("101.25");
         BigDecimal newCashValue = new BigDecimal("9922500.00");
-        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-reprice-effective-date.json");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/repo-reprice-effective-date.json");
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = createRepriceInstruction.evaluate(executionTradeState, newAllinPrice, newCashValue, effectiveDate).toBuilder();
 
@@ -2037,14 +2032,14 @@ public class FunctionInputCreator {
         Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/repo-reprice-input.json", actual);
+        writeExpectation("functions/repo-and-bond/repo-reprice-input.json", actual);
     }
 
     private void updateAdjustmentEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         BigDecimal newAllinPrice = new BigDecimal("99.25");
         BigDecimal newAssetQuantity = new BigDecimal("10151134");
-        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-adjustment-effective-date.json");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/repo-adjustment-effective-date.json");
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = createAdjustmentInstruction.evaluate(executionTradeState, newAllinPrice, newAssetQuantity, effectiveDate).toBuilder();
 
@@ -2057,18 +2052,18 @@ public class FunctionInputCreator {
         Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/repo-adjustment-input.json", actual);
+        writeExpectation("functions/repo-and-bond/repo-adjustment-input.json", actual);
     }
 
     private void updateRepoSubstitutionCollateral() throws IOException {
-        String resourceName = "cdm-sample-files/functions/repo-and-bond/repo-substitution-collateral.json";
+        String resourceName = "functions/repo-and-bond/repo-substitution-collateral.json";
         Collateral.CollateralBuilder collateralBuilder = ResourcesUtils.getObject(Collateral.class, resourceName).toBuilder();
         Collateral actual = reKey(collateralBuilder).build();
         writeExpectation(resourceName, actual);
     }
 
     private void updateRepoSubstitutionPriceQuantity() throws IOException {
-        String resourceName = "cdm-sample-files/functions/repo-and-bond/repo-substitution-price-quantity.json";
+        String resourceName = "functions/repo-and-bond/repo-substitution-price-quantity.json";
         List<TradeLot.TradeLotBuilder> tradeLotBuilders = toBuilder(ResourcesUtils.getObjectList(TradeLot.class, resourceName));
         List<TradeLot> actual = build(reKey(tradeLotBuilders));
         writeExpectation(resourceName, actual);
@@ -2076,9 +2071,9 @@ public class FunctionInputCreator {
 
     private void updateSubstitutionEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
-        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-effective-date.json");
-        CollateralPortfolio newCollateralPortfolio = ResourcesUtils.getObject(CollateralPortfolio.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-collateral.json");
-        List<? extends PriceQuantity> priceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-price-quantity.json");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/repo-substitution-effective-date.json");
+        CollateralPortfolio newCollateralPortfolio = ResourcesUtils.getObject(CollateralPortfolio.class, "functions/repo-and-bond/repo-substitution-collateral.json");
+        List<? extends PriceQuantity> priceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "functions/repo-and-bond/repo-substitution-price-quantity.json");
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = createSubstitutionInstruction.evaluate(executionTradeState, effectiveDate, newCollateralPortfolio, priceQuantity).toBuilder();
 
@@ -2091,7 +2086,7 @@ public class FunctionInputCreator {
         Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
-        writeExpectation("cdm-sample-files/functions/repo-and-bond/repo-substitution-input.json", actual);
+        writeExpectation("functions/repo-and-bond/repo-substitution-input.json", actual);
     }
 
     private TradeState removeIsdaProductTaxonomy(TradeState tradeState) {
@@ -2106,14 +2101,14 @@ public class FunctionInputCreator {
     }
 
     private TradeState getRepoExecutionAfterTradeState() throws IOException {
-        BusinessEvent executionBusinessEvent = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/repo-execution-func-output.json");
+        BusinessEvent executionBusinessEvent = ResourcesUtils.getObject(BusinessEvent.class, "functions/repo-and-bond/repo-execution-func-output.json");
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
     }
 
     private void writeExpectation(String writePath, Object actual) {
         // Add environment variable TEST_WRITE_BASE_PATH to override the base write path, e.g.
         // TEST_WRITE_BASE_PATH=/Users/hugohills/dev/github/REGnosys/rosetta-cdm/rosetta-source/src/main/resources/
-        TEST_WRITE_BASE_PATH.filter(Files::exists).ifPresent(basePath -> {
+        WRITE_BASE_PATH.filter(Files::exists).ifPresent(basePath -> {
             Path expectationFilePath = basePath.resolve(writePath);
             try {
                 String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
@@ -2125,4 +2120,5 @@ public class FunctionInputCreator {
             }
         });
     }
+
 }

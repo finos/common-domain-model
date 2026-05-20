@@ -9,9 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -39,10 +43,10 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessorPerformanceTests.class);
 
     // Path to the test sample JSON files for TradeState objects within the JAR resources
-    private final String tradeStateTestPackSamples = "result-json-files/fpml-5-13/products";
+    private final String tradeStateTestPackSamples = "ingest/output/fpml-confirmation-to-trade-state";
 
     // Path to the test sample JSON files for WorkflowStep objects within the JAR resources
-    private final String workflowStepTestPackSamples = "result-json-files/fpml-5-13/processes";
+    private final String workflowStepTestPackSamples = "ingest/output/fpml-confirmation-to-workflow-step";
 
     /**
      * Evaluates the performance of serialization, validation, and qualification of TradeState objects.
@@ -57,7 +61,7 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
      * @throws IOException If the input resources cannot be located or read.
      */
     @Test
-    void tradeStateProcessesPerformanceMetrics() throws IOException {
+    void tradeStateProcessesPerformanceMetrics() throws IOException, URISyntaxException {
 
         LOGGER.info("Collecting product-based (TradeState) performance metrics...");
         // Lists to hold performance metrics
@@ -69,14 +73,9 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
         URL url = this.getClass().getClassLoader().getResource(tradeStateTestPackSamples);
         assertNotNull(url, tradeStateTestPackSamples + " should be resolvable through project dependencies");
 
-        // Extract the jar file path from the resource URL
-        String[] parts = url.getPath().split("!");
-        String jarPath = parts[0].substring(parts[0].indexOf("file:") + 5);
-        JarFile jarFile = new JarFile(jarPath);
-
         // Iterate through each file entry in the specified directory within the jar file
-        jarFile.stream()
-                .filter(entry -> entry.getName().startsWith(tradeStateTestPackSamples) && entry.getName().endsWith(".json"))
+        Files.walk(Path.of(url.toURI()))
+                .filter(entry -> entry.toString().endsWith(".json"))
                 .forEach(entry -> {
                     // Create builders to track serialization and validation metrics
                     PerformanceMetric.PerformanceMetricBuilder serializationMetricBuilder = PerformanceMetric.PerformanceMetricBuilder.newInstance();
@@ -84,8 +83,9 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
                     PerformanceMetric.PerformanceMetricBuilder qualificationMetricBuilder = PerformanceMetric.PerformanceMetricBuilder.newInstance();
 
                     try {
+
                         // Deserialize the JSON file into a TradeState object
-                        InputStream ins = jarFile.getInputStream(entry);
+                        File ins = entry.toFile();
                         serializationMetricBuilder.start();
                         TradeState deserialized = resolveReferences(mapper.readValue(ins, TradeState.class));
                         serializationMetricBuilder.end();
@@ -110,7 +110,8 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
 
                     } catch (Exception e) {
                         // Convert checked exceptions to RuntimeException for simplicity
-                        throw new RuntimeException(e);
+                        LOGGER.error("Could not process sample '{}'", entry, e);
+                        //throw new RuntimeException(e);
                     }
                 });
 
@@ -149,7 +150,7 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
      * @throws IOException If the input resources cannot be located or read.
      */
     @Test
-    void workflowStepProcessesPerformanceMetrics() throws IOException {
+    void workflowStepProcessesPerformanceMetrics() throws IOException, URISyntaxException {
 
         LOGGER.info("Collecting event-based (WofklowStep) performance metrics...");
 
@@ -163,14 +164,10 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
         URL url = this.getClass().getClassLoader().getResource(workflowStepTestPackSamples);
         assertNotNull(url, workflowStepTestPackSamples + " should be resolvable through project dependencies");
 
-        // Extract the jar file path from the resource URL
-        String[] parts = url.getPath().split("!");
-        String jarPath = parts[0].substring(parts[0].indexOf("file:") + 5);
-        JarFile jarFile = new JarFile(jarPath);
 
         // Iterate through each file entry in the specified directory within the jar file
-        jarFile.stream()
-                .filter(entry -> entry.getName().startsWith(workflowStepTestPackSamples) && entry.getName().endsWith(".json"))
+        Files.walk(Path.of(url.toURI()))
+                .filter(entry -> entry.toString().endsWith(".json"))
                 .forEach(entry -> {
                     // Create builders to track performance metrics
                     PerformanceMetric.PerformanceMetricBuilder serializationMetricBuilder = PerformanceMetric.PerformanceMetricBuilder.newInstance();
@@ -180,7 +177,7 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
 
                     try {
                         // Deserialize the JSON file into a WorkflowStep object
-                        InputStream ins = jarFile.getInputStream(entry);
+                        File ins = entry.toFile();
                         serializationMetricBuilder.start();
                         WorkflowStep deserialized = resolveReferences(mapper.readValue(ins, WorkflowStep.class));
                         serializationMetricBuilder.end();

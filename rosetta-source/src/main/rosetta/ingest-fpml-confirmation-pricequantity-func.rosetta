@@ -5,6 +5,7 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.other.*
@@ -515,7 +516,7 @@ func MapEquityDerivativeBaseQuantityListWithLocation:
         then CreateQuantityWithLocation(
                     MapNumberOfOptionsAndOptionEntitlementToQuantity(
                             fpmlNumberOfOptions,
-                            GetMultiplerUnitTypeUnderlyingAsset(
+                            GetMultiplierUnitTypeUnderlyingAsset(
                                     fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
                                 ) -> financialUnit,
                             fpmlOptionEntitlement,
@@ -927,7 +928,7 @@ func MapFixedRateScheduleToPriceWithAddress:
         if fpmlFixedRateSchedule exists
         then CreatePriceWithAddress(CreatePriceKey("fixedRateSchedule", fpmlLeg))
 
-func MapFloatingRateMultiplerScheduleToPriceWithLocation:
+func MapFloatingRateMultiplierScheduleToPriceWithLocation:
     inputs:
         fpmlRate fpml.Rate (0..1)
         fpmlCurrency fpml.Currency (0..1)
@@ -946,7 +947,7 @@ func MapFloatingRateMultiplerScheduleToPriceWithLocation:
             extract
                 CreatePriceWithLocation(
                         MapScheduleToInterestRatePriceSchedule(item, fpmlCurrency, Multiply),
-                        CreatePriceKey("floatingRateMultiplerSchedule", fpmlLeg)
+                        CreatePriceKey("floatingRateMultiplierSchedule", fpmlLeg)
                     )
 
 func MapSpreadScheduleToPriceWithLocation:
@@ -1477,12 +1478,8 @@ func MapCommmodityFixedPriceToPriceSchedule:
             value: fpmlCommodityFixedPrice -> price,
             unit: unit,
             perUnitOf: perUnitOf,
-            priceType: CashPrice,
-            cashPrice:
-                CashPrice {
-                    cashPriceType: Fee,
-                    ...
-                },
+            priceType: InterestRate,
+            priceSubType: Fee,
             ...
         }
 
@@ -1520,12 +1517,8 @@ func MapCommmodityFixedPriceScheduleToPriceSchedule:
                         },
             unit: unit,
             perUnitOf: perUnitOf,
-            priceType: CashPrice,
-            cashPrice:
-                CashPrice {
-                    cashPriceType: Fee,
-                    ...
-                },
+            priceType: InterestRate,
+            priceSubType: Fee,
             ...
         }
 
@@ -1695,6 +1688,7 @@ func MapFloatingRateIndex:
             assetClass: InterestRate,
             floatingRateIndex: MapFloatingRateIndexEnum(model -> floatingRateIndex -> value),
             indexTenor: MapPeriod(model -> indexTenor),
+            assetType: Other,
             ...
         }
 
@@ -1714,6 +1708,7 @@ func MapInflationIndex:
                         model -> floatingRateIndex -> value
                     ),
             indexTenor: MapPeriod(model -> indexTenor),
+            assetType: Other,
             ...
         }
 
@@ -1769,6 +1764,7 @@ func MapFloatingRateIndexToRateOptionWithLocation:
                                             fpmlFloatingRateIndex -> value
                                         ),
                                 indexTenor: MapPeriod(fpmlIndexTenor),
+                                assetType: Other,
                                 ...
                             },
                         ...
@@ -1890,7 +1886,7 @@ func MapAsset:
     set asset:
         fpmlAsset switch
             fpml.ExchangeTradedFund then
-                MapIdentifiedAssetToAssetListedDerivative(
+                MapIdentifiedAssetToAssetSecurity(
                         item,
                         exchangeId,
                         exchangeIdentifierModel -> relatedExchangeId,
@@ -1900,8 +1896,7 @@ func MapAsset:
                 MapIdentifiedAssetToAssetListedDerivative(
                         item,
                         exchangeId,
-                        exchangeIdentifierModel -> relatedExchangeId,
-                        ListedDerivative
+                        exchangeIdentifierModel -> relatedExchangeId
                     ),
             fpml.Loan then
                 MapIdentifiedAssetToAssetSecurity(item, exchangeId, empty, Debt),
@@ -1925,9 +1920,12 @@ func MapIdentifiedAssetToAssetListedDerivative:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
     output:
         asset Asset (0..1)
+
+    alias assetParty:
+          fpmlExchangeId extract MapExchangeIdToAssetParty
+
 
     set asset:
         Asset {
@@ -1938,10 +1936,16 @@ func MapIdentifiedAssetToAssetListedDerivative:
                             identifier: MapAssetIdentifierList(fpmlIdentifiedAsset),
                             isExchangeListed: if fpmlExchangeId exists
                                     then True,
-                            exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
-                            relatedExchange: fpmlRelatedExchangeId
-                                    extract MapExchangeIdToLegalEntity,
-                            instrumentType: instrumentType,
+                            party: assetParty,
+                            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                            ancillaryPartyRole: fpmlRelatedExchangeId
+                            filter value <> fpmlExchangeId -> value
+                            then extract
+                                MapAssetAncillaryPartyRole(
+                                    MapExchangeIdToAssetParty,
+                                    AssetAncillaryPartyRoleEnum->RelatedExchange
+                                ),
+                            assetType: ListedDerivative,
                             ...
                         },
                     ...
@@ -1954,9 +1958,12 @@ func MapIdentifiedAssetToAssetLoan:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
     output:
         asset Asset (0..1)
+
+    alias assetParty:
+          fpmlExchangeId extract MapExchangeIdToAssetParty
+
 
     set asset:
         Asset {
@@ -1967,10 +1974,16 @@ func MapIdentifiedAssetToAssetLoan:
                             identifier: MapAssetIdentifierList(fpmlIdentifiedAsset),
                             isExchangeListed: if fpmlExchangeId exists
                                     then True,
-                            exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
-                            relatedExchange: fpmlRelatedExchangeId
-                                    extract MapExchangeIdToLegalEntity,
-                            instrumentType: instrumentType,
+                            party: assetParty,
+                            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                            ancillaryPartyRole: fpmlRelatedExchangeId
+                            filter value <> fpmlExchangeId -> value
+                            then extract
+                                MapAssetAncillaryPartyRole(
+                                    MapExchangeIdToAssetParty,
+                                    AssetAncillaryPartyRoleEnum->RelatedExchange
+                                ),
+                            assetType: Loan,
                             ...
                         },
                     ...
@@ -1983,7 +1996,7 @@ func MapIdentifiedAssetToAssetSecurity:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1995,7 +2008,7 @@ func MapIdentifiedAssetToAssetSecurity:
                                 fpmlIdentifiedAsset,
                                 fpmlExchangeId,
                                 fpmlRelatedExchangeId,
-                                instrumentType,
+                                securityType,
                                 empty
                             ),
                     ...
@@ -2008,27 +2021,37 @@ func MapIdentifiedAssetToSecurity:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
         seniority string (0..1)
     output:
         security Security (0..1)
+
+    alias assetParty:
+          fpmlExchangeId extract MapExchangeIdToAssetParty
+
 
     set security:
         Security {
             identifier: MapAssetIdentifierList(fpmlIdentifiedAsset),
             isExchangeListed: if fpmlExchangeId exists then True,
-            exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
-            relatedExchange: fpmlRelatedExchangeId extract MapExchangeIdToLegalEntity,
-            instrumentType: instrumentType,
+            party: assetParty,
+            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+            ancillaryPartyRole: fpmlRelatedExchangeId
+                            filter value <> fpmlExchangeId -> value
+                            then extract
+                                MapAssetAncillaryPartyRole(
+                                    MapExchangeIdToAssetParty,
+                                    AssetAncillaryPartyRoleEnum->RelatedExchange
+                                ),
+            securityType: securityType,
+            assetType: Security,
             debtType:
                 DebtType {
                     debtEconomics:
                         DebtEconomics {
-                            debtSeniority: seniority to-enum DebtSeniorityEnum,
+                            seniority: seniority to-enum DebtSeniorityEnum,
                             ...
-                        },
-                    ...
-                },
+            }},
             ...
         }
 
@@ -2051,6 +2074,7 @@ func MapAssetCommodity:
                             deliveryNearby: MapCommodityDeliveryDates(fpmlCommodity),
                             ...
                         },
+                    assetType: Commodity,
                     ...
                 },
             ...
@@ -2062,22 +2086,33 @@ func MapEquityIndex:
     output:
         index Index (0..1)
 
-    set index:
-        Index {
-            EquityIndex:
-                EquityIndex {
-                    identifier: MapAssetIdentifierList(fpmlIndex),
-                    isExchangeListed: if fpmlIndex -> exchangeId exists
-                            then True,
-                    exchange: fpmlIndex -> exchangeId extract MapExchangeIdToLegalEntity,
-                    relatedExchange: fpmlIndex -> exchangeIdentifierModel -> relatedExchangeId
-                            extract MapExchangeIdToLegalEntity,
-                    name: fpmlIndex -> description,
-                    assetClass: Equity,
-                    ...
-                },
-            ...
-        }
+    alias assetParty:
+        fpmlIndex -> exchangeId extract MapExchangeIdToAssetParty
+
+     set index:
+         Index {
+             EquityIndex:
+                 EquityIndex {
+                     identifier: MapAssetIdentifierList(fpmlIndex),
+                     isExchangeListed: if fpmlIndex -> exchangeId exists
+                             then True,
+                     party: assetParty,
+                     partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                     ancillaryPartyRole: fpmlIndex -> exchangeIdentifierModel -> relatedExchangeId
+                            filter value <> fpmlIndex -> exchangeId -> value
+                            then extract
+                                MapAssetAncillaryPartyRole(
+                                    MapExchangeIdToAssetParty,
+                                    RelatedExchange
+                                ),
+                     name: fpmlIndex -> description,
+                     assetClass: Equity,
+                     assetType: Other,
+                     ...
+                 },
+             ...
+         }
+
 
 func MapBasket:
     inputs:
@@ -2090,6 +2125,7 @@ func MapBasket:
             identifier: empty,
             basketConstituent: fpmlBasket -> basketConstituent
                     extract MapBasketConstituentWithLocation,
+            assetType: Security,
             ...
         }
 
@@ -2304,6 +2340,7 @@ func MapCurrencyToAssetCash:
                             identifier: MapCurrency(fpmlCurrency),
                             identifierType: CurrencyCode
                         },
+                    assetType: Cash,
                     ...
                 },
             ...
@@ -2334,6 +2371,7 @@ func MapQuotedCurrencyPairToObservableWithLocation:
                                     sourceProvider: empty,
                                     ...
                                 },
+                            assetType: Other,
                             ...
                         },
                     ...
@@ -2401,6 +2439,9 @@ func MapCommodityClassificationListToObservableCommodity:
                             priceQuoteType: empty,
                             taxonomy: fpmlCommodityClassificationList
                                     extract MapCommodityClassificationToTaxonomy,
+                            assetType: if fpmlCommodityClassificationList exists
+                                    then Commodity
+                                else empty,
                             ...
                         },
                     ...
