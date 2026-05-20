@@ -21,6 +21,7 @@ import cdm.migration.fpml.model.RosettaTypeInfo;
 
 public class MissingTypeInputExpander {
     public final List<String> expansionReport = new ArrayList<String>();
+    public final Set<String> handledMissingTypeKeys = new LinkedHashSet<String>();
 
     public List<TextEdit> plan(
             IngestAnalysisResult analysis,
@@ -71,6 +72,7 @@ public class MissingTypeInputExpander {
                 }
                 ExpansionPlan plan = new ExpansionPlan(function, inputName, inputTypeRef, expandedInputs);
                 plans.put(function.name + "::" + inputName, plan);
+                handledMissingTypeKeys.add(function.name + "::" + inputTypeQName);
                 edits.addAll(planFunctionEdits(function, plan));
                 expansionReport.add(function.file + ":" + function.startLine + " [" + function.name + "] "
                         + inputName + " " + inputTypeRef + " expanded to " + expandedInputNames(expandedInputs));

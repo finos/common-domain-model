@@ -12,6 +12,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cdm.migration.fpml.analysis.CallGraphBuilder;
 import cdm.migration.fpml.analysis.IngestAnalysisResult;
@@ -122,6 +124,10 @@ public class FpmlFlatteningMigrationTool {
                 newModel,
                 removedTypes,
                 typeResolver);
+        List<String> filteredMissingTypes = filterHandledMissingTypes(rewritePlanner.missingTypes,
+                missingTypeInputExpander.handledMissingTypeKeys);
+        rewritePlanner.missingTypes.clear();
+        rewritePlanner.missingTypes.addAll(filteredMissingTypes);
         SourceRewriter.RewriteResult rewriteResult = sourceRewriter.rewriteWithAdditionalEdits(candidates, inputExpansionEdits, config.apply);
         String diffText = diffWriter.buildDiff(rewriteResult.originalByFile, rewriteResult.rewrittenByFile);
 
@@ -378,5 +384,24 @@ public class FpmlFlatteningMigrationTool {
             list.add(item);
         }
         return list;
+    }
+
+    private List<String> filterHandledMissingTypes(List<String> missingTypes, Set<String> handledKeys) {
+        if (missingTypes.isEmpty() || handledKeys.isEmpty()) {
+            return missingTypes;
+        }
+        Pattern pattern = Pattern.compile(".*\\[(.+?)\\]\\s+missing type in new model:\\s+(.+)$");
+        List<String> out = new ArrayList<String>();
+        for (String row : missingTypes) {
+            Matcher matcher = pattern.matcher(row);
+            if (matcher.matches()) {
+                String key = matcher.group(1) + "::" + matcher.group(2).trim();
+                if (handledKeys.contains(key)) {
+                    continue;
+                }
+            }
+            out.add(row);
+        }
+        return out;
     }
 }
