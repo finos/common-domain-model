@@ -91,6 +91,9 @@ public class RewritePlanner {
                 String oldPathKey = String.join("->", effectiveOldPath);
                 PathMapping mapping = perRoot.get(oldPathKey);
                 if (mapping == null) {
+                    if (isScalarProjectionPath(rootType, effectiveOldPath, oldModel, typeResolver)) {
+                        continue;
+                    }
                     unresolved.add(function.file + ":" + path.line + " [" + function.name + "] no mapping for path " + oldPathKey + " under " + rootType);
                     continue;
                 }
@@ -251,5 +254,37 @@ public class RewritePlanner {
         }
         String t = typeQName.toLowerCase();
         return t.startsWith("fpml.");
+    }
+
+    private boolean isScalarProjectionPath(
+            String rootType,
+            List<String> oldPath,
+            RosettaModelInventory oldModel,
+            TypeResolver typeResolver) {
+        if (oldPath == null || oldPath.size() < 2) {
+            return false;
+        }
+        List<String> prefix = oldPath.subList(0, oldPath.size() - 1);
+        String tail = oldPath.get(oldPath.size() - 1);
+        String prefixTerminal = typeResolver.resolveTerminalType(oldModel, rootType, prefix);
+        if (prefixTerminal == null) {
+            return false;
+        }
+        String t = prefixTerminal.toLowerCase();
+        boolean scalarSource =
+                "zoneddatetime".equals(t)
+                        || "datetime".equals(t)
+                        || "date".equals(t)
+                        || "time".equals(t);
+        if (!scalarSource) {
+            return false;
+        }
+        String tailLower = tail.toLowerCase();
+        return "date".equals(tailLower)
+                || "time".equals(tailLower)
+                || "hour".equals(tailLower)
+                || "minute".equals(tailLower)
+                || "second".equals(tailLower)
+                || "timezone".equals(tailLower);
     }
 }
