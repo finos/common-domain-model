@@ -107,10 +107,9 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          - sbt compile
-          - sbt package
-          - sbt doc
-          - sbt packageDoc packageSrc
+          # ensure the build.sbt file exists
+          - test -f build.sbt
+          - sbt -v compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
