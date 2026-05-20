@@ -6,7 +6,9 @@ ThisBuild / organization     := "org.finos.cdm"
 ThisBuild / organizationName := "cdm-scala"
 
 // Maven Central mirror configuration
-ThisBuild / resolvers += "Maven Central Proxy" at "https://europe-west1-maven.pkg.dev/production-208613/maven-central"
+ThisBuild / resolvers := Seq(
+  "Maven Central Proxy" at "https://europe-west1-maven.pkg.dev/production-208613/maven-central"
+)
 
 ThisBuild / credentials ++= {
   val username = "_json_key_base64"
@@ -18,7 +20,7 @@ ThisBuild / credentials ++= {
   }
 }
 
-ThisBuild / externalResolvers := Resolver.combineDefaultResolvers(resolvers.value.toVector)
+ThisBuild / externalResolvers := resolvers.value
 
 val versions = new {
   val jackson = "2.10.0"
