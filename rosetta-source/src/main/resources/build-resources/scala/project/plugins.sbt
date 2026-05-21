@@ -3,14 +3,19 @@ resolvers := Seq(
   "Artifact Registry Mirror" at "https://europe-west1-maven.pkg.dev/production-208613/maven-central/"
 )
 
-// Credentials for Artifact Registry
+// Credentials for Artifact Registry - try credentials file first, then environment variable
 credentials ++= {
-  val username = "_json_key_base64"
-  val password = sys.env.getOrElse("ARTIFACT_REGISTRY_SA_KEY", "")
-  if (password.nonEmpty) {
-    Seq(Credentials("Artifact Registry", "europe-west1-maven.pkg.dev", username, password))
+  val credsFile = Path.userHome / ".sbt" / ".credentials"
+  if (credsFile.exists) {
+    Seq(Credentials(credsFile))
   } else {
-    Seq.empty
+    val username = "_json_key_base64"
+    val password = sys.env.getOrElse("ARTIFACT_REGISTRY_SA_KEY", "")
+    if (password.nonEmpty) {
+      Seq(Credentials("Artifact Registry", "europe-west1-maven.pkg.dev", username, password))
+    } else {
+      Seq.empty
+    }
   }
 }
 
