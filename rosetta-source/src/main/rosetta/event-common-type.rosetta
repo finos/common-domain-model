@@ -99,11 +99,17 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 
     exerciseQuantity PrimitiveInstruction (1..1) <"Contains instructions for exercising the option including a quantity change, and optionally a transfer.">
-    exerciseOption OptionPayout (0..1) <"Specifies the Option Payout being exercised on the trade.">
+    exerciseOption Payout (0..1) <"Specifies the Option Payout being exercised on the trade.">
         [metadata reference]
     exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
     exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
     replacementTradeIdentifier TradeIdentifier (0..*) <"Specifies the trade identifier to apply to the replacement trade for physical exercise.">
+
+    condition IsOptionPayout: <"Payout must be an option payout.">
+        if exerciseOption exists
+        then exerciseOption switch
+            OptionPayout then item exists,
+            default False
 
 type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
     payout Payout (1..*)
