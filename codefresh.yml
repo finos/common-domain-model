@@ -106,10 +106,7 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          - sbt compile
-          - sbt package
-          - sbt doc
-          - sbt packageDoc packageSrc
+          - sbt -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
@@ -254,10 +251,10 @@ steps:
           isRelease: "${{IS_RELEASE}} == true"
           pythonBuildSuccess: steps.BuildPython.result == 'success'
     environment:
-      - TWINE_PASSWORD="${{PYPI_TOKEN}}"
+      - TWINE_PASSWORD=${{PYPI_TOKEN}}
     commands:
       - pip install twine
-      - twine upload --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
+      - twine upload --verbose --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
 
   DeployExcel:
     stage: 'build'
