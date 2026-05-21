@@ -107,11 +107,15 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
+          # Test if the mirror is working
+          - echo "Testing mirror access for scala-library..."
+          - curl -v -u "_json_key_base64:$ARTIFACT_REGISTRY_SA_KEY" "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/2.12.8/scala-library-2.12.8.pom" || echo "Mirror test failed"
           # Configure Coursier credentials and mirror for Maven Central to Artifact Registry
-          - mkdir -p ./.config/coursier
-          - echo "europe-west1-maven.pkg.dev.username=_json_key_base64" >> ./.config/coursier/credentials.properties
-          - echo "europe-west1-maven.pkg.dev.password=$ARTIFACT_REGISTRY_SA_KEY" >> ./.config/coursier/credentials.properties
+          - mkdir -p ~/.config/coursier
+          - echo "europe-west1-maven.pkg.dev.username=_json_key_base64" > ~/.config/coursier/credentials.properties
+          - echo "europe-west1-maven.pkg.dev.password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.config/coursier/credentials.properties
           - export COURSIER_REPOSITORIES="central::https://europe-west1-maven.pkg.dev/production-208613/maven-central/"
+          - export COURSIER_VERBOSITY=2
           - sbt -v compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
