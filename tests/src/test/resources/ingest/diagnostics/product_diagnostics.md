@@ -28,8 +28,8 @@
 | swaption | 25 | 98% |
 | bondOption | 12 | 98% |
 | commodityPerformanceSwap | 8 | 98% |
-| fxSingleLeg | 27 | 98% |
 | returnSwap | 36 | 98% |
+| fxSingleLeg | 27 | 98% |
 | correlationSwap | 8 | 97% |
 | creditDefaultSwapOption | 18 | 97% |
 | equityOption | 37 | 97% |

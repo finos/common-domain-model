@@ -101,7 +101,7 @@
 | fpml-5-13-incomplete-products-repo | securityLending | 2 | 106% |
 | fpml-5-13-incomplete-products-variance-swaps | varianceSwap | 2 | 103% |
 | fpml-5-13-processes-execution-advice | commoditySwap | 6 | 117% |
-| fpml-5-13-processes-execution-advice | creditDefaultSwap | 6 | 100% |
+| fpml-5-13-processes-execution-advice | creditDefaultSwap | 6 | 101% |
 | fpml-5-13-processes-execution-advice | swap | 2 | 103% |
 | fpml-5-13-products-bond-options | bondOption | 4 | 99% |
 | fpml-5-13-products-commodity-derivatives | commodityOption | 11 | 94% |
