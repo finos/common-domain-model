@@ -5,6 +5,7 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.other.*
@@ -1921,6 +1922,10 @@ func MapIdentifiedAssetToAssetListedDerivative:
     output:
         asset Asset (0..1)
 
+    alias assetParty:
+          fpmlExchangeId extract MapExchangeIdToAssetParty
+
+
     set asset:
         Asset {
             Instrument:
@@ -1930,9 +1935,15 @@ func MapIdentifiedAssetToAssetListedDerivative:
                             identifier: MapAssetIdentifierList(fpmlIdentifiedAsset),
                             isExchangeListed: if fpmlExchangeId exists
                                     then True,
-                            exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
-                            relatedExchange: fpmlRelatedExchangeId
-                                    extract MapExchangeIdToLegalEntity,
+                            party: assetParty,
+                            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                            ancillaryPartyRole: fpmlRelatedExchangeId
+                            filter value <> fpmlExchangeId -> value
+                            then extract
+                                MapAssetAncillaryPartyRole(
+                                    MapExchangeIdToAssetParty,
+                                    AssetAncillaryPartyRoleEnum->RelatedExchange
+                                ),
                             assetType: ListedDerivative,
                             ...
                         },
@@ -1949,6 +1960,10 @@ func MapIdentifiedAssetToAssetLoan:
     output:
         asset Asset (0..1)
 
+    alias assetParty:
+          fpmlExchangeId extract MapExchangeIdToAssetParty
+
+
     set asset:
         Asset {
             Instrument:
@@ -1958,9 +1973,15 @@ func MapIdentifiedAssetToAssetLoan:
                             identifier: MapAssetIdentifierList(fpmlIdentifiedAsset),
                             isExchangeListed: if fpmlExchangeId exists
                                     then True,
-                            exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
-                            relatedExchange: fpmlRelatedExchangeId
-                                    extract MapExchangeIdToLegalEntity,
+                            party: assetParty,
+                            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                            ancillaryPartyRole: fpmlRelatedExchangeId
+                            filter value <> fpmlExchangeId -> value
+                            then extract
+                                MapAssetAncillaryPartyRole(
+                                    MapExchangeIdToAssetParty,
+                                    AssetAncillaryPartyRoleEnum->RelatedExchange
+                                ),
                             assetType: Loan,
                             ...
                         },
@@ -2004,12 +2025,23 @@ func MapIdentifiedAssetToSecurity:
     output:
         security Security (0..1)
 
+    alias assetParty:
+          fpmlExchangeId extract MapExchangeIdToAssetParty
+
+
     set security:
         Security {
             identifier: MapAssetIdentifierList(fpmlIdentifiedAsset),
             isExchangeListed: if fpmlExchangeId exists then True,
-            exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
-            relatedExchange: fpmlRelatedExchangeId extract MapExchangeIdToLegalEntity,
+            party: assetParty,
+            partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+            ancillaryPartyRole: fpmlRelatedExchangeId
+                            filter value <> fpmlExchangeId -> value
+                            then extract
+                                MapAssetAncillaryPartyRole(
+                                    MapExchangeIdToAssetParty,
+                                    AssetAncillaryPartyRoleEnum->RelatedExchange
+                                ),
             securityType: securityType,
             assetType: Security,
             debtType:
@@ -2053,23 +2085,33 @@ func MapEquityIndex:
     output:
         index Index (0..1)
 
-    set index:
-        Index {
-            EquityIndex:
-                EquityIndex {
-                    identifier: MapAssetIdentifierList(fpmlIndex),
-                    isExchangeListed: if fpmlIndex -> exchangeId exists
-                            then True,
-                    exchange: fpmlIndex -> exchangeId extract MapExchangeIdToLegalEntity,
-                    relatedExchange: fpmlIndex -> exchangeIdentifierModel -> relatedExchangeId
-                            extract MapExchangeIdToLegalEntity,
-                    name: fpmlIndex -> description,
-                    assetClass: Equity,
-                    assetType: Other,
-                    ...
-                },
-            ...
-        }
+    alias assetParty:
+        fpmlIndex -> exchangeId extract MapExchangeIdToAssetParty
+
+     set index:
+         Index {
+             EquityIndex:
+                 EquityIndex {
+                     identifier: MapAssetIdentifierList(fpmlIndex),
+                     isExchangeListed: if fpmlIndex -> exchangeId exists
+                             then True,
+                     party: assetParty,
+                     partyRole: assetParty extract MapAssetPartyRole(item, AssetPartyRoleEnum->Exchange),
+                     ancillaryPartyRole: fpmlIndex -> exchangeIdentifierModel -> relatedExchangeId
+                            filter value <> fpmlIndex -> exchangeId -> value
+                            then extract
+                                MapAssetAncillaryPartyRole(
+                                    MapExchangeIdToAssetParty,
+                                    RelatedExchange
+                                ),
+                     name: fpmlIndex -> description,
+                     assetClass: Equity,
+                     assetType: Other,
+                     ...
+                 },
+             ...
+         }
+
 
 func MapBasket:
     inputs:
