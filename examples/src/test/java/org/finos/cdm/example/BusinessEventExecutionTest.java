@@ -32,7 +32,6 @@ import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.OptionPayout;
 import cdm.product.template.Payout;
 import cdm.product.template.TradeLot;
-import cdm.product.template.metafields.ReferenceWithMetaOptionPayout;
 import cdm.product.template.metafields.ReferenceWithMetaPayout;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +51,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -1002,16 +1002,29 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      */
     public static ExerciseInstruction buildExercisePrimitiveInstruction(TradeState tradeState, AdjustableOrAdjustedDate eventDate) {
 
+        Payout exerciseOptionPayout = Payout.builder().build();
+
+        if (exerciseOptionPayout.getOptionPayout() == null) {
+            OptionPayout fromTrade = tradeState.getTrade().getProduct().getEconomicTerms().getPayout().stream()
+                    .map(Payout::getOptionPayout)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElseThrow();
+            exerciseOptionPayout = Payout.builder()
+                    .setOptionPayout(fromTrade)
+                    .build();
+        }
+
         // Create a reference to the option payout as part of the exercise process.
-        ReferenceWithMetaOptionPayout option = ReferenceWithMetaOptionPayout.builder()
-                .setValue(OptionPayout.builder().build()) // Build a basic OptionPayout structure.
+        ReferenceWithMetaPayout option = ReferenceWithMetaPayout.builder()
+                .setValue(exerciseOptionPayout)  // Build a basic OptionPayout structure.
                 .build();
 
         // Initialize and build the ExerciseInstruction.
         return ExerciseInstruction.builder()
                 .setExerciseDate(eventDate)                                                 // Set the date on which the option is exercised.
                 .setExerciseTime(BusinessCenterTime.builder().build())                      // Set a placeholder exercise time, typically defined as business center time.
-                .setExerciseOptionValue(OptionPayout.builder().build())                     // Define the value of the exercised option.
+                .setExerciseOptionValue(exerciseOptionPayout)                     // Define the value of the exercised option.
                 .setExerciseQuantity(PrimitiveInstruction.builder().build())                // Set the quantity to be exercised, typically linked to a primitive instruction.
                 .setExerciseOption(option)                                                  // Associate the exercise with the referenced option.
                 .addReplacementTradeIdentifier(tradeState.getTrade().getTradeIdentifier())  // Add a replacement trade identifier from the trade state for tracking purposes.
