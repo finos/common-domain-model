@@ -17,55 +17,50 @@ import java.util.stream.Stream;
 
 public class CMEClearedConfirmTest extends IngestionTest<WorkflowStep> {
 
-	private static final String CME_CLEARED_1_17_FILES_DIR = "cdm-sample-files/cme-cleared-confirm-1-17/";
+    private static final String CME_CLEARED_1_17_FILES_DIR = "cdm-sample-files/cme-cleared-confirm-1-17/";
 
-	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
-			.add(Resources.getResource(CME_CLEARED_1_17_FILES_DIR + "expectations.json"))
-			.build();
+    private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
+            .add(Resources.getResource(CME_CLEARED_1_17_FILES_DIR + "expectations.json"))
+            .build();
 
-	private static IngestionService ingestionService;
+    private static IngestionService ingestionService;
 
-	@BeforeAll
-	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
-		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getCmeCleared117();
-	}
-	
-	@Override
-	protected Class<WorkflowStep> getClazz() {
-		return WorkflowStep.class;
-	}
+    @BeforeAll
+    static void setup() {
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
+        ingestionService = IngestionFactory.getInstance().getCmeCleared117();
+    }
 
-	@Override
-	protected IngestionService ingestionService() {
-		return ingestionService;
-	}
+    @Override
+    protected Class<WorkflowStep> getClazz() {
+        return WorkflowStep.class;
+    }
 
-	@SuppressWarnings("unused")//used by the junit parameterized test
-	private static Stream<Arguments> fpMLFiles() {
-		return readExpectationsFrom(EXPECTATION_FILES);
-	}
+    @Override
+    protected IngestionService ingestionService() {
+        return ingestionService;
+    }
 
-	public void run() {
+    @SuppressWarnings("unused")//used by the junit parameterized test
+    private static Stream<Arguments> fpMLFiles() {
+        return readExpectationsFrom(EXPECTATION_FILES);
+    }
 
-		// Ensure environment is set up
-		setup();
-		fpMLFiles().forEach(e -> {
-			Object[] argsArray = e.get();
-			String expectationFilePath = (String) argsArray[0];
-			Expectation expectation = (Expectation) argsArray[1];
-			String expectationFileName = (String) argsArray[2];
-			try {
-				if (writeActualExpectations) {
-					writeIngestionExpectation(expectationFilePath, expectation, expectationFileName);
-				} else {
-					ingest(expectationFilePath, expectation, expectationFileName);
-				}
-			} catch (Throwable ex) {
-				throw new RuntimeException(ex);
-			}
+    public void updateExpectations() {
 
-		});
-	}
+        // Ensure environment is set up
+        setup();
+        fpMLFiles().forEach(e -> {
+            Object[] argsArray = e.get();
+            String expectationFilePath = (String) argsArray[0];
+            Expectation expectation = (Expectation) argsArray[1];
+            try {
+                writeIngestionExpectation(expectationFilePath, expectation);
+            } catch (Throwable ex) {
+                throw new RuntimeException(ex);
+            }
+
+        });
+    }
 }
