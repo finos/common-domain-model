@@ -1,16 +1,11 @@
 import Dependencies._
-import sbt.librarymanagement.ivy.IvyDependencyResolution
 
 ThisBuild / scalaVersion     := "2.12.8"
 ThisBuild / version          := "0.0.0.snapshot"
 ThisBuild / organization     := "org.finos.cdm"
 ThisBuild / organizationName := "cdm-scala"
 
-// Maven Central mirror configuration
-ThisBuild / resolvers := Seq(
-  "Maven Central Proxy" at "https://europe-west1-maven.pkg.dev/production-208613/maven-central"
-)
-
+// Credentials for Artifact Registry (repository configured in project/repositories)
 ThisBuild / credentials ++= {
   val username = "_json_key_base64"
   val password = sys.env.getOrElse("ARTIFACT_REGISTRY_SA_KEY", "")
@@ -21,10 +16,7 @@ ThisBuild / credentials ++= {
   }
 }
 
-// Override all external resolvers to use only our proxy
-// This completely replaces default resolvers including Maven Central
-ThisBuild / externalResolvers := Resolver.combineDefaultResolvers(resolvers.value.toVector, mavenCentral = false)
-ThisBuild / updateOptions := updateOptions.value.withGigahorse(false)
+ThisBuild / externalResolvers := resolvers.value
 
 val versions = new {
   val jackson = "2.10.0"
