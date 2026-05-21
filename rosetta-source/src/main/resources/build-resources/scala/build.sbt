@@ -24,10 +24,6 @@ ThisBuild / credentials ++= {
 // Tell Coursier to use our configured resolvers
 ThisBuild / externalResolvers := resolvers.value
 
-// Disable fallback to Maven Central
-ThisBuild / useCoursier := true
-ThisBuild / coursierResolvers := resolvers.value
-
 val versions = new {
   val jackson = "2.10.0"
 }

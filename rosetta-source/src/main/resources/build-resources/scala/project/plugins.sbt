@@ -17,8 +17,4 @@ credentials ++= {
 // Tell Coursier to use our configured resolvers
 externalResolvers := resolvers.value
 
-// Disable fallback to Maven Central
-useCoursier := true
-coursierResolvers := resolvers.value
-
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.0")
