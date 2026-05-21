@@ -76,7 +76,7 @@ func MapEquityOptionPayout:
                 fpmlEquityOption -> underlyer -> singleUnderlyer -> underlyingAsset
             )
     alias prm:
-        fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> payerReceiverModel
+        fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> payerReceiverModel only-element
     alias apo: fpmlEquityOption -> featureModel -> feature -> asian -> averagingPeriodOut
     alias api: fpmlEquityOption -> featureModel -> feature -> asian -> averagingPeriodIn
 
@@ -134,18 +134,13 @@ func MapEquityOptionPayout:
                                 PassThrough {
                                     passThroughItem:
                                         PassThroughItem {
-                                            payerReceiver:
-                                                PayerReceiver {
-                                                    payer: MapCounterpartyRoleEnum(
-                                                                prm -> payerModel -> payerPartyReference -> href,
+                                            payerReceiver: prm
+                                                    extract
+                                                        MapPayerReceiver(
+                                                                item,
                                                                 cdmCounterpartyList
                                                             ),
-                                                    receiver: MapCounterpartyRoleEnum(
-                                                                prm -> receiverModel -> receiverPartyReference -> href,
-                                                                cdmCounterpartyList
-                                                            )
-                                                },
-                                            passThroughPercentage: fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> passThroughPercentage
+                                            passThroughPercentage: fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> passThroughPercentage only-element
                             },},
                             ...
                         },
@@ -181,13 +176,15 @@ func MapAveragingObservations:
     output:
         observationList AveragingObservationList (0..*)
 
+    alias averagingObservation: averagingObservationList -> averagingObservation first
+
     add observationList:
         AveragingObservationList {
             averagingObservation:
                 WeightedAveragingObservation {
-                    dateTime: averagingObservationList -> averagingObservation -> dateTime,
-                    observationNumber: averagingObservationList -> averagingObservation -> observationNumber,
-                    weight: averagingObservationList -> averagingObservation -> weight
+                    dateTime: averagingObservation -> dateTime,
+                    observationNumber: averagingObservation -> observationNumber,
+                    weight: averagingObservation -> weight
         }}
 
 func MapEquityOptionPriceQuantityList:
