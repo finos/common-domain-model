@@ -106,7 +106,14 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          - sbt -d compile package doc packageDoc packageSrc
+          # Create Coursier mirror configuration
+          - mkdir -p ~/.config/coursier
+          - echo "central.from=https://repo1.maven.org/maven2" > ~/.config/coursier/mirror.properties
+          - echo "central.to=https://europe-west1-maven.pkg.dev/production-208613/maven-central" >> ~/.config/coursier/mirror.properties
+          # Create Coursier credentials
+          - echo "europe-west1-maven.pkg.dev.username=_json_key_base64" > ~/.config/coursier/credentials.properties
+          - echo "europe-west1-maven.pkg.dev.password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.config/coursier/credentials.properties
+          - sbt -v compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
