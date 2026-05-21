@@ -103,20 +103,7 @@ steps:
         image: mozilla/sbt:8u292_1.5.7
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
-        environment:
-          - SBT_CREDENTIALS=${{SBT_CREDENTIALS}}
         commands:
-          # Create Coursier mirror configuration
-          - mkdir -p ~/.config/coursier
-          - echo "central.from=https://repo1.maven.org/maven2" > ~/.config/coursier/mirror.properties
-          - echo "central.to=https://europe-west1-maven.pkg.dev/production-208613/maven-central" >> ~/.config/coursier/mirror.properties
-          # Write sbt credentials file from Codefresh secret
-          - mkdir -p ~/.sbt
-          - echo -e "$SBT_CREDENTIALS" > ~/.sbt/.credentials
-          # Debug - check if credentials file is valid (don't show password)
-          - cat ~/.sbt/.credentials
-          - echo "---"
-          - wc -l ~/.sbt/.credentials
           - sbt -v compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'

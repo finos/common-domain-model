@@ -5,30 +5,6 @@ ThisBuild / version          := "0.0.0.snapshot"
 ThisBuild / organization     := "org.finos.cdm"
 ThisBuild / organizationName := "cdm-scala"
 
-// Configure resolver to use Google Artifact Registry mirror
-ThisBuild / resolvers := Seq(
-  "Artifact Registry Mirror" at "https://europe-west1-maven.pkg.dev/production-208613/maven-central/"
-)
-
-// Credentials for Artifact Registry - try credentials file first, then environment variable
-ThisBuild / credentials ++= {
-  val credsFile = Path.userHome / ".sbt" / ".credentials"
-  if (credsFile.exists) {
-    Seq(Credentials(credsFile))
-  } else {
-    val username = "_json_key_base64"
-    val password = sys.env.getOrElse("ARTIFACT_REGISTRY_SA_KEY", "")
-    if (password.nonEmpty) {
-      Seq(Credentials("Artifact Registry", "europe-west1-maven.pkg.dev", username, password))
-    } else {
-      Seq.empty
-    }
-  }
-}
-
-// Tell Coursier to use our configured resolvers
-ThisBuild / externalResolvers := resolvers.value
-
 val versions = new {
   val jackson = "2.10.0"
 }
