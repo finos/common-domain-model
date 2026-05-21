@@ -24,8 +24,6 @@ ThisBuild / credentials ++= {
 // Tell Coursier to use our configured resolvers
 ThisBuild / externalResolvers := resolvers.value
 
-ThisBuild / externalResolvers := resolvers.value
-
 val versions = new {
   val jackson = "2.10.0"
 }
