@@ -106,8 +106,6 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          # ensure the build.sbt file exists
-          - test -f build.sbt
           # Configure Coursier to mirror Maven Central to our Artifact Registry
           - export COURSIER_REPOSITORIES="central::https://europe-west1-maven.pkg.dev/production-208613/maven-central/"
           - sbt -v compile package doc packageDoc packageSrc
@@ -255,10 +253,10 @@ steps:
           isRelease: "${{IS_RELEASE}} == true"
           pythonBuildSuccess: steps.BuildPython.result == 'success'
     environment:
-      - TWINE_PASSWORD="${{PYPI_TOKEN}}"
+      - TWINE_PASSWORD=${{PYPI_TOKEN}}
     commands:
       - pip install twine
-      - twine upload --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
+      - twine upload --verbose --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
 
   DeployExcel:
     stage: 'build'
