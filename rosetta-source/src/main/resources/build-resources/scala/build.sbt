@@ -1,4 +1,5 @@
 import Dependencies._
+import sbt.librarymanagement.ivy.IvyDependencyResolution
 
 ThisBuild / scalaVersion     := "2.12.8"
 ThisBuild / version          := "0.0.0.snapshot"
@@ -20,7 +21,10 @@ ThisBuild / credentials ++= {
   }
 }
 
-ThisBuild / externalResolvers := resolvers.value
+// Override all external resolvers to use only our proxy
+// This completely replaces default resolvers including Maven Central
+ThisBuild / externalResolvers := Resolver.combineDefaultResolvers(resolvers.value.toVector, mavenCentral = false)
+ThisBuild / updateOptions := updateOptions.value.withGigahorse(false)
 
 val versions = new {
   val jackson = "2.10.0"
