@@ -106,16 +106,28 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          # Create Coursier mirror configuration
+          # Create Coursier configuration directory
           - mkdir -p ~/.config/coursier
+          # Create mirror configuration
           - echo "central.from=https://repo1.maven.org/maven2" > ~/.config/coursier/mirror.properties
           - echo "central.to=https://europe-west1-maven.pkg.dev/production-208613/maven-central" >> ~/.config/coursier/mirror.properties
-          # Create Coursier credentials - use the full host without protocol
-          - printf "europe-west1-maven.pkg.dev.username=_json_key_base64\n" > ~/.config/coursier/credentials.properties
-          - printf "europe-west1-maven.pkg.dev.password=%s\n" "$ARTIFACT_REGISTRY_SA_KEY" >> ~/.config/coursier/credentials.properties
-          # Debug - show the files (password will be masked in output)
+          # Create credentials using Coursier's config format (JSON)
+          - |
+            cat > ~/.config/coursier/config.json <<EOF
+            {
+              "repositories": {
+                "credentials": [
+                  {
+                    "host": "europe-west1-maven.pkg.dev",
+                    "username": "_json_key_base64",
+                    "password": "$ARTIFACT_REGISTRY_SA_KEY"
+                  }
+                ]
+              }
+            }
+            EOF
           - cat ~/.config/coursier/mirror.properties
-          - echo "Credentials file created (password hidden)"
+          - echo "Config files created"
           - sbt -v compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
