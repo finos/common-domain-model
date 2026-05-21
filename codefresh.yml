@@ -106,10 +106,16 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          # Create Coursier mirror configuration (credentials now in build.sbt)
+          # Create Coursier mirror configuration
           - mkdir -p ~/.config/coursier
           - echo "central.from=https://repo1.maven.org/maven2" > ~/.config/coursier/mirror.properties
           - echo "central.to=https://europe-west1-maven.pkg.dev/production-208613/maven-central" >> ~/.config/coursier/mirror.properties
+          # Write sbt credentials file in standard location
+          - mkdir -p ~/.sbt/1.0
+          - echo "realm=Artifact Registry" > ~/.sbt/1.0/credentials.sbt
+          - echo "host=europe-west1-maven.pkg.dev" >> ~/.sbt/1.0/credentials.sbt
+          - echo "user=_json_key_base64" >> ~/.sbt/1.0/credentials.sbt
+          - printf "password=%s\n" "$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/1.0/credentials.sbt
           - sbt -v compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
