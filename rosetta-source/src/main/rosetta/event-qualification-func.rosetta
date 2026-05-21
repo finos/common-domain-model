@@ -94,26 +94,6 @@ func Qualify_Cancellation: <"Qualification of an cancellation event.">
                 then openEconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate < closedEconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
                 else openEconomicTerms -> terminationDate exists)
 
-func Qualify_CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-    alias transfersForDate:
-        TransfersForDate(
-                businessEvent -> after -> transferHistory -> transfer,
-                businessEvent -> eventDate
-            )
-    set is_event:
-        transfersForDate ->> quantity -> unit -> currency exists
-            and transfersForDate ->> quantity -> unit -> financialUnit exists
-            and transfersForDate count = 2
-            and FilterCashTransfers(transfersForDate) only-element ->> payerReceiver -> payerPartyReference = FilterSecurityTransfers(
-                    transfersForDate
-                )
-                only-element ->> payerReceiver -> payerPartyReference
-
 func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
     [qualification BusinessEvent]
     inputs:
@@ -129,7 +109,7 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
                 extract primitiveInstruction -> transfer only exists
                 ) all = True
             and beforeTransfers count + transferInstructions count = afterTransfers count
-            and transferInstructions -> transferState -> transfer ->> quantity -> unit -> currency exists
+            and transferInstructions -> transferState -> transfer ->> asset -> Cash exists
 
 func Qualify_ClearedTrade:
     [qualification BusinessEvent]
@@ -703,40 +683,24 @@ func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a s
             and openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate
             and openEconomicTerms -> terminationDate <> beforeEconomicterms -> terminationDate
 
-func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-    alias transfers:
-        TransfersForDate(
-                businessEvent -> after -> transferHistory -> transfer,
-                businessEvent -> eventDate
-            )
-    set is_event:
-        transfers ->> asset -> Instrument -> Security exists
-            and transfers ->> quantity -> unit -> currency exists
-            and FilterCashTransfers(transfers) only-element ->> payerReceiver -> payerPartyReference = FilterSecurityTransfers(
-                    transfers
-                )
-                only-element ->> payerReceiver -> receiverPartyReference
-
 func Qualify_SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
     [qualification BusinessEvent]
     inputs:
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-    alias transfer:
-        TransfersForDate(
-                businessEvent -> after -> transferHistory -> transfer,
-                businessEvent -> eventDate
-            )
-            only-element
+
+    alias transferInstructions:
+        businessEvent -> instruction -> primitiveInstruction -> transfer
+    alias beforeTransfers: businessEvent -> instruction -> before -> transferHistory
+    alias afterTransfers: businessEvent -> after -> transferHistory
+
     set is_event:
-        transfer ->> asset -> Instrument -> Security exists
-            and transfer ->> quantity -> unit -> financialUnit exists
+        (businessEvent -> instruction
+                extract primitiveInstruction -> transfer only exists
+                ) all = True
+            and beforeTransfers count + transferInstructions count = afterTransfers count
+            and transferInstructions -> transferState -> transfer ->> asset -> Instrument -> Security exists
 
 func Qualify_Shaping: <"The qualification of a shaping event from the fact that (i) the only primitive is a split where the original trade is closed, (ii) the parties before and after the split remain the same (by contrast with an allocation, for instance) and (iii) the split trades contain a package component in their execution details. This package ties together the resulting shapes trades' identifiers and must be the same across all shaped trades. Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.">
     [qualification BusinessEvent]
