@@ -571,13 +571,12 @@ func Create_NonTransferableProduct: <"Creates a NonTransferableProduct (ie Econo
     set newProduct -> economicTerms -> payout -> SettlementPayout -> payerReceiver:
         payerReceiver
 
-func Create_Reset: <"Defines how a Reset should be constructed.">
+func CalculateReset: <"Function specification to calculate a reset.">
     inputs:
-        instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
-        tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+        instruction CalculateResetInstruction (1..1)
     output:
-        reset TradeState (1..1)
-
+        reset Reset (0..*)
+    
     alias payout: <"Specifies the payout that is resetting.">
         instruction -> payout
 
@@ -601,9 +600,7 @@ func Create_Reset: <"Defines how a Reset should be constructed.">
     alias observation: <"Represents the single observation that will be used to compute the reset value.">
         ResolveObservation([observationIdentifiers], empty)
 
-    set reset: tradeState
-
-    add reset -> resetHistory: <"To handle the various ways Contracts can change over time, ">
+    add reset: <"To handle the various ways Contracts can change over time, ">
         if payout -> PerformancePayout count = 1
         then ResolvePerformanceReset(
                     payout -> PerformancePayout only-element,
@@ -617,6 +614,16 @@ func Create_Reset: <"Defines how a Reset should be constructed.">
                     instruction -> resetDate,
                     instruction -> rateRecordDate
                 )
+
+func Create_Reset: <"This function processes a lifecycle reset event (e.g., a floating interest rate) for an active trade. It takes the incoming Reset Instruction and applies it to the current state of the trade.">
+    inputs:
+        instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
+        tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+    output:
+        reset TradeState (1..1)
+    
+    add reset -> resetHistory: <"Assigns the reset contained in the reset instruction to the resetHistory attribute.">
+    instruction -> reset
 
 func CalculateTransfer: <"Function specification to calculate a transfer, e.g. following a reset on a contract">
     inputs:
