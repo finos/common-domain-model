@@ -18,11 +18,11 @@ func MapTradeIdentifierList:
         cdmTradeIdentifierList TradeIdentifier (0..*)
 
     add cdmTradeIdentifierList:
-        fpmlTradeHeader -> tradeIdentifiersModel -> partyTradeIdentifier
+        fpmlTradeHeader -> partyTradeIdentifier
             extract MapPartyTradeIdentifierToTradeIdentifierList
             then flatten
     add cdmTradeIdentifierList:
-        fpmlTradeHeader -> tradeIdentifiersModel -> tradeIdentifiersModelSequence -> partyTradeIdentifier
+        fpmlTradeHeader -> partyTradeIdentifier
             extract MapPartyTradeIdentifierToTradeIdentifierList
             then flatten
     add cdmTradeIdentifierList:
@@ -38,37 +38,37 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
 
     alias issuer:
         MapStringWithScheme(
-                fpmlPartyTradeIdentifier -> issuerTradeIdModel -> issuer -> value,
-                fpmlPartyTradeIdentifier -> issuerTradeIdModel -> issuer -> issuerIdScheme
+                fpmlPartyTradeIdentifier -> issuer -> value,
+                fpmlPartyTradeIdentifier -> issuer -> issuerIdScheme
             )
 
     alias identifierForIssuer:
         MapTradeIdToAssignedIdentifier(
-                fpmlPartyTradeIdentifier -> issuerTradeIdModel -> tradeId,
+                fpmlPartyTradeIdentifier -> tradeId,
                 empty
             )
 
     alias identifierForTrade:
-        fpmlPartyTradeIdentifier -> tradeIdentifierSequence -> tradeIdentifierSequenceChoice
+        fpmlPartyTradeIdentifier -> tradeIdentifierChoice
             extract
                 MapTradeIdToAssignedIdentifier(
                         tradeId default versionedTradeId -> tradeId,
-                        versionedTradeId -> versionHistoryModel -> version
+                        versionedTradeId -> version
                     )
 
     alias identifierTypeForIssuer:
         MapTradeIdToIdentifierType(
-                fpmlPartyTradeIdentifier -> issuerTradeIdModel -> tradeId
+                fpmlPartyTradeIdentifier -> tradeId
             )
 
     alias identifierTypeForTrade:
-        fpmlPartyTradeIdentifier -> tradeIdentifierSequence -> tradeIdentifierSequenceChoice -> tradeId
+        fpmlPartyTradeIdentifier -> tradeIdentifierChoice -> tradeId
             extract MapTradeIdToIdentifierType
             then first
 
     alias issuerReference:
         MapPartyReference(
-                fpmlPartyTradeIdentifier -> tradeIdentifierSequence -> partyAndAccountReferencesModel -> partyReference -> href
+                fpmlPartyTradeIdentifier -> partyReference -> href
             )
 
     set cdmTradeIdentifier:
@@ -81,47 +81,45 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
 
 func MapTradeIdentifierSequenceToTradeIdentifier:
     inputs:
-        fpmlTradeIdentifierSequence fpml.TradeIdentifierSequence (0..1)
+        fpmlNewTradeIdentifier fpml.PartyTradeIdentifier (0..1)
     output:
         cdmTradeIdentifier TradeIdentifier (0..1)
 
+    alias fpmlPartyReference: fpmlNewTradeIdentifier -> partyReference
+    alias fpmlTradeIdentifierChoice: fpmlNewTradeIdentifier -> tradeIdentifierChoice
+
     set cdmTradeIdentifier -> issuerReference -> reference:
-        fpmlTradeIdentifierSequence -> partyAndAccountReferencesModel -> partyReference -> href
+        fpmlPartyReference -> href
 
     add cdmTradeIdentifier -> assignedIdentifier:
-        fpmlTradeIdentifierSequence -> tradeIdentifierSequenceChoice
+        fpmlTradeIdentifierChoice
             extract MapTradeIdToAssignedIdentifier(tradeId, empty)
 
     add cdmTradeIdentifier -> assignedIdentifier:
-        fpmlTradeIdentifierSequence -> tradeIdentifierSequenceChoice
+        fpmlTradeIdentifierChoice
             extract
                 MapTradeIdToAssignedIdentifier(
                         versionedTradeId -> tradeId,
-                        versionedTradeId -> versionHistoryModel -> version
+                        versionedTradeId -> version
                     )
 
     set cdmTradeIdentifier -> identifierType:
-        fpmlTradeIdentifierSequence -> tradeIdentifierSequenceChoice -> tradeId
+        fpmlTradeIdentifierChoice -> tradeId
             extract MapTradeIdToIdentifierType
             then first
 
 func MapIssuerTradeIdModelToIdentifier:
     inputs:
-        fpmlIssuerTradeIdModel fpml.IssuerTradeIdModel (0..1)
+        issuer fpml.IssuerId (1..1)
+        tradeId fpml.TradeId (1..1)
     output:
         cdmTradeIdentifier Identifier (0..1)
 
     set cdmTradeIdentifier:
         TradeIdentifier {
-            issuer: MapStringWithScheme(
-                        fpmlIssuerTradeIdModel -> issuer -> value,
-                        fpmlIssuerTradeIdModel -> issuer -> issuerIdScheme
-                    ),
-            assignedIdentifier: MapTradeIdToAssignedIdentifier(
-                        fpmlIssuerTradeIdModel -> tradeId,
-                        empty
-                    ),
-            identifierType: MapTradeIdToIdentifierType(fpmlIssuerTradeIdModel -> tradeId),
+            issuer: MapStringWithScheme(issuer -> value, issuer -> issuerIdScheme),
+            assignedIdentifier: MapTradeIdToAssignedIdentifier(tradeId, empty),
+            identifierType: MapTradeIdToIdentifierType(tradeId),
             ...
         }
 

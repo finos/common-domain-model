@@ -101,39 +101,32 @@ func MapCounterpartyList:
 
 func MapPayerReceiverModelToCounterpartyList:
     inputs:
-        fpmlPayerReceiverModel fpml.PayerReceiverModel (0..1)
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
     output:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapCounterparty(
-                CounterpartyRoleEnum -> Party1,
-                fpmlPayerReceiverModel -> payerModel -> payerPartyReference
-            )
+        MapCounterparty(CounterpartyRoleEnum -> Party1, fpmlPayerPartyReference)
 
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party2,
-                fpmlPayerReceiverModel -> receiverModel -> receiverPartyReference
+                fpmlReceiverPartyReference
             )
 
 func MapBuyerSellerModelToCounterpartyList:
     inputs:
-        fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
+        buyerPartyReference fpml.PartyReference (1..1)
+        sellerPartyReference fpml.PartyReference (1..1)
     output:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapCounterparty(
-                CounterpartyRoleEnum -> Party1,
-                fpmlBuyerSellerModel -> buyerPartyReference
-            )
+        MapCounterparty(CounterpartyRoleEnum -> Party1, buyerPartyReference)
 
     add counterpartyList:
-        MapCounterparty(
-                CounterpartyRoleEnum -> Party2,
-                fpmlBuyerSellerModel -> sellerPartyReference
-            )
+        MapCounterparty(CounterpartyRoleEnum -> Party2, sellerPartyReference)
 
 func MapCounterparty:
     inputs:
@@ -190,9 +183,7 @@ func MapAncillaryPartyList:
         ancillaryPartyList AncillaryParty (0..*)
 
     add ancillaryPartyList:
-        MapCalculationAgentIndependentToAncillaryParty(
-                fpmlTrade -> calculationAgentModel -> calculationAgent
-            )
+        MapCalculationAgentIndependentToAncillaryParty(fpmlTrade -> calculationAgent)
 
     add ancillaryPartyList:
         fpmlTrade -> product switch
@@ -263,9 +254,9 @@ func MapEarlyTerminationProvisionToAncillaryParty:
         ancillaryParty AncillaryParty (0..*)
 
     alias optionalEarlyTermination:
-        fpmlEarlyTerminationProvision -> optionalEarlyTerminationModel -> optionalEarlyTermination default fpmlEarlyTerminationProvision -> earlyTerminationProvisionSequence -> optionalEarlyTerminationModel -> optionalEarlyTermination
+        fpmlEarlyTerminationProvision -> optionalEarlyTermination default fpmlEarlyTerminationProvision -> optionalEarlyTermination
     alias mandatoryEarlyTermination:
-        fpmlEarlyTerminationProvision -> earlyTerminationProvisionSequence -> mandatoryEarlyTerminationModel -> mandatoryEarlyTermination default fpmlEarlyTerminationProvision -> earlyTerminationProvisionSequence -> mandatoryEarlyTerminationModel -> mandatoryEarlyTerminationModelSequence -> mandatoryEarlyTermination
+        fpmlEarlyTerminationProvision -> mandatoryEarlyTermination default fpmlEarlyTerminationProvision -> mandatoryEarlyTermination
 
     add ancillaryParty:
         MapOptionalEarlyTerminationToAncillaryParty(
@@ -403,25 +394,27 @@ func MapParty:
     output:
         party Party (0..1)
 
-    alias partyModel: fpmlParty -> partyModel
-    alias partyName: partyModel -> partyName
+    alias partyName: fpmlParty -> partyName
 
     set party:
         Party {
-            partyId: partyModel -> partyId extract MapPartyIdentifier(item -> value, item -> partyIdScheme),
-            name: MapStringWithScheme(partyName -> value, partyName -> partyNameScheme),
-            businessUnit: partyModel -> businessUnit extract MapBusinessUnit,
-            person: partyModel -> person extract MapNaturalPerson,
+            partyId: fpmlParty -> partyId
+                    extract MapPartyIdentifier(item -> value, item -> partyIdScheme),
+            name: MapStringWithScheme(
+                        fpmlParty -> partyName -> value,
+                        fpmlParty -> partyName -> partyNameScheme
+                    ),
+            businessUnit: fpmlParty -> businessUnit extract MapBusinessUnit,
+            person: fpmlParty -> person extract MapNaturalPerson,
             personRole: MapNaturalPersonRoleList(fpmlParty, fpmlPartyTradeInformation),
             account: empty, // MapAccount(empty),
             contactInformation: MapContactInformation(
-                        partyModel -> partyInformationModel -> country,
-                        partyModel -> contactInfo
+                        fpmlParty -> country,
+                        fpmlParty -> contactInfo
                     )
         } with-meta {
             key: fpmlParty -> id
         }
-
 
 func MapPartyIdentifier:
     inputs:
@@ -432,28 +425,26 @@ func MapPartyIdentifier:
 
     set partyIdentifier:
         PartyIdentifier {
-            identifier: MapStringWithScheme(
-                        identifierValue,
-                        identifierScheme
-                    ),
-             identifierType: MapPartyIdentifierTypeEnum(identifierScheme)
+            identifier: MapStringWithScheme(identifierValue, identifierScheme),
+            identifierType: MapPartyIdentifierTypeEnum(identifierScheme)
         }
 
 func MapExchangeIdToAssetParty:
-     inputs:
-         fpmlExchangeId fpml.ExchangeId (0..1)
-     output:
-         party Party (0..1)
+    inputs:
+        fpmlExchangeId fpml.ExchangeId (0..1)
+    output:
+        party Party (0..1)
 
-set party:
-    Party {
-        partyId: fpmlExchangeId extract MapPartyIdentifier(value, exchangeIdScheme),
-        name: MapStringWithScheme(
-                    fpmlExchangeId -> value,
-                    fpmlExchangeId -> exchangeIdScheme
-                ),
-        ...
-    }
+    set party:
+        Party {
+            partyId: fpmlExchangeId extract MapPartyIdentifier(value, exchangeIdScheme),
+            name: MapStringWithScheme(
+                        fpmlExchangeId -> value,
+                        fpmlExchangeId -> exchangeIdScheme
+                    ),
+            ...
+        }
+
 func MapBusinessUnit:
     inputs:
         fpmlBusinessUnit fpml.BusinessUnit (0..1)
@@ -556,8 +547,6 @@ func MapNaturalPerson:
     output:
         cdmNaturalPerson NaturalPerson (0..1)
 
-    alias personSequence: fpmlPerson -> personSequence
-
     set cdmNaturalPerson:
         NaturalPerson {
             personId: fpmlPerson -> personId
@@ -566,12 +555,12 @@ func MapNaturalPerson:
                                 item,
                                 fpmlPerson -> contactInfo -> address -> country
                             ),
-            honorific: personSequence -> honorific,
-            firstName: personSequence -> firstName,
-            middleName: personSequence -> middleName,
-            initial: personSequence -> initial,
-            surname: personSequence -> surname,
-            suffix: personSequence -> suffix,
+            honorific: fpmlPerson -> honorific,
+            firstName: fpmlPerson -> firstName,
+            middleName: fpmlPerson -> middleName,
+            initial: fpmlPerson -> initial,
+            surname: fpmlPerson -> surname,
+            suffix: fpmlPerson -> suffix,
             dateOfBirth: fpmlPerson -> dateOfBirth -> date,
             contactInformation: MapContactInformation(
                         fpmlPerson -> country,
@@ -625,7 +614,7 @@ func GetPartyPersonForRelatedPerson:
         fpmlPerson fpml.Person (0..1)
 
     set fpmlPerson:
-        fpmlParty -> partyModel -> person
+        fpmlParty -> person
             filter id = fpmlRelatedPerson -> personReference -> href
             then first
 
@@ -716,23 +705,22 @@ func MapRelatedPartyToPartyRole:
             extract
                 PartyRole {
                     partyReference: MapPartyReference(
-                                partyAndAccountReferencesModel -> partyReference -> href
+                                partyReference -> href
                             ),
                     role: role -> value to-enum PartyRoleEnum,
                     ownershipPartyReference: MapPartyReference(
-                                fpmlPartyTradeInformation -> partyAndAccountReferencesModel -> partyReference -> href
+                                fpmlPartyTradeInformation -> partyReference -> href
                             )
                 }
 
 func MapAccountList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+        account fpml.Account (0..*)
     output:
         accountList Account (0..*)
 
-    add accountList:
-        fpmlPartiesAndAccountsModel -> account extract MapAccount(item, fpmlTrade)
+    add accountList: account extract MapAccount(item, fpmlTrade)
 
 func MapAccount:
     inputs:
@@ -820,17 +808,15 @@ func MapAccount:
         Account {
             partyReference: partyReference,
             accountNumber: MapStringWithScheme(
-                        fpmlAccount -> accountId only-element -> value,
-                        fpmlAccount -> accountId only-element -> accountIdScheme
+                        fpmlAccount -> accountId -> value,
+                        fpmlAccount -> accountId -> accountIdScheme
                     ),
             accountName: MapStringWithScheme(
                         fpmlAccount -> accountName -> value,
                         fpmlAccount -> accountName -> accountNameScheme
                     ),
             accountType: MapAccountTypeEnum(fpmlAccount -> accountType -> value),
-            accountBeneficiary: MapPartyReference(
-                        fpmlAccount -> accountSequence -> accountBeneficiary -> href
-                    ),
+            accountBeneficiary: MapPartyReference(fpmlAccount -> accountBeneficiary -> href),
             servicingParty: MapPartyReference(fpmlAccount -> servicingParty -> href)
         } with-meta {
             key: fpmlAccount -> id
@@ -839,21 +825,22 @@ func MapAccount:
 func MapPayerReceiverToAccountPartyReference:
     inputs:
         fpmlAccount fpml.Account (0..1)
-        fpmlPayerReceiverModelList fpml.PayerReceiverModel (0..*)
+        payerAccountReferences fpml.AccountReference (0..*)
+        receiverAccountReferences fpml.AccountReference (0..*)
     output:
         partyReference Party (0..1)
             [metadata reference]
 
     alias payerPartyReference:
-        fpmlPayerReceiverModelList -> payerModel
-            filter payerAccountReference -> href = fpmlAccount -> id
-            then extract payerPartyReference -> href
+        payerAccountReferences
+            filter href = fpmlAccount -> id
+            then extract href
             then distinct only-element
 
     alias receiverPartyReference:
-        fpmlPayerReceiverModelList -> receiverModel
-            filter receiverAccountReference -> href = fpmlAccount -> id
-            then extract receiverPartyReference -> href
+        receiverAccountReferences
+            filter href = fpmlAccount -> id
+            then extract href
             then distinct only-element
 
     alias href:
@@ -870,21 +857,22 @@ func MapPayerReceiverToAccountPartyReference:
 func MapBuyerSellerToAccountPartyReference:
     inputs:
         fpmlAccount fpml.Account (0..1)
-        fpmlBuyerSellerModelModelList fpml.BuyerSellerModel (0..*)
+        buyerAccountReferences fpml.AccountReference (0..*)
+        sellerAccountReferences fpml.AccountReference (0..*)
     output:
         partyReference Party (0..1)
             [metadata reference]
 
     alias buyerPartyReference:
-        fpmlBuyerSellerModelModelList
-            filter buyerAccountReference -> href = fpmlAccount -> id
-            then extract buyerAccountReference -> href
+        buyerAccountReferences
+            filter href = fpmlAccount -> id
+            then extract href
             then distinct only-element
 
     alias sellerPartyReference:
-        fpmlBuyerSellerModelModelList
-            filter sellerAccountReference -> href = fpmlAccount -> id
-            then extract sellerAccountReference -> href
+        sellerAccountReferences
+            filter href = fpmlAccount -> id
+            then extract href
             then distinct only-element
 
     set partyReference:
@@ -899,15 +887,14 @@ func MapLegalEntity:
         legalEntity LegalEntity (0..1)
 
     alias entityIdFromLegalEntitySequence:
-        fpmlLegalEntity -> legalEntitySequence -> entityId
-            extract MapStringWithScheme(value, entityIdScheme)
+        fpmlLegalEntity -> entityId extract MapStringWithScheme(value, entityIdScheme)
 
     alias entityIdFromLegalEntity:
         fpmlLegalEntity -> entityId extract MapStringWithScheme(value, entityIdScheme)
 
     set legalEntity:
         LegalEntity {
-            name: fpmlLegalEntity -> legalEntitySequence -> entityName
+            name: fpmlLegalEntity -> entityName
                     extract MapStringWithScheme(value, entityNameScheme),
             entityIdentifier: MapEntityIdentifier(fpmlLegalEntity)
         }
@@ -975,10 +962,8 @@ func MapAssetPartyRole:
     output:
         assetPartyRole AssetPartyRole (1..1)
 
-    set assetPartyRole->partyReference:
-        assetParty
-    set assetPartyRole->role:
-        assetPartyRoleEnum
+    set assetPartyRole -> partyReference: assetParty
+    set assetPartyRole -> role: assetPartyRoleEnum
 
 func MapAssetAncillaryPartyRole:
     inputs:
@@ -987,16 +972,14 @@ func MapAssetAncillaryPartyRole:
     output:
         assetAncillaryPartyRole AssetAncillaryPartyRole (0..1)
 
-    set assetAncillaryPartyRole->partyReference:
-        assetAncillaryparty
+    set assetAncillaryPartyRole -> partyReference: assetAncillaryparty
 
-    set assetAncillaryPartyRole->role:
-        assetAncillaryPartyRoleEnum
-
+    set assetAncillaryPartyRole -> role: assetAncillaryPartyRoleEnum
 
 func MapPayerReceiver:
     inputs:
-        fpmlPayerReceiverModel fpml.PayerReceiverModel (0..1)
+        payerPartyReference fpml.PartyReference (0..1)
+        receiverPartyReference fpml.PartyReference (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         payerReceiver PayerReceiver (0..1)
@@ -1004,37 +987,36 @@ func MapPayerReceiver:
     set payerReceiver:
         PayerReceiver {
             payer: MapCounterpartyRoleEnum(
-                        fpmlPayerReceiverModel -> payerModel -> payerPartyReference -> href,
+                        payerPartyReference -> href,
                         cdmCounterpartyList
                     ),
             receiver: MapCounterpartyRoleEnum(
-                        fpmlPayerReceiverModel -> receiverModel -> receiverPartyReference -> href,
+                        receiverPartyReference -> href,
                         cdmCounterpartyList
             ),
         }
 
 func MapBuyerSeller:
     inputs:
-        fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
+        buyerPartyReference fpml.PartyReference (1..1)
+        sellerPartyReference fpml.PartyReference (1..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         buyerSeller BuyerSeller (0..1)
 
     set buyerSeller:
         BuyerSeller {
-            buyer: MapCounterpartyRoleEnum(
-                        fpmlBuyerSellerModel -> buyerPartyReference -> href,
-                        cdmCounterpartyList
-                    ),
+            buyer: MapCounterpartyRoleEnum(buyerPartyReference -> href, cdmCounterpartyList),
             seller: MapCounterpartyRoleEnum(
-                        fpmlBuyerSellerModel -> sellerPartyReference -> href,
+                        sellerPartyReference -> href,
                         cdmCounterpartyList
             ),
         }
 
 func MapSellerAsPayerAndBuyerAsReceiver:
     inputs:
-        fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
+        sellerPartyReference fpml.PartyReference (1..1)
+        buyerPartyReference fpml.PartyReference (1..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         payerReceiver PayerReceiver (0..1)
@@ -1042,18 +1024,19 @@ func MapSellerAsPayerAndBuyerAsReceiver:
     set payerReceiver:
         PayerReceiver {
             payer: MapCounterpartyRoleEnum(
-                        fpmlBuyerSellerModel -> sellerPartyReference -> href,
+                        sellerPartyReference -> href,
                         cdmCounterpartyList
                     ),
             receiver: MapCounterpartyRoleEnum(
-                        fpmlBuyerSellerModel -> buyerPartyReference -> href,
+                        buyerPartyReference -> href,
                         cdmCounterpartyList
             ),
         }
 
 func MapPayerAsSellerAndReceiverAsBuyer:
     inputs:
-        fpmlPayerReceiverModel fpml.PayerReceiverModel (0..1)
+        payerPartyReference fpml.PartyReference (0..1)
+        receiverPartyReference fpml.PartyReference (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         buyerSeller BuyerSeller (0..1)
@@ -1061,11 +1044,11 @@ func MapPayerAsSellerAndReceiverAsBuyer:
     set buyerSeller:
         BuyerSeller {
             buyer: MapCounterpartyRoleEnum(
-                        fpmlPayerReceiverModel -> payerModel -> payerPartyReference -> href,
+                        payerPartyReference -> href,
                         cdmCounterpartyList
                     ),
             seller: MapCounterpartyRoleEnum(
-                        fpmlPayerReceiverModel -> receiverModel -> receiverPartyReference -> href,
+                        receiverPartyReference -> href,
                         cdmCounterpartyList
             ),
         }

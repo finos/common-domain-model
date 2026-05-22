@@ -16,6 +16,7 @@ import fpml.consolidated.* as fpml
 import fpml.consolidated.doc.* as fpml
 import fpml.consolidated.generic.* as fpml
 import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.asset.* as fpml
 
 func MapGenericProductCounterpartyList:
     inputs:
@@ -23,7 +24,10 @@ func MapGenericProductCounterpartyList:
     output:
         counterpartyList Counterparty (0..2)
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlGenericProduct -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlGenericProduct -> buyerPartyReference,
+                fpmlGenericProduct -> sellerPartyReference
+            )
 
 func MapGenericProductNonTransferableProduct:
     inputs:
@@ -35,8 +39,14 @@ func MapGenericProductNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlGenericProduct -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlGenericProduct -> productModel),
+            identifier: MapProductIdentifierList(
+                        fpmlGenericProduct -> productId
+                    ),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlGenericProduct -> primaryAssetClass,
+                        fpmlGenericProduct -> secondaryAssetClass,
+                        fpmlGenericProduct -> productType
+                    ),
             economicTerms: MapGenericProductEconomicTerms(
                         fpmlGenericProduct,
                         cdmCounterpartyList,
@@ -89,7 +99,8 @@ func MapGenericProductPayout:
                     SettlementPayout:
                         SettlementPayout {
                             payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                        buyerSellerModel,
+                                        sellerPartyReference,
+                                        buyerPartyReference,
                                         cdmCounterpartyList
                                     ),
                             priceQuantity:
@@ -120,15 +131,14 @@ func MapGenericProductPayout:
 func MapGenericProductPriceQuantityList:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
-        quotationModel fpml.asset.QuotationModel (0..1)
+        fpmlQuotation fpml.BasicQuotation (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    alias quotationModelValue: quotationModel -> value / 100
+    alias quotationModelValue: fpmlQuotation -> value / 100
     alias unitFromQuotation:
-        if quotationModel -> quotationCharacteristicsModel -> currency exists
-        then quotationModel -> quotationCharacteristicsModel
-            then extract MapCurrency(if currency exists then currency)
+        if fpmlQuotation -> currency exists
+        then MapCurrency(fpmlQuotation -> currency)
 
     alias unitFromNotional:
         fpmlGenericProduct -> notional
@@ -180,7 +190,8 @@ func MapGenericProductAccountPartyReference:
     set partyReference:
         MapBuyerSellerToAccountPartyReference(
                 fpmlAccount,
-                fpmlGenericProduct -> buyerSellerModel
+                fpmlGenericProduct -> buyerAccountReference,
+                fpmlGenericProduct -> sellerAccountReference
             )
 
 func MapGenericProductBaseQuantityListWithAddress:
