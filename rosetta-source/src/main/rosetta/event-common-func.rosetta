@@ -2404,15 +2404,6 @@ func Create_AgreementEvent: <"Creates a agreement event from instructions contai
 
     set agreementEvent -> eventInstruction -> effectiveDate: effectiveDate
 
-    add agreementEvent -> afterAgreement:
-        agreementInstruction
-            extract 
-                if partyChange exists
-                then Create_AgreementPartyChange(
-                        partyChange,
-                        beforeAgreement
-                )
-
 func Create_LegalAgreement: <"Creates a Legal Agreement record based on a before legal agreement and the application of party and or term changes that are represented by a Legal agreement amendment).
     The primitive instructions are applied in the following order:
         Always first:
@@ -2422,6 +2413,7 @@ func Create_LegalAgreement: <"Creates a Legal Agreement record based on a before
         vmCSAPrimitiveInstruction VMCSAPrimitiveInstruction (0..1) <"A set of instructions that define the amended terms for an Variation Margin Credit Support Annex as per an amendment document.">
         imCSAPrimitiveInstruction IMCSAPrimitiveInstruction (0..1) <"A set of instructions that define the amended terms for an Initial Margin Credit Support Annex as per an amendment document.">
         legacyCSAPrimitiveInstruction LegacyCSAPrimitiveInstruction (0..1) <"A set of instructions that define the amended terms for an Legacy Credit Support Annex as per an amendment document.">
+        partyChange PartyChangeInstruction (0..1) <"A set of instructions that define the amended parties for a Legal agreement.">
         before LegalAgreement (0..1) <"The original Legal agreement terms on which the primitive instructions are applied">
     output:
         after LegalAgreement (1..1) <"The returned Legal agreement terms representing the updated Legal agreement terms based on te application of the amended terms covered by a defined amendment agreement.">
@@ -2440,6 +2432,11 @@ func Create_LegalAgreement: <"Creates a Legal Agreement record based on a before
         if legacyCSAPrimitiveInstruction -> termsChange is absent
         then before
         else Create_LegacyAgreementTermsChange(legacyCSAPrimitiveInstruction -> termsChange, after)
+
+    alias AgreementPartyChange: <"Create execution if instruction exists, if not, then must exist.">
+        if partyChange is absent
+        then before
+        else Create_AgreementPartyChange (partyChange, after)
 
 func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change to the parties.">
     inputs:
