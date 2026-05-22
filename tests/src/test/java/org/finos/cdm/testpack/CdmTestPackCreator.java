@@ -91,7 +91,7 @@ public class CdmTestPackCreator {
                         .put(WorkflowStep.class, PipelineModel.Serialisation.Format.RUNE_JSON)
                         .build();
 
-        //TODO: switch over to new serialiser when choice extension work has been completed in the model
+        //TODO: switch over to new serialiser when all cases of choice extensions have been removed the model
         return new PipelineTreeConfig()
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToTradeState.class)
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToWorkflowStep.class)
