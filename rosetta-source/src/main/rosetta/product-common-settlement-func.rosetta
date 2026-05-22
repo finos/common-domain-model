@@ -67,7 +67,11 @@ func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the Pric
 
     alias changeMatching: <"Locate the first PriceQuantity item where the attributes in the existing and the new price match.">
         change
-            filter PriceUnitEquals(item -> price only-element, price)
+            filter c [
+                c -> price
+                    extract PriceUnitEquals(item, price)
+                    then only-element
+            ] 
             then first
     
     alias changedAmount: <"Update the value in the matched PriceSchedule. Note that if the matched PriceSchedule uses the datedValue attribute and not value then this function will have no effect.">

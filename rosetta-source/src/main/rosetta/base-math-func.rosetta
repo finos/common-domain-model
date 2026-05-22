@@ -153,18 +153,17 @@ func InsertDatedValue: <"Build a list of datedValues with the new entry inserted
             last
 
     alias insertDatedValue: <"Create the datedValue we will insert. If there are no prior dateValues then this is a new entry at the beginning of the list which is only valid when this is a Replace (as you cannot Increase or Decrease an unknown number). If we have datedValues prior to the effective date then take the value from the last of the datedValues whose date is prior to the effective date and apply the requested change to that figure (i.e. Replace, Increase or Decrease).">
-        if previousDatedValue = empty and direction = Replace then
+        if previousDatedValue is absent and direction = Replace then
             DatedValue {
                 date: effectiveDate,
                 value: changeAmount
             }            
         else
-            previousDatedValue
-                extract
-                    DatedValue {
-                        date: effectiveDate,
-                        value: UpdateAmount ( item -> value, changeAmount, direction)
-                    }
+            if previousDatedValue exists then
+                DatedValue {
+                    date: effectiveDate,
+                    value: UpdateAmount (previousDatedValue -> value, changeAmount, direction)
+                }
 
     alias postDatedValues: <"Get all the datedValues after the effective date.">
         datedValues
@@ -189,13 +188,8 @@ func UpdateDatedValue: <"Updates the amount of the dated value that matches the 
                 DatedValue {
                     date: item -> date,
                     value: if item -> date = effectiveDate
-                            then (if direction = QuantityChangeDirectionEnum -> Increase
-                            then item -> value + changeAmount
-                            else if direction = QuantityChangeDirectionEnum -> Decrease
-                            then item -> value - changeAmount
-                            else if direction = QuantityChangeDirectionEnum -> Replace
-                            then changeAmount)
-                        else item -> value
+                            then UpdateAmount(item -> value, changeAmount, direction )
+                            else item -> value
                 }
 
 func UpdateDatedValues: <"Updates the amounts of the dated values based on the given QuantityChangeDirectionEnum. For all periods after the effective date of the change, if the direction is Increase, the old amount and change amount are summed, if the direction is Decrease, then the change amount is subtracted from the old amount, and if the direction is Replace then the change amount replaces the old amount.">
@@ -213,13 +207,8 @@ func UpdateDatedValues: <"Updates the amounts of the dated values based on the g
                 DatedValue {
                     date: item -> date,
                     value: if item -> date >= effectiveDate
-                            then (if direction = QuantityChangeDirectionEnum -> Increase
-                            then item -> value + changeAmount
-                            else if direction = QuantityChangeDirectionEnum -> Decrease
-                            then item -> value - changeAmount
-                            else if direction = QuantityChangeDirectionEnum -> Replace
-                            then changeAmount)
-                        else item -> value
+                            then UpdateAmount(item -> value, changeAmount, direction )
+                            else item -> value
                 }
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
