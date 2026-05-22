@@ -7,7 +7,7 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 _Need an ICLA? Unsure if you are covered under an existing CCLA? Email help@finos.org._
 
 
-## 1. Contribution Guidelines
+## 1. Contribution Guidelines. 43
 
 This Working Group accepts contributions via pull requests. The following section outlines the process for merging contributions to the specification
 
