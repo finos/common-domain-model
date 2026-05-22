@@ -38,7 +38,7 @@ The issue lifecycle is mainly driven by the Maintainer. All issue types follow t
 *  Whoever is working on a "Spec Change" issue should either assign the issue to   themselves or make a comment in the issue saying that they are taking it.
 *  "Proposal" and "Discussion" issues should stay open until resolved.
 
-## 2.4. Issue Closure
+## 2.4. Issue Closure 2
 
 ## 3. How to Contribute a Patch
 
@@ -51,6 +51,7 @@ The Working Group uses pull requests to track changes. To submit a change to the
 ## 3.2. Create your feature branch
 
 * git checkout -b feature/fooBar
+
 
 ## 3.3. Commit your changes
 
