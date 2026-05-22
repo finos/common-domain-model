@@ -253,21 +253,16 @@ func MapEarlyTerminationProvisionToAncillaryParty:
     output:
         ancillaryParty AncillaryParty (0..*)
 
-    alias optionalEarlyTermination:
-        fpmlEarlyTerminationProvision -> optionalEarlyTermination default fpmlEarlyTerminationProvision -> optionalEarlyTermination
-    alias mandatoryEarlyTermination:
-        fpmlEarlyTerminationProvision -> mandatoryEarlyTermination default fpmlEarlyTerminationProvision -> mandatoryEarlyTermination
-
     add ancillaryParty:
         MapOptionalEarlyTerminationToAncillaryParty(
-                optionalEarlyTermination,
+                fpmlEarlyTerminationProvision -> optionalEarlyTermination,
                 cdmCounterpartyList
             )
     add ancillaryParty:
-        if mandatoryEarlyTermination -> calculationAgent exists
+        if fpmlEarlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent exists
         then MapAncillaryParty(
                     CalculationAgentMandatoryEarlyTermination,
-                    mandatoryEarlyTermination -> calculationAgent -> calculationAgentPartyReference -> href,
+                    fpmlEarlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentPartyReference -> href,
                     empty,
                     empty
                 )
@@ -393,8 +388,6 @@ func MapParty:
         fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
     output:
         party Party (0..1)
-
-    alias partyName: fpmlParty -> partyName
 
     set party:
         Party {
@@ -843,7 +836,7 @@ func MapPayerReceiverToAccountPartyReference:
             then extract href
             then distinct only-element
 
-    alias href:
+    alias selectedPartyHref:
         if payerPartyReference exists
         then payerPartyReference
         else if receiverPartyReference exists
@@ -851,7 +844,7 @@ func MapPayerReceiverToAccountPartyReference:
 
     set partyReference:
         empty with-meta {
-            reference: href
+            reference: selectedPartyHref
         }
 
 func MapBuyerSellerToAccountPartyReference:
