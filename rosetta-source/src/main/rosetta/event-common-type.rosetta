@@ -75,14 +75,15 @@ type AgreementEvent: <"An agreement event represents a life cycle event of a leg
     [metadata key]
     [rootType]
 
-    eventInstruction EventBase (0..1) <"Specifies the date of the event and the effective date of the event associated with the agreement event triggered by an amendment">
-    instruction AgreementInstruction (0..*) <"Specifies the instruction associated with the agreement event triggered by an amendment.">
+    eventInstruction AgreementEventInstruction (1..1) <"Specifies the date of the event and the effective date of the event associated with the agreement event triggered by an amendment">
+    instruction AgreementInstruction (1..*) <"Specifies the instruction associated with the agreement event triggered by an amendment.">
     eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
     afterAgreement LegalAgreement (0..*) <"The agreement as it looks after the event">
 
 type AgreementEventInstruction: <"Specifies the date of the event and the effective date of the event.">
-    eventDate date (0..1) <"Specifies the date of the agreement event.">
-    effectiveDate date (0..1) <"Specifies the effective date of the agreement event.">
+    eventDate date (1..1) <"Specifies the date of the agreement event.">
+    effectiveDate date (1..1) <"Specifies the effective date of the agreement event.">
+    intent AgreementEventIntentEnum (1..*) <"Specifies the purposes for which the amendment agreement exists and how it will impact the agreement to which it applies.">
 
 type AgreementInstruction: <"Instruction to a function that will be used to perform an agreement event">
     [rootType]
@@ -91,19 +92,13 @@ type AgreementInstruction: <"Instruction to a function that will be used to perf
         [metadata reference]
         
 type AgreementPrimitiveInstruction: <"Instruction to a function that will be used to capture terms or Party changes to an agreement triggered by an amendment.">
-    vmCSAPrimitiveInstruction VMCSAPrimitiveInstruction (0..1) <"A Primitive Instruction set for a VM CSA Agreement.">
-    imCSAPrimitiveInstruction IMCSAPrimitiveInstruction (0..1) <"A Primitive Instruction set for a VM CSA Agreement.">
-    legacyCSAPrimitiveInstruction LegacyCSAPrimitiveInstruction (0..1) <"A Primitive Instruction set for a VM CSA Agreement.">
+    termsChange AgreementTermsChangeInstruction (0..1) <"A printive instruction set that details all associated terms changes that are defined within the instruction">
     partyChange PartyChangeInstruction  (0..1) <"A primitive Instruction set to capture any Party changes applicable to the agreement.">
 
-type VMCSAPrimitiveInstruction: <"A Primitive Instruction set for a VM CSA Agreement.">
-    termsChange CreditSupportAgreementVariationMarginElections (0..1) <"Specifies instructions describing a terms change primitive event.">
-
-type IMCSAPrimitiveInstruction: <"A Primitive Instruction set for a VM CSA Agreement.">
-    termsChange CreditSupportAgreementInitialMarginElections (0..1) <"Specifies instructions describing a terms change primitive event.">
-
-type LegacyCSAPrimitiveInstruction: <"A Primitive Instruction set for a VM CSA Agreement.">
-    termsChange CreditSupportAgreementLegacyElections (0..1) <"Specifies instructions describing a terms change primitive event.">
+type AgreementTermsChangeInstruction: <"A printive instruction set that details all associated terms changes that are defined within the instruction.">
+    vmCSATermsChange CreditSupportAgreementVariationMarginElections (0..1) <"Specifies instructions describing a terms change to a Varition Margin agreement as represented by a set of agreement instructions.">
+    imCSATermsChange CreditSupportAgreementInitialMarginElections (0..1) <"Specifies instructions describing a terms change to a Varition Margin agreement as represented by a set of agreement instructions.">
+    legacyCSATermsChange CreditSupportAgreementLegacyElections (0..1) <"Specifies instructions describing a terms change to a Varition Margin agreement as represented by a set of agreement instructions.">
 
 type CounterpartyPositionBusinessEvent: <"A business event represents a life cycle event of a position. The combination of the state changes results in a qualifiable life cycle event.">
     intent PositionEventIntentEnum (1..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those.">
