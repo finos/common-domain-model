@@ -21,7 +21,7 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                             extract
                                 UpdatePriceAmountForEachMatchingQuantity(
                                         item,
-                                        change -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
+                                        change, // -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
                                         direction
                                     ),
                     quantity: priceQuantity -> quantity
@@ -59,20 +59,49 @@ func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the Pric
     inputs:
         price PriceSchedule (0..1) <"List of PriceSchedule to update.">
             [metadata location]
-        change PriceSchedule (0..*) <"List of new PriceSchedule to use where the units match.">
-        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
+        change PriceQuantity (0..*) <"PriceQuantity that holds the list of new PriceSchedule to use where the units match.">
+        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g. add, subtract or replace.">
     output:
         updatedPrice PriceSchedule (0..1)
             [metadata location]
 
-    alias changedAmount:
+    alias changeMatching: <"Locate the first PriceQuantity item where the attributes in the existing and the new price match.">
         change
-            filter PriceUnitEquals(item, price)
+            filter PriceUnitEquals(item -> price only-element, price)
             then first
-            then extract UpdateAmount(price -> value, value, direction)
+
+    alias changedAmount: <"Update the value in the matched PriceSchedule. Note that if the matched PriceSchedule uses the datedValue attribute and not value then this function will have no effect.">
+        if price -> value exists
+        then UpdateAmount(
+                    price -> value,
+                    changeMatching -> price only-element -> value,
+                    direction
+                )
+
+    alias changeEffectiveDate: <"The effective date to use for the price update. Required when updating datedValue.">
+        AdjustableDateResolution(changeMatching -> effectiveDate -> adjustableDate)
+
+    alias containsEffectiveDate: <"Is there already an entry for the effective date of the new price?">
+        price -> datedValue -> date contains changeEffectiveDate
+
+    alias updatedDatedValues: <"If there is already a datedValue for the effective date then update that, otherwise insert a new datedValue for the effective date with the new price.">
+        if containsEffectiveDate
+        then UpdateDatedValue(
+                    price -> datedValue,
+                    changeMatching -> price only-element -> value,
+                    direction,
+                    changeEffectiveDate
+                )
+        else InsertDatedValue(
+                price -> datedValue,
+                changeMatching -> price only-element -> value,
+                direction,
+                changeEffectiveDate
+            )
 
     set updatedPrice: price
     set updatedPrice -> value: changedAmount default price -> value
+    set updatedPrice -> datedValue: updatedDatedValues default price -> datedValue
 
 func UpdateQuantityAmountForEachMatchingQuantity: <"Updates any quantity from the NonNegativeQuantitySchedule list if the unit of amount matches.">
     inputs:
@@ -124,6 +153,9 @@ func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes ma
     alias priceTypeMatches:
         (p1 -> priceType is absent and p2 -> priceType is absent)
             or p1 -> priceType = p2 -> priceType
+    alias priceSubTypeMatches:
+        (p1 -> priceSubType is absent and p2 -> priceSubType is absent)
+            or p1 -> priceSubType = p2 -> priceSubType
     alias priceExpressionMatches:
         (p1 -> priceExpression is absent and p2 -> priceExpression is absent)
             or p1 -> priceExpression = p2 -> priceExpression
@@ -132,7 +164,7 @@ func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes ma
             or p1 -> arithmeticOperator = p2 -> arithmeticOperator
 
     set result:
-        unitMatches and perUnitOfMatches and priceTypeMatches and priceExpressionMatches and arithmeticOperatorMatches
+        unitMatches and perUnitOfMatches and priceTypeMatches and priceSubTypeMatches and priceExpressionMatches and arithmeticOperatorMatches
 
 func SplitQuantityChange: <"Splits a PriceQuantity list into separate elements, each containing a single quantity and its corresponding effective date, if multiple quantities exist.">
     inputs:
