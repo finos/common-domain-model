@@ -18,7 +18,7 @@ reviewing, revising or extending the proposal.
 Once approved, the amendment will be scheduled to be merged with the
 CDM's main code branch by the CDM Maintainers.
 
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
+This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository. Each [Working Group](working-groups.md) must adhere to the requirements.
 
 ## 1. Roles
 
