@@ -85,7 +85,7 @@ The [Steering Working Group](docs/CDM-Steering-WG.md) has the role of defining m
 
 ## 7.0 Change Control Guidelines
 
-The [change control guidelines](change-control-guidelines.md) discusses how changes to the CDM are controlled within and between releases, in particular:
+The [change control guidelines](docs/change-control-guidelines.md) discusses how changes to the CDM are controlled within and between releases, in particular:
 
 * Principles
   * What we are trying to achieve with the change control guidelines; 
