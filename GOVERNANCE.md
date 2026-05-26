@@ -20,6 +20,8 @@ CDM's main code branch by the CDM Maintainers.
 
 This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
 
+Click [here](cdm-org-structure.md) to view the diagram showing the Working Groups' organisational structure. 
+
 ## 1. Roles
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
@@ -98,11 +100,6 @@ The [change control guidelines](change-control-guidelines.md) discusses how chan
 
 
 
-
-
-
-
 ## 9.0 Release Build Approval Guidelines
 
 The [Maintenance and Release](docs/maintenance-and-release.md) page covers scheduling of minor, development, patch releases, and approvals for all builds and releases.
-
