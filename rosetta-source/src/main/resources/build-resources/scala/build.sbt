@@ -5,19 +5,6 @@ ThisBuild / version          := "0.0.0.snapshot"
 ThisBuild / organization     := "org.finos.cdm"
 ThisBuild / organizationName := "cdm-scala"
 
-// Credentials for Artifact Registry (repository configured in project/repositories)
-ThisBuild / credentials ++= {
-  val username = "_json_key_base64"
-  val password = sys.env.getOrElse("ARTIFACT_REGISTRY_SA_KEY", "")
-  if (password.nonEmpty) {
-    Seq(Credentials("Artifact Registry", "europe-west1-maven.pkg.dev", username, password))
-  } else {
-    Seq.empty
-  }
-}
-
-ThisBuild / externalResolvers := resolvers.value
-
 val versions = new {
   val jackson = "2.10.0"
 }
