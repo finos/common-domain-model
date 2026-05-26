@@ -29,6 +29,7 @@ import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
 import cdm.product.collateral.Collateral;
 import cdm.product.common.schedule.CalculationPeriodDates;
+import cdm.product.common.settlement.ContingentTransferEnum;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
 import cdm.product.common.settlement.UnscheduledTransferEnum;
@@ -1283,10 +1284,10 @@ public class FunctionInputCreator {
                 .getOrCreateTransferState(0)
                 .getOrCreateTransfer();
 
-        TransferBase.TransferBaseBuilder transfer = transferBuilder.getOrCreateScheduledTransfer();
+        TransferBase.TransferBaseBuilder transfer = transferBuilder.getOrCreateContingentTransfer();
         getOrCreateTransfer(transfer);
-        transferBuilder.getOrCreateScheduledTransfer()
-                .setTransferType(ScheduledTransferEnum.EXERCISE);
+        transferBuilder.getOrCreateContingentTransfer()
+                .setTransferType(ContingentTransferEnum.EXERCISE);
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
                 .setBeforeValue(afterTradeState)
@@ -1392,10 +1393,10 @@ public class FunctionInputCreator {
         if (unscheduledTransfer != null) {
             getOrCreateTransfer(unscheduledTransfer);
         } else {
-            ScheduledTransfer.ScheduledTransferBuilder scheduledTransferBuilder = transferBuilder.getOrCreateScheduledTransfer();
-            getOrCreateTransfer(scheduledTransferBuilder);
-            transferBuilder.getOrCreateScheduledTransfer()
-                    .setTransferType(ScheduledTransferEnum.EXERCISE);
+            ContingentTransfer.ContingentTransferBuilder contingentTransferBuilder = transferBuilder.getOrCreateContingentTransfer();
+            getOrCreateTransfer(contingentTransferBuilder);
+            transferBuilder.getOrCreateContingentTransfer()
+                    .setTransferType(ContingentTransferEnum.EXERCISE);
         }
 
         Instruction.InstructionBuilder instruction = Instruction.builder()
