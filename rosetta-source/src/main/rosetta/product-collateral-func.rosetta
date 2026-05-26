@@ -132,7 +132,7 @@ func CheckCountryOfOrigin:
         isEqual boolean (1..1)
 
     set isEqual:
-        countryOfOrigin is absent or countryOfOrigin contains query -> assetCountryOfOrigin
+        countryOfOrigin is absent or countryOfOrigin = query -> assetCountryOfOrigin
 
 func CheckAgencyRating:
     inputs:
@@ -145,7 +145,7 @@ func CheckAgencyRating:
         agencyRatings is absent
             or (agencyRatings
                 then filter
-                    creditNotation -> notation contains query -> agencyRating -> creditNotation -> notation
+                    creditNotation -> notation = query -> agencyRating -> creditNotation -> notation
                         // then filter qualifier = query -> agencyRating -> qualifier
                 then filter
                     referenceAgency is absent
@@ -160,15 +160,32 @@ func CheckAssetType:
     output:
         isEqual boolean (1..1)
 
+    alias queryCollateral: query -> collateralAssetType
+
     set isEqual:
         collateralAssetTypes is absent
             or (collateralAssetTypes
-                then filter assetType = query -> collateralAssetType -> assetType
+                then filter assetType = queryCollateral -> assetType
                 then filter
-                    securityType is absent
-                        or securityType = query -> collateralAssetType -> securityType
+                    securityType is absent or securityType = queryCollateral -> securityType
+                then filter
+                    debtType is absent or CheckDebtType(queryCollateral -> debtType, query)
                 then item exists
                 )
+
+func CheckDebtType:
+    inputs:
+        collateralDebtTypes DebtType (0..1)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    alias queryCollateral: query -> collateralAssetType -> debtType -> debtEconomics
+
+    alias matchingQueries:
+        collateralDebtTypes -> debtEconomics extract queryCollateral any = item
+
+    set isEqual: matchingQueries all = True
 
 func CheckDenominatedCurrency:
     inputs:
@@ -178,8 +195,7 @@ func CheckDenominatedCurrency:
         isEqual boolean (1..1)
 
     set isEqual:
-        denominatedCurrency is absent
-            or denominatedCurrency contains query -> denominatedCurrency
+        denominatedCurrency is absent or denominatedCurrency = query -> denominatedCurrency
 
 func CheckMaturity:
     inputs:
@@ -211,8 +227,7 @@ func CheckIssuerName:
     output:
         isEqual boolean (1..1)
 
-    set isEqual:
-        issuerName is absent or issuerName -> issuerName contains query -> issuerName
+    set isEqual: issuerName is absent or issuerName -> issuerName = query -> issuerName
 
 func CheckIssuerType:
     inputs:
@@ -221,7 +236,7 @@ func CheckIssuerType:
     output:
         isEqual boolean (1..1)
 
-    set isEqual: issuerType is absent or issuerType contains query -> issuerType
+    set isEqual: issuerType is absent or issuerType = query -> issuerType
 
 func CriteriaMatchesSecurityType:
     inputs:

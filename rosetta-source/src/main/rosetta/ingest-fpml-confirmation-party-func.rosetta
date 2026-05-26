@@ -185,61 +185,193 @@ func MapMultipleCounterpartyRoleEnum:
 func MapAncillaryPartyList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
 
     add ancillaryPartyList:
-        fpmlTrade -> calculationAgentModel -> calculationAgent -> calculationAgentPartyReference
-            then MapAncillaryParty(CalculationAgentIndependent, href)
+        MapCalculationAgentIndependentToAncillaryParty(
+                fpmlTrade -> calculationAgentModel -> calculationAgent
+            )
 
     add ancillaryPartyList:
         fpmlTrade -> product switch
-            fpml.BondOption then MapBondOptionAncillaryPartyList,
-            fpml.BrokerEquityOption then MapBrokerEquityOptionAncillaryPartyList,
-            fpml.CapFloor then MapCapFloorAncillaryPartyList,
-            fpml.CommodityForward then MapCommodityForwardAncillaryPartyList,
-            fpml.CommodityOption then MapCommodityOptionAncillaryPartyList,
-            fpml.CommoditySwap then MapCommoditySwapAncillaryPartyList,
-            fpml.CommoditySwaption then MapCommoditySwaptionAncillaryPartyList,
-            fpml.CorrelationSwap then MapCorrelationSwapAncillaryPartyList,
-            fpml.CreditDefaultSwap then MapCreditDefaultSwapAncillaryPartyList,
-            fpml.CreditDefaultSwapOption then MapCreditDefaultSwapOptionAncillaryPartyList,
-            fpml.DividendSwapOptionTransactionSupplement then MapDividendSwapOptionTransactionSupplementAncillaryPartyList,
-            fpml.DividendSwapTransactionSupplement then MapDividendSwapTransactionSupplementAncillaryPartyList,
-            fpml.EquityForward then MapEquityForwardAncillaryPartyList,
-            fpml.EquityOption then MapEquityOptionAncillaryPartyList,
-            fpml.EquityOptionTransactionSupplement then MapEquityOptionTransactionSupplementAncillaryPartyList,
-            fpml.EquitySwapTransactionSupplement then MapEquitySwapTransactionSupplementAncillaryPartyList,
-            fpml.Fra then MapFraAncillaryPartyList,
-            fpml.FxOption then MapFxOptionAncillaryPartyList,
-            fpml.FxSingleLeg then MapFxSingleLegAncillaryPartyList,
-            fpml.FxSwap then MapFxSwapAncillaryPartyList,
-            fpml.FxVarianceSwap then MapFxVarianceSwapAncillaryPartyList,
-            fpml.FxVolatilitySwap then MapFxVolatilitySwapAncillaryPartyList,
-            fpml.GenericProduct then MapGenericProductAncillaryPartyList,
-            fpml.ReturnSwap then MapReturnSwapAncillaryPartyList,
-            fpml.Swap then MapSwapAncillaryPartyList,
-            fpml.Swaption then MapSwaptionAncillaryPartyList,
-            fpml.VarianceOptionTransactionSupplement then MapVarianceOptionTransactionSupplementAncillaryPartyList,
-            fpml.VarianceSwap then MapVarianceSwapAncillaryPartyList,
-            fpml.VarianceSwapTransactionSupplement then MapVarianceSwapTransactionSupplementAncillaryPartyList,
-            fpml.VolatilitySwap then MapVolatilitySwapAncillaryPartyList,
-            fpml.VolatilitySwapTransactionSupplement then MapVolatilitySwapTransactionSupplementAncillaryPartyList,
+            fpml.BondOption then
+                MapBondOptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.CapFloor then
+                MapCapFloorAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.CommoditySwaption then
+                MapCommoditySwaptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.CreditDefaultSwapOption then
+                MapCreditDefaultSwapOptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.DividendSwapOptionTransactionSupplement then
+                MapDividendSwapOptionTransactionSupplementAncillaryPartyList(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.FxDigitalOption then
+                MapFxDigitalOptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.FxOption then
+                MapFxOptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.Swap then
+                MapSwapAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.Swaption then
+                MapSwaptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.VarianceOptionTransactionSupplement then
+                MapVarianceOptionTransactionSupplementAncillaryPartyList(
+                        item,
+                        cdmCounterpartyList
+                    ),
             default empty
 
-func MapAncillaryParty:
+func MapSwaptionPhysicalSettlementToAncillaryParty:
     inputs:
-        cdmAncillaryRole AncillaryRoleEnum (0..1)
-        fpmlPartyReferenceHrefList string (0..*)
+        fpmlSwaptionPhysicalSettlement fpml.SwaptionPhysicalSettlement (0..1)
     output:
         ancillaryParty AncillaryParty (0..1)
 
     set ancillaryParty:
-        if fpmlPartyReferenceHrefList exists
+        if fpmlSwaptionPhysicalSettlement -> predeterminedClearingOrganizationPartyReference exists
+        then MapAncillaryParty(
+                    PredeterminedClearingOrganizationParty,
+                    fpmlSwaptionPhysicalSettlement -> predeterminedClearingOrganizationPartyReference -> href,
+                    empty,
+                    empty
+                )
+
+func MapExerciseProcedureToAncillaryParty:
+    inputs:
+        fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticePartyReference exists
+        then MapAncillaryParty(
+                    ExerciseNoticeReceiverPartyManual,
+                    fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticePartyReference -> href,
+                    fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> partyReference -> href,
+                    cdmCounterpartyList
+                )
+
+func MapEarlyTerminationProvisionToAncillaryParty:
+    inputs:
+        fpmlEarlyTerminationProvision fpml.EarlyTerminationProvision (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..*)
+
+    alias optionalEarlyTermination:
+        fpmlEarlyTerminationProvision -> optionalEarlyTerminationModel -> optionalEarlyTermination default fpmlEarlyTerminationProvision -> earlyTerminationProvisionSequence -> optionalEarlyTerminationModel -> optionalEarlyTermination
+    alias mandatoryEarlyTermination:
+        fpmlEarlyTerminationProvision -> earlyTerminationProvisionSequence -> mandatoryEarlyTerminationModel -> mandatoryEarlyTermination default fpmlEarlyTerminationProvision -> earlyTerminationProvisionSequence -> mandatoryEarlyTerminationModel -> mandatoryEarlyTerminationModelSequence -> mandatoryEarlyTermination
+
+    add ancillaryParty:
+        MapOptionalEarlyTerminationToAncillaryParty(
+                optionalEarlyTermination,
+                cdmCounterpartyList
+            )
+    add ancillaryParty:
+        if mandatoryEarlyTermination -> calculationAgent exists
+        then MapAncillaryParty(
+                    CalculationAgentMandatoryEarlyTermination,
+                    mandatoryEarlyTermination -> calculationAgent -> calculationAgentPartyReference -> href,
+                    empty,
+                    empty
+                )
+
+func MapOptionalEarlyTerminationToAncillaryParty:
+    inputs:
+        fpmlOptionalEarlyTermination fpml.OptionalEarlyTermination (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..*)
+
+    add ancillaryParty:
+        if fpmlOptionalEarlyTermination -> exerciseNotice -> exerciseNoticePartyReference exists
+        then fpmlOptionalEarlyTermination -> exerciseNotice
+            extract
+                MapAncillaryParty(
+                        ExerciseNoticeReceiverPartyOptionalEarlyTermination,
+                        exerciseNoticePartyReference -> href,
+                        partyReference -> href,
+                        cdmCounterpartyList
+                    )
+    add ancillaryParty:
+        if fpmlOptionalEarlyTermination -> calculationAgent exists
+        then MapAncillaryParty(
+                    CalculationAgentOptionalEarlyTermination,
+                    fpmlOptionalEarlyTermination -> calculationAgent -> calculationAgentPartyReference -> href,
+                    empty,
+                    empty
+                )
+
+func MapCancelableProvisionToAncillaryParty:
+    inputs:
+        fpmlCancelableProvision fpml.CancelableProvision (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlCancelableProvision -> exerciseNotice -> exerciseNoticePartyReference exists
+        then MapAncillaryParty(
+                    ExerciseNoticeReceiverPartyCancelableProvision,
+                    fpmlCancelableProvision -> exerciseNotice -> exerciseNoticePartyReference -> href,
+                    fpmlCancelableProvision -> exerciseNotice -> partyReference -> href,
+                    cdmCounterpartyList
+                )
+
+func MapExtendibleProvisionToAncillaryParty:
+    inputs:
+        fpmlExtendibleProvision fpml.ExtendibleProvision (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlExtendibleProvision -> exerciseNotice -> exerciseNoticePartyReference exists
+        then MapAncillaryParty(
+                    ExerciseNoticeReceiverPartyExtendibleProvision,
+                    fpmlExtendibleProvision -> exerciseNotice -> exerciseNoticePartyReference -> href,
+                    fpmlExtendibleProvision -> exerciseNotice -> partyReference -> href,
+                    cdmCounterpartyList
+                )
+
+func MapCalculationAgentIndependentToAncillaryParty:
+    inputs:
+        fpmlCalculationAgent fpml.CalculationAgent (0..1)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlCalculationAgent -> calculationAgentPartyReference exists
+        then MapAncillaryParty(
+                    CalculationAgentIndependent,
+                    fpmlCalculationAgent -> calculationAgentPartyReference -> href,
+                    empty,
+                    empty
+                )
+
+func MapAncillaryParty:
+    inputs:
+        cdmAncillaryRole AncillaryRoleEnum (0..1)
+        fpmlPartyHrefList string (0..*)
+        fpmlOnBehalfOfPartyHref string (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlPartyHrefList exists
         then AncillaryParty {
                 role: cdmAncillaryRole,
-                partyReference: fpmlPartyReferenceHrefList extract MapPartyReference,
-                ...
+                partyReference: fpmlPartyHrefList extract MapPartyReference,
+                onBehalfOf: MapCounterpartyRoleEnum(
+                            fpmlOnBehalfOfPartyHref,
+                            cdmCounterpartyList
+                        )
             }
 
 func MapPartyReference:
@@ -276,32 +408,52 @@ func MapParty:
 
     set party:
         Party {
-            partyId: partyModel -> partyId extract MapPartyIdentifier,
+            partyId: partyModel -> partyId extract MapPartyIdentifier(item -> value, item -> partyIdScheme),
             name: MapStringWithScheme(partyName -> value, partyName -> partyNameScheme),
             businessUnit: partyModel -> businessUnit extract MapBusinessUnit,
             person: partyModel -> person extract MapNaturalPerson,
             personRole: MapNaturalPersonRoleList(fpmlParty, fpmlPartyTradeInformation),
             account: empty, // MapAccount(empty),
-            contactInformation: MapContactInformation(partyModel -> contactInfo)
+            contactInformation: MapContactInformation(
+                        partyModel -> partyInformationModel -> country,
+                        partyModel -> contactInfo
+                    )
         } with-meta {
             key: fpmlParty -> id
         }
 
+
 func MapPartyIdentifier:
     inputs:
-        fpmlPartyIdentifier fpml.PartyId (0..1)
+        identifierValue string (0..1)
+        identifierScheme string (0..1)
     output:
         partyIdentifier PartyIdentifier (0..1)
 
     set partyIdentifier:
         PartyIdentifier {
             identifier: MapStringWithScheme(
-                        fpmlPartyIdentifier -> value,
-                        fpmlPartyIdentifier -> partyIdScheme
+                        identifierValue,
+                        identifierScheme
                     ),
-            identifierType: MapPartyIdentifierTypeEnum(fpmlPartyIdentifier -> partyIdScheme)
+             identifierType: MapPartyIdentifierTypeEnum(identifierScheme)
         }
 
+func MapExchangeIdToAssetParty:
+     inputs:
+         fpmlExchangeId fpml.ExchangeId (0..1)
+     output:
+         party Party (0..1)
+
+set party:
+    Party {
+        partyId: fpmlExchangeId extract MapPartyIdentifier(value, exchangeIdScheme),
+        name: MapStringWithScheme(
+                    fpmlExchangeId -> value,
+                    fpmlExchangeId -> exchangeIdScheme
+                ),
+        ...
+    }
 func MapBusinessUnit:
     inputs:
         fpmlBusinessUnit fpml.BusinessUnit (0..1)
@@ -311,13 +463,49 @@ func MapBusinessUnit:
     set cdmBusinessUnit:
         BusinessUnit {
             name: fpmlBusinessUnit -> name,
-            contactInformation: MapContactInformation(fpmlBusinessUnit -> contactInfo),
+            contactInformation: MapContactInformation(
+                        fpmlBusinessUnit -> country,
+                        fpmlBusinessUnit -> contactInfo
+                    ),
             ...
         } with-meta {
             key: fpmlBusinessUnit -> id
         }
 
 func MapContactInformation:
+    inputs:
+        fpmlCountry fpml.CountryCode (0..1)
+        fpmlContactInformation fpml.ContactInformation (0..1)
+    output:
+        cdmContactInformation ContactInformation (0..1)
+
+    set cdmContactInformation:
+        if fpmlContactInformation exists
+        then MapContactInfoToContactInformation(fpmlContactInformation)
+        else if fpmlCountry exists
+        then MapCountryToContactInformation(fpmlCountry)
+
+func MapCountryToContactInformation:
+    inputs:
+        fpmlCountry fpml.CountryCode (0..1)
+    output:
+        cdmContactInformation ContactInformation (0..1)
+
+    set cdmContactInformation:
+        ContactInformation {
+            address:
+                Address {
+                    country: MapStringWithScheme(
+                                fpmlCountry -> value,
+                                fpmlCountry -> countryScheme
+                            ),
+                    street: empty,
+                    ...
+                },
+            ...
+        }
+
+func MapContactInfoToContactInformation:
     inputs:
         fpmlContactInformation fpml.ContactInformation (0..1)
     output:
@@ -326,7 +514,8 @@ func MapContactInformation:
     set cdmContactInformation:
         ContactInformation {
             telephone: fpmlContactInformation -> telephone extract MapTelephoneNumber,
-            address: MapAddress(fpmlContactInformation -> address),
+            address: if fpmlContactInformation -> address exists
+                    then MapAddress(fpmlContactInformation -> address),
             email: fpmlContactInformation -> email,
             ...
         }
@@ -384,7 +573,10 @@ func MapNaturalPerson:
             surname: personSequence -> surname,
             suffix: personSequence -> suffix,
             dateOfBirth: fpmlPerson -> dateOfBirth -> date,
-            contactInformation: MapContactInformation(fpmlPerson -> contactInfo)
+            contactInformation: MapContactInformation(
+                        fpmlPerson -> country,
+                        fpmlPerson -> contactInfo
+                    )
         } with-meta {
             key: fpmlPerson -> id
         }
@@ -775,6 +967,32 @@ func MapExchangeIdToLegalEntity:
                     ),
             ...
         }
+
+func MapAssetPartyRole:
+    inputs:
+        assetParty Party (1..1)
+        assetPartyRoleEnum AssetPartyRoleEnum (1..1)
+    output:
+        assetPartyRole AssetPartyRole (1..1)
+
+    set assetPartyRole->partyReference:
+        assetParty
+    set assetPartyRole->role:
+        assetPartyRoleEnum
+
+func MapAssetAncillaryPartyRole:
+    inputs:
+        assetAncillaryparty Party (1..1)
+        assetAncillaryPartyRoleEnum AssetAncillaryPartyRoleEnum (1..1)
+    output:
+        assetAncillaryPartyRole AssetAncillaryPartyRole (0..1)
+
+    set assetAncillaryPartyRole->partyReference:
+        assetAncillaryparty
+
+    set assetAncillaryPartyRole->role:
+        assetAncillaryPartyRoleEnum
+
 
 func MapPayerReceiver:
     inputs:

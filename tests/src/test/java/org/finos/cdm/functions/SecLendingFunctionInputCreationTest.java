@@ -36,12 +36,11 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.finos.cdm.CdmRuntimeModule;
-import org.isda.cdm.functions.CreateBusinessEventInput;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.ResourcesUtils;
+import org.finos.cdm.util.ResourcesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -56,8 +55,8 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static util.ResourcesUtils.getJson;
-import static util.ResourcesUtils.reKey;
+import static org.finos.cdm.util.ResourcesUtils.getJson;
+import static org.finos.cdm.util.ResourcesUtils.reKey;
 
 public class SecLendingFunctionInputCreationTest {
 
@@ -495,10 +494,11 @@ public class SecLendingFunctionInputCreationTest {
         URL expectedURL = SecLendingFunctionInputCreationTest.class.getResource(inputJson);
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
-
-        assertEquals(readResource(inputJson),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
+        if (!TestingExpectationUtil.WRITE_EXPECTATIONS) {
+            assertEquals(readResource(inputJson),
+                    STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+                    "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
+        }
         return actual;
     }
 
