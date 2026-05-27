@@ -24,19 +24,19 @@ import fpml.consolidated.shared.* as fpml
 
 func MapSettlementProvisionToSettlementTerms:
     inputs:
-        settlementProvision fpml.SettlementProvision (0..1)
-        paymentDates fpml.PaymentDates (0..1)
+        fpmlSettlementProvision fpml.SettlementProvision (0..1)
+        fpmlPaymentDates fpml.PaymentDates (0..1)
     output:
         settlementTerms SettlementTerms (0..1)
 
     alias settlementType:
-        if settlementProvision -> nonDeliverableSettlement exists
+        if fpmlSettlementProvision -> nonDeliverableSettlement exists
         then SettlementTypeEnum -> Cash
 
     set settlementTerms:
         SettlementTerms {
             settlementType: settlementType,
-            settlementCurrency: MapCurrency(settlementProvision -> settlementCurrency),
+            settlementCurrency: MapCurrency(fpmlSettlementProvision -> settlementCurrency),
             cashSettlementTerms:
                 CashSettlementTerms {
                     valuationMethod:
@@ -46,8 +46,8 @@ func MapSettlementProvisionToSettlementTerms:
                                     settlementRateOption:
                                         SettlementRateOption {
                                             settlementRateOption: MapStringWithScheme(
-                                                        settlementProvision -> nonDeliverableSettlement -> settlementRateOption -> value,
-                                                        settlementProvision -> nonDeliverableSettlement -> settlementRateOption -> settlementRateOptionScheme
+                                                        fpmlSettlementProvision -> nonDeliverableSettlement -> settlementRateOption -> value,
+                                                        fpmlSettlementProvision -> nonDeliverableSettlement -> settlementRateOption -> settlementRateOptionScheme
                                                     )
                                                     to-enum SettlementRateOptionEnum,
                                             ...
@@ -58,10 +58,10 @@ func MapSettlementProvisionToSettlementTerms:
                         },
                     valuationDate:
                         ValuationDate {
-                            fxFixingDate: if settlementProvision -> nonDeliverableSettlement -> fxFixingDate exists
+                            fxFixingDate: if fpmlSettlementProvision -> nonDeliverableSettlement -> fxFixingDate exists
                                     then MapFxFixingDate(
-                                            settlementProvision -> nonDeliverableSettlement -> fxFixingDate,
-                                            paymentDates
+                                            fpmlSettlementProvision -> nonDeliverableSettlement -> fxFixingDate,
+                                            fpmlPaymentDates
                                         ),
                             ...
                         },
@@ -90,17 +90,17 @@ func MapReturnSwapLegToSettlementTerms:
 
 func MapOptionSettlementModelToSettlementTerms:
     inputs:
-        settlementType fpml.SettlementTypeEnum (0..1)
-        settlementCurrency fpml.Currency (0..1)
-        settlementDate fpml.AdjustableOrRelativeDate (0..1)
+        fpmlSettlementType fpml.SettlementTypeEnum (0..1)
+        fpmlSettlementCurrency fpml.Currency (0..1)
+        fpmlSettlementDate fpml.AdjustableOrRelativeDate (0..1)
     output:
         settlementTerms SettlementTerms (0..1)
 
     set settlementTerms:
         SettlementTerms {
-            settlementType: settlementType to-enum SettlementTypeEnum,
-            settlementCurrency: MapCurrency(settlementCurrency),
-            settlementDate: settlementDate
+            settlementType: fpmlSettlementType to-enum SettlementTypeEnum,
+            settlementCurrency: MapCurrency(fpmlSettlementCurrency),
+            settlementDate: fpmlSettlementDate
                     extract
                         SettlementDate {
                             adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
@@ -265,24 +265,24 @@ func MapCashSettlementToCashSettlementTerms:
 
 func MapMidMarketValuationMethodToCashSettlementTerms:
     inputs:
-        fpmMidMarketValuationMethod fpml.MidMarketValuationMethod (0..1)
+        fpmlMidMarketValuationMethod fpml.MidMarketValuationMethod (0..1)
         cdmCashSettlementMethod CashSettlementMethodEnum (1..1)
     output:
         cashSettlementTerms CashSettlementTerms (0..1)
 
     set cashSettlementTerms:
-        if fpmMidMarketValuationMethod exists
+        if fpmlMidMarketValuationMethod exists
         then CashSettlementTerms {
                 cashSettlementMethod: cdmCashSettlementMethod,
                 valuationMethod: MapValuationMethod(
                             empty,
-                            fpmMidMarketValuationMethod -> cashSettlementReferenceBanks,
+                            fpmlMidMarketValuationMethod -> cashSettlementReferenceBanks,
                             empty,
                             MapCashCollateralValuationMethod(
-                                    fpmMidMarketValuationMethod -> applicableCsa,
-                                    fpmMidMarketValuationMethod -> cashCollateralCurrency,
-                                    fpmMidMarketValuationMethod -> cashCollateralInterestRate,
-                                    fpmMidMarketValuationMethod -> agreedDiscountRate,
+                                    fpmlMidMarketValuationMethod -> applicableCsa,
+                                    fpmlMidMarketValuationMethod -> cashCollateralCurrency,
+                                    fpmlMidMarketValuationMethod -> cashCollateralInterestRate,
+                                    fpmlMidMarketValuationMethod -> agreedDiscountRate,
                                     empty,
                                     empty
                                 )
@@ -292,25 +292,25 @@ func MapMidMarketValuationMethodToCashSettlementTerms:
 
 func MapReplacementValueFirmQuotationsMethodToCashSettlementTerms:
     inputs:
-        fpmReplacementValueFirmQuotationsMethod fpml.ReplacementValueFirmQuotationsMethod (0..1)
+        fpmlReplacementValueFirmQuotationsMethod fpml.ReplacementValueFirmQuotationsMethod (0..1)
     output:
         cashSettlementTerms CashSettlementTerms (0..1)
 
     set cashSettlementTerms:
-        if fpmReplacementValueFirmQuotationsMethod exists
+        if fpmlReplacementValueFirmQuotationsMethod exists
         then CashSettlementTerms {
                 cashSettlementMethod: ReplacementValueFirmQuotations,
                 valuationMethod: MapValuationMethod(
                             empty,
-                            fpmReplacementValueFirmQuotationsMethod -> cashSettlementReferenceBanks,
+                            fpmlReplacementValueFirmQuotationsMethod -> cashSettlementReferenceBanks,
                             empty,
                             MapCashCollateralValuationMethod(
                                     empty,
-                                    fpmReplacementValueFirmQuotationsMethod -> cashCollateralCurrency,
+                                    fpmlReplacementValueFirmQuotationsMethod -> cashCollateralCurrency,
                                     empty,
                                     empty,
-                                    fpmReplacementValueFirmQuotationsMethod -> protectedParty,
-                                    fpmReplacementValueFirmQuotationsMethod -> prescribedDocumentationAdjustment
+                                    fpmlReplacementValueFirmQuotationsMethod -> protectedParty,
+                                    fpmlReplacementValueFirmQuotationsMethod -> prescribedDocumentationAdjustment
                                 )
                         ),
                 ...
@@ -318,24 +318,24 @@ func MapReplacementValueFirmQuotationsMethodToCashSettlementTerms:
 
 func MapReplacementValueCalculationAgentDeterminationMethodToCashSettlementTerms:
     inputs:
-        fpmReplacementValueCalculationAgentDeterminationMethod fpml.ReplacementValueCalculationAgentDeterminationMethod (0..1)
+        fpmlReplacementValueCalculationAgentDeterminationMethod fpml.ReplacementValueCalculationAgentDeterminationMethod (0..1)
     output:
         cashSettlementTerms CashSettlementTerms (0..1)
 
     set cashSettlementTerms:
-        if fpmReplacementValueCalculationAgentDeterminationMethod exists
+        if fpmlReplacementValueCalculationAgentDeterminationMethod exists
         then CashSettlementTerms {
                 cashSettlementMethod: ReplacementValueCalculationAgentDetermination,
                 valuationMethod: MapValuationMethod(
                             empty,
-                            fpmReplacementValueCalculationAgentDeterminationMethod -> cashSettlementReferenceBanks,
+                            fpmlReplacementValueCalculationAgentDeterminationMethod -> cashSettlementReferenceBanks,
                             empty,
                             MapCashCollateralValuationMethod(
                                     empty,
-                                    fpmReplacementValueCalculationAgentDeterminationMethod -> cashCollateralCurrency,
+                                    fpmlReplacementValueCalculationAgentDeterminationMethod -> cashCollateralCurrency,
                                     empty,
                                     empty,
-                                    fpmReplacementValueCalculationAgentDeterminationMethod -> protectedParty,
+                                    fpmlReplacementValueCalculationAgentDeterminationMethod -> protectedParty,
                                     empty
                                 )
                         ),
@@ -768,17 +768,17 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
 
 func MapCommoditySettlementModelToSettlementTerms:
     inputs:
-        settlementCurrency fpml.consolidated.shared.IdentifiedCurrency (0..1)
+        fpmlSettlementCurrency fpml.consolidated.shared.IdentifiedCurrency (0..1)
     output:
         settlementTerms SettlementTerms (0..1)
 
     set settlementTerms:
         SettlementTerms {
-            settlementType: if settlementCurrency exists
+            settlementType: if fpmlSettlementCurrency exists
                     then SettlementTypeEnum -> Cash,
             settlementCurrency: MapStringWithScheme(
-                        settlementCurrency -> value,
-                        settlementCurrency -> currencyScheme
+                        fpmlSettlementCurrency -> value,
+                        fpmlSettlementCurrency -> currencyScheme
                     ),
             ...
         }

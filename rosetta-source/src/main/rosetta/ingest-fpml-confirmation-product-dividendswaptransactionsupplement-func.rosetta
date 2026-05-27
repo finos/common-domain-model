@@ -18,6 +18,7 @@ import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.dividend.swaps.* as fpml
 import fpml.consolidated.option.shared.* as fpml
 import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
 
 func MapDividendSwapTransactionSupplementCounterpartyList:
     inputs:
@@ -242,8 +243,8 @@ func MapFixedPaymentLegToFixedPricePayout:
 func MapFixedLegSettlementTerms:
     inputs:
         fpmlFixedPaymentLeg fpml.FixedPaymentLeg (0..1)
-        settlementType fpml.consolidated.fpmlenum.SettlementTypeEnum (0..1)
-        settlementCurrency fpml.Currency (0..1)
+        fpmlSettlementType fpml.SettlementTypeEnum (0..1)
+        fpmlSettlementCurrency fpml.Currency (0..1)
         fpmlRelativeDateOffset fpml.RelativeDateOffset (0..1)
         fpmlUnadjustedDate date (0..1)
         fpmlAdjustableDate fpml.AdjustableDate (0..1)
@@ -252,8 +253,8 @@ func MapFixedLegSettlementTerms:
 
     set settlementTerms:
         SettlementTerms {
-            settlementType: settlementType to-enum SettlementTypeEnum,
-            settlementCurrency: MapCurrency(settlementCurrency),
+            settlementType: fpmlSettlementType to-enum SettlementTypeEnum,
+            settlementCurrency: MapCurrency(fpmlSettlementCurrency),
             settlementDate:
                 SettlementDate {
                     adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
@@ -314,16 +315,16 @@ func MapDividendLegToPriceQuantity:
 
 func MapSingleUnderlyerToNonNegativeQuantityScheduleWithLocation:
     inputs:
-        singleUnderlyer fpml.SingleUnderlyer (0..1)
+        fpmlSingleUnderlyer fpml.SingleUnderlyer (0..1)
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
             [metadata location]
 
     set nonNegativeQuantitySchedule:
-        if singleUnderlyer -> openUnits exists
+        if fpmlSingleUnderlyer -> openUnits exists
         then CreateQuantityWithLocation(
                     NonNegativeQuantitySchedule {
-                        value: singleUnderlyer -> openUnits,
+                        value: fpmlSingleUnderlyer -> openUnits,
                         unit:
                             UnitType {
                                 financialUnit: Share,

@@ -109,27 +109,27 @@ func MapResolvablePriceQuantityReference:
 
 func MapProductTaxonomyList:
     inputs:
-        primaryAssetClass fpml.AssetClass (0..1)
-        secondaryAssetClass fpml.AssetClass (0..*)
-        productType fpml.ProductType (0..*)
+        fpmlPrimaryAssetClass fpml.AssetClass (0..1)
+        fpmlSecondaryAssetClass fpml.AssetClass (0..*)
+        fpmlProductType fpml.ProductType (0..*)
     output:
         taxonomy ProductTaxonomy (0..*)
 
     add taxonomy:
         ProductTaxonomy {
             primaryAssetClass: MapAssetClassWithScheme(
-                        primaryAssetClass -> value,
-                        primaryAssetClass -> assetClassScheme
+                        fpmlPrimaryAssetClass -> value,
+                        fpmlPrimaryAssetClass -> assetClassScheme
                     ),
             secondaryAssetClass: MapAssetClassWithScheme(
-                        secondaryAssetClass first -> value,
-                        secondaryAssetClass first -> assetClassScheme
+                        fpmlSecondaryAssetClass first -> value,
+                        fpmlSecondaryAssetClass first -> assetClassScheme
                     ),
             ...
         }
 
     add taxonomy:
-        productType
+        fpmlProductType
             extract
                 ProductTaxonomy {
                     source: MapTaxonomySourceEnum(productTypeScheme),
@@ -282,11 +282,11 @@ func MapUnscheduledTransferEnumWithScheme:
 
 func MapProductIdentifierList:
     inputs:
-        productId fpml.ProductId (0..*)
+        fpmlProductId fpml.ProductId (0..*)
     output:
         productIdentifierList ProductIdentifier (0..*)
 
-    add productIdentifierList: productId extract MapProductIdentifier
+    add productIdentifierList: fpmlProductId extract MapProductIdentifier
 
 func MapProductIdentifier:
     inputs:

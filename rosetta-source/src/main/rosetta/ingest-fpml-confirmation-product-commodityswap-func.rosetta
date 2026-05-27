@@ -95,21 +95,21 @@ func MapCommoditySwapNonTransferableProduct:
 
 func MapCommoditySwapEconomicTerms:
     inputs:
-        commoditySwapLeg fpml.CommodityLeg (0..*)
-        settlementCurrency fpml.IdentifiedCurrency (0..1)
-        effectiveDate fpml.consolidated.shared.AdjustableOrRelativeDate (0..1)
-        terminationDate fpml.consolidated.shared.AdjustableOrRelativeDate (0..1)
+        fpmlCommoditySwapLegList fpml.CommodityLeg (0..*)
+        fpmlSettlementCurrency fpml.IdentifiedCurrency (0..1)
+        fpmlEffectiveDate fpml.consolidated.shared.AdjustableOrRelativeDate (0..1)
+        fpmlTerminationDate fpml.consolidated.shared.AdjustableOrRelativeDate (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         economicTerms EconomicTerms (0..1)
 
     set economicTerms:
         EconomicTerms {
-            effectiveDate: MapAdjustableOrRelativeDate(effectiveDate),
-            terminationDate: MapAdjustableOrRelativeDate(terminationDate),
+            effectiveDate: MapAdjustableOrRelativeDate(fpmlEffectiveDate),
+            terminationDate: MapAdjustableOrRelativeDate(fpmlTerminationDate),
             payout: MapCommoditySwapLegListToPayoutList(
-                        commoditySwapLeg,
-                        settlementCurrency,
+                        fpmlCommoditySwapLegList,
+                        fpmlSettlementCurrency,
                         cdmCounterpartyList
                     ),
             ...
@@ -117,13 +117,11 @@ func MapCommoditySwapEconomicTerms:
 
 func MapCommoditySwapLegListToPayoutList:
     inputs:
-        commoditySwapLeg fpml.CommodityLeg (0..*)
-        settlementCurrency fpml.IdentifiedCurrency (0..1)
+        fpmlCommoditySwapLegList fpml.CommodityLeg (0..*)
+        fpmlSettlementCurrency fpml.IdentifiedCurrency (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         payoutList Payout (0..*)
-
-    alias fpmlCommoditySwapLegList: commoditySwapLeg
 
     add payoutList:
         fpmlCommoditySwapLegList
@@ -131,7 +129,7 @@ func MapCommoditySwapLegListToPayoutList:
                 item switch
                     fpml.FloatingLeg then
                         MapFloatingLegToCommodityPayout(
-                                settlementCurrency,
+                                fpmlSettlementCurrency,
                                 item,
                                 cdmCounterpartyList
                             ),

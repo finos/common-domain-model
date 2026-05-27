@@ -74,10 +74,10 @@ func MapFxSingleLegEconomicTerms:
 
 func MapFxCoreDetailsModelToSettlementPayout:
     inputs:
-        exchangeRate fpml.ExchangeRate (0..1)
-        exchangedCurrency1 fpml.Payment (0..1)
-        exchangedCurrency2 fpml.Payment (0..1)
-        nonDeliverableSettlement fpml.FxCashSettlement (0..1)
+        fpmlExchangeRate fpml.ExchangeRate (0..1)
+        fpmlExchangedCurrency1 fpml.Payment (0..1)
+        fpmlExchangedCurrency2 fpml.Payment (0..1)
+        fpmlNonDeliverableSettlement fpml.FxCashSettlement (0..1)
         valueDate zonedDateTime (0..1)
         fpmlLeg fpml.Leg (0..1)
         cdmCounterpartyList Counterparty (0..2)
@@ -85,7 +85,7 @@ func MapFxCoreDetailsModelToSettlementPayout:
         payout Payout (0..1)
 
     alias exchangedCurrency:
-        GetFpmlExchangedCurrency(exchangeRate, exchangedCurrency1, exchangedCurrency2)
+        GetFpmlExchangedCurrency(fpmlExchangeRate, fpmlExchangedCurrency1, fpmlExchangedCurrency2)
 
     set payout:
         Payout {
@@ -99,17 +99,17 @@ func MapFxCoreDetailsModelToSettlementPayout:
                     priceQuantity:
                         ResolvablePriceQuantity {
                             quantitySchedule: MapFxCoreDetailsModelQuantityWithAddress(
-                                        exchangeRate,
+                                        fpmlExchangeRate,
                                         fpmlLeg
                                     ),
                             priceSchedule: MapFxCoreDetailsModelPriceWithAddress(
-                                        exchangeRate,
+                                        fpmlExchangeRate,
                                         fpmlLeg
                                     ),
                             ...
                         },
                     settlementTerms: MapFxCashSettlementToSettlementTerms(
-                                nonDeliverableSettlement,
+                                fpmlNonDeliverableSettlement,
                                 valueDate -> date
                             ),
                     underlier:

@@ -573,7 +573,7 @@ func MapCalculationPeriodFrequency:
 func MapFxFixingDate:
     inputs:
         fpmlFxFixingDate fpml.FxFixingDate (0..1)
-        paymentDates fpml.PaymentDates (0..1)
+        fpmlPaymentDates fpml.PaymentDates (0..1)
     output:
         fxFixingDate FxFixingDate (0..1)
 
@@ -589,7 +589,7 @@ func MapFxFixingDate:
                     ),
             dateRelativeToPaymentDates:
                 DateRelativeToPaymentDates {
-                    paymentDatesReference: MapPaymentDatesReference(paymentDates)
+                    paymentDatesReference: MapPaymentDatesReference(fpmlPaymentDates)
                 },
             ...
         }
@@ -686,13 +686,13 @@ func MapBusinessCenter:
 func MapBusinessCenterOrBusinessCenterReference:
     inputs:
         fpmlBusinessCenters fpml.BusinessCenters (0..1)
-        businessCentersReference fpml.BusinessCentersReference (0..1)
+        fpmlBusinessCentersReference fpml.BusinessCentersReference (0..1)
     output:
         businessCenters BusinessCenters (0..1)
     set businessCenters:
         BusinessCenters {
             businessCenter: fpmlBusinessCenters -> businessCenter extract MapBusinessCenter,
-            businessCentersReference: MapBusinessCenterReference(businessCentersReference),
+            businessCentersReference: MapBusinessCenterReference(fpmlBusinessCentersReference),
             ...
         } with-meta {
             key: fpmlBusinessCenters -> id
@@ -1024,23 +1024,21 @@ func MapCommodityCalculationPeriods:
 
 func MapCommodityCalculationPeriodFrequency:
     inputs:
-        calculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
+        fpmlCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
     output:
         calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 
-    alias calculationPeriod: calculationPeriodsSchedule
-
     set calculationPeriodFrequency:
         CalculationPeriodFrequency {
-            period: MapPeriodExtendedEnum(calculationPeriod -> period to-string),
-            periodMultiplier: calculationPeriod -> periodMultiplier,
+            period: MapPeriodExtendedEnum(fpmlCalculationPeriodsSchedule -> period to-string),
+            periodMultiplier: fpmlCalculationPeriodsSchedule -> periodMultiplier,
             rollConvention: empty,
-            balanceOfFirstPeriod: calculationPeriod -> balanceOfFirstPeriod
+            balanceOfFirstPeriod: fpmlCalculationPeriodsSchedule -> balanceOfFirstPeriod
         } with-meta {
-            key: calculationPeriod -> id
+            key: fpmlCalculationPeriodsSchedule -> id
         }
 
-func MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequncy:
+func MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequency:
     inputs:
         fpmlCommodityCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
     output:
