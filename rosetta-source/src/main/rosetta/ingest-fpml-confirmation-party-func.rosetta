@@ -826,24 +826,22 @@ func MapAccount:
 
 func MapPayerReceiverToAccountPartyReference:
     inputs:
-        fpmlAccountList fpml.Account (0..1)
-        fpmlPayerAccountReferenceList fpml.AccountReference (0..*)
-        fpmlReceiverAccountReferenceList fpml.AccountReference (0..*)
+        fpmlAccount fpml.Account (0..1)
+        fpmlPayerAccountReference fpml.AccountReference (0..1)
+        fpmlReceiverAccountReference fpml.AccountReference (0..1)
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
     output:
         partyReference Party (0..1)
             [metadata reference]
 
     alias payerPartyReference:
-        fpmlPayerAccountReferenceList
-            filter href = fpmlAccountList -> id
-            then extract href
-            then distinct only-element
+        if fpmlPayerAccountReference -> href = fpmlAccount -> id
+        then fpmlPayerPartyReference -> href
 
     alias receiverPartyReference:
-        fpmlReceiverAccountReferenceList
-            filter href = fpmlAccountList -> id
-            then extract href
-            then distinct only-element
+        if fpmlReceiverAccountReference -> href = fpmlAccount -> id
+        then fpmlReceiverPartyReference -> href
 
     alias selectedPartyHref:
         if payerPartyReference exists

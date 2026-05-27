@@ -80,8 +80,13 @@ func MapVarianceSwapTransactionSupplementAccountPartyReference:
             [metadata reference]
 
     set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlVarianceSwapTransactionSupplement -> varianceLeg -> payerAccountReference,
-                fpmlVarianceSwapTransactionSupplement -> varianceLeg -> receiverAccountReference
-            )
+        fpmlVarianceSwapTransactionSupplement -> varianceLeg
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then first

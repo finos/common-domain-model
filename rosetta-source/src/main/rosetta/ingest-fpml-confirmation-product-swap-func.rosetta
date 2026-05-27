@@ -809,8 +809,13 @@ func MapSwapAccountPartyReference:
             [metadata reference]
 
     set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlSwap -> swapStream -> payerAccountReference,
-                fpmlSwap -> swapStream -> receiverAccountReference
-            )
+        fpmlSwap -> swapStream
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then first

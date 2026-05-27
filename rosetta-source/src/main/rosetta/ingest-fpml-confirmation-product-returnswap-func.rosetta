@@ -591,8 +591,13 @@ func MapReturnSwapAccountPartyReference:
             [metadata reference]
 
     set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlReturnSwap -> returnSwapLeg -> payerAccountReference,
-                fpmlReturnSwap -> returnSwapLeg -> receiverAccountReference
-            )
+        fpmlReturnSwap -> returnSwapLeg
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then first

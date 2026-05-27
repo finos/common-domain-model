@@ -152,8 +152,13 @@ func MapFxSingleLegAccountPartyReference:
             [metadata reference]
 
     set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                [fpmlFxSingleLeg -> exchangedCurrency1 -> payerAccountReference, fpmlFxSingleLeg -> exchangedCurrency2 -> payerAccountReference],
-                [fpmlFxSingleLeg -> exchangedCurrency1 -> receiverAccountReference, fpmlFxSingleLeg -> exchangedCurrency2 -> receiverAccountReference]
-            )
+        [fpmlFxSingleLeg -> exchangedCurrency1, fpmlFxSingleLeg -> exchangedCurrency2]
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then first

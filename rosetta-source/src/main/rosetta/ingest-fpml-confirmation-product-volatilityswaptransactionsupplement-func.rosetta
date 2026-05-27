@@ -80,8 +80,13 @@ func MapVolatilitySwapTransactionSupplementAccountPartyReference:
             [metadata reference]
 
     set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg -> payerAccountReference,
-                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg -> receiverAccountReference
-            )
+        fpmlVolatilitySwapTransactionSupplement -> volatilityLeg
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then first
