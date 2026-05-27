@@ -18,6 +18,50 @@
 
     <profiles>
         <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default</id>
+                                <phase>none</phase>
+                            </execution>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <sourcepath>
+                                ${project.build.sourceDirectory}:${project.basedir}/src/generated/java
+                            </sourcepath>
+                            <notimestamp>true</notimestamp>
+                            <quiet>true</quiet>
+                            <additionalJOption>${maven-javadoc-plugin.option}</additionalJOption>
+                            <maxmemory>2g</maxmemory>
+                            <excludePackageNames>fpml.*:cdm.ingest.*:cdm.mapping.*</excludePackageNames>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>format</id>
             <build>
                 <plugins>
@@ -984,53 +1028,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <release>${maven.compiler.release}</release>
                     <excludes>
                         <exclude>**/*.rosetta</exclude>
                     </excludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <sourcepath>
-                        ${project.build.sourceDirectory}:${project.basedir}/src/generated/java
-                    </sourcepath>
-                    <notimestamp>true</notimestamp>
-                    <quiet>true</quiet>
-                    <additionalJOption>${maven-javadoc-plugin.option}</additionalJOption>
-                    <maxmemory>2g</maxmemory>
-                    <excludePackageNames>fpml.*:cdm.ingest.*:cdm.mapping.*</excludePackageNames>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
