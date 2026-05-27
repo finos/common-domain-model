@@ -573,7 +573,7 @@ func Create_NonTransferableProduct: <"Creates a NonTransferableProduct (ie Econo
 
 func CalculateReset: <"Function specification to calculate a reset.">
     inputs:
-        instruction CalculateResetInstruction (1..1)
+        instruction CalculateResetInstruction (1..1) <"The instruction containing the parameters and payout references required to calculate the reset.">
     output:
         reset Reset (0..*)
     
@@ -600,7 +600,7 @@ func CalculateReset: <"Function specification to calculate a reset.">
     alias observation: <"Represents the single observation that will be used to compute the reset value.">
         ResolveObservation([observationIdentifiers], empty)
 
-    add reset: <"To handle the various ways Contracts can change over time, ">
+    add reset: <"Calculates and appends the reset value for the contract by resolving the specific performance or interest rate reset logic based on the underlying payout type.">
         if payout -> PerformancePayout count = 1
         then ResolvePerformanceReset(
                     payout -> PerformancePayout only-element,
