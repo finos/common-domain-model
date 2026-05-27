@@ -74,7 +74,11 @@ func MapWorkflowStep:
                 },
             timestamp: MapEventTimestamp(creationTimestamp, fpmlTrade),
             eventIdentifier: MapEventIdentifier(fpmlMessageId, fpmlTradingEvents),
-            messageInformation: MapMessageInformation(fpmlMessageId, fpmlSentBy, fpmlSendToList),
+            messageInformation: MapMessageInformation(
+                        fpmlMessageId,
+                        fpmlSentBy,
+                        fpmlSendToList
+                    ),
             action: action,
             nextEvent: MapNextEvent(fpmlTrade -> tradeHeader -> partyTradeInformation),
             ...
@@ -420,15 +424,15 @@ func MapMessageInformation:
         messageInfo MessageInformation (0..1)
     set messageInfo:
         MessageInformation {
-            messageId: MapStringWithScheme(fpmlMessageId -> value, fpmlMessageId -> messageIdScheme),
-            sentBy: MapStringWithScheme(fpmlSentBy -> value, fpmlSentBy -> messageAddressScheme),
-            sentTo: fpmlSendToList
-                extract 
-                    MapStringWithScheme(
-                            value,
-                            messageAddressScheme
-                        )
-                ,
+            messageId: MapStringWithScheme(
+                        fpmlMessageId -> value,
+                        fpmlMessageId -> messageIdScheme
+                    ),
+            sentBy: MapStringWithScheme(
+                        fpmlSentBy -> value,
+                        fpmlSentBy -> messageAddressScheme
+                    ),
+            sentTo: fpmlSendToList extract MapStringWithScheme(value, messageAddressScheme),
             ...
         }
 
