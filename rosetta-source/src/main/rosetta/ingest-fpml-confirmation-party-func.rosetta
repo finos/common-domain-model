@@ -372,17 +372,17 @@ func MapPartyReference:
 
 func MapPartyList:
     inputs:
-        fpmlParties fpml.Party (0..*)
-        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
+        fpmlPartyList fpml.Party (0..*)
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..*)
     output:
         partyList Party (0..*)
 
-    add partyList: fpmlParties extract MapParty(item, fpmlPartyTradeInformation)
+    add partyList: fpmlPartyList extract MapParty(item, fpmlPartyTradeInformationList)
 
 func MapParty:
     inputs:
         fpmlParty fpml.Party (0..1)
-        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..*)
     output:
         party Party (0..1)
 
@@ -396,7 +396,7 @@ func MapParty:
                     ),
             businessUnit: fpmlParty -> businessUnit extract MapBusinessUnit,
             person: fpmlParty -> person extract MapNaturalPerson,
-            personRole: MapNaturalPersonRoleList(fpmlParty, fpmlPartyTradeInformation),
+            personRole: MapNaturalPersonRoleList(fpmlParty, fpmlPartyTradeInformationList),
             account: empty, // MapAccount(empty),
             contactInformation: MapContactInformation(
                         fpmlParty -> country,
@@ -584,11 +584,11 @@ func MapPersonIdentifier:
 func MapNaturalPersonRoleList:
     inputs:
         fpmlParty fpml.Party (0..1)
-        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..*)
     output:
         naturalPersonRoleList NaturalPersonRole (0..*)
 
-    alias relatedPerson: fpmlPartyTradeInformation -> relatedPerson
+    alias relatedPerson: fpmlPartyTradeInformationList -> relatedPerson
 
     add naturalPersonRoleList:
         relatedPerson
@@ -684,11 +684,11 @@ func MapPartyRoleList:
 
 func MapRelatedPartyToPartyRole:
     inputs:
-        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..1)
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..1)
     output:
         partyRole PartyRole (0..*)
 
-    alias relatedParties: fpmlPartyTradeInformation -> relatedParty
+    alias relatedParties: fpmlPartyTradeInformationList -> relatedParty
 
     add partyRole:
         relatedParties
@@ -697,22 +697,22 @@ func MapRelatedPartyToPartyRole:
                     partyReference: MapPartyReference(partyReference -> href),
                     role: role -> value to-enum PartyRoleEnum,
                     ownershipPartyReference: MapPartyReference(
-                                fpmlPartyTradeInformation -> partyReference -> href
+                                fpmlPartyTradeInformationList -> partyReference -> href
                             )
                 }
 
 func MapAccountList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlAccount fpml.Account (0..*)
+        fpmlAccountList fpml.Account (0..*)
     output:
         accountList Account (0..*)
 
-    add accountList: fpmlAccount extract MapAccount(item, fpmlTrade)
+    add accountList: fpmlAccountList extract MapAccount(item, fpmlTrade)
 
 func MapAccount:
     inputs:
-        fpmlAccount fpml.Account (0..1)
+        fpmlAccountList fpml.Account (0..1)
         fpmlTrade fpml.Trade (0..1)
     output:
         account Account (0..1)
@@ -720,75 +720,75 @@ func MapAccount:
     alias partyReference:
         fpmlTrade -> product switch
             fpml.BondOption then
-                MapBondOptionAccountPartyReference(item, fpmlAccount),
+                MapBondOptionAccountPartyReference(item, fpmlAccountList),
             fpml.BrokerEquityOption then
-                MapBrokerEquityOptionAccountPartyReference(item, fpmlAccount),
+                MapBrokerEquityOptionAccountPartyReference(item, fpmlAccountList),
             fpml.CapFloor then
-                MapCapFloorAccountPartyReference(item, fpmlAccount),
+                MapCapFloorAccountPartyReference(item, fpmlAccountList),
             fpml.CommodityForward then
-                MapCommodityForwardAccountPartyReference(item, fpmlAccount),
+                MapCommodityForwardAccountPartyReference(item, fpmlAccountList),
             fpml.CommodityOption then
-                MapCommodityOptionAccountPartyReference(item, fpmlAccount),
+                MapCommodityOptionAccountPartyReference(item, fpmlAccountList),
             fpml.CommoditySwap then
-                MapCommoditySwapAccountPartyReference(item, fpmlAccount),
+                MapCommoditySwapAccountPartyReference(item, fpmlAccountList),
             fpml.CommoditySwaption then
-                MapCommoditySwaptionAccountPartyReference(item, fpmlAccount),
+                MapCommoditySwaptionAccountPartyReference(item, fpmlAccountList),
             fpml.CorrelationSwap then
-                MapCorrelationSwapAccountPartyReference(item, fpmlAccount),
+                MapCorrelationSwapAccountPartyReference(item, fpmlAccountList),
             fpml.CreditDefaultSwap then
-                MapCreditDefaultSwapAccountPartyReference(item, fpmlAccount),
+                MapCreditDefaultSwapAccountPartyReference(item, fpmlAccountList),
             fpml.CreditDefaultSwapOption then
-                MapCreditDefaultSwapOptionAccountPartyReference(item, fpmlAccount),
+                MapCreditDefaultSwapOptionAccountPartyReference(item, fpmlAccountList),
             fpml.DividendSwapOptionTransactionSupplement then
                 MapDividendSwapOptionTransactionSupplementAccountPartyReference(
                         item,
-                        fpmlAccount
+                        fpmlAccountList
                     ),
             fpml.DividendSwapTransactionSupplement then
-                MapDividendSwapTransactionSupplementAccountPartyReference(item, fpmlAccount),
+                MapDividendSwapTransactionSupplementAccountPartyReference(item, fpmlAccountList),
             fpml.EquityForward then
-                MapEquityForwardAccountPartyReference(item, fpmlAccount),
+                MapEquityForwardAccountPartyReference(item, fpmlAccountList),
             fpml.EquityOption then
-                MapEquityOptionAccountPartyReference(item, fpmlAccount),
+                MapEquityOptionAccountPartyReference(item, fpmlAccountList),
             fpml.EquityOptionTransactionSupplement then
-                MapEquityOptionTransactionSupplementAccountPartyReference(item, fpmlAccount),
+                MapEquityOptionTransactionSupplementAccountPartyReference(item, fpmlAccountList),
             fpml.EquitySwapTransactionSupplement then
-                MapEquitySwapTransactionSupplementAccountPartyReference(item, fpmlAccount),
+                MapEquitySwapTransactionSupplementAccountPartyReference(item, fpmlAccountList),
             fpml.Fra then
-                MapFraAccountPartyReference(item, fpmlAccount),
+                MapFraAccountPartyReference(item, fpmlAccountList),
             fpml.FxOption then
-                MapFxOptionAccountPartyReference(item, fpmlAccount),
+                MapFxOptionAccountPartyReference(item, fpmlAccountList),
             fpml.FxSingleLeg then
-                MapFxSingleLegAccountPartyReference(item, fpmlAccount),
+                MapFxSingleLegAccountPartyReference(item, fpmlAccountList),
             fpml.FxSwap then
-                MapFxSwapAccountPartyReference(item, fpmlAccount),
+                MapFxSwapAccountPartyReference(item, fpmlAccountList),
             fpml.FxVarianceSwap then
-                MapFxVarianceSwapAccountPartyReference(item, fpmlAccount),
+                MapFxVarianceSwapAccountPartyReference(item, fpmlAccountList),
             fpml.FxVolatilitySwap then
-                MapFxVolatilitySwapAccountPartyReference(item, fpmlAccount),
+                MapFxVolatilitySwapAccountPartyReference(item, fpmlAccountList),
             fpml.GenericProduct then
-                MapGenericProductAccountPartyReference(item, fpmlAccount),
+                MapGenericProductAccountPartyReference(item, fpmlAccountList),
             fpml.ReturnSwap then
-                MapReturnSwapAccountPartyReference(item, fpmlAccount),
+                MapReturnSwapAccountPartyReference(item, fpmlAccountList),
             fpml.Swap then
-                MapSwapAccountPartyReference(item, fpmlAccount),
+                MapSwapAccountPartyReference(item, fpmlAccountList),
             fpml.Swaption then
-                MapSwaptionAccountPartyReference(item, fpmlAccount),
+                MapSwaptionAccountPartyReference(item, fpmlAccountList),
             fpml.VarianceOptionTransactionSupplement then
                 MapVarianceOptionTransactionSupplementAccountPartyReference(
                         item,
-                        fpmlAccount
+                        fpmlAccountList
                     ),
             fpml.VarianceSwap then
-                MapVarianceSwapAccountPartyReference(item, fpmlAccount),
+                MapVarianceSwapAccountPartyReference(item, fpmlAccountList),
             fpml.VarianceSwapTransactionSupplement then
-                MapVarianceSwapTransactionSupplementAccountPartyReference(item, fpmlAccount),
+                MapVarianceSwapTransactionSupplementAccountPartyReference(item, fpmlAccountList),
             fpml.VolatilitySwap then
-                MapVolatilitySwapAccountPartyReference(item, fpmlAccount),
+                MapVolatilitySwapAccountPartyReference(item, fpmlAccountList),
             fpml.VolatilitySwapTransactionSupplement then
                 MapVolatilitySwapTransactionSupplementAccountPartyReference(
                         item,
-                        fpmlAccount
+                        fpmlAccountList
                     ),
             default empty
 
@@ -796,38 +796,38 @@ func MapAccount:
         Account {
             partyReference: partyReference,
             accountNumber: MapStringWithScheme(
-                        fpmlAccount -> accountId only-element -> value,
-                        fpmlAccount -> accountId only-element -> accountIdScheme
+                        fpmlAccountList -> accountId only-element -> value,
+                        fpmlAccountList -> accountId only-element -> accountIdScheme
                     ),
             accountName: MapStringWithScheme(
-                        fpmlAccount -> accountName -> value,
-                        fpmlAccount -> accountName -> accountNameScheme
+                        fpmlAccountList -> accountName -> value,
+                        fpmlAccountList -> accountName -> accountNameScheme
                     ),
-            accountType: MapAccountTypeEnum(fpmlAccount -> accountType -> value),
-            accountBeneficiary: MapPartyReference(fpmlAccount -> accountBeneficiary -> href),
-            servicingParty: MapPartyReference(fpmlAccount -> servicingParty -> href)
+            accountType: MapAccountTypeEnum(fpmlAccountList -> accountType -> value),
+            accountBeneficiary: MapPartyReference(fpmlAccountList -> accountBeneficiary -> href),
+            servicingParty: MapPartyReference(fpmlAccountList -> servicingParty -> href)
         } with-meta {
-            key: fpmlAccount -> id
+            key: fpmlAccountList -> id
         }
 
 func MapPayerReceiverToAccountPartyReference:
     inputs:
-        fpmlAccount fpml.Account (0..1)
-        fpmlPayerAccountReferences fpml.AccountReference (0..*)
-        fpmlReceiverAccountReferences fpml.AccountReference (0..*)
+        fpmlAccountList fpml.Account (0..1)
+        fpmlPayerAccountReferenceList fpml.AccountReference (0..*)
+        fpmlReceiverAccountReferenceList fpml.AccountReference (0..*)
     output:
         partyReference Party (0..1)
             [metadata reference]
 
     alias payerPartyReference:
-        fpmlPayerAccountReferences
-            filter href = fpmlAccount -> id
+        fpmlPayerAccountReferenceList
+            filter href = fpmlAccountList -> id
             then extract href
             then distinct only-element
 
     alias receiverPartyReference:
-        fpmlReceiverAccountReferences
-            filter href = fpmlAccount -> id
+        fpmlReceiverAccountReferenceList
+            filter href = fpmlAccountList -> id
             then extract href
             then distinct only-element
 
@@ -844,22 +844,22 @@ func MapPayerReceiverToAccountPartyReference:
 
 func MapBuyerSellerToAccountPartyReference:
     inputs:
-        fpmlAccount fpml.Account (0..1)
-        fpmlBuyerAccountReferences fpml.AccountReference (0..*)
-        fpmlSellerAccountReferences fpml.AccountReference (0..*)
+        fpmlAccountList fpml.Account (0..1)
+        fpmlBuyerAccountReferenceList fpml.AccountReference (0..*)
+        fpmlSellerAccountReferenceList fpml.AccountReference (0..*)
     output:
         partyReference Party (0..1)
             [metadata reference]
 
     alias buyerPartyReference:
-        fpmlBuyerAccountReferences
-            filter href = fpmlAccount -> id
+        fpmlBuyerAccountReferenceList
+            filter href = fpmlAccountList -> id
             then extract href
             then distinct only-element
 
     alias sellerPartyReference:
-        fpmlSellerAccountReferences
-            filter href = fpmlAccount -> id
+        fpmlSellerAccountReferenceList
+            filter href = fpmlAccountList -> id
             then extract href
             then distinct only-element
 

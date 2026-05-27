@@ -386,51 +386,51 @@ func MapTranche:
 
 func MapProtectionTerms:
     inputs:
-        fpmlProtectionTerms fpml.ProtectionTerms (0..1)
+        fpmlProtectionTermsList fpml.ProtectionTerms (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         protectionTerms ProtectionTerms (0..1)
 
-    alias creditEvents: fpmlProtectionTerms -> creditEvents
+    alias creditEvents: fpmlProtectionTermsList -> creditEvents
 
     set protectionTerms:
         ProtectionTerms {
             creditEvents:
                 CreditEvents {
-                    bankruptcy: fpmlProtectionTerms -> creditEvents -> bankruptcy,
+                    bankruptcy: fpmlProtectionTermsList -> creditEvents -> bankruptcy,
                     failureToPay:
                         FailureToPay {
-                            applicable: fpmlProtectionTerms -> creditEvents -> failureToPay -> applicable,
+                            applicable: fpmlProtectionTermsList -> creditEvents -> failureToPay -> applicable,
                             gracePeriodExtension:
                                 GracePeriodExtension {
-                                    applicable: fpmlProtectionTerms -> creditEvents -> failureToPay -> gracePeriodExtension -> applicable,
+                                    applicable: fpmlProtectionTermsList -> creditEvents -> failureToPay -> gracePeriodExtension -> applicable,
                                     ...
                                 },
                             paymentRequirement: MapMoney(
-                                        fpmlProtectionTerms -> creditEvents -> failureToPay -> paymentRequirement
+                                        fpmlProtectionTermsList -> creditEvents -> failureToPay -> paymentRequirement
                                     )
                         },
-                    obligationAcceleration: fpmlProtectionTerms -> creditEvents -> obligationAcceleration,
-                    repudiationMoratorium: fpmlProtectionTerms -> creditEvents -> repudiationMoratorium,
+                    obligationAcceleration: fpmlProtectionTermsList -> creditEvents -> obligationAcceleration,
+                    repudiationMoratorium: fpmlProtectionTermsList -> creditEvents -> repudiationMoratorium,
                     restructuring:
                         Restructuring {
-                            applicable: fpmlProtectionTerms -> creditEvents -> restructuring -> applicable,
+                            applicable: fpmlProtectionTermsList -> creditEvents -> restructuring -> applicable,
                             restructuringType: MapRestructuringEnum(
-                                        fpmlProtectionTerms -> creditEvents -> restructuring -> restructuringType -> value
+                                        fpmlProtectionTermsList -> creditEvents -> restructuring -> restructuringType -> value
                                     ),
-                            multipleHolderObligation: fpmlProtectionTerms -> creditEvents -> restructuring -> multipleHolderObligation,
-                            multipleCreditEventNotices: fpmlProtectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices,
+                            multipleHolderObligation: fpmlProtectionTermsList -> creditEvents -> restructuring -> multipleHolderObligation,
+                            multipleCreditEventNotices: fpmlProtectionTermsList -> creditEvents -> restructuring -> multipleCreditEventNotices,
                         },
                     defaultRequirement: MapMoney(
-                                fpmlProtectionTerms -> creditEvents -> defaultRequirement
+                                fpmlProtectionTermsList -> creditEvents -> defaultRequirement
                             ),
                     creditEventNotice: MapCreditEventNotice(
-                                fpmlProtectionTerms -> creditEvents -> creditEventNotice,
+                                fpmlProtectionTermsList -> creditEvents -> creditEventNotice,
                                 cdmCounterpartyList
                             ),
                     ...
                 },
-            obligations: fpmlProtectionTerms -> obligations
+            obligations: fpmlProtectionTermsList -> obligations
                     extract
                         Obligations {
                             category: MapObligationCategoryEnum(category to-string),
@@ -491,7 +491,7 @@ func MapNotifyingPartyList:
 func MapFeeLegToInterestRateLegPayout:
     inputs:
         fpmlFeeLeg fpml.FeeLeg (0..1)
-        fpmlProtectionTerms fpml.ProtectionTerms (0..*)
+        fpmlProtectionTermsList fpml.ProtectionTerms (0..*)
         cdmGeneralTermsPayerReceiver PayerReceiver (1..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
@@ -519,7 +519,7 @@ func MapFeeLegToInterestRateLegPayout:
                                             fpmlFeeLeg
                                         )
                                 else MapNotionalAmountToQuantityWithAddress(
-                                        fpmlProtectionTerms -> calculationAmount -> amount first,
+                                        fpmlProtectionTermsList -> calculationAmount -> amount first,
                                         empty
                                     ),
                             ...
@@ -618,7 +618,7 @@ func MapCreditDefaultSwapPriceQuantityList:
 func MapFeeLegToPriceQuantity:
     inputs:
         fpmlFeeLeg fpml.FeeLeg (0..1)
-        fpmlProtectionTerms fpml.ProtectionTerms (0..*)
+        fpmlProtectionTermsList fpml.ProtectionTerms (0..*)
     output:
         priceQuantity PriceQuantity (0..1)
 
@@ -627,7 +627,7 @@ func MapFeeLegToPriceQuantity:
             price: MapFixedOrFloatingAmountCalculationToPriceListWithLocation(
                         fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation,
                         fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation,
-                        fpmlProtectionTerms -> calculationAmount -> currency first,
+                        fpmlProtectionTermsList -> calculationAmount -> currency first,
                         fpmlFeeLeg
                     ),
             quantity: MapFixedOrFloatingCalculationAmountToQuantityListWithLocation(
@@ -669,13 +669,13 @@ func MapFixedOrFloatingAmountCalculationToPriceListWithLocation:
 
 func MapProtectionTermsToPriceQuantity:
     inputs:
-        fpmlProtectionTerms fpml.ProtectionTerms (0..*)
+        fpmlProtectionTermsList fpml.ProtectionTerms (0..*)
     output:
         priceQuantity PriceQuantity (0..1)
 
     set priceQuantity:
         PriceQuantity {
-            quantity: fpmlProtectionTerms
+            quantity: fpmlProtectionTermsList
                     extract
                         MapNotionalAmountToQuantityWithLocation(
                                 calculationAmount -> amount,

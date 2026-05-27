@@ -13,7 +13,7 @@ import fpml.consolidated.shared.* as fpml
 func MapTradeIdentifierList:
     inputs:
         fpmlTradeHeader fpml.TradeHeader (1..1)
-        fpmlPartyTradeIdentifier fpml.PartyTradeIdentifier (0..*)
+        fpmlPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*)
     output:
         cdmTradeIdentifierList TradeIdentifier (0..*)
 
@@ -22,27 +22,27 @@ func MapTradeIdentifierList:
             extract MapPartyTradeIdentifierToTradeIdentifierList
             then flatten
     add cdmTradeIdentifierList:
-        fpmlPartyTradeIdentifier
+        fpmlPartyTradeIdentifierList
             extract MapPartyTradeIdentifierToTradeIdentifierList
             then flatten
 
 func MapPartyTradeIdentifierToTradeIdentifierList:
     inputs:
-        fpmlPartyTradeIdentifier fpml.PartyTradeIdentifier (0..1)
+        fpmlPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..1)
     output:
         cdmTradeIdentifier TradeIdentifier (0..*)
 
     alias issuer:
         MapStringWithScheme(
-                fpmlPartyTradeIdentifier -> issuer -> value,
-                fpmlPartyTradeIdentifier -> issuer -> issuerIdScheme
+                fpmlPartyTradeIdentifierList -> issuer -> value,
+                fpmlPartyTradeIdentifierList -> issuer -> issuerIdScheme
             )
 
     alias identifierForIssuer:
-        MapTradeIdToAssignedIdentifier(fpmlPartyTradeIdentifier -> tradeId, empty)
+        MapTradeIdToAssignedIdentifier(fpmlPartyTradeIdentifierList -> tradeId, empty)
 
     alias identifierForTrade:
-        fpmlPartyTradeIdentifier -> tradeIdentifierChoice
+        fpmlPartyTradeIdentifierList -> tradeIdentifierChoice
             extract
                 MapTradeIdToAssignedIdentifier(
                         tradeId default versionedTradeId -> tradeId,
@@ -50,15 +50,15 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
                     )
 
     alias identifierTypeForIssuer:
-        MapTradeIdToIdentifierType(fpmlPartyTradeIdentifier -> tradeId)
+        MapTradeIdToIdentifierType(fpmlPartyTradeIdentifierList -> tradeId)
 
     alias identifierTypeForTrade:
-        fpmlPartyTradeIdentifier -> tradeIdentifierChoice -> tradeId
+        fpmlPartyTradeIdentifierList -> tradeIdentifierChoice -> tradeId
             extract MapTradeIdToIdentifierType
             then first
 
     alias issuerReference:
-        MapPartyReference(fpmlPartyTradeIdentifier -> partyReference -> href)
+        MapPartyReference(fpmlPartyTradeIdentifierList -> partyReference -> href)
 
     set cdmTradeIdentifier:
         TradeIdentifier {

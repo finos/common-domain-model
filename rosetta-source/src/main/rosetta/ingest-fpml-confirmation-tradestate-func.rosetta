@@ -69,10 +69,10 @@ import fpml.consolidated.volatility.swaps.* as fpml
 func MapTradeState:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlParties fpml.Party (0..*)
-        fpmlAccounts fpml.Account (0..*)
-        fpmlQuotes fpml.BasicQuotation (0..*)
-        fpmlAdditionalPartyTradeIdentifier fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
+        fpmlPartyList fpml.Party (0..*)
+        fpmlAccountList fpml.Account (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
+        fpmlAdditionalPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
     output:
         tradeState TradeState (0..1)
 
@@ -80,10 +80,10 @@ func MapTradeState:
         TradeState {
             trade: MapTrade(
                         fpmlTrade,
-                        fpmlParties,
-                        fpmlAccounts,
-                        fpmlQuotes,
-                        fpmlAdditionalPartyTradeIdentifier
+                        fpmlPartyList,
+                        fpmlAccountList,
+                        fpmlQuoteList,
+                        fpmlAdditionalPartyTradeIdentifierList
                     ),
             transferHistory: MapTransferStateList(fpmlTrade),
             ...
@@ -92,10 +92,10 @@ func MapTradeState:
 func MapTrade:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlParties fpml.Party (0..*)
-        fpmlAccounts fpml.Account (0..*)
-        fpmlQuotes fpml.BasicQuotation (0..*)
-        fpmlAdditionalPartyTradeIdentifier fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
+        fpmlPartyList fpml.Party (0..*)
+        fpmlAccountList fpml.Account (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
+        fpmlAdditionalPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
     output:
         trade Trade (0..1)
 
@@ -104,36 +104,36 @@ func MapTrade:
     set trade:
         Trade {
             product: MapNonTransferableProduct(fpmlTrade, counterpartyList),
-            tradeLot: MapTradeLotList(fpmlTrade, fpmlQuotes),
+            tradeLot: MapTradeLotList(fpmlTrade, fpmlQuoteList),
             counterparty: counterpartyList,
             ancillaryParty: MapAncillaryPartyList(fpmlTrade, counterpartyList),
             adjustment: MapNotionalAdjustmentEnum(ExtractNotionalAdjustmentByLeg(fpmlTrade)),
             tradeIdentifier: MapTradeIdentifierList(
                         fpmlTrade -> tradeHeader,
-                        fpmlAdditionalPartyTradeIdentifier
+                        fpmlAdditionalPartyTradeIdentifierList
                     ),
             tradeDate: MapIdentifiedDate(fpmlTrade -> tradeHeader -> tradeDate),
             party: MapPartyList(
-                        fpmlParties,
+                        fpmlPartyList,
                         fpmlTrade -> tradeHeader -> partyTradeInformation
                     ),
             partyRole: MapPartyRoleList(fpmlTrade),
             contractDetails: MapContractDetails(fpmlTrade, counterpartyList),
-            account: empty, // TODO: clean up the deprecated account functions: MapAccountList(fpmlTrade, fpmlAccounts),
+            account: empty, // TODO: clean up the deprecated account functions: MapAccountList(fpmlTrade, fpmlAccountList),
             collateral: MapCollateral(fpmlTrade -> tradeHeader),
-            executionDetails: MapExecutionDetails(fpmlTrade, fpmlQuotes),
+            executionDetails: MapExecutionDetails(fpmlTrade, fpmlQuoteList),
             ...
         }
 
 func MapExecutionDetails:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlQuote fpml.BasicQuotation (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
     output:
         executionDetails ExecutionDetails (0..1)
 
     alias quotationModel:
-        fpmlQuote
+        fpmlQuoteList
             filter
                 measureType -> value = "PackagePrice"
                     or measureType -> value = "PackageSpread"
@@ -393,12 +393,12 @@ func MapCalculationAgent:
 func MapTradeLotList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlQuotes fpml.BasicQuotation (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
     output:
         tradeLotList TradeLot (0..*)
 
     alias quotationModel:
-        fpmlQuotes
+        fpmlQuoteList
             filter measureType -> value = "PriceNotation"
             then only-element
 

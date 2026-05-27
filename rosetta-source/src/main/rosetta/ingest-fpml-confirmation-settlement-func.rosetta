@@ -462,7 +462,7 @@ func MapCashCollateralValuationMethod:
         fpmlCashCollateralCurrency fpml.Currency (0..1)
         fpmlCashCollateralInterestRate fpml.BenchmarkRate (0..1)
         fpmlAgreedDiscountRate fpml.BenchmarkRate (0..1)
-        fpmlProtectedParty fpml.PartySelector (0..*)
+        fpmlProtectedPartyList fpml.PartySelector (0..*)
         fpmlPrescribedDocumentationAdjustment boolean (0..1)
     output:
         cashCollateralValuationMethod CashCollateralValuationMethod (0..1)
@@ -479,7 +479,7 @@ func MapCashCollateralValuationMethod:
                         fpmlAgreedDiscountRate -> value,
                         fpmlAgreedDiscountRate -> benchmarkRateScheme
                     ),
-            protectedParty: fpmlProtectedParty
+            protectedParty: fpmlProtectedPartyList
                     extract partyDetermination to-enum PartyDeterminationEnum,
             prescribedDocumentationAdjustment: fpmlPrescribedDocumentationAdjustment
         }
@@ -695,12 +695,12 @@ func MapFxDigitalOptionToSettlementTerms:
 
 func MapCreditDefaultSwapChoiceToSettlementTerms:
     inputs:
-        fpmlCreditDefaultSwapChoice fpml.CreditDefaultSwapChoice (0..*)
+        fpmlCreditDefaultSwapChoiceList fpml.CreditDefaultSwapChoice (0..*)
     output:
         settlementTerms SettlementTerms (0..1)
 
-    alias physical: fpmlCreditDefaultSwapChoice first -> physicalSettlementTerms
-    alias cash: fpmlCreditDefaultSwapChoice first -> cashSettlementTerms
+    alias physical: fpmlCreditDefaultSwapChoiceList first -> physicalSettlementTerms
+    alias cash: fpmlCreditDefaultSwapChoiceList first -> cashSettlementTerms
 
     set settlementTerms:
         if physical exists

@@ -110,8 +110,8 @@ func MapResolvablePriceQuantityReference:
 func MapProductTaxonomyList:
     inputs:
         fpmlPrimaryAssetClass fpml.AssetClass (0..1)
-        fpmlSecondaryAssetClass fpml.AssetClass (0..*)
-        fpmlProductType fpml.ProductType (0..*)
+        fpmlSecondaryAssetClassList fpml.AssetClass (0..*)
+        fpmlProductTypeList fpml.ProductType (0..*)
     output:
         taxonomy ProductTaxonomy (0..*)
 
@@ -122,14 +122,14 @@ func MapProductTaxonomyList:
                         fpmlPrimaryAssetClass -> assetClassScheme
                     ),
             secondaryAssetClass: MapAssetClassWithScheme(
-                        fpmlSecondaryAssetClass first -> value,
-                        fpmlSecondaryAssetClass first -> assetClassScheme
+                        fpmlSecondaryAssetClassList first -> value,
+                        fpmlSecondaryAssetClassList first -> assetClassScheme
                     ),
             ...
         }
 
     add taxonomy:
-        fpmlProductType
+        fpmlProductTypeList
             extract
                 ProductTaxonomy {
                     source: MapTaxonomySourceEnum(productTypeScheme),
@@ -282,25 +282,25 @@ func MapUnscheduledTransferEnumWithScheme:
 
 func MapProductIdentifierList:
     inputs:
-        fpmlProductId fpml.ProductId (0..*)
+        fpmlProductIdList fpml.ProductId (0..*)
     output:
         productIdentifierList ProductIdentifier (0..*)
 
-    add productIdentifierList: fpmlProductId extract MapProductIdentifier
+    add productIdentifierList: fpmlProductIdList extract MapProductIdentifier
 
 func MapProductIdentifier:
     inputs:
-        fpmlProductId fpml.ProductId (0..1)
+        fpmlProductIdList fpml.ProductId (0..1)
     output:
         productIdentifier ProductIdentifier (0..1)
 
     set productIdentifier:
         ProductIdentifier {
             identifier: MapStringWithScheme(
-                        fpmlProductId -> value,
-                        fpmlProductId -> productIdScheme
+                        fpmlProductIdList -> value,
+                        fpmlProductIdList -> productIdScheme
                     ),
-            source: MapProductIdType(fpmlProductId -> productIdScheme)
+            source: MapProductIdType(fpmlProductIdList -> productIdScheme)
         }
 
 func MapProductIdType:

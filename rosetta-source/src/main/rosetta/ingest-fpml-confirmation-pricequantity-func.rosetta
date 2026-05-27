@@ -759,7 +759,7 @@ func MapCommodityFixedPhysicalQuantityToQuantityWithAddress:
 func MapCommodityNotionalQuantityToQuantityWithLocation:
     inputs:
         fpmlNotionalAmount number (0..1)
-        fpmlQuantityStep fpml.CommodityNotionalQuantity (0..*)
+        fpmlQuantityStepList fpml.CommodityNotionalQuantity (0..*)
         fpmlQuantityUnit fpml.QuantityUnit (0..1)
         fpmlFrequency fpml.CommodityQuantityFrequency (0..1)
         fpmlLeg fpml.Leg (0..1)
@@ -815,7 +815,7 @@ func MapCommodityTotalNotionalQuantityToQuantityWithAddress:
 func MapQuantityUnitAmountToQuantity:
     inputs:
         fpmlAmount number (0..1)
-        fpmlQuantityStep fpml.CommodityNotionalQuantity (0..*)
+        fpmlQuantityStepList fpml.CommodityNotionalQuantity (0..*)
         fpmlQuantityUnit fpml.QuantityUnit (0..1)
         fpmlFrequency fpml.CommodityQuantityFrequency (0..1)
     output:
@@ -831,7 +831,7 @@ func MapQuantityUnitAmountToQuantity:
         if fpmlAmount exists
         then NonNegativeQuantitySchedule {
                 value: fpmlAmount,
-                datedValue: MapQuantityStepListToDatedValueList(fpmlQuantityStep),
+                datedValue: MapQuantityStepListToDatedValueList(fpmlQuantityStepList),
                 unit: unit,
                 frequency:
                     Frequency {
@@ -971,13 +971,13 @@ func MapSpreadScheduleToPriceWithLocation:
 
 func MapSpreadScheduleWithAddress:
     inputs:
-        fpmlSpreadSchedule fpml.SpreadSchedule (0..*)
+        fpmlSpreadScheduleList fpml.SpreadSchedule (0..*)
         fpmlLeg fpml.Leg (0..1)
     output:
         spreadSchedule SpreadSchedule (0..1)
 
     set spreadSchedule:
-        if fpmlSpreadSchedule exists
+        if fpmlSpreadScheduleList exists
         then SpreadSchedule {
                 price: CreatePriceWithAddress(CreatePriceKey("spreadSchedule", fpmlLeg)),
                 ...
@@ -1009,13 +1009,13 @@ func MapCapRateScheduleToPriceWithLocation:
 
 func MapCapRateScheduleWithAddress:
     inputs:
-        fpmlCapRateSchedule fpml.StrikeSchedule (0..*)
+        fpmlCapRateScheduleList fpml.StrikeSchedule (0..*)
         fpmlLeg fpml.Leg (0..1)
     output:
         strikeSchedule StrikeSchedule (0..1)
 
     set strikeSchedule:
-        if fpmlCapRateSchedule exists
+        if fpmlCapRateScheduleList exists
         then StrikeSchedule {
                 price: CreatePriceWithAddress(CreatePriceKey("capRateSchedule", fpmlLeg)),
                 ...
@@ -1047,13 +1047,13 @@ func MapFloorRateScheduleToPriceWithLocation:
 
 func MapFloorRateScheduleWithAddress:
     inputs:
-        fpmlFloorRateSchedule fpml.StrikeSchedule (0..*)
+        fpmlFloorRateScheduleList fpml.StrikeSchedule (0..*)
         fpmlLeg fpml.Leg (0..1)
     output:
         strikeSchedule StrikeSchedule (0..1)
 
     set strikeSchedule:
-        if fpmlFloorRateSchedule exists
+        if fpmlFloorRateScheduleList exists
         then StrikeSchedule {
                 price: CreatePriceWithAddress(CreatePriceKey("floorRateSchedule", fpmlLeg)),
                 ...
@@ -1508,8 +1508,8 @@ func MapCommmodityFixedPriceScheduleToPriceSchedule:
 func MapCommodityOptionStrikePriceSchedule:
     [codeImplementation]
     inputs:
-        fpmlStrikePricePerUnitStep fpml.NonNegativeMoney (0..*)
-        fpmlCommodityStrikePriceDates date (0..*)
+        fpmlStrikePricePerUnitStepList fpml.NonNegativeMoney (0..*)
+        fpmlCommodityStrikePriceDateList date (0..*)
     output:
         strikePriceSchedule DatedValue (0..*)
 
@@ -1895,7 +1895,7 @@ func MapIdentifiedAssetToAssetListedDerivative:
     inputs:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
-        fpmlRelatedExchangeId fpml.ExchangeId (0..*)
+        fpmlRelatedExchangeIdList fpml.ExchangeId (0..*)
     output:
         asset Asset (0..1)
 
@@ -1917,7 +1917,7 @@ func MapIdentifiedAssetToAssetListedDerivative:
                                                 item,
                                                 AssetPartyRoleEnum -> Exchange
                                             ),
-                            ancillaryPartyRole: fpmlRelatedExchangeId
+                            ancillaryPartyRole: fpmlRelatedExchangeIdList
                                     filter value <> fpmlExchangeId -> value
                                     then extract
                                         MapAssetAncillaryPartyRole(
@@ -1936,7 +1936,7 @@ func MapIdentifiedAssetToAssetLoan:
     inputs:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
-        fpmlRelatedExchangeId fpml.ExchangeId (0..*)
+        fpmlRelatedExchangeIdList fpml.ExchangeId (0..*)
     output:
         asset Asset (0..1)
 
@@ -1958,7 +1958,7 @@ func MapIdentifiedAssetToAssetLoan:
                                                 item,
                                                 AssetPartyRoleEnum -> Exchange
                                             ),
-                            ancillaryPartyRole: fpmlRelatedExchangeId
+                            ancillaryPartyRole: fpmlRelatedExchangeIdList
                                     filter value <> fpmlExchangeId -> value
                                     then extract
                                         MapAssetAncillaryPartyRole(
@@ -1977,7 +1977,7 @@ func MapIdentifiedAssetToAssetSecurity:
     inputs:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
-        fpmlRelatedExchangeId fpml.ExchangeId (0..*)
+        fpmlRelatedExchangeIdList fpml.ExchangeId (0..*)
         securityType SecurityTypeEnum (1..1)
     output:
         asset Asset (0..1)
@@ -1989,7 +1989,7 @@ func MapIdentifiedAssetToAssetSecurity:
                     Security: MapIdentifiedAssetToSecurity(
                                 fpmlIdentifiedAsset,
                                 fpmlExchangeId,
-                                fpmlRelatedExchangeId,
+                                fpmlRelatedExchangeIdList,
                                 securityType,
                                 empty
                             ),
@@ -2002,7 +2002,7 @@ func MapIdentifiedAssetToSecurity:
     inputs:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
-        fpmlRelatedExchangeId fpml.ExchangeId (0..*)
+        fpmlRelatedExchangeIdList fpml.ExchangeId (0..*)
         securityType SecurityTypeEnum (1..1)
         seniority string (0..1)
     output:
@@ -2017,7 +2017,7 @@ func MapIdentifiedAssetToSecurity:
             party: assetParty,
             partyRole: assetParty
                     extract MapAssetPartyRole(item, AssetPartyRoleEnum -> Exchange),
-            ancillaryPartyRole: fpmlRelatedExchangeId
+            ancillaryPartyRole: fpmlRelatedExchangeIdList
                     filter value <> fpmlExchangeId -> value
                     then extract
                         MapAssetAncillaryPartyRole(
