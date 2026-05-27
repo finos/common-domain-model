@@ -18,11 +18,11 @@ import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.business.events.* as fpml
 import fpml.consolidated.doc.* as fpml
 import fpml.consolidated.msg.* as fpml
 import fpml.consolidated.shared.* as fpml
-import fpml.consolidated.asset.* as fpml
 
 func MapWorkflowStep:
     inputs:
@@ -74,11 +74,7 @@ func MapWorkflowStep:
                 },
             timestamp: MapEventTimestamp(creationTimestamp, fpmlTrade),
             eventIdentifier: MapEventIdentifier(messageId, tradingEvents),
-            messageInformation: MapMessageInformation(
-                        messageId,
-                        sentBy,
-                        sendTo
-                    ),
+            messageInformation: MapMessageInformation(messageId, sentBy, sendTo),
             action: action,
             nextEvent: MapNextEvent(fpmlTrade -> tradeHeader -> partyTradeInformation),
             ...
@@ -130,9 +126,7 @@ func MapEventIdentifier:
                             identifier: eventId -> value,
                             ...
                         },
-                    issuerReference: MapPartyReference(
-                                partyReference -> href
-                            ),
+                    issuerReference: MapPartyReference(partyReference -> href),
                     ...
                 }
 
@@ -149,10 +143,7 @@ func MapPrimitiveInstruction:
         if fpmlNovation exists
         then MapNovationToPrimitiveInstruction(fpmlNovation)
         else if fpmlTermination exists
-        then MapTerminationToPrimitiveInstruction(
-                    fpmlTrade,
-                    fpmlTermination
-                )
+        then MapTerminationToPrimitiveInstruction(fpmlTrade, fpmlTermination)
         else if fpmlAmendment exists
         then MapAmendmentToPrimitiveInstruction(fpmlTrade, fpmlAmendment)
         // else if fpmlTradingEventsBaseModel exists
@@ -205,8 +196,7 @@ func MapNovationToPrimitiveInstruction:
     output:
         primitiveInstruction PrimitiveInstruction (0..1)
 
-    add primitiveInstruction -> split -> breakdown:
-        fpmlNovation extract MapBreakdown
+    add primitiveInstruction -> split -> breakdown: fpmlNovation extract MapBreakdown
 
 func MapBreakdown:
     inputs:
@@ -214,28 +204,21 @@ func MapBreakdown:
     output:
         breakdown PrimitiveInstruction (0..*)
 
-    alias novatedAmount:
-        fpmlNovation -> novatedAmount
-    alias changeInNotionalAmount:
-        fpmlNovation -> novationAmount -> changeInNotionalAmount
+    alias novatedAmount: fpmlNovation -> novatedAmount
+    alias changeInNotionalAmount: fpmlNovation -> novationAmount -> changeInNotionalAmount
     alias newTradeAmount:
         changeInNotionalAmount
             extract MapNonNegativeMoneyNonNegativeQuantitySchedule
             then default novatedAmount extract MapMoneyToNonNegativeQuantitySchedule
     alias outstandingNotionalAmount:
         fpmlNovation -> novationAmount -> outstandingNotionalAmount
-    alias remainingAmount:
-        fpmlNovation -> remainingAmount
+    alias remainingAmount: fpmlNovation -> remainingAmount
     alias oldTradeAmount:
         outstandingNotionalAmount
             extract MapNonNegativeMoneyNonNegativeQuantitySchedule
             then default remainingAmount extract MapMoneyToNonNegativeQuantitySchedule
     alias partyChange: MapPartyChangeInstruction(fpmlNovation)
-    alias transfer:
-        MapTransferInstruction(
-                fpmlNovation -> payment,
-                Novation
-            )
+    alias transfer: MapTransferInstruction(fpmlNovation -> payment, Novation)
 
     add breakdown:
         if newTradeAmount exists
@@ -279,10 +262,7 @@ func MapPartyChangeInstruction:
     output:
         partyChange PartyChangeInstruction (0..1)
 
-    alias counterpartyList:
-        MapCounterpartyList(
-                fpmlNovation -> oldTrade
-            )
+    alias counterpartyList: MapCounterpartyList(fpmlNovation -> oldTrade)
 
     set partyChange:
         PartyChangeInstruction {
@@ -292,8 +272,7 @@ func MapPartyChangeInstruction:
                         counterpartyList
                     ),
             tradeId: fpmlNovation -> newTradeIdentifier
-                    extract
-                        MapTradeIdentifierSequenceToTradeIdentifier(item),
+                    extract MapTradeIdentifierSequenceToTradeIdentifier(item),
             ...
         }
 
@@ -348,8 +327,7 @@ func MapQuantityChangeInstruction:
     output:
         quantityChange QuantityChangeInstruction (0..1)
 
-    alias changeAmount:
-        MapPriceQuantity(fpmlTradeNotionalChange, fpmlNovation)
+    alias changeAmount: MapPriceQuantity(fpmlTradeNotionalChange, fpmlNovation)
     set quantityChange:
         if changeAmount exists
         then QuantityChangeInstruction {
@@ -374,8 +352,7 @@ func MapPriceQuantity:
             extract MapNonNegativeMoneyNonNegativeQuantitySchedule
 
     alias novatedAmount:
-        fpmlNovation -> novatedAmount
-            extract MapMoneyToNonNegativeQuantitySchedule
+        fpmlNovation -> novatedAmount extract MapMoneyToNonNegativeQuantitySchedule
 
     alias changeInNotionalAmount:
         fpmlNovation -> novationAmount -> changeInNotionalAmount
@@ -386,8 +363,7 @@ func MapPriceQuantity:
             extract MapNonNegativeMoneyNonNegativeQuantitySchedule
 
     alias remainingAmount:
-        fpmlNovation -> remainingAmount
-            extract MapMoneyToNonNegativeQuantitySchedule
+        fpmlNovation -> remainingAmount extract MapMoneyToNonNegativeQuantitySchedule
 
     alias q:
         [outstandingTradeNotional, outstandingSizeChange, novatedAmount, changeInNotionalAmount, outstandingNotionalAmount, remainingAmount]
@@ -446,7 +422,12 @@ func MapMessageInformation:
         MessageInformation {
             messageId: MapStringWithScheme(messageId -> value, messageId -> messageIdScheme),
             sentBy: MapStringWithScheme(sentBy -> value, sentBy -> messageAddressScheme),
-            sentTo: [MapStringWithScheme(sendTo only-element -> value, sendTo only-element -> messageAddressScheme)],
+            sentTo: [
+                    MapStringWithScheme(
+                            sendTo only-element -> value,
+                            sendTo only-element -> messageAddressScheme
+                        )
+                ],
             ...
         }
 

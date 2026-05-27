@@ -1206,9 +1206,7 @@ func MapOptionStrikeReferenceSwapCurve:
                             then extract
                                 SwapCurveValuation {
                                     floatingRateIndex: floatingRateIndex -> value to-enum FloatingRateIndexEnum,
-                                    indexTenor: MapPeriod(
-                                                indexTenor
-                                            ),
+                                    indexTenor: MapPeriod(indexTenor),
                                     spread: spread,
                                     side: side to-enum QuotationSideEnum
                                 },
@@ -1216,9 +1214,7 @@ func MapOptionStrikeReferenceSwapCurve:
                             then extract
                                 MakeWholeAmount {
                                     floatingRateIndex: floatingRateIndex -> value to-enum FloatingRateIndexEnum,
-                                    indexTenor: MapPeriod(
-                                                indexTenor
-                                            ),
+                                    indexTenor: MapPeriod(indexTenor),
                                     spread: spread,
                                     side: side to-enum QuotationSideEnum,
                                     interpolationMethod: interpolationMethod -> value to-enum InterpolationMethodEnum,
@@ -1269,18 +1265,11 @@ func MapFxCoreDetailsModelPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     alias exchangedCurrency:
-        GetFpmlExchangedCurrency(
-                exchangeRate,
-                exchangedCurrency1,
-                exchangedCurrency2
-            )
+        GetFpmlExchangedCurrency(exchangeRate, exchangedCurrency1, exchangedCurrency2)
 
     add priceQuantityList:
         PriceQuantity {
-            price: MapFxCoreDetailsModelPriceListWithLocation(
-                        exchangeRate,
-                        fpmlLeg
-                    ),
+            price: MapFxCoreDetailsModelPriceListWithLocation(exchangeRate, fpmlLeg),
             quantity: MapFxCoreDetailsModelQuantityListWithLocation(
                         exchangedCurrency1,
                         exchangedCurrency2,
@@ -1420,9 +1409,7 @@ func MapCommodityFixedLegToPriceWithLocation:
 
     alias fixedPrice:
         if fpmlFixedPrice exists
-        then MapCommmodityFixedPriceToPriceSchedule(
-                    fpmlFixedPrice
-                )
+        then MapCommmodityFixedPriceToPriceSchedule(fpmlFixedPrice)
         else if fixedPriceSchedule exists
         then MapCommmodityFixedPriceScheduleToPriceSchedule(fixedPriceSchedule)
 
@@ -1441,9 +1428,7 @@ func MapCommodityFixedLegToPriceWithAddress:
 
     alias fixedPrice:
         if fpmlFixedPrice exists
-        then MapCommmodityFixedPriceToPriceSchedule(
-                    fpmlFixedPrice
-                )
+        then MapCommmodityFixedPriceToPriceSchedule(fpmlFixedPrice)
         else if fpmlFixedPriceSchedule exists
         then MapCommmodityFixedPriceScheduleToPriceSchedule(fpmlFixedPriceSchedule)
 
@@ -1488,8 +1473,7 @@ func MapCommmodityFixedPriceScheduleToPriceSchedule:
     output:
         priceSchedule PriceSchedule (0..1)
 
-    alias fixedPriceStep:
-        fpmlCommodityFixedPriceSchedule -> fixedPriceStep first
+    alias fixedPriceStep: fpmlCommodityFixedPriceSchedule -> fixedPriceStep first
 
     alias unit:
         UnitType {
@@ -1883,12 +1867,7 @@ func MapAsset:
     set asset:
         fpmlAsset switch
             fpml.ExchangeTradedFund then
-                MapIdentifiedAssetToAssetSecurity(
-                        item,
-                        exchangeId,
-                        relatedExchangeId,
-                        Fund
-                    ),
+                MapIdentifiedAssetToAssetSecurity(item, exchangeId, relatedExchangeId, Fund),
             fpml.ExchangeTradedContract then
                 MapIdentifiedAssetToAssetListedDerivative(
                         item,

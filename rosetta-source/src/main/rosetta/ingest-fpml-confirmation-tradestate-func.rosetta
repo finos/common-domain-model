@@ -104,10 +104,7 @@ func MapTrade:
     set trade:
         Trade {
             product: MapNonTransferableProduct(fpmlTrade, counterpartyList),
-            tradeLot: MapTradeLotList(
-                        fpmlTrade,
-                        fpmlQuotes
-                    ),
+            tradeLot: MapTradeLotList(fpmlTrade, fpmlQuotes),
             counterparty: counterpartyList,
             ancillaryParty: MapAncillaryPartyList(fpmlTrade, counterpartyList),
             adjustment: MapNotionalAdjustmentEnum(ExtractNotionalAdjustmentByLeg(fpmlTrade)),
@@ -116,15 +113,15 @@ func MapTrade:
                         fpmlAdditionalPartyTradeIdentifier
                     ),
             tradeDate: MapIdentifiedDate(fpmlTrade -> tradeHeader -> tradeDate),
-            party: MapPartyList(fpmlParties, fpmlTrade -> tradeHeader -> partyTradeInformation),
+            party: MapPartyList(
+                        fpmlParties,
+                        fpmlTrade -> tradeHeader -> partyTradeInformation
+                    ),
             partyRole: MapPartyRoleList(fpmlTrade),
             contractDetails: MapContractDetails(fpmlTrade, counterpartyList),
-            account: empty, //TODO: clean up the deprecated account functions: MapAccountList(fpmlTrade, fpmlAccounts),
+            account: empty, // TODO: clean up the deprecated account functions: MapAccountList(fpmlTrade, fpmlAccounts),
             collateral: MapCollateral(fpmlTrade -> tradeHeader),
-            executionDetails: MapExecutionDetails(
-                        fpmlTrade,
-                        fpmlQuotes
-                    ),
+            executionDetails: MapExecutionDetails(fpmlTrade, fpmlQuotes),
             ...
         }
 
