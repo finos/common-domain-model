@@ -21,7 +21,8 @@ func MapCapFloorCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlCapFloor -> capFloorStream -> payerReceiverModel
+                fpmlCapFloor -> capFloorStream -> payerPartyReference,
+                fpmlCapFloor -> capFloorStream -> receiverPartyReference
             )
 
 func MapCapFloorAncillaryPartyList:
@@ -46,8 +47,12 @@ func MapCapFloorNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlCapFloor -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlCapFloor -> productModel),
+            identifier: MapProductIdentifierList(fpmlCapFloor -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCapFloor -> primaryAssetClass,
+                        fpmlCapFloor -> secondaryAssetClass,
+                        fpmlCapFloor -> productType
+                    ),
             economicTerms: MapCapFloorEconomicTerms(fpmlCapFloor, cdmCounterpartyList)
         }
 
@@ -115,7 +120,7 @@ func MapCapfloorCalculationPeriodAmountToPriceList:
     alias fpmlCurrency: swap.GetInterestRatePriceCurrency(fpmlCalculationPeriodAmount)
 
     alias fixedRateSchedule:
-        fpmlCalculationPeriodAmount -> calculation -> calculationSequence -> fixedRateSchedule default fpmlCalculationPeriodAmount -> calculation -> calculationSequence1 -> fixedRateSchedule
+        fpmlCalculationPeriodAmount -> calculation -> fixedRateSchedule default fpmlCalculationPeriodAmount -> calculation -> fixedRateSchedule
 
     add priceSchedules:
         MapFixedRateScheduleToPriceWithLocation(fixedRateSchedule, fpmlCurrency, fpmlLeg)
@@ -139,5 +144,6 @@ func MapCapFloorAccountPartyReference:
     set partyReference:
         MapPayerReceiverToAccountPartyReference(
                 fpmlAccount,
-                fpmlCapFloor -> capFloorStream -> payerReceiverModel
+                fpmlCapFloor -> capFloorStream -> payerAccountReference,
+                fpmlCapFloor -> capFloorStream -> receiverAccountReference
             )

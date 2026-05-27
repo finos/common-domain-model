@@ -27,7 +27,8 @@ func MapDividendSwapTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlDividendSwapTransactionSupplement -> dividendLeg -> payerReceiverModel
+                fpmlDividendSwapTransactionSupplement -> dividendLeg -> payerPartyReference,
+                fpmlDividendSwapTransactionSupplement -> dividendLeg -> receiverPartyReference
             )
 
 func MapDividendSwapTransactionSupplementNonTransferableProduct:
@@ -40,10 +41,12 @@ func MapDividendSwapTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlDividendSwapTransactionSupplement -> productModel
+                        fpmlDividendSwapTransactionSupplement -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlDividendSwapTransactionSupplement -> productModel
+                        fpmlDividendSwapTransactionSupplement -> primaryAssetClass,
+                        fpmlDividendSwapTransactionSupplement -> secondaryAssetClass,
+                        fpmlDividendSwapTransactionSupplement -> productType
                     ),
             economicTerms: MapDividendSwapTransactionSupplementEconomicTerms(
                         fpmlDividendSwapTransactionSupplement,
@@ -66,8 +69,12 @@ func MapDividendSwapTransactionSupplementEconomicTerms:
                         fpmlDividendSwapTransactionSupplement,
                         cdmCounterpartyList
                     ),
-            effectiveDate: MapAdjustableOrRelativeDate(dividendLeg -> effectiveDate),
-            terminationDate: MapAdjustableOrRelativeDate(dividendLeg -> terminationDate),
+            effectiveDate: MapAdjustableOrRelativeDate(
+                        fpmlDividendSwapTransactionSupplement -> dividendLeg -> effectiveDate
+                    ),
+            terminationDate: MapAdjustableOrRelativeDate(
+                        fpmlDividendSwapTransactionSupplement -> dividendLeg -> terminationDate
+                    ),
             ...
         }
 
@@ -103,14 +110,17 @@ func MapDividendLegToPerformancePayout:
             PerformancePayout:
                 PerformancePayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlDividendLeg -> payerReceiverModel,
+                                fpmlDividendLeg -> payerPartyReference,
+                                fpmlDividendLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     // REMEMBER - Java needed to have priceQuantity populate with multiple dividendPeriods and FixedPayments as no ID's to correctly match
                     paymentDates: empty,
                     valuationDates: empty,
                     settlementTerms: MapOptionSettlementModelToSettlementTerms(
-                                fpmlDividendLeg -> optionSettlementModel
+                                fpmlDividendLeg -> settlementType,
+                                fpmlDividendLeg -> settlementCurrency,
+                                fpmlDividendLeg -> settlementDate
                             ),
                     underlier:
                         Underlier {
@@ -140,25 +150,23 @@ func MapSwapTransactionSupplementDividendReturnTerms:
 
     alias fpmlUnderlyer: fpmlDividendLeg -> underlyer
     alias fpmlDividendPeriodPaymentList: fpmlDividendLeg -> dividendPeriod
-    alias fpmlDividendPercentageModel:
-        fpmlDividendLeg -> declaredCashAndCashEquivalentDividendPercentageModel
 
     set dividendReturnTerms:
         DividendReturnTerms {
-            dividendPayoutRatio: if fpmlUnderlyer -> basket exists
-                    then fpmlUnderlyer -> basket -> basketConstituent
+            dividendPayoutRatio: if fpmlDividendLeg -> underlyer -> basket exists
+                    then fpmlDividendLeg -> underlyer -> basket -> basketConstituent
                     extract
                         DividendPayoutRatio {
-                            totalRatio: dividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
+                            totalRatio: dividendPayout -> dividendPayoutRatio,
                             basketConstituent: MapBasketConstituentWithAddress,
-                            cashRatio: fpmlDividendPercentageModel -> declaredCashDividendPercentage,
-                            nonCashRatio: fpmlDividendPercentageModel -> declaredCashEquivalentDividendPercentage,
+                            cashRatio: fpmlDividendLeg -> declaredCashDividendPercentage,
+                            nonCashRatio: fpmlDividendLeg -> declaredCashEquivalentDividendPercentage,
                         }
-                else if fpmlUnderlyer -> singleUnderlyer exists
+                else if fpmlDividendLeg -> underlyer -> singleUnderlyer exists
                 then DividendPayoutRatio {
-                        totalRatio: fpmlUnderlyer -> singleUnderlyer -> dividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
-                        cashRatio: fpmlDividendPercentageModel -> declaredCashDividendPercentage,
-                        nonCashRatio: fpmlDividendPercentageModel -> declaredCashEquivalentDividendPercentage,
+                        totalRatio: fpmlDividendLeg -> underlyer -> singleUnderlyer -> dividendPayout -> dividendPayoutRatio,
+                        cashRatio: fpmlDividendLeg -> declaredCashDividendPercentage,
+                        nonCashRatio: fpmlDividendLeg -> declaredCashEquivalentDividendPercentage,
                         ...
                     },
             dividendPeriod: fpmlDividendPeriodPaymentList
@@ -195,7 +203,8 @@ func MapFixedPaymentLegToFixedPricePayout:
             FixedPricePayout:
                 FixedPricePayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlFixedPaymentLeg -> payerReceiverModel,
+                                fpmlFixedPaymentLeg -> payerPartyReference,
+                                fpmlFixedPaymentLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -209,6 +218,7 @@ func MapFixedPaymentLegToFixedPricePayout:
                     // REMEMBER - Java needed to have these populate with multiple dividendPeriods and FixedPayments as no IDs to correctly match
                     settlementTerms: MapFixedLegSettlementTerms(
                                 fpmlFixedPaymentLeg,
+                                empty,
                                 empty,
                                 empty,
                                 empty,
@@ -232,7 +242,8 @@ func MapFixedPaymentLegToFixedPricePayout:
 func MapFixedLegSettlementTerms:
     inputs:
         fpmlFixedPaymentLeg fpml.FixedPaymentLeg (0..1)
-        fpmlOptionSettlementModel fpml.OptionSettlementModel (0..1)
+        settlementType fpml.consolidated.fpmlenum.SettlementTypeEnum (0..1)
+        settlementCurrency fpml.Currency (0..1)
         fpmlRelativeDateOffset fpml.RelativeDateOffset (0..1)
         fpmlUnadjustedDate date (0..1)
         fpmlAdjustableDate fpml.AdjustableDate (0..1)
@@ -241,10 +252,8 @@ func MapFixedLegSettlementTerms:
 
     set settlementTerms:
         SettlementTerms {
-            settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
-            settlementCurrency: MapCurrency(
-                        fpmlOptionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
-                    ),
+            settlementType: settlementType to-enum SettlementTypeEnum,
+            settlementCurrency: MapCurrency(settlementCurrency),
             settlementDate:
                 SettlementDate {
                     adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
@@ -336,5 +345,6 @@ func MapDividendSwapTransactionSupplementAccountPartyReference:
     set partyReference:
         MapPayerReceiverToAccountPartyReference(
                 fpmlAccount,
-                fpmlDividendSwapTransactionSupplement -> dividendLeg -> payerReceiverModel
+                fpmlDividendSwapTransactionSupplement -> dividendLeg -> payerAccountReference,
+                fpmlDividendSwapTransactionSupplement -> dividendLeg -> receiverAccountReference
             )
