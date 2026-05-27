@@ -78,7 +78,6 @@ import static org.finos.cdm.util.ResourcesUtils.*;
 
 public class FunctionInputCreator {
 
-    private Optional<Path> WRITE_BASE_PATH;
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionInputCreator.class);
 
     private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
@@ -125,7 +124,7 @@ public class FunctionInputCreator {
         }
     }
 
-    public void run(Optional<Path> writeBasePath) throws Exception {
+    public void run(Optional<Path> writeBasePathOptional) throws Exception {
         Module module = Modules.override(new CdmRuntimeModule())
                 .with(new AbstractModule() {
                     @Override
@@ -136,64 +135,64 @@ public class FunctionInputCreator {
         Injector injector = Guice.createInjector(module);
         injector.injectMembers(this);
 
-        this.WRITE_BASE_PATH = writeBasePath;
-        writeExpectation(updateContractFormationIrSwapFuncInputJson());
-        writeExpectation(updateExecutionIrSwapFuncInputJson());
-        writeExpectation(updateExecutionIrSwapWithInitialFeeFuncInputJson());
-        writeExpectation(updateExecutionIrSwapWithOtherPartyPaymentFuncInputJson());
-        writeExpectation(updateExecutionFraFuncInputJson());
-        writeExpectation(updateExecutionBasisSwapFuncInputJson());
-        writeExpectation(updateExecutionOisSwapFuncInputJson());
-        writeExpectation(updateExecutionCreditDefaultSwapFuncInputJson());
-        writeExpectation(updateExecutionFxForwardFuncInputJson());
-        writeExpectation(updateExecutionSwaptionFuncInputJson());
-        writeExpectation(updateContractFormationIrSwapWithLegalAgreementFuncInputJson());
-        writeExpectation(updateContractFormationFraFuncInputJson());
-        writeExpectation(updateContractFormationBasisSwapFuncInputJson());
-        writeExpectation(updateContractFormationOisSwapFuncInputJson());
-        writeExpectation(updateContractFormationSwaptionFuncInputJson());
-        writeExpectation(updateContractFormationCreditDefaultSwapFuncInputJson());
-        writeExpectation(updateContractFormationFxForwardFuncInputJson());
-        writeExpectation(updateFullTerminationVanillaSwapFuncInputJson());
-        writeExpectation(updateFullTerminationEquitySwapFuncInputJson());
-        writeExpectation(updatePartialTerminationVanillaSwapFuncInputJson());
-        writeExpectation(updatePartialTerminationEquitySwapFuncInputJson());
-        writeExpectation(updateIncreaseEquitySwapFuncInputJson());
-        writeExpectation(updateIncreaseEquitySwapExistingTradeLotFuncInputJson());
-        writeExpectation(updateCompressionFuncInputJson());
-        writeExpectation(updateFullNovationFuncInputJson());
-        writeExpectation(updatePartialNovationFuncInputJson());
-        writeExpectation(updateClearingFuncInputJson());
-        writeExpectation(updateAllocationFuncInputJson());
-        writeExpectation(updateCreditEventFuncInputJson());
-        writeExpectation(updateCreditEventWithObservationFuncInputJson());
-        writeExpectation(updateCorporateActionFuncInputJson());
-        writeExpectation(updateCorporateActionWithObservationFuncInputJson());
-        writeExpectation(updateExerciseSwaptionFullPhysicalInputJson());
-        writeExpectation(updateExerciseCashSettledInputJson());
-        writeExpectation(updateExercisePartialExerciseInputJson());
-        writeExpectation(updateExerciseCancellableOptionInputJson());
-        writeExpectation(updateIndexTransitionVanillaSwapFuncInputJson());
-        writeExpectation(updateIndexTransitionXccySwapFuncInputJson());
-        writeExpectation(updateStockSplitFuncInputJson());
-        writeExpectation(updateCorrectionWorkflowFuncInputJson());
-        writeExpectation(updateCancellationWorkflowFuncInputJson());
-        writeExpectation(updateBondExecutionInput());
-        writeExpectation(updateRepoExecutionInput());
-        writeExpectation(updateRollInput());
-        writeExpectation(updateOnDemandRateChangeInput());
-        writeExpectation(updatePairOffInput());
-        writeExpectation(updateCancellationInput());
-        writeExpectation(updateOnDemandInterestPaymentEventInput());
-        writeExpectation(updateShapingPrimitiveInstructionTradeLots());
-        writeExpectation(updateShapingEventInput());
-        writeExpectation(updatePartialDeliveryDeliveredPriceQuantity());
-        writeExpectation(updatePartialDeliveryEventInput());
-        writeExpectation(updateRepriceEventInput());
-        writeExpectation(updateAdjustmentEventInput());
-        writeExpectation(updateRepoSubstitutionCollateral());
-        writeExpectation(updateRepoSubstitutionPriceQuantity());
-        writeExpectation(updateSubstitutionEventInput());
+        Path writeBasePath = writeBasePathOptional.get();
+        writeExpectation(writeBasePath, updateContractFormationIrSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionIrSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionIrSwapWithInitialFeeFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionIrSwapWithOtherPartyPaymentFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionFraFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionBasisSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionOisSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionCreditDefaultSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionFxForwardFuncInputJson());
+        writeExpectation(writeBasePath, updateExecutionSwaptionFuncInputJson());
+        writeExpectation(writeBasePath, updateContractFormationIrSwapWithLegalAgreementFuncInputJson());
+        writeExpectation(writeBasePath, updateContractFormationFraFuncInputJson());
+        writeExpectation(writeBasePath, updateContractFormationBasisSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateContractFormationOisSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateContractFormationSwaptionFuncInputJson());
+        writeExpectation(writeBasePath, updateContractFormationCreditDefaultSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateContractFormationFxForwardFuncInputJson());
+        writeExpectation(writeBasePath, updateFullTerminationVanillaSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateFullTerminationEquitySwapFuncInputJson());
+        writeExpectation(writeBasePath, updatePartialTerminationVanillaSwapFuncInputJson());
+        writeExpectation(writeBasePath, updatePartialTerminationEquitySwapFuncInputJson());
+        writeExpectation(writeBasePath, updateIncreaseEquitySwapFuncInputJson());
+        writeExpectation(writeBasePath, updateIncreaseEquitySwapExistingTradeLotFuncInputJson());
+        writeExpectation(writeBasePath, updateCompressionFuncInputJson());
+        writeExpectation(writeBasePath, updateFullNovationFuncInputJson());
+        writeExpectation(writeBasePath, updatePartialNovationFuncInputJson());
+        writeExpectation(writeBasePath, updateClearingFuncInputJson());
+        writeExpectation(writeBasePath, updateAllocationFuncInputJson());
+        writeExpectation(writeBasePath, updateCreditEventFuncInputJson());
+        writeExpectation(writeBasePath, updateCreditEventWithObservationFuncInputJson());
+        writeExpectation(writeBasePath, updateCorporateActionFuncInputJson());
+        writeExpectation(writeBasePath, updateCorporateActionWithObservationFuncInputJson());
+        writeExpectation(writeBasePath, updateExerciseSwaptionFullPhysicalInputJson());
+        writeExpectation(writeBasePath, updateExerciseCashSettledInputJson());
+        writeExpectation(writeBasePath, updateExercisePartialExerciseInputJson());
+        writeExpectation(writeBasePath, updateExerciseCancellableOptionInputJson());
+        writeExpectation(writeBasePath, updateIndexTransitionVanillaSwapFuncInputJson());
+        writeExpectation(writeBasePath, updateIndexTransitionXccySwapFuncInputJson());
+        writeExpectation(writeBasePath, updateStockSplitFuncInputJson());
+        writeExpectation(writeBasePath, updateCorrectionWorkflowFuncInputJson());
+        writeExpectation(writeBasePath, updateCancellationWorkflowFuncInputJson());
+        writeExpectation(writeBasePath, updateBondExecutionInput());
+        writeExpectation(writeBasePath, updateRepoExecutionInput());
+        writeExpectation(writeBasePath, updateRollInput());
+        writeExpectation(writeBasePath, updateOnDemandRateChangeInput());
+        writeExpectation(writeBasePath, updatePairOffInput());
+        writeExpectation(writeBasePath, updateCancellationInput());
+        writeExpectation(writeBasePath, updateOnDemandInterestPaymentEventInput());
+        writeExpectation(writeBasePath, updateShapingPrimitiveInstructionTradeLots());
+        writeExpectation(writeBasePath, updateShapingEventInput());
+        writeExpectation(writeBasePath, updatePartialDeliveryDeliveredPriceQuantity());
+        writeExpectation(writeBasePath, updatePartialDeliveryEventInput());
+        writeExpectation(writeBasePath, updateRepriceEventInput());
+        writeExpectation(writeBasePath, updateAdjustmentEventInput());
+        writeExpectation(writeBasePath, updateRepoSubstitutionCollateral());
+        writeExpectation(writeBasePath, updateRepoSubstitutionPriceQuantity());
+        writeExpectation(writeBasePath, updateSubstitutionEventInput());
     }
 
     private ExpectationResult<CreateBusinessEventInput> updateExecutionIrSwapFuncInputJson() throws IOException {
@@ -2102,11 +2101,11 @@ public class FunctionInputCreator {
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
     }
 
-    private void writeExpectation(ExpectationResult<?> expectationResult) {
+    private void writeExpectation(Path writeBasePath, ExpectationResult<?> expectationResult) {
         // Add environment variable TEST_WRITE_BASE_PATH to override the base write path, e.g.
         // TEST_WRITE_BASE_PATH=/Users/hugohills/dev/github/REGnosys/rosetta-cdm/rosetta-source/src/main/resources/
-        WRITE_BASE_PATH.filter(Files::exists).ifPresent(basePath -> {
-            Path expectationFilePath = basePath.resolve(expectationResult.resourceName);
+        if (Files.exists(writeBasePath)) {
+            Path expectationFilePath = writeBasePath.resolve(expectationResult.resourceName);
             try {
                 String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectationResult.actual);
                 Files.createDirectories(expectationFilePath.getParent());
@@ -2115,7 +2114,7 @@ public class FunctionInputCreator {
             } catch (IOException e) {
                 LOGGER.error("Failed to write expectation file {}", expectationFilePath.toAbsolutePath(), e);
             }
-        });
+        }
     }
 
     private static class ExpectationResult<T> {
