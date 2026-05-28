@@ -408,8 +408,7 @@ func MapParty:
 
     set party:
         Party {
-            partyId: partyModel -> partyId
-                    extract MapPartyIdentifier(item -> value, item -> partyIdScheme),
+            partyId: partyModel -> partyId extract MapPartyIdentifier(item -> value, item -> partyIdScheme),
             name: MapStringWithScheme(partyName -> value, partyName -> partyNameScheme),
             businessUnit: partyModel -> businessUnit extract MapBusinessUnit,
             person: partyModel -> person extract MapNaturalPerson,
@@ -423,6 +422,7 @@ func MapParty:
             key: fpmlParty -> id
         }
 
+
 func MapPartyIdentifier:
     inputs:
         identifierValue string (0..1)
@@ -432,26 +432,28 @@ func MapPartyIdentifier:
 
     set partyIdentifier:
         PartyIdentifier {
-            identifier: MapStringWithScheme(identifierValue, identifierScheme),
-            identifierType: MapPartyIdentifierTypeEnum(identifierScheme)
+            identifier: MapStringWithScheme(
+                        identifierValue,
+                        identifierScheme
+                    ),
+             identifierType: MapPartyIdentifierTypeEnum(identifierScheme)
         }
 
 func MapExchangeIdToAssetParty:
-    inputs:
-        fpmlExchangeId fpml.ExchangeId (0..1)
-    output:
-        party Party (0..1)
+     inputs:
+         fpmlExchangeId fpml.ExchangeId (0..1)
+     output:
+         party Party (0..1)
 
-    set party:
-        Party {
-            partyId: fpmlExchangeId extract MapPartyIdentifier(value, exchangeIdScheme),
-            name: MapStringWithScheme(
-                        fpmlExchangeId -> value,
-                        fpmlExchangeId -> exchangeIdScheme
-                    ),
-            ...
-        }
-
+set party:
+    Party {
+        partyId: fpmlExchangeId extract MapPartyIdentifier(value, exchangeIdScheme),
+        name: MapStringWithScheme(
+                    fpmlExchangeId -> value,
+                    fpmlExchangeId -> exchangeIdScheme
+                ),
+        ...
+    }
 func MapBusinessUnit:
     inputs:
         fpmlBusinessUnit fpml.BusinessUnit (0..1)
@@ -973,8 +975,10 @@ func MapAssetPartyRole:
     output:
         assetPartyRole AssetPartyRole (1..1)
 
-    set assetPartyRole -> partyReference: assetParty
-    set assetPartyRole -> role: assetPartyRoleEnum
+    set assetPartyRole->partyReference:
+        assetParty
+    set assetPartyRole->role:
+        assetPartyRoleEnum
 
 func MapAssetAncillaryPartyRole:
     inputs:
@@ -983,9 +987,12 @@ func MapAssetAncillaryPartyRole:
     output:
         assetAncillaryPartyRole AssetAncillaryPartyRole (0..1)
 
-    set assetAncillaryPartyRole -> partyReference: assetAncillaryparty
+    set assetAncillaryPartyRole->partyReference:
+        assetAncillaryparty
 
-    set assetAncillaryPartyRole -> role: assetAncillaryPartyRoleEnum
+    set assetAncillaryPartyRole->role:
+        assetAncillaryPartyRoleEnum
+
 
 func MapPayerReceiver:
     inputs:
