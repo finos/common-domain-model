@@ -280,7 +280,7 @@ type Observation:
 ### Transfer
 
 A transfer is a multi-purpose object that represents the transfer of any
-asset, including cash, from one party to another. The `Transfer` object
+asset from one party to another. The `Transfer` object
 is associated to an enumeration to qualify the status that the transfer
 is in, from instruction to settlement or rejection.
 
@@ -300,18 +300,23 @@ type TransferState:
 ```
 
 ``` Haskell
-choice Transfer: 
+choice Transfer:
     ScheduledTransfer
-    UnscheduledTransfer    
+    UnscheduledTransfer 
+    ContingentTransfer   
 
 type UnscheduledTransfer extends TransferBase: 
     transferType UnscheduledTransferEnum (0..1) 
 
-type ScheduledTransfer extends TransferBase: 
+type ScheduledTransfer extends TransferBase:
     transferType ScheduledTransferEnum (1..1)
-    corporateActionTransferType CorporateActionTypeEnum (0..1)
-    payoutReference Payout (0..1) 
+    payoutReference Payout (0..1)
         [metadata reference]
+        
+type ContingentTransfer extends TransferBase:
+    transferType ContingentTransferEnum (0..1)
+    payoutReference Payout (0..1) 
+    corporateActionTransferType CorporateActionTypeEnum (0..1)
 ```
 
 ## Primitive Events {#primitive-event}
