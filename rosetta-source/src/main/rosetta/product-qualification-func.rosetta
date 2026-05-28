@@ -223,7 +223,7 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
                     // Commodity Option
             or (OptionPayoutOnlyExists(economicTerms -> payout)
                 and (optionUnderlier -> Observable -> Asset -> Commodity exists
-                    or optionUnderlier -> Product -> TransferableProduct ->  asset -> Commodity exists
+                    or optionUnderlier -> Product -> TransferableProduct -> asset -> Commodity exists
                     or if optionUnderlier -> Product exists
                         then Qualify_AssetClass_Commodity(
                                     optionUnderlier -> Product ->> economicTerms
@@ -238,7 +238,7 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
                         and economicTerms -> payout -> CommodityPayout exists)
                     or SettlementPayoutOnlyExists(economicTerms -> payout))
                 and (economicTerms -> payout -> SettlementPayout -> underlier -> Observable -> Asset -> Commodity exists
-                    or settlementUnderlier -> Product -> TransferableProduct ->  asset -> Commodity exists
+                    or settlementUnderlier -> Product -> TransferableProduct -> asset -> Commodity exists
                     or if settlementUnderlier -> Product ->> economicTerms exists
                         then Qualify_AssetClass_Commodity(
                                     settlementUnderlier -> Product ->> economicTerms
@@ -1509,9 +1509,9 @@ func Qualify_InterestRate_CapFloor: <"Qualifies a product as an interest rate ca
 
     set is_product:
         Qualify_AssetClass_InterestRate(economicTerms) = True
-                and economicTerms -> payout -> InterestRatePayout count = 1
-                    // qualifies the product as having a cap and/or floor in the interestRatePayout
-                and (economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification -> capRateSchedule exists
+            and economicTerms -> payout -> InterestRatePayout count = 1
+                // qualifies the product as having a cap and/or floor in the interestRatePayout
+            and (economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification -> capRateSchedule exists
                 or economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification -> floorRateSchedule exists)
 
 func Qualify_InterestRate_Option_Swaption: <"Qualifies a product as a Swaption that can be exercised into an Interest Rate Swap, which could be any type of interest rate product with two legs based on the economic terms.">
