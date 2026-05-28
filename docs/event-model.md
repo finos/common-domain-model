@@ -606,7 +606,7 @@ func Create_Reset:
 
 ``` Haskell
 type ResetInstruction:
-        reset Reset (0..*)
+    reset Reset (0..*)
 ```
 
 #### Transfer Primitive
