@@ -31,18 +31,16 @@ func MapCreditDefaultSwapCounterpartyList:
     output:
         counterpartyList Counterparty (0..2)
 
-    alias buyerSellerModel: fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel
-
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party1,
-                buyerSellerModel -> sellerPartyReference
+                fpmlCreditDefaultSwap -> generalTerms -> sellerPartyReference
             )
 
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party2,
-                buyerSellerModel -> buyerPartyReference
+                fpmlCreditDefaultSwap -> generalTerms -> buyerPartyReference
             )
 
 func MapCreditDefaultSwapNonTransferableProduct:
@@ -55,8 +53,12 @@ func MapCreditDefaultSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlCreditDefaultSwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlCreditDefaultSwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCreditDefaultSwap -> primaryAssetClass,
+                        fpmlCreditDefaultSwap -> secondaryAssetClass,
+                        fpmlCreditDefaultSwap -> productType
+                    ),
             economicTerms: MapCreditDefaultSwapEconomicTerms(
                         fpmlCreditDefaultSwap,
                         fpmlTradeHeader,
@@ -99,7 +101,8 @@ func MapCreditDefaultSwapPayoutList:
 
     alias generalTermsPayerReceiver:
         MapSellerAsPayerAndBuyerAsReceiver(
-                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel,
+                fpmlCreditDefaultSwap -> generalTerms -> sellerPartyReference,
+                fpmlCreditDefaultSwap -> generalTerms -> buyerPartyReference,
                 cdmCounterpartyList
             )
     add payouts:
@@ -211,7 +214,7 @@ func MapReferenceObligation:
 
     alias seniority:
         if fpmlReferenceObligation -> bond exists
-        then fpmlReferenceObligation -> bond -> fixedIncomeSecurityContentModel -> seniority -> value
+        then fpmlReferenceObligation -> bond -> seniority -> value
 
     set referenceObligation:
         ReferenceObligation {
@@ -235,11 +238,10 @@ func MapCreditIndex:
     output:
         creditIndex CreditIndex (0..1)
 
-    alias indexName:
-        fpmlIndexReferenceInformation -> indexReferenceInformationSequence0 -> indexName
+    alias indexName: fpmlIndexReferenceInformation -> indexName
 
     alias indexId:
-        fpmlIndexReferenceInformation -> indexReferenceInformationSequence0 -> indexId default fpmlIndexReferenceInformation -> indexReferenceInformationSequence1 -> indexId
+        fpmlIndexReferenceInformation -> indexId default fpmlIndexReferenceInformation -> indexId
 
     set creditIndex:
         if fpmlIndexReferenceInformation exists
@@ -248,7 +250,10 @@ func MapCreditIndex:
                         indexName extract MapIndexNameToAssetIdentifier,
                         indexId extract MapIndexIdToAssetIdentifier
                     ],
-                name: MapStringWithScheme(indexName -> value, indexName -> indexNameScheme),
+                name: MapStringWithScheme(
+                            fpmlIndexReferenceInformation -> indexName -> value,
+                            fpmlIndexReferenceInformation -> indexName -> indexNameScheme
+                        ),
                 provider: empty,
                 assetClass: Credit,
                 indexSeries: fpmlIndexReferenceInformation -> indexSeries,
@@ -265,8 +270,8 @@ func MapCreditIndex:
                 settledEntityMatrix: MapSettledEntityMatrix(
                             fpmlIndexReferenceInformation -> settledEntityMatrix
                         ),
-                indexFactor: fpmlIndexReferenceInformation -> indexReferenceInformationSequence2 -> indexFactor,
-                seniority: fpmlIndexReferenceInformation -> indexReferenceInformationSequence2 -> seniority -> value to-enum CreditSeniorityEnum,
+                indexFactor: fpmlIndexReferenceInformation -> indexFactor,
+                seniority: fpmlIndexReferenceInformation -> seniority -> value to-enum CreditSeniorityEnum,
                 ...
             }
 
@@ -292,12 +297,9 @@ func MapBasketReferenceInformation:
     output:
         basketReferenceInformation BasketReferenceInformation (0..1)
 
-    alias basketName:
-        fpmlBasketReferenceInformation -> basketIdentifierModel -> basketIdentifierModelSequence -> basketName
+    alias basketName: fpmlBasketReferenceInformation -> basketName
 
-    alias basketIdList:
-        fpmlBasketReferenceInformation -> basketIdentifierModel
-            extract basketIdentifierModelSequence -> basketId default basketId
+    alias basketIdList: fpmlBasketReferenceInformation -> basketId
 
     set basketReferenceInformation:
         if fpmlBasketReferenceInformation exists
@@ -312,8 +314,8 @@ func MapBasketReferenceInformation:
                         referencePoolItem: fpmlBasketReferenceInformation -> referencePool -> referencePoolItem
                                 extract MapReferencePoolItem
                     },
-                nthToDefault: fpmlBasketReferenceInformation -> basketReferenceInformationSequence -> nthToDefault,
-                mthToDefault: fpmlBasketReferenceInformation -> basketReferenceInformationSequence -> mthToDefault,
+                nthToDefault: fpmlBasketReferenceInformation -> nthToDefault,
+                mthToDefault: fpmlBasketReferenceInformation -> mthToDefault,
                 tranche: MapTranche(fpmlBasketReferenceInformation -> tranche),
             }
 
@@ -692,5 +694,6 @@ func MapCreditDefaultSwapAccountPartyReference:
     set partyReference:
         MapBuyerSellerToAccountPartyReference(
                 fpmlAccount,
-                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel
+                fpmlCreditDefaultSwap -> generalTerms -> buyerAccountReference,
+                fpmlCreditDefaultSwap -> generalTerms -> sellerAccountReference
             )
