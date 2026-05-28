@@ -781,7 +781,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         // Ensure the accepted WorkflowStep and its "after" TradeState are not null.
         assertNotNull(acceptedWorkflowStep, "Accepted WorkflowStep must not be null");
-        assertNotNull(acceptedWorkflowStep.getBusinessEvent().getAfter(), "after TradeState must not be null");
+        assertNotNull(acceptedWorkflowStep.getBusinessEvent().getAfter(), "after TradeState must not be null"); // fails due to resetInstruction are not set correct sue to the new changes
 
         // Log the details of the accepted WorkflowStep in a human-readable JSON format for debugging purposes.
         try {
