@@ -1044,9 +1044,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         //TODO Review if payout1 is used
         // Initialize and build the ResetInstruction.
         return ResetInstruction.builder()
-                .setResetDate(date)         // The date on which the reset occurs.
-                .setRateRecordDate(date)    // The date for recording the rate associated with the reset.
-                .setPayout(List.of(payout))          // Associates the reset instruction with a referenced payout.
+             //   .setResetDate(date)         // The date on which the reset occurs.
+               // .setRateRecordDate(date)    // The date for recording the rate associated with the reset.
+                //.setPayout(List.of(payout))          // Associates the reset instruction with a referenced payout.
                 //.setPayoutValue(payout1)    // Sets the specific payout value for the reset.
                 .build();                   // Builds and returns the finalized ResetInstruction.
     }
