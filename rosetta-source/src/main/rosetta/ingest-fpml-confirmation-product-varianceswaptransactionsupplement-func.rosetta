@@ -9,7 +9,6 @@ import cdm.observable.asset.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.shared.* as fpml
 import fpml.consolidated.variance.swaps.* as fpml
 
 func MapVarianceSwapTransactionSupplementCounterpartyList:
@@ -67,17 +66,3 @@ func MapVarianceSwapTransactionSupplementPriceQuantityList:
     add priceQuantityList:
         fpmlVarianceSwapTransactionSupplement -> varianceLeg
             extract MapVarianceLegToPriceQuantity
-
-func MapVarianceSwapTransactionSupplementAccountPartyReference:
-    inputs:
-        fpmlVarianceSwapTransactionSupplement fpml.VarianceSwapTransactionSupplement (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlVarianceSwapTransactionSupplement -> varianceLeg -> payerReceiverModel
-            )

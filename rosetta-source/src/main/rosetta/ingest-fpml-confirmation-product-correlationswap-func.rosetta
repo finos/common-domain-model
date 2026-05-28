@@ -15,7 +15,6 @@ import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.correlation.swaps.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapCorrelationSwapCounterpartyList:
     inputs:
@@ -180,17 +179,3 @@ func MapCorrelationSwapPriceQuantityList:
             observable: MapUnderlyerToObservableWithLocation(correlationLeg -> underlyer),
             ...
         }
-
-func MapCorrelationSwapAccountPartyReference:
-    inputs:
-        fpmlCorrelationSwap fpml.CorrelationSwap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlCorrelationSwap -> correlationLeg -> payerReceiverModel
-            )

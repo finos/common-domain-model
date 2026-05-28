@@ -11,7 +11,6 @@ import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.fx.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapFxSwapCounterpartyList:
     inputs:
@@ -88,18 +87,4 @@ func MapFxSwapPriceQuantityList:
         MapFxCoreDetailsModelPriceQuantityList(
                 fpmlFxSwap -> farLeg -> fxCoreDetailsModel,
                 fpmlFxSwap -> farLeg
-            )
-
-func MapFxSwapAccountPartyReference:
-    inputs:
-        fpmlFxSwap fpml.FxSwap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                [fpmlFxSwap -> nearLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel, fpmlFxSwap -> nearLeg -> fxCoreDetailsModel -> exchangedCurrency2 -> payerReceiverModel, fpmlFxSwap -> farLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel, fpmlFxSwap -> farLeg -> fxCoreDetailsModel -> exchangedCurrency2 -> payerReceiverModel]
             )
