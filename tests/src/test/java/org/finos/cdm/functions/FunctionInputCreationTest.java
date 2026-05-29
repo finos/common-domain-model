@@ -22,9 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FunctionInputCreationTest {
 
     private static final ObjectWriter OBJECT_WRITER = FunctionInputCreator.STRICT_MAPPER.writerWithDefaultPrettyPrinter();
-    
-    @Inject private FunctionInputCreator creator;
-    
+
+    @Inject
+    private FunctionInputCreator creator;
+
     @BeforeEach
     public void setUp() {
         Module module = Modules.override(new CdmRuntimeModule())
@@ -268,7 +269,6 @@ class FunctionInputCreationTest {
         assertResult(creator.getOnDemandInterestPaymentEventInput());
     }
 
-
     @Test
     void testShapingEventInput() throws IOException {
         assertResult(creator.getShapingEventInput());
@@ -298,6 +298,17 @@ class FunctionInputCreationTest {
     void testEligibleCollateralScheduleHelper() throws IOException {
         assertResult(creator.getEligibleCollateralScheduleHelper());
     }
+
+    @Test
+    void testExecutionRepoFixedRateFuncInputJson() throws IOException {
+        assertResult(creator.getExecutionRepoFixedRateFuncInputJson());
+    }
+
+    @Test
+    void testContractFormationRepoFixedRateFuncInputJson() throws IOException {
+        assertResult(creator.getContractFormationRepoFixedRateFuncInputJson());
+    }
+
 
     private static void assertResult(ExpectationResult<?> result) throws IOException {
         String expectedJson = ResourcesUtils.getJson(result.getResourceName());

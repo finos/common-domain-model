@@ -506,7 +506,7 @@ CreateBusinessEventInput input = getExecutionFuncInputJson(
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
                 quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
-        return new ExpectationResult<>("functions/business-event/quantity-change/partial-termination-vanilla-swap-func-input.json", input);
+        return new ExpectationResult<>("cdm-sample-files/functions/business-event/quantity-change/partial-termination-vanilla-swap-func-input.json", input);
     }
 
    
