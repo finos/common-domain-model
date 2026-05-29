@@ -1035,3 +1035,22 @@ func MapMessageAction:
             True then Correct,
             False then New,
             default empty
+
+func FuncA:
+    output:
+        result string (0..*)
+            [metadata reference]
+    add result:
+        "foo" with-meta {
+            reference: "some-ref"
+        }
+
+func FuncB:
+    output:
+        result string (1..1)
+            [metadata reference]
+
+    set result:
+        FuncA()
+            filter reference exists
+            then first
