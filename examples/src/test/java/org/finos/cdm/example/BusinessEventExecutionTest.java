@@ -50,6 +50,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -1041,13 +1042,16 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      */
     public static ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
 
-        //TODO Review if payout1 is used
+        List<Reset> reset = Collections.singletonList(Reset.builder().setResetDate(date)         // The date on which the reset occurs.
+                .setRateRecordDate(date).build());// The date for recording the rate associated with the reset.
+//TODO Review if payout1 is used
         // Initialize and build the ResetInstruction.
         return ResetInstruction.builder()
              //   .setResetDate(date)         // The date on which the reset occurs.
                // .setRateRecordDate(date)    // The date for recording the rate associated with the reset.
                 //.setPayout(List.of(payout))          // Associates the reset instruction with a referenced payout.
-                //.setPayoutValue(payout1)    // Sets the specific payout value for the reset.
+                //.setPayoutValue(payout1)
+                .setReset(reset)
                 .build();                   // Builds and returns the finalized ResetInstruction.
     }
 
