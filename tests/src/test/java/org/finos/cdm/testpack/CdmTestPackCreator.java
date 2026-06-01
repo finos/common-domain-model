@@ -13,6 +13,7 @@ import com.regnosys.ingest.fpml.*;
 import com.regnosys.ingest.ore.OreTradeTest;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
+import com.regnosys.testing.TestingExpectationUtil;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
 import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
@@ -160,7 +161,7 @@ public class CdmTestPackCreator {
         LOGGER.info(" ** Updating Function Input Samples");
 
         FunctionInputCreator functionInputCreator = new FunctionInputCreator();
-        functionInputCreator.run();
+        functionInputCreator.run(TestingExpectationUtil.TEST_WRITE_BASE_PATH);
 
         SecLendingFunctionInputCreationTest SecLendingFunctionInputCreationTest = new SecLendingFunctionInputCreationTest();
         SecLendingFunctionInputCreationTest.run();
