@@ -93,24 +93,37 @@ func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the g
             then extract [ CompareNumbers(item -> value, op, amount) ]
                 all = True
 
-func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation can be helpful validation between Prices and Quantities.">
+func PriceQuantityTriangulation: <"Checks the relationship between price, multiplier, notional and number of units, and validates the result of their product.">
     inputs:
-        tradeLots TradeLot (0..*)
+        price PriceSchedule (0..*)
+        quantity NonNegativeQuantitySchedule (0..*)
     output:
         success boolean (1..1)
 
+    alias notional:
+        FilterQuantityByCurrencyExists(quantity)
+            extract value
+            then distinct only-element
+
+    alias multiplier:
+        quantity
+            extract multiplier -> value
+            then only-element default 1.0
+
+    alias noOfUnits:
+        quantity
+            extract value
+            then only-element
+
+    alias assetPrice:
+        price
+            extract value
+            then only-element
+
     set success:
-        if tradeLots count > 0
-        then tradeLots
-                extract [
-                    if priceQuantity -> price -> priceType contains AssetPrice
-                            or priceQuantity -> price -> priceType contains ExchangeRate
-                    then CashPriceQuantityNoOfUnitsTriangulation(
-                                priceQuantity -> quantity,
-                                priceQuantity -> price
-                            )
-                    else True
-                ] all = True
+        if price -> priceType contains [AssetPrice, ExchangeRate]
+        then (if assetPrice exists and noOfUnits exists and notional exists
+            then multiplier * assetPrice * noOfUnits = notional)
         else True
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">

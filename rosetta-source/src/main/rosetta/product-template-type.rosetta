@@ -303,7 +303,7 @@ type NonTransferableProduct: <"A data type to specify the financial product's ec
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
     lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
     priceQuantity PriceQuantity (1..*) <"Specifies the settlement characteristics of a trade lot: price, quantity, observable (optionally) and the settlement terms. This attribute has a multiple cardinality to allow to specify the price, quantity and observable of different legs in a single, composite product (e.g. a Swap).">
-
+    
 type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
 
     product NonTransferableProduct (1..1) <"The underlying product to be included in a contract or execution.">
@@ -313,9 +313,6 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
             provision "Parties entering into GMRA, as specified on page 1 of the GMRA and under 1. (a)."]
     ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
     adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
-
-    condition PriceQuantityTriangulation: <"Check PriceQuantity triangulation for each TradeLot.">
-        PriceQuantityTriangulation(tradeLot) = True
 
     condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
         if adjustment exists

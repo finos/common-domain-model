@@ -10,6 +10,7 @@ import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.party.*
 import cdm.observable.common.*
 import cdm.product.asset.*
+import cdm.product.template.*
 
 type IndexBase extends AssetBase: <"Identifies an index by referencing an identifier.">
     name string (0..1) <"A description of the Index.">
@@ -114,6 +115,10 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 
     condition InterestRateObservable: <"When the observable is an interest rate index, the price type must be interest rate and the arithmetic operator must be specified.">
         InterestRateObservableCondition
+
+    condition PriceQuantityTriangulation: <"Check price quantity triangulation.">
+        PriceQuantityTriangulation(price, quantity) = True
+
 
 type PriceComposite: <"Defines the inputs required to calculate a price as a simple composite of 2 other values. The inputs consist of 2 numbers and a simple arithmetic operator. This generic data type applies to a variety of use cases where a price is obtained by simple composition, e.g. dirty = clean + accrued (Bond), forward rate = spot rate + forward point (FX) etc.">
     baseValue number (1..1) <"The 1st value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). This 1st operand is called 'baseValue' as it refers to the price anchor in the arithmetic operation: e.g. the clean price (Bond) or the spot rate (FX).">
