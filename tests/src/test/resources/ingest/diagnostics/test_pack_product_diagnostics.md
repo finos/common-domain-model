@@ -80,7 +80,7 @@
 | fpml-5-12-products-rates | swaption | 4 | 98% |
 | fpml-5-12-products-repo | securityLending | 2 | 106% |
 | fpml-5-13-incomplete-processes-execution-advice | creditDefaultSwap | 2 | 425% |
-| fpml-5-13-incomplete-processes-execution-advice | instrumentTradeDetails | 1 | 85% |
+| fpml-5-13-incomplete-processes-execution-advice | instrumentTradeDetails | 1 | 89% |
 | fpml-5-13-incomplete-products-commodity-derivatives | commodityBasketOption | 1 | 100% |
 | fpml-5-13-incomplete-products-commodity-derivatives | commodityDigitalOption | 1 | 100% |
 | fpml-5-13-incomplete-products-commodity-derivatives | commodityForward | 4 | 100% |
@@ -120,7 +120,7 @@
 | fpml-5-13-products-fx-derivatives | fxSwap | 3 | 99% |
 | fpml-5-13-products-fx-derivatives | fxVarianceSwap | 1 | 101% |
 | fpml-5-13-products-fx-derivatives | fxVolatilitySwap | 1 | 100% |
-| fpml-5-13-products-inflation-swaps | swap | 13 | 94% |
+| fpml-5-13-products-inflation-swaps | swap | 13 | 95% |
 | fpml-5-13-products-interest-rate-derivatives | bulletPayment | 1 | 71% |
 | fpml-5-13-products-interest-rate-derivatives | capFloor | 3 | 100% |
 | fpml-5-13-products-interest-rate-derivatives | fra | 2 | 100% |
