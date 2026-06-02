@@ -2389,16 +2389,19 @@ func InterestPayoutObligationsFulfilled: <"Determines whether the obligations de
         then True
         else False
 
-func Create_AgreementEvent: <"Creates a agreement event from instructions containing primitive instructions covering term or party changes associated with an amendment agreement">
+func Create_AgreementEvent: <"Creates an agreement event from primitive instructions and their associated event date, effective date and intent.">
     [creation AgreementEvent]
     inputs:
         agreementInstruction AgreementInstruction (1..*)
         eventDate date (1..1)
         effectiveDate date (1..1)
+        intent AgreementEventIntentEnum (0..*)
     output:
         agreementEvent AgreementEvent (1..1)
     
     add agreementEvent -> instruction: agreementInstruction
+
+    set agreementEvent -> intent: intent
 
     set agreementEvent -> eventDate: eventDate
 
@@ -2441,25 +2444,25 @@ func Create_LegalAgreement: <"Creates a Legal Agreement record based on a before
 func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change to the parties.">
     inputs:
         partyChange PartyChangeInstruction (0..1) <"Instructions to be used as an input to the function when identifying party changes to the agreement.">
-        beforeAgreement LegalAgreement (1..1) <"States the current agreement parties to be amnended.">
+        before LegalAgreement (1..1) <"States the current agreement parties to be amnended.">
     output:
-        afterAgreement LegalAgreement (1..1) <"States the agreement parties after the amendment change has been processed">
+        after LegalAgreement (1..1) <"States the agreement parties after the amendment change has been processed">
     
     alias agtPartyChange: <"Create agreementpartychange if agreementPartyChangeInstruction exists, if not, then before must exist.">
         if partyChange is absent
-        then beforeAgreement
+        then before
 
 func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
     inputs:
         vmCSATermsChange CreditSupportAgreementVariationMarginElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
-        beforeAgreement LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
+        before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
 
 func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
     inputs:
         imCSATermsChange CreditSupportAgreementInitialMarginElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
-        beforeAgreement LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
+        before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
 
