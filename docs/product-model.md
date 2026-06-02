@@ -271,13 +271,11 @@ It can be used as the underlier of a basic Payout that describes the buying and 
 :::
 
 ``` Haskell
-type TransferableProduct extends Asset:
+type TransferableProduct:
+    asset Asset (1..1)
     economicTerms EconomicTerms (1..1)
+    productPartyRole CounterpartyRoleEnum (1..1)
 ```
-
-Because `TransferableProduct` extends `Asset`, it inherits its `identifier` and `taxonomy` attributes from it.
-In that case, those attributes are of type, respectively, `AssetIdentifier` and `Taxonomy`.
-
 #### NonTransferableProduct
 
 By contrast with a transferable product, which can be held by a single party who can in turn transfer it to another,
