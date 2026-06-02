@@ -244,20 +244,25 @@ type TransferState: <"Defines the fundamental financial information associated w
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
 choice Transfer: <"The type of transfer.">
-    ScheduledTransfer <"A transfer created from a scheduled event on a contract, e.g. Exercise, Performance, Credit Event">
+    ScheduledTransfer <"A transfer created from a scheduled event on a contract, e.g. Coupon, Dividend Return, Fixed Rate Return">
     UnscheduledTransfer <"An ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
+    ContingentTransfer <"A transfer created from a contingent event on a contract, e.g. Corporate Action, Credit Event or Exercise">
 
 type UnscheduledTransfer extends TransferBase: <"An ad-hoc transfer instigated by a party to the contract.">
     transferType UnscheduledTransferEnum (0..1) <"Specifies the type of unscheduled transfer.">
 
 type ScheduledTransfer extends TransferBase: <"A scheduled transfer built into the contract.">
     transferType ScheduledTransferEnum (1..1) <"Specifies the type of scheduled transfer.">
-    corporateActionTransferType CorporateActionTypeEnum (0..1)
     payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
         [metadata reference]
 
-    condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
-        if transferType = ScheduledTransferEnum -> CorporateAction
+type ContingentTransfer extends TransferBase: <"Specifies a transfer created from a trade contingent upon a specific, uncertain event on a contract">
+    transferType ContingentTransferEnum (0..1) <"Specifies the type of contingent transfer.">
+    payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+    corporateActionTransferType CorporateActionTypeEnum (0..1) <" A transfer corresponding to a corporate action event">
+
+    condition CorporateActionTransferTypeExists: <"When a Contingent Transfer is a Corporate Action the type of event must be specified.">
+        if transferType = CorporateAction
         then corporateActionTransferType exists
 
 type TransferBase extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
