@@ -1,4 +1,4 @@
-package org.isda.cdm.codelist.impl;
+package org.finos.cdm.example.codelist.impl;
 
 import cdm.base.staticdata.codelist.functions.LoadCodeList;
 import com.google.inject.AbstractModule;

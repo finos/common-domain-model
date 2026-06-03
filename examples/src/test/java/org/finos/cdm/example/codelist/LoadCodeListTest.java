@@ -1,4 +1,4 @@
-package org.isda.cdm.codelist;
+package org.finos.cdm.example.codelist;
 
 import cdm.base.staticdata.codelist.CodeList;
 import cdm.base.staticdata.codelist.functions.LoadCodeList;
