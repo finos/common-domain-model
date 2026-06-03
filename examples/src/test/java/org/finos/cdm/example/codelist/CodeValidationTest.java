@@ -1,4 +1,4 @@
-package org.isda.cdm.codelist;
+package org.finos.cdm.example.codelist;
 
 import cdm.base.datetime.BusinessCenterTime;
 import cdm.base.staticdata.codelist.functions.ValidateFpMLCodingSchemeDomain;
@@ -11,7 +11,7 @@ import com.regnosys.rosetta.common.validation.ValidationReport;
 import com.rosetta.model.lib.validation.ValidationResult;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import org.finos.cdm.CdmRuntimeModule;
-import org.isda.cdm.codelist.impl.CustomCodelistRuntimeModule;
+import org.finos.cdm.example.codelist.impl.CustomCodelistRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
