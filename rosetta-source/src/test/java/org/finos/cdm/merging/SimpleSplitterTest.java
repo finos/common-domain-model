@@ -10,6 +10,7 @@ import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.finos.cdm.util.ResourcesUtils.getObject;
 
+//TODO: remove this after updating serializer to prune on deserialise
 class SimpleSplitterTest {
 
 	private static final String PARTY_TEMPLATE = "merging/party-template.json";
@@ -24,7 +25,7 @@ class SimpleSplitterTest {
 		new SimpleSplitter().run(merged, template);
 
 		Party unmerged = merged.build();
-		Party expected = getObject(Party.class, PARTY_UNMERGED);
+		Party expected = getObject(Party.class, PARTY_UNMERGED).toBuilder().prune().build();
 		assertEquals(expected, unmerged);
 	}
 }

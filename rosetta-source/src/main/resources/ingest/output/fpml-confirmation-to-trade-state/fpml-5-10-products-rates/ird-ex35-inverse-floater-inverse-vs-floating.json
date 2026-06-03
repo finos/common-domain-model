@@ -1,4 +1,8 @@
 {
+  "@model" : "cdm",
+  "@type" : "cdm.event.common.TradeState",
+  "@version" : "0.0.0.master-SNAPSHOT",
+  "@key" : "9c159ae",
   "trade" : {
     "product" : {
       "taxonomy" : [ {
@@ -7,62 +11,140 @@
       } ],
       "economicTerms" : {
         "payout" : [ {
-          "InterestRatePayout" : {
-            "payerReceiver" : {
-              "payer" : "Party1",
-              "receiver" : "Party2"
-            },
-            "priceQuantity" : {
-              "quantitySchedule" : {
-                "address" : {
-                  "scope" : "DOCUMENT",
-                  "value" : "quantity-1"
-                }
-              },
-              "meta" : {
-                "globalKey" : "0"
-              }
-            },
-            "rateSpecification" : {
-              "FloatingRateSpecification" : {
-                "rateOption" : {
-                  "address" : {
-                    "scope" : "DOCUMENT",
-                    "value" : "InterestRateIndex-1"
-                  }
-                },
-                "spreadSchedule" : {
-                  "price" : {
-                    "address" : {
-                      "scope" : "DOCUMENT",
-                      "value" : "price-1"
-                    }
-                  }
-                },
-                "meta" : {
-                  "globalKey" : "0"
+          "@type" : "cdm.product.asset.InterestRatePayout",
+          "payerReceiver" : {
+            "payer" : "Party1",
+            "receiver" : "Party2"
+          },
+          "priceQuantity" : {
+            "quantitySchedule" : {
+              "@ref:scoped" : "quantity-1",
+              "value" : 100000000,
+              "unit" : {
+                "currency" : {
+                  "@data" : "USD"
                 }
               }
+            }
+          },
+          "rateSpecification" : {
+            "@type" : "cdm.product.asset.FloatingRateSpecification",
+            "rateOption" : {
+              "@ref:scoped" : "InterestRateIndex-1",
+              "@data" : {
+                "@type" : "cdm.observable.asset.FloatingRateIndex",
+                "identifier" : [ {
+                  "identifier" : {
+                    "@data" : "USD-LIBOR-BBA"
+                  },
+                  "identifierType" : "Other"
+                } ],
+                "assetType" : "Other",
+                "assetClass" : "InterestRate",
+                "floatingRateIndex" : {
+                  "@data" : "USD-LIBOR-BBA"
+                },
+                "indexTenor" : {
+                  "periodMultiplier" : 3,
+                  "period" : "M"
+                }
+              }
             },
-            "dayCountFraction" : {
-              "value" : "ACT/360"
+            "spreadSchedule" : {
+              "price" : {
+                "@ref:scoped" : "price-1",
+                "value" : 0.0325,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "USD"
+                  }
+                },
+                "perUnitOf" : {
+                  "currency" : {
+                    "@data" : "USD"
+                  }
+                },
+                "priceType" : "InterestRate",
+                "arithmeticOperator" : "Add"
+              }
+            }
+          },
+          "dayCountFraction" : {
+            "@data" : "ACT/360"
+          },
+          "calculationPeriodDates" : {
+            "@key:external" : "CalcPeriodDates0",
+            "effectiveDate" : {
+              "adjustableDate" : {
+                "unadjustedDate" : "2009-08-30",
+                "dateAdjustments" : {
+                  "businessDayConvention" : "NONE"
+                }
+              }
             },
-            "calculationPeriodDates" : {
+            "terminationDate" : {
+              "adjustableDate" : {
+                "unadjustedDate" : "2011-08-30",
+                "dateAdjustments" : {
+                  "businessDayConvention" : "MODFOLLOWING",
+                  "businessCenters" : {
+                    "@key" : "27e4e9",
+                    "@key:external" : "accrualBusinessCenters0",
+                    "businessCenter" : [ {
+                      "@data" : "USNY"
+                    } ]
+                  }
+                }
+              }
+            },
+            "calculationPeriodDatesAdjustments" : {
+              "businessDayConvention" : "MODFOLLOWING",
+              "businessCenters" : {
+                "businessCentersReference" : {
+                  "@ref" : "27e4e9",
+                  "@ref:external" : "accrualBusinessCenters0",
+                  "@key" : "27e4e9",
+                  "@key:external" : "resetBusinessCenters1",
+                  "businessCenter" : [ {
+                    "@data" : "USNY"
+                  } ]
+                }
+              }
+            },
+            "calculationPeriodFrequency" : {
+              "periodMultiplier" : 3,
+              "period" : "M",
+              "rollConvention" : "30"
+            }
+          },
+          "paymentDates" : {
+            "paymentFrequency" : {
+              "periodMultiplier" : 3,
+              "period" : "M"
+            },
+            "payRelativeTo" : "CalculationPeriodEndDate",
+            "paymentDatesAdjustments" : {
+              "businessDayConvention" : "MODFOLLOWING",
+              "businessCenters" : {
+                "@key" : "27e4e9",
+                "@key:external" : "paymentBusinessCenters0",
+                "businessCenter" : [ {
+                  "@data" : "USNY"
+                } ]
+              }
+            }
+          },
+          "resetDates" : {
+            "@key:external" : "resetDates0",
+            "calculationPeriodDatesReference" : {
+              "@ref:external" : "CalcPeriodDates0",
+              "@key:external" : "CalcPeriodDates0",
               "effectiveDate" : {
                 "adjustableDate" : {
                   "unadjustedDate" : "2009-08-30",
                   "dateAdjustments" : {
-                    "businessDayConvention" : "NONE",
-                    "meta" : {
-                      "globalKey" : "24a738"
-                    }
-                  },
-                  "meta" : {
-                    "globalKey" : "ebd961d6"
+                    "businessDayConvention" : "NONE"
                   }
-                },
-                "meta" : {
-                  "globalKey" : "ebd961d6"
                 }
               },
               "terminationDate" : {
@@ -71,190 +153,186 @@
                   "dateAdjustments" : {
                     "businessDayConvention" : "MODFOLLOWING",
                     "businessCenters" : {
+                      "@key" : "27e4e9",
+                      "@key:external" : "accrualBusinessCenters0",
                       "businessCenter" : [ {
-                        "value" : "USNY"
-                      } ],
-                      "meta" : {
-                        "globalKey" : "27e4e9",
-                        "externalKey" : "accrualBusinessCenters0"
-                      }
-                    },
-                    "meta" : {
-                      "globalKey" : "3662e8ba"
+                        "@data" : "USNY"
+                      } ]
                     }
-                  },
-                  "meta" : {
-                    "globalKey" : "e08db15c"
                   }
-                },
-                "meta" : {
-                  "globalKey" : "e08db15c"
                 }
               },
               "calculationPeriodDatesAdjustments" : {
                 "businessDayConvention" : "MODFOLLOWING",
                 "businessCenters" : {
                   "businessCentersReference" : {
-                    "globalReference" : "27e4e9",
-                    "externalReference" : "accrualBusinessCenters0"
-                  },
-                  "meta" : {
-                    "globalKey" : "622268e1"
+                    "@ref" : "27e4e9",
+                    "@ref:external" : "accrualBusinessCenters0",
+                    "@key" : "27e4e9",
+                    "@key:external" : "resetBusinessCenters1",
+                    "businessCenter" : [ {
+                      "@data" : "USNY"
+                    } ]
                   }
-                },
-                "meta" : {
-                  "globalKey" : "985d6cb2"
                 }
               },
               "calculationPeriodFrequency" : {
                 "periodMultiplier" : 3,
                 "period" : "M",
-                "meta" : {
-                  "globalKey" : "17f92"
-                },
                 "rollConvention" : "30"
-              },
-              "meta" : {
-                "globalKey" : "d72b1e52",
-                "externalKey" : "CalcPeriodDates0"
               }
             },
-            "paymentDates" : {
-              "paymentFrequency" : {
-                "periodMultiplier" : 3,
-                "period" : "M",
-                "meta" : {
-                  "globalKey" : "aa"
-                }
+            "resetRelativeTo" : "CalculationPeriodStartDate",
+            "fixingDates" : {
+              "periodMultiplier" : -2,
+              "period" : "D",
+              "dayType" : "Business",
+              "businessDayConvention" : "NONE",
+              "businessCenters" : {
+                "@key:external" : "resetBusinessCenters0",
+                "businessCenter" : [ {
+                  "@data" : "GBLO"
+                } ]
               },
-              "payRelativeTo" : "CalculationPeriodEndDate",
-              "paymentDatesAdjustments" : {
-                "businessDayConvention" : "MODFOLLOWING",
-                "businessCenters" : {
-                  "businessCenter" : [ {
-                    "value" : "USNY"
-                  } ],
-                  "meta" : {
-                    "globalKey" : "27e4e9",
-                    "externalKey" : "paymentBusinessCenters0"
-                  }
-                },
-                "meta" : {
-                  "globalKey" : "3662e8ba"
-                }
-              },
-              "meta" : {
-                "globalKey" : "848424a"
+              "dateRelativeTo" : {
+                "@ref" : "fdec5914",
+                "@ref:external" : "resetDates0"
               }
             },
-            "resetDates" : {
-              "calculationPeriodDatesReference" : {
-                "globalReference" : "d72b1e52",
-                "externalReference" : "CalcPeriodDates0"
-              },
-              "resetRelativeTo" : "CalculationPeriodStartDate",
-              "fixingDates" : {
-                "periodMultiplier" : -2,
-                "period" : "D",
-                "meta" : {
-                  "globalKey" : "cb73d5a"
-                },
-                "dayType" : "Business",
-                "businessDayConvention" : "NONE",
-                "businessCenters" : {
+            "resetFrequency" : {
+              "periodMultiplier" : 3,
+              "period" : "M"
+            },
+            "resetDatesAdjustments" : {
+              "businessDayConvention" : "MODFOLLOWING",
+              "businessCenters" : {
+                "businessCentersReference" : {
+                  "@ref:external" : "resetBusinessCenters0",
+                  "@key:external" : "resetBusinessCenters0",
                   "businessCenter" : [ {
-                    "value" : "GBLO"
-                  } ],
-                  "meta" : {
-                    "globalKey" : "21479e",
-                    "externalKey" : "resetBusinessCenters0"
-                  }
-                },
-                "dateRelativeTo" : {
-                  "globalReference" : "fdec5914",
-                  "externalReference" : "resetDates0"
+                    "@data" : "GBLO"
+                  } ]
                 }
-              },
-              "resetFrequency" : {
-                "periodMultiplier" : 3,
-                "period" : "M",
-                "meta" : {
-                  "globalKey" : "aa"
-                }
-              },
-              "resetDatesAdjustments" : {
-                "businessDayConvention" : "MODFOLLOWING",
-                "businessCenters" : {
-                  "businessCentersReference" : {
-                    "globalReference" : "21479e",
-                    "externalReference" : "resetBusinessCenters0"
-                  },
-                  "meta" : {
-                    "globalKey" : "35a06081"
-                  }
-                },
-                "meta" : {
-                  "globalKey" : "6bdb6452"
-                }
-              },
-              "meta" : {
-                "globalKey" : "fdec5914",
-                "externalKey" : "resetDates0"
               }
             }
-          },
-          "meta" : {
-            "globalKey" : "9a1909ef"
           }
         }, {
-          "InterestRatePayout" : {
-            "payerReceiver" : {
-              "payer" : "Party2",
-              "receiver" : "Party1"
-            },
-            "priceQuantity" : {
-              "quantitySchedule" : {
-                "address" : {
-                  "scope" : "DOCUMENT",
-                  "value" : "quantity-2"
+          "@type" : "cdm.product.asset.InterestRatePayout",
+          "payerReceiver" : {
+            "payer" : "Party2",
+            "receiver" : "Party1"
+          },
+          "priceQuantity" : {
+            "quantitySchedule" : {
+              "@ref:scoped" : "quantity-2",
+              "value" : 100000000,
+              "unit" : {
+                "currency" : {
+                  "@data" : "USD"
                 }
-              },
-              "meta" : {
-                "globalKey" : "0"
               }
-            },
-            "rateSpecification" : {
-              "FloatingRateSpecification" : {
-                "rateOption" : {
-                  "address" : {
-                    "scope" : "DOCUMENT",
-                    "value" : "InterestRateIndex-2"
-                  }
+            }
+          },
+          "rateSpecification" : {
+            "@type" : "cdm.product.asset.FloatingRateSpecification",
+            "rateOption" : {
+              "@ref:scoped" : "InterestRateIndex-2",
+              "@data" : {
+                "@type" : "cdm.observable.asset.FloatingRateIndex",
+                "identifier" : [ {
+                  "identifier" : {
+                    "@data" : "USD-LIBOR-BBA"
+                  },
+                  "identifierType" : "Other"
+                } ],
+                "assetType" : "Other",
+                "assetClass" : "InterestRate",
+                "floatingRateIndex" : {
+                  "@data" : "USD-LIBOR-BBA"
                 },
-                "meta" : {
-                  "globalKey" : "0"
+                "indexTenor" : {
+                  "periodMultiplier" : 6,
+                  "period" : "M"
+                }
+              }
+            }
+          },
+          "dayCountFraction" : {
+            "@data" : "30/360"
+          },
+          "calculationPeriodDates" : {
+            "@key:external" : "CalcPeriodDates1",
+            "effectiveDate" : {
+              "adjustableDate" : {
+                "unadjustedDate" : "2009-08-30",
+                "dateAdjustments" : {
+                  "businessDayConvention" : "NONE"
                 }
               }
             },
-            "dayCountFraction" : {
-              "value" : "30/360"
+            "terminationDate" : {
+              "adjustableDate" : {
+                "unadjustedDate" : "2011-08-30",
+                "dateAdjustments" : {
+                  "businessDayConvention" : "MODFOLLOWING",
+                  "businessCenters" : {
+                    "@key" : "27e4e9",
+                    "@key:external" : "accrualBusinessCenters1",
+                    "businessCenter" : [ {
+                      "@data" : "USNY"
+                    } ]
+                  }
+                }
+              }
             },
-            "calculationPeriodDates" : {
+            "calculationPeriodDatesAdjustments" : {
+              "businessDayConvention" : "MODFOLLOWING",
+              "businessCenters" : {
+                "businessCentersReference" : {
+                  "@ref" : "27e4e9",
+                  "@ref:external" : "accrualBusinessCenters1",
+                  "@key" : "27e4e9",
+                  "@key:external" : "resetBusinessCenters1",
+                  "businessCenter" : [ {
+                    "@data" : "USNY"
+                  } ]
+                }
+              }
+            },
+            "calculationPeriodFrequency" : {
+              "periodMultiplier" : 6,
+              "period" : "M",
+              "rollConvention" : "30"
+            }
+          },
+          "paymentDates" : {
+            "paymentFrequency" : {
+              "periodMultiplier" : 6,
+              "period" : "M"
+            },
+            "payRelativeTo" : "CalculationPeriodEndDate",
+            "paymentDatesAdjustments" : {
+              "businessDayConvention" : "MODFOLLOWING",
+              "businessCenters" : {
+                "@key" : "27e4e9",
+                "@key:external" : "paymentBusinessCenters1",
+                "businessCenter" : [ {
+                  "@data" : "USNY"
+                } ]
+              }
+            }
+          },
+          "resetDates" : {
+            "@key:external" : "resetDates1",
+            "calculationPeriodDatesReference" : {
+              "@ref:external" : "CalcPeriodDates1",
+              "@key:external" : "CalcPeriodDates1",
               "effectiveDate" : {
                 "adjustableDate" : {
                   "unadjustedDate" : "2009-08-30",
                   "dateAdjustments" : {
-                    "businessDayConvention" : "NONE",
-                    "meta" : {
-                      "globalKey" : "24a738"
-                    }
-                  },
-                  "meta" : {
-                    "globalKey" : "ebd961d6"
+                    "businessDayConvention" : "NONE"
                   }
-                },
-                "meta" : {
-                  "globalKey" : "ebd961d6"
                 }
               },
               "terminationDate" : {
@@ -263,409 +341,257 @@
                   "dateAdjustments" : {
                     "businessDayConvention" : "MODFOLLOWING",
                     "businessCenters" : {
+                      "@key" : "27e4e9",
+                      "@key:external" : "accrualBusinessCenters1",
                       "businessCenter" : [ {
-                        "value" : "USNY"
-                      } ],
-                      "meta" : {
-                        "globalKey" : "27e4e9",
-                        "externalKey" : "accrualBusinessCenters1"
-                      }
-                    },
-                    "meta" : {
-                      "globalKey" : "3662e8ba"
+                        "@data" : "USNY"
+                      } ]
                     }
-                  },
-                  "meta" : {
-                    "globalKey" : "e08db15c"
                   }
-                },
-                "meta" : {
-                  "globalKey" : "e08db15c"
                 }
               },
               "calculationPeriodDatesAdjustments" : {
                 "businessDayConvention" : "MODFOLLOWING",
                 "businessCenters" : {
                   "businessCentersReference" : {
-                    "globalReference" : "27e4e9",
-                    "externalReference" : "accrualBusinessCenters1"
-                  },
-                  "meta" : {
-                    "globalKey" : "622268e2"
+                    "@ref" : "27e4e9",
+                    "@ref:external" : "accrualBusinessCenters1",
+                    "@key" : "27e4e9",
+                    "@key:external" : "resetBusinessCenters1",
+                    "businessCenter" : [ {
+                      "@data" : "USNY"
+                    } ]
                   }
-                },
-                "meta" : {
-                  "globalKey" : "985d6cb3"
                 }
               },
               "calculationPeriodFrequency" : {
                 "periodMultiplier" : 6,
                 "period" : "M",
-                "meta" : {
-                  "globalKey" : "18ad5"
-                },
                 "rollConvention" : "30"
-              },
-              "meta" : {
-                "globalKey" : "d7394116",
-                "externalKey" : "CalcPeriodDates1"
               }
             },
-            "paymentDates" : {
-              "paymentFrequency" : {
-                "periodMultiplier" : 6,
-                "period" : "M",
-                "meta" : {
-                  "globalKey" : "107"
-                }
+            "resetRelativeTo" : "CalculationPeriodStartDate",
+            "fixingDates" : {
+              "periodMultiplier" : -2,
+              "period" : "D",
+              "dayType" : "Business",
+              "businessDayConvention" : "NONE",
+              "businessCenters" : {
+                "@key" : "27e4e9",
+                "@key:external" : "resetBusinessCenters1",
+                "businessCenter" : [ {
+                  "@data" : "USNY"
+                } ]
               },
-              "payRelativeTo" : "CalculationPeriodEndDate",
-              "paymentDatesAdjustments" : {
-                "businessDayConvention" : "MODFOLLOWING",
-                "businessCenters" : {
-                  "businessCenter" : [ {
-                    "value" : "USNY"
-                  } ],
-                  "meta" : {
-                    "globalKey" : "27e4e9",
-                    "externalKey" : "paymentBusinessCenters1"
-                  }
-                },
-                "meta" : {
-                  "globalKey" : "3662e8ba"
-                }
-              },
-              "meta" : {
-                "globalKey" : "3febc8e7"
+              "dateRelativeTo" : {
+                "@ref" : "29ac0bc3",
+                "@ref:external" : "resetDates1"
               }
             },
-            "resetDates" : {
-              "calculationPeriodDatesReference" : {
-                "globalReference" : "d7394116",
-                "externalReference" : "CalcPeriodDates1"
-              },
-              "resetRelativeTo" : "CalculationPeriodStartDate",
-              "fixingDates" : {
-                "periodMultiplier" : -2,
-                "period" : "D",
-                "meta" : {
-                  "globalKey" : "258bb3e6"
-                },
-                "dayType" : "Business",
-                "businessDayConvention" : "NONE",
-                "businessCenters" : {
+            "resetFrequency" : {
+              "periodMultiplier" : 6,
+              "period" : "M"
+            },
+            "resetDatesAdjustments" : {
+              "businessDayConvention" : "MODFOLLOWING",
+              "businessCenters" : {
+                "businessCentersReference" : {
+                  "@ref:external" : "resetBusinessCenters1",
+                  "@key" : "27e4e9",
+                  "@key:external" : "resetBusinessCenters1",
                   "businessCenter" : [ {
-                    "value" : "USNY"
-                  } ],
-                  "meta" : {
-                    "globalKey" : "27e4e9",
-                    "externalKey" : "resetBusinessCenters1"
-                  }
-                },
-                "dateRelativeTo" : {
-                  "globalReference" : "29ac0bc3",
-                  "externalReference" : "resetDates1"
+                    "@data" : "USNY"
+                  } ]
                 }
-              },
-              "resetFrequency" : {
-                "periodMultiplier" : 6,
-                "period" : "M",
-                "meta" : {
-                  "globalKey" : "107"
-                }
-              },
-              "resetDatesAdjustments" : {
-                "businessDayConvention" : "MODFOLLOWING",
-                "businessCenters" : {
-                  "businessCentersReference" : {
-                    "globalReference" : "27e4e9",
-                    "externalReference" : "resetBusinessCenters1"
-                  },
-                  "meta" : {
-                    "globalKey" : "35a06082"
-                  }
-                },
-                "meta" : {
-                  "globalKey" : "6bdb6453"
-                }
-              },
-              "meta" : {
-                "globalKey" : "29ac0bc3",
-                "externalKey" : "resetDates1"
               }
             }
-          },
-          "meta" : {
-            "globalKey" : "68bfa375"
           }
         } ]
-      },
-      "meta" : {
-        "globalKey" : "bd1b564"
       }
     },
     "tradeLot" : [ {
       "priceQuantity" : [ {
         "price" : [ {
-          "value" : {
-            "value" : 0.0325,
-            "unit" : {
-              "currency" : {
-                "value" : "USD"
-              }
-            },
-            "perUnitOf" : {
-              "currency" : {
-                "value" : "USD"
-              }
-            },
-            "priceType" : "InterestRate",
-            "arithmeticOperator" : "Add"
-          },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "price-1"
-            } ]
-          }
-        }, {
-          "value" : {
-            "value" : -1.0,
-            "unit" : {
-              "currency" : {
-                "value" : "USD"
-              }
-            },
-            "perUnitOf" : {
-              "currency" : {
-                "value" : "USD"
-              }
-            },
-            "priceType" : "InterestRate",
-            "arithmeticOperator" : "Multiply"
-          },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "price-2"
-            } ]
-          }
-        } ],
-        "quantity" : [ {
-          "value" : {
-            "value" : 100000000,
-            "unit" : {
-              "currency" : {
-                "value" : "USD"
-              }
+          "@key:scoped" : "price-1",
+          "value" : 0.0325,
+          "unit" : {
+            "currency" : {
+              "@data" : "USD"
             }
           },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "quantity-1"
-            } ]
+          "perUnitOf" : {
+            "currency" : {
+              "@data" : "USD"
+            }
+          },
+          "priceType" : "InterestRate",
+          "arithmeticOperator" : "Add"
+        }, {
+          "@key:scoped" : "price-2",
+          "value" : -1.0,
+          "unit" : {
+            "currency" : {
+              "@data" : "USD"
+            }
+          },
+          "perUnitOf" : {
+            "currency" : {
+              "@data" : "USD"
+            }
+          },
+          "priceType" : "InterestRate",
+          "arithmeticOperator" : "Multiply"
+        } ],
+        "quantity" : [ {
+          "@key:scoped" : "quantity-1",
+          "value" : 100000000,
+          "unit" : {
+            "currency" : {
+              "@data" : "USD"
+            }
           }
         } ],
         "observable" : {
-          "value" : {
-            "Index" : {
-              "InterestRateIndex" : {
-                "value" : {
-                  "FloatingRateIndex" : {
-                    "identifier" : [ {
-                      "identifier" : {
-                        "value" : "USD-LIBOR-BBA"
-                      },
-                      "identifierType" : "Other"
-                    } ],
-                    "assetType" : "Other",
-                    "assetClass" : "InterestRate",
-                    "floatingRateIndex" : {
-                      "value" : "USD-LIBOR-BBA"
-                    },
-                    "indexTenor" : {
-                      "periodMultiplier" : 3,
-                      "period" : "M",
-                      "meta" : {
-                        "globalKey" : "aa"
-                      }
-                    }
-                  }
+          "@key:scoped" : "observable-1",
+          "@data" : {
+            "@type" : "cdm.observable.asset.InterestRateIndex",
+            "@key:scoped" : "InterestRateIndex-1",
+            "@data" : {
+              "@type" : "cdm.observable.asset.FloatingRateIndex",
+              "identifier" : [ {
+                "identifier" : {
+                  "@data" : "USD-LIBOR-BBA"
                 },
-                "meta" : {
-                  "location" : [ {
-                    "scope" : "DOCUMENT",
-                    "value" : "InterestRateIndex-1"
-                  } ]
-                }
+                "identifierType" : "Other"
+              } ],
+              "assetType" : "Other",
+              "assetClass" : "InterestRate",
+              "floatingRateIndex" : {
+                "@data" : "USD-LIBOR-BBA"
+              },
+              "indexTenor" : {
+                "periodMultiplier" : 3,
+                "period" : "M"
               }
             }
-          },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "observable-1"
-            } ]
           }
-        },
-        "meta" : {
-          "globalKey" : "fa5ed2eb"
         }
       }, {
         "quantity" : [ {
-          "value" : {
-            "value" : 100000000,
-            "unit" : {
-              "currency" : {
-                "value" : "USD"
-              }
+          "@key:scoped" : "quantity-2",
+          "value" : 100000000,
+          "unit" : {
+            "currency" : {
+              "@data" : "USD"
             }
-          },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "quantity-2"
-            } ]
           }
         } ],
         "observable" : {
-          "value" : {
-            "Index" : {
-              "InterestRateIndex" : {
-                "value" : {
-                  "FloatingRateIndex" : {
-                    "identifier" : [ {
-                      "identifier" : {
-                        "value" : "USD-LIBOR-BBA"
-                      },
-                      "identifierType" : "Other"
-                    } ],
-                    "assetType" : "Other",
-                    "assetClass" : "InterestRate",
-                    "floatingRateIndex" : {
-                      "value" : "USD-LIBOR-BBA"
-                    },
-                    "indexTenor" : {
-                      "periodMultiplier" : 6,
-                      "period" : "M",
-                      "meta" : {
-                        "globalKey" : "107"
-                      }
-                    }
-                  }
+          "@key:scoped" : "observable-2",
+          "@data" : {
+            "@type" : "cdm.observable.asset.InterestRateIndex",
+            "@key:scoped" : "InterestRateIndex-2",
+            "@data" : {
+              "@type" : "cdm.observable.asset.FloatingRateIndex",
+              "identifier" : [ {
+                "identifier" : {
+                  "@data" : "USD-LIBOR-BBA"
                 },
-                "meta" : {
-                  "location" : [ {
-                    "scope" : "DOCUMENT",
-                    "value" : "InterestRateIndex-2"
-                  } ]
-                }
+                "identifierType" : "Other"
+              } ],
+              "assetType" : "Other",
+              "assetClass" : "InterestRate",
+              "floatingRateIndex" : {
+                "@data" : "USD-LIBOR-BBA"
+              },
+              "indexTenor" : {
+                "periodMultiplier" : 6,
+                "period" : "M"
               }
             }
-          },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "observable-2"
-            } ]
           }
-        },
-        "meta" : {
-          "globalKey" : "1f4958ab"
         }
       } ]
     } ],
     "counterparty" : [ {
       "role" : "Party1",
       "partyReference" : {
-        "globalReference" : "33f59567",
-        "externalReference" : "party1"
+        "@ref:external" : "party1",
+        "@key:external" : "party1",
+        "partyId" : [ {
+          "identifier" : {
+            "@scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id",
+            "@data" : "Party A"
+          }
+        } ]
       }
     }, {
       "role" : "Party2",
       "partyReference" : {
-        "globalReference" : "33f59568",
-        "externalReference" : "party2"
+        "@ref:external" : "party2",
+        "@key:external" : "party2",
+        "partyId" : [ {
+          "identifier" : {
+            "@scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id",
+            "@data" : "Party B"
+          }
+        } ]
       }
     } ],
     "tradeIdentifier" : [ {
       "issuerReference" : {
-        "globalReference" : "33f59567",
-        "externalReference" : "party1"
+        "@ref:external" : "party1",
+        "@key:external" : "party1",
+        "partyId" : [ {
+          "identifier" : {
+            "@scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id",
+            "@data" : "Party A"
+          }
+        } ]
       },
       "assignedIdentifier" : [ {
         "identifier" : {
-          "value" : "123456",
-          "meta" : {
-            "scheme" : "http://www.partyA.com/trade-id"
-          }
+          "@scheme" : "http://www.partyA.com/trade-id",
+          "@data" : "123456"
         }
-      } ],
-      "meta" : {
-        "globalKey" : "ebf08478"
-      }
+      } ]
     }, {
       "issuerReference" : {
-        "globalReference" : "33f59568",
-        "externalReference" : "party2"
+        "@ref:external" : "party2",
+        "@key:external" : "party2",
+        "partyId" : [ {
+          "identifier" : {
+            "@scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id",
+            "@data" : "Party B"
+          }
+        } ]
       },
       "assignedIdentifier" : [ {
         "identifier" : {
-          "value" : "654321",
-          "meta" : {
-            "scheme" : "http://www.partyB.com/trade-id"
-          }
+          "@scheme" : "http://www.partyB.com/trade-id",
+          "@data" : "654321"
         }
-      } ],
-      "meta" : {
-        "globalKey" : "f4a3eab1"
-      }
+      } ]
     } ],
     "tradeDate" : {
-      "value" : "2009-04-29",
-      "meta" : {
-        "globalKey" : "3ec91d"
-      }
+      "@data" : "2009-04-29"
     },
     "party" : [ {
+      "@key:external" : "party1",
       "partyId" : [ {
         "identifier" : {
-          "value" : "Party A",
-          "meta" : {
-            "scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id"
-          }
-        },
-        "meta" : {
-          "globalKey" : "33f59567"
+          "@scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id",
+          "@data" : "Party A"
         }
-      } ],
-      "meta" : {
-        "globalKey" : "33f59567",
-        "externalKey" : "party1"
-      }
+      } ]
     }, {
+      "@key:external" : "party2",
       "partyId" : [ {
         "identifier" : {
-          "value" : "Party B",
-          "meta" : {
-            "scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id"
-          }
-        },
-        "meta" : {
-          "globalKey" : "33f59568"
+          "@scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id",
+          "@data" : "Party B"
         }
-      } ],
-      "meta" : {
-        "globalKey" : "33f59568",
-        "externalKey" : "party2"
-      }
-    } ],
-    "meta" : {
-      "globalKey" : "9c159ae"
-    }
-  },
-  "meta" : {
-    "globalKey" : "9c159ae"
+      } ]
+    } ]
   }
 }
