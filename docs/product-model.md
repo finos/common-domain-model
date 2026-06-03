@@ -1316,8 +1316,11 @@ type ProductTaxonomy extends Taxonomy:
     "taxonomySource": "ISDA"
   },
   {
-    "productQualifier": "InterestRate_IRSwap_FixedFloat",
-    "taxonomySource": "ISDA"
+    "taxonomyValue": {
+      "value": "InterestRate_IRSwap_FixedFloat"
+    }
+    "taxonomySource": "ISDA",
+    "calculated": true
   }
 ]
 ```
