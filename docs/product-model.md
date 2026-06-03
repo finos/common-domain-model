@@ -1288,16 +1288,12 @@ type ProductTaxonomy extends Taxonomy:
         [metadata scheme]
     secondaryAssetClass AssetClassEnum (0..*)
         [metadata scheme]
-    productQualifier string (0..1)
 
     condition TaxonomyType:
         required choice source, primaryAssetClass, secondaryAssetClass
 
     condition TaxonomySource:
-        if source exists then ( value exists or productQualifier exists )
-
-    condition TaxonomyValue:
-        optional choice value, productQualifier
+        if source exists then value exists
 ```
 
 ``` Javascript
