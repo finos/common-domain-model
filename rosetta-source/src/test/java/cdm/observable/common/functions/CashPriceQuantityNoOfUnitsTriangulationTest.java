@@ -8,7 +8,7 @@ import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.observable.asset.PriceQuantity;
 import cdm.product.template.TradableProduct;
 import javax.inject.Inject;
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

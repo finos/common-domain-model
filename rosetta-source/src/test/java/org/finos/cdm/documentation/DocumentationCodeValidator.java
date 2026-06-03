@@ -1,4 +1,4 @@
-package org.isda.cdm.documentation;
+package org.finos.cdm.documentation;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;

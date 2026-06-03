@@ -1,7 +1,7 @@
-package org.isda.cdm.merging;
+package org.finos.cdm.merging;
 
 import cdm.base.staticdata.party.Party;
-import com.regnosys.rosetta.common.merging.SimpleMerger;
+import com.regnosys.rosetta.common.merging.SimpleSplitter;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -10,23 +10,21 @@ import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.finos.cdm.util.ResourcesUtils.getObject;
 
-class SimpleMergerTest {
+class SimpleSplitterTest {
 
 	private static final String PARTY_TEMPLATE = "merging/party-template.json";
-	private static final String PARTY = "merging/party-unmerged.json";
 	private static final String PARTY_MERGED = "merging/party-merged.json";
+	private static final String PARTY_UNMERGED = "merging/party-unmerged.json";
 
 	@Test
 	void shouldMergePartyObjects() throws IOException {
 		PartyBuilder template = getObject(Party.class, PARTY_TEMPLATE).toBuilder();
-		PartyBuilder input = getObject(Party.class, PARTY).toBuilder();
+		PartyBuilder merged = getObject(Party.class, PARTY_MERGED).toBuilder();
 
-		new SimpleMerger().run(input, template);
+		new SimpleSplitter().run(merged, template);
 
-		Party merged = input.build();
-		Party expected = getObject(Party.class, PARTY_MERGED);
-		assertEquals(expected, merged);
+		Party unmerged = merged.build();
+		Party expected = getObject(Party.class, PARTY_UNMERGED);
+		assertEquals(expected, unmerged);
 	}
-
-
 }

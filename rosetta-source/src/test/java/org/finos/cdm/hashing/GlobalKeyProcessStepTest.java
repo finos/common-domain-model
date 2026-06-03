@@ -1,4 +1,4 @@
-package org.isda.cdm.hashing;
+package org.finos.cdm.hashing;
 
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.Party.PartyBuilder;
