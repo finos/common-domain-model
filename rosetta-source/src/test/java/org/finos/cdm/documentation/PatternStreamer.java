@@ -1,4 +1,4 @@
-package org.isda.cdm.documentation;
+package org.finos.cdm.documentation;
 
 import java.util.ArrayList;
 import java.util.List;
