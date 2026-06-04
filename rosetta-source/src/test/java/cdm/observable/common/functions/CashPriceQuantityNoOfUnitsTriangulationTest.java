@@ -8,6 +8,8 @@ import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.observable.asset.PriceQuantity;
 import cdm.product.template.TradableProduct;
 import javax.inject.Inject;
+
+import cdm.product.template.functions.PriceQuantityTriangulation;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +27,7 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 	private static final String EQUITY_DIR = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/";
 	
 	@Inject
-	private CashPriceQuantityNoOfUnitsTriangulation func;
+	private PriceQuantityTriangulation func;
 
 	@Test
 	void shouldTriangulateEquityPriceNotionalAndNoOfUnitsAndReturnSuccess() throws IOException {
@@ -47,7 +49,7 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		boolean success = func.evaluate(quantity, price);
+		boolean success = func.evaluate(price, quantity);
 
 		assertTrue(success);
 	}
@@ -72,7 +74,7 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		boolean success = func.evaluate(quantity, price);
+		boolean success = func.evaluate(price, quantity);
 
 		assertTrue(success);
 	}
