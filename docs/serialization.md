@@ -21,22 +21,22 @@ title: Serialization
 - [7. Appendix](#7-appendix)
 - [8. Acknowledgements](#8-acknowledgements)
 
-# 1. Executive Summary
+## 1. Executive Summary
 
 This document describes the standard for JSON serialization of Rune defined CDM objects.  This format includes all relevant object information and improves efficiency, readability, maintainability, and interoperability.
 
-# 2. Principles
+## 2. Principles
 
 Principles of the design.
 
-## 2.1 High level Goals
+### 2.1 High level Goals
 
 - **interoperability**: users of the same version of the model should be able to exchange data regardless of their programming language
 - **completeness**: ability to represent the entire model
 - **readibility**: serialized data should be human readible
 - **compactness**: serialized data should be as compact as possible
 
-## 2.2 Design reference point
+### 2.2 Design reference point
 An ordered list of principles to serve as reference when reviewing the serialization design
 
 - **object generation**: serialized data should facilitate creation of Rune defined objects including enabling the "language's" polymorphic inheritance
@@ -49,7 +49,7 @@ Out of scope
 
 Some of the above may not be absolute and the design may have had to make compromises on the extent to which it meets the principles.
 
-# 3. Overview
+## 3. Overview
 
 The following table illustrates all the _special_ attributes that are provided as part of the serialization process. Please refer to the [Implementation](#4-implementation) section for more details of where and how they are used.
 
@@ -69,9 +69,9 @@ The following table illustrates all the _special_ attributes that are provided a
 
 The [Examples](#6-examples) section contains illustrations of all the _special_ attributes.
 
-# 4. Implementation
+## 4. Implementation
 
-## 4.1 Include Model, Version and Type in Top level JSON
+### 4.1 Include Model, Version and Type in Top level JSON
 
 The serialized form contains the model, version and fully qualified type name. These will always appear at the top of the JSON.
 
@@ -89,7 +89,7 @@ The serialized form contains the model, version and fully qualified type name. T
 }
 ```
 
-## 4.2 Include Type when required
+### 4.2 Include Type when required
 
 When required, for example when a Choice type or Base class is used as an attribute, serialization includes `@type` to determine the subclass/choice.
 
@@ -106,7 +106,7 @@ When required, for example when a Choice type or Base class is used as an attrib
 }
 ```
 
-## 4.3 Types with meta
+### 4.3 Types with meta
 
 The serialized form reflects that any attribute with a meta annotation (regardless of cardinality or type i.e. basic, complex or enum) will ALWAYS be an object. 
 
@@ -152,7 +152,7 @@ type Trade:
     }
 ```
 
-## 4.4 Referencing Model
+### 4.4 Referencing Model
 
 The referencing mechanism in the Rune definitions of CDM uses keywords for keys and references. The following table compares these keywords across versions:
 
@@ -166,7 +166,7 @@ The referencing mechanism in the Rune definitions of CDM uses keywords for keys 
 
 > NOTE 2: From CDMV7 onwards the `location`, `address` and `scope` annotations now all converge on the use of `@key:scoped` and `@ref:scoped`. The external keys and refs (`@key:external` and `@ref:external`) will remain for now, but may also be able to be replaced by `@key` and `@ref` in the future. Serialization needs to support existing behaviour, whilst paving a way forward so all Rune referencing mechanisms can be unified.
 
-### 4.4.1 Global/External References 
+#### 4.4.1 Global/External References 
 
 References and external references follow the structure and naming in the model.
 
@@ -176,7 +176,7 @@ The external references i.e. `externalKey`/`@key:external` are user defined data
 
 Serialization is just taking the data in these _special_ attributes, not defining it i.e. the content of `@key` and `@key:external` is outside the scope of serialization.
 
-#### 4.4.1.1 Global key
+##### 4.4.1.1 Global key
 
 **Prior to CDMV7**
 
@@ -200,7 +200,7 @@ Serialization is just taking the data in these _special_ attributes, not definin
     }
 ```
 
-#### 4.4.1.2 Global reference
+##### 4.4.1.2 Global reference
 
 **Prior to CDMV7**
 
@@ -220,7 +220,7 @@ Serialization is just taking the data in these _special_ attributes, not definin
     }
 ```
     
-### 4.4.2 Scoped references 
+#### 4.4.2 Scoped references 
 
 Scoped references also follow the structure in the model, and use `@key:scoped` and `@ref:scoped`.
 
@@ -232,7 +232,7 @@ The `scope` annotation allows the scope of the reference to be defined e.g. to a
 
 More information on scoped references can be found in the Rune documentation [here](https://rune.finos.org/docs/modelling-components/metadata#3-cross-referencing)
 
-#### 4.4.2.1 Location (key)
+##### 4.4.2.1 Location (key)
 
 **Rune Definition**
 
@@ -286,7 +286,7 @@ enum FinancialUnitEnum:
    ]
 ```
     
-#### 4.4.2.2 Address (reference)
+##### 4.4.2.2 Address (reference)
 
 **Prior to CDMV7**
 
@@ -311,10 +311,10 @@ enum FinancialUnitEnum:
    }
 ```
 
-### 4.4.3 Scheme
+#### 4.4.3 Scheme
 Scheme gives control over the set of values that an attribute can take, without having to define this attribute as an enumeration in the model.
 
-#### 4.4.3.1 Single cardinality attribute with scheme
+##### 4.4.3.1 Single cardinality attribute with scheme
 
 **Prior to CDMV7**
 
@@ -336,7 +336,7 @@ Scheme gives control over the set of values that an attribute can take, without 
    } 
 ```
 
-#### 4.4.3.2 Multiple cardinality (List) attribute, some with scheme
+##### 4.4.3.2 Multiple cardinality (List) attribute, some with scheme
 
 ``` Javascript
    "issuer": [
@@ -350,39 +350,39 @@ Scheme gives control over the set of values that an attribute can take, without 
   ]
 ```
 
-# 5. Processing
+## 5. Processing
 
 The design includes additional enhancements intended to improve the generation and ingestion of the serialized form.
 
-## 5.1 Generation
+### 5.1 Generation
 
 These details pertain to how the serialized form is to be generated i.e. the process of serialization.
 
-### 5.1.1 @key and @ref
+#### 5.1.1 @key and @ref
 
 If `@key` is not referenced by an `@ref` then it will not be included in the serialized form.
 
 This will remove clutter and make the referencing provided by `@key`/`@ref` have more value and be easier to use.
 
-### 5.1.2 @key:external and @ref:external
+#### 5.1.2 @key:external and @ref:external
 
 The `@key:external` and `@ref:external` are user defined and will ALWAYS be included if defined. 
 
 This means it will be possible to have external keys that do not have a corresponding reference, and vice-versa.
 
-### 5.1.3 @key:scoped and @ref:scoped
+#### 5.1.3 @key:scoped and @ref:scoped
 
 The `@key:scoped` and `@ref:scoped` are user defined and will ALWAYS be included if defined. 
 
 This means it will be possible to have external keys that do not have a corresponding reference, and vice-versa.
 
-### 5.1.4 Null values
+#### 5.1.4 Null values
 
 If a value is null then the attribute will not get written out.
 
 If an array is null then it will also not get written out.
 
-### 5.1.5 Multiple References
+#### 5.1.5 Multiple References
 
 There is the confusing potential that an attribute can have more than one reference (i.e. more than one of `@ref`, `@ref:external`, and `@ref:scoped`).
 
@@ -393,17 +393,17 @@ If the multiple references point to the same part of the object, only one is nee
 - `@ref:scoped` is viewed to have the most "value" and will be preserved in all cases where it is present.  All other references will be removed.
 - If `@ref:scoped` is not present, `@ref:external` will be preserved as it is viewed to have greater "value" than `@ref`.
 
-## 5.2 Ingestion
+### 5.2 Ingestion
 
 These details pertain to how the serialized form is to be ingested i.e. the process of deserialization.
 
-### 5.2.1 Null values
+#### 5.2.1 Null values
 
 When a null value is encountered it will be ignored, it will not be processed.
 
 Null arrays will also be ignored.
 
-## 5.3 Validation
+### 5.3 Validation
 
 **Principles**
 - Follow the [Robustness Principle](https://en.wikipedia.org/wiki/Robustness_principle): "be conservative in what you do, be liberal in what you accept from others. It is often reworded as: be conservative in what you send, be liberal in what you accept."
@@ -417,7 +417,7 @@ Null arrays will also be ignored.
    - The types match the model definition
    - All relevant constraints are met
 
-### 5.3.1 Deserialization and Validation
+#### 5.3.1 Deserialization and Validation
 
 Deserialization will provide a warning and discard any attributes that do not conform to the model.  
 
@@ -465,7 +465,7 @@ end
     sub2.1 -- No -->sub3.1
     sub2.2 -->sub3.1
 ```
-### 5.3.2 Validation and Serialization
+#### 5.3.2 Validation and Serialization
 
 Following the Robustness Principle to enable interoperability, by default an entity must be valid prior to serialization.
 
@@ -498,11 +498,11 @@ flowchart LR
     C --> D
 ```
 
-## 5.4 Error and Warning Reporting
+### 5.4 Error and Warning Reporting
 
 Errors and warnings from serialization/deserialization will be logged.
 
-# 6. Examples
+## 6. Examples
 
 An example of a dummy Rosetta structure that includes the meta and referencing described in the previous sections is provided below. 
 
@@ -580,17 +580,17 @@ type Party:
 }
 ```
 
-# 7. Appendix
+## 7. Appendix
 Supporting and reference information.
 
-## 7.1 JSONPath
+### 7.1 JSONPath
 
 JSONPath allows navigation through a JSON file. The serialized format that we has been implemented was tested against JSONPath. It was found that in all cases except for one JSONPath could successfully traverse our proposed JSON. 
 
 The exception case was if a _special_ item was at the top level of the document. In this instance JSONPath failed to locate our item. This was found to be an issue with the JSONPath specification/implementation and had already been reported with error logs [here](https://github.com/ashphy/jsonpath-online-evaluator/issues/14) and [here](
 https://github.com/ashphy/jsonpath-online-evaluator/issues/45))
 
-## 7.2 Backwards compatibility
+### 7.2 Backwards compatibility
 
 As a reference, we are using the terminology defined here: [Extending and Versioning Languages: Terminology](https://www.w3.org/2001/tag/doc/versioning)
 
