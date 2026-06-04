@@ -10,7 +10,7 @@ import cdm.product.template.TradableProduct;
 import javax.inject.Inject;
 
 import cdm.product.template.functions.PriceQuantityTriangulation;
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
