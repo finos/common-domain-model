@@ -301,33 +301,34 @@ func MapInflationRateSpecification:
         inflationRateSpecification InflationRateSpecification (0..1)
 
     set inflationRateSpecification:
+        fpmlInflationRateCalculation extract
         InflationRateSpecification {
-            rateOption: MapRateOptionWithAddress(fpmlInflationRateCalculation, fpmlLeg),
+            rateOption: MapRateOptionWithAddress(item, fpmlLeg),
             spreadSchedule: MapSpreadScheduleWithAddress(
-                        fpmlInflationRateCalculation -> spreadSchedule,
+                        spreadSchedule,
                         fpmlLeg
                     ),
             capRateSchedule: MapCapRateScheduleWithAddress(
-                        fpmlInflationRateCalculation -> capRateSchedule,
+                        capRateSchedule,
                         fpmlLeg
                     ),
             floorRateSchedule: MapFloorRateScheduleWithAddress(
-                        fpmlInflationRateCalculation -> floorRateSchedule,
+                        floorRateSchedule,
                         fpmlLeg
                     ),
             initialRate: MapInitialRate(
-                        fpmlInflationRateCalculation -> initialRate,
-                        fpmlInflationRateCalculation -> floatingRateIndex
+                        initialRate,
+                        floatingRateIndex
                     ),
             finalRateRounding: MapFinalRateRounding(
-                        fpmlInflationRateCalculation -> finalRateRounding
+                        finalRateRounding
                     ),
-            rateTreatment: fpmlInflationRateCalculation -> rateTreatment to-enum RateTreatmentEnum,
-            inflationLag: empty,
-            indexSource: empty,
-            mainPublication: empty,
-            interpolationMethod: empty,
-            fallbackBondApplicable: empty,
+            rateTreatment: rateTreatment to-enum RateTreatmentEnum,
+            inflationLag: MapOffset(inflationLag),
+            indexSource: indexSource -> value,
+            mainPublication: mainPublication -> value,
+            interpolationMethod: interpolationMethod -> value to-enum InterpolationMethodEnum,
+            fallbackBondApplicable: fpmlInflationRateCalculation -> fallbackBondApplicable,
             ...
         }
 
