@@ -36,6 +36,7 @@ import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.finos.cdm.CdmRuntimeModule;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -62,11 +63,11 @@ public class SecLendingFunctionInputCreationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecLendingFunctionInputCreationTest.class);
 
-    private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
+    private static final ObjectMapper STRICT_MAPPER = new RuneJsonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
             .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
             .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
-    public static final ObjectMapper MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
+    public static final ObjectMapper MAPPER = new RuneJsonObjectMapper();
 
     // AVOID ADDING MANUALLY CRAFTED JSON
 

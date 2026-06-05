@@ -52,6 +52,7 @@ import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.testing.TestingExpectationUtil;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
@@ -60,6 +61,7 @@ import com.rosetta.model.metafields.MetaFields;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModule;
 import org.finos.cdm.util.ResourcesUtils;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +82,7 @@ public class FunctionInputCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionInputCreator.class);
 
-    static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
+    static final ObjectMapper STRICT_MAPPER = new RuneJsonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
             .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
             .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
@@ -283,8 +285,9 @@ public class FunctionInputCreator {
                     .setTransfer(TransferInstruction.builder().setTransferState(transferState));
         }
 
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder.build());
         return new CreateBusinessEventInput(
-                Lists.newArrayList(Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder.build())),
+                Lists.newArrayList(instructionBuilder.build()),
                 null,
                 eventDate,
                 null);
