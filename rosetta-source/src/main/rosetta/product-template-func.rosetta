@@ -7,8 +7,6 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
-import cdm.observable.asset.*
-import cdm.observable.common.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 
@@ -92,39 +90,6 @@ func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the g
             filter item -> value exists
             then extract [ CompareNumbers(item -> value, op, amount) ]
                 all = True
-
-func PriceQuantityTriangulation: <"Checks the relationship between price, multiplier, notional and number of units, and validates the result of their product.">
-    inputs:
-        price PriceSchedule (0..*)
-        quantity NonNegativeQuantitySchedule (0..*)
-    output:
-        success boolean (1..1)
-
-    alias notional:
-        FilterQuantityByCurrencyExists(quantity)
-            extract value
-            then distinct only-element
-
-    alias multiplier:
-        quantity
-            extract multiplier -> value
-            then only-element default 1.0
-
-    alias noOfUnits:
-        quantity
-            extract value
-            then only-element
-
-    alias assetPrice:
-        price
-            extract value
-            then only-element
-
-    set success:
-        if price -> priceType contains [AssetPrice, ExchangeRate]
-        then (if assetPrice exists and noOfUnits exists and notional exists
-            then multiplier * assetPrice * noOfUnits = notional)
-        else True
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
     [codeImplementation]

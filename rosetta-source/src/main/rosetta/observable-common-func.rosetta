@@ -3,6 +3,8 @@ version "${project.version}"
 
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
+import cdm.observable.asset.*
+import cdm.base.math.*
 
 func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive the time and time-zone for a product identifier">
     [codeImplementation]
@@ -12,3 +14,35 @@ func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive 
         determinationMethod DeterminationMethodEnum (1..1)
     output:
         time TimeZone (1..1)
+
+func PriceQuantityTriangulation: <"Checks the relationship between price, multiplier, notional and number of units, and validates the result of their product.">
+    inputs:
+        price PriceSchedule (0..*)
+        quantity NonNegativeQuantitySchedule (0..*)
+    output:
+        success boolean (1..1)
+
+    alias filteredPrice: price filter priceType = AssetPrice or priceType = ExchangeRate then only-element
+
+    alias assetPrice:
+        filteredPrice -> value
+
+    alias notional:
+            quantity filter unit = filteredPrice -> unit
+             then only-element then value
+
+    alias multiplier:
+        quantity
+            extract multiplier -> value
+            then only-element default 1.0
+
+    alias noOfUnits:
+        quantity
+            filter unit = filteredPrice -> perUnitOf
+            then only-element
+            then value
+
+    set success:
+        if assetPrice exists and noOfUnits exists and notional exists
+        then multiplier * assetPrice * noOfUnits = notional
+        else True
