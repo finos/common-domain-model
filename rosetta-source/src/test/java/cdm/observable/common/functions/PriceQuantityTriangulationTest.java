@@ -9,10 +9,8 @@ import cdm.observable.asset.PriceQuantity;
 import cdm.product.template.TradableProduct;
 import javax.inject.Inject;
 
-import cdm.product.template.functions.PriceQuantityTriangulation;
 import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.finos.cdm.util.ResourcesUtils.getObject;
 
-public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctionTest {
+public class PriceQuantityTriangulationTest extends AbstractFunctionTest {
 
 	private static final String EQUITY_DIR = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/";
 	
