@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 
 import static com.regnosys.rosetta.common.util.ClassPathUtils.loadFromClasspath;
 import static com.regnosys.rosetta.common.util.UrlUtils.toUrl;
+import static org.finos.cdm.functions.FunctionCreator.EXECUTION_DESCRIPTOR_PATHS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FunctionTest {
@@ -35,12 +36,6 @@ class FunctionTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionTest.class);
 
     private static final ObjectMapper ROSETTA_OBJECT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
-
-    private static final List<String> EXECUTION_DESCRIPTOR_PATHS = List.of(
-            "functions/execution-descriptor.json",
-            "functions/fpml-processes-execution-descriptor.json",
-            "functions/repo-and-bond-execution-descriptor.json",
-            "functions/sec-lending-execution-descriptor.json");
 
     private static Injector injector;
 
@@ -65,7 +60,7 @@ class FunctionTest {
 
     @ParameterizedTest(name = "{0} - {1}")
     @MethodSource("loadExecutionDescriptors")
-    void runFunction(@VisibleForTesting String groupName, @VisibleForTesting String testName, ExecutionDescriptor executionDescriptor) throws ClassNotFoundException, IOException, InvocationTargetException, IllegalAccessException {
+    void runFunction(String groupName, String testName, ExecutionDescriptor executionDescriptor) throws ClassNotFoundException, IOException, InvocationTargetException, IllegalAccessException {
         LOGGER.info("Running Test: " + groupName + ":" + testName);
         FunctionRunner functionRunner = new FunctionRunner(executionDescriptor,
                 injector::getInstance,
