@@ -43,6 +43,12 @@ public class ResourcesUtils {
 		return resolveReferences(object);
 	}
 
+	public static <T extends RosettaModelObject> T getObjectReKeyAndResolveReferences(Class<T> clazz, String resourceName) throws IOException {
+		T object = getObject(clazz, resourceName);
+		RosettaModelObjectBuilder builder = reKey(object.toBuilder());
+		return (T) resolveReferences(builder);
+	}
+
 	public static String getJson(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, StandardCharsets.UTF_8);
