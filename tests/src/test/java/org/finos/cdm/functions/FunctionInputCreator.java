@@ -50,9 +50,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.testing.TestingExpectationUtil;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
@@ -2059,7 +2057,8 @@ public class FunctionInputCreator {
     ExpectationResult<CreateBusinessEventInput> getSubstitutionEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/repo-substitution-effective-date.json");
-        CollateralPortfolio newCollateralPortfolio = ResourcesUtils.getObject(CollateralPortfolio.class, "functions/repo-and-bond/repo-substitution-collateral.json");
+        Collateral collateral = ResourcesUtils.getObject(Collateral.class, "functions/repo-and-bond/repo-substitution-collateral.json");
+        CollateralPortfolio newCollateralPortfolio = collateral.getCollateralPortfolio().get(0).getValue();
         List<? extends PriceQuantity> priceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "functions/repo-and-bond/repo-substitution-price-quantity.json");
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = createSubstitutionInstruction.evaluate(executionTradeState, effectiveDate, newCollateralPortfolio, priceQuantity).toBuilder();
