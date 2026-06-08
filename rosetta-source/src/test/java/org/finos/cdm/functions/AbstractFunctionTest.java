@@ -1,9 +1,9 @@
-package org.isda.cdm.functions;
+package org.finos.cdm.functions;
 
 import com.google.inject.Module;
 import com.google.inject.*;
 import com.google.inject.util.Modules;
-import org.isda.cdm.CdmTestsModule;
+import org.finos.cdm.CdmTestsModule;
 import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractFunctionTest {

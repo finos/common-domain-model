@@ -806,6 +806,26 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
             and cashPriceChanged = True
             and adjustmentRatioMatches = True
 
+func Qualify_Substitution: <"Qualification of a collateral substitution event.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
+
+    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
+
+    set is_event:
+        beforeEconomicterms -> terminationDate exists
+            and openEconomicTerms -> effectiveDate exists
+            and openEconomicTerms -> terminationDate exists
+            and openEconomicTerms -> payout <> beforeEconomicterms -> payout
+            and openEconomicTerms -> collateral <> beforeEconomicterms -> collateral
+            and openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate
+            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
+
 func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
     [qualification BusinessEvent]
     inputs:
