@@ -377,7 +377,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.NOTIONAL_RESET);
 
         assertEquals(1, ws.getBusinessEvent().getAfter().size(), "The business event of the resulting workflow step must contain only one after trade state");
-        assertEquals(beforeTradeState.getTrade(), ws.getBusinessEvent().getAfter().get(0).getTrade(), "The before and the after trades must be the same");
+        assertEquals(beforeTradeState.getTrade(), ws.getBusinessEvent().getAfter().get(0).getTrade(), "The before and the after trades must be the same"); // fails due to changes in Create_rest Function
         if (beforeTradeState.getResetHistory() != null)
             assertEquals(beforeTradeState.getResetHistory().size() + 1, ws.getBusinessEvent().getAfter().get(0).getResetHistory().size(), "Before reset history count + 1 must be equal to after reset history count");
         else
@@ -785,7 +785,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         // Ensure the accepted WorkflowStep and its "after" TradeState are not null.
         assertNotNull(acceptedWorkflowStep, "Accepted WorkflowStep must not be null");
-        assertNotNull(acceptedWorkflowStep.getBusinessEvent().getAfter(), "after TradeState must not be null"); // fails due to resetInstruction are not set correct sue to the new changes
+        assertNotNull(acceptedWorkflowStep.getBusinessEvent().getAfter(), "after TradeState must not be null");
 
         // Log the details of the accepted WorkflowStep in a human-readable JSON format for debugging purposes.
         try {
