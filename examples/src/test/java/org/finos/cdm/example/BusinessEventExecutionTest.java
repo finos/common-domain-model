@@ -51,7 +51,6 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -84,6 +83,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     @Inject
     Create_AcceptedWorkflowStepFromInstruction createWorkflowStepFunc;
+
+    @Inject
+    CalculateReset calculateResetFunc;
 
     /**
      * Contract Formation
@@ -1041,11 +1043,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @param date    The date of the reset and the rate record, applicable to this instruction.
      * @return A ResetInstruction object containing the provided reset and payout details.
      */
-    public static ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
+    public ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
 
-        CalculateReset calculateReset = new CalculateReset.CalculateResetDefault();
-
-        List<? extends Reset> resets = calculateReset.evaluate(CalculateResetInstruction.builder()
+        List<? extends Reset> resets = calculateResetFunc.evaluate(CalculateResetInstruction.builder()
                 .setPayout(List.of(payout))
                 .setResetDate(date)
                 .setRateRecordDate(date)
