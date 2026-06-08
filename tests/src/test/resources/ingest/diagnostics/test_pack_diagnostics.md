@@ -17,8 +17,8 @@
 | fpml-5-10-products-variance-swaps | 7 | 100% |
 | fpml-5-13-products-volatility-swaps | 2 | 99% |
 | fpml-5-10-products-volatility-swaps | 2 | 99% |
-| fpml-5-13-incomplete-products-equity-options | 20 | 99% |
 | fpml-5-13-products-bond-options | 4 | 99% |
+| fpml-5-13-incomplete-products-equity-options | 20 | 99% |
 | fpml-5-10-products-commodity | 14 | 99% |
 | fpml-5-12-processes | 2 | 99% |
 | fpml-5-13-products-variance-swaps | 5 | 99% |
@@ -39,8 +39,8 @@
 | fpml-5-13-products-equity-swaps | 22 | 97% |
 | fpml-5-10-incomplete-products-equity-swaps | 14 | 97% |
 | fpml-5-13-incomplete-products-correlation-swaps | 1 | 97% |
-| fpml-5-10-incomplete-products-equity-options | 27 | 97% |
 | fpml-5-10-products-credit | 24 | 97% |
+| fpml-5-10-incomplete-products-equity-options | 27 | 96% |
 | fpml-5-12-products-credit | 21 | 96% |
 | fpml-5-10-incomplete-products-inflation-swaps | 2 | 96% |
 | fpml-5-13-products-fx-derivatives | 17 | 95% |
@@ -48,7 +48,7 @@
 | fpml-5-10-products-fx | 15 | 95% |
 | fpml-5-13-products-inflation-swaps | 13 | 95% |
 | fpml-5-10-products-inflation-swaps | 5 | 93% |
-| fpml-5-13-products-equity-options | 7 | 90% |
+| fpml-5-13-products-equity-options | 7 | 89% |
 | fpml-5-12-products-commodity | 5 | 87% |
 | fpml-5-10-products-dividend-swaps | 6 | 81% |
 | fpml-5-13-products-dividend-swaps | 6 | 81% |
