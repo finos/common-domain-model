@@ -8,6 +8,7 @@ import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.rosetta.model.lib.records.Date;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class SerialisationTest {
         assertNotNull(sampleFilePath);
 
         TradeState deserializedTradeState =
-                RosettaObjectMapper.getNewRosettaObjectMapper()
+                new RuneJsonObjectMapper()
                         .readValue(sampleFilePath.toUri().toURL(), TradeState.class);
         assertNotNull(deserializedTradeState);
         assertEquals(Date.parse("2001-09-24"), deserializedTradeState.getTrade().getTradeDate().getValue());
@@ -51,7 +52,7 @@ public class SerialisationTest {
         assertNotNull(sampleFilePath);
 
         TradeState deserializedTradeState =
-                RosettaObjectMapper.getNewRosettaObjectMapper().readValue(sampleFilePath, TradeState.class);
+                new RuneJsonObjectMapper().readValue(sampleFilePath, TradeState.class);
         assertNotNull(deserializedTradeState);
         assertEquals(Date.parse("2001-09-24"), deserializedTradeState.getTrade().getTradeDate().getValue());
     }
