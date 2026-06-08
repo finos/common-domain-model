@@ -28,7 +28,7 @@
 | fpml-5-10-incomplete-products-fx-derivatives | fxVarianceSwap | 1 | 101% |
 | fpml-5-10-incomplete-products-fx-derivatives | fxVolatilitySwap | 1 | 100% |
 | fpml-5-10-incomplete-products-fx-derivatives | termDeposit | 3 | 100% |
-| fpml-5-10-incomplete-products-inflation-swaps | swap | 2 | 96% |
+| fpml-5-10-incomplete-products-inflation-swaps | swap | 2 | 98% |
 | fpml-5-10-incomplete-products-securities | instrumentTradeDetails | 1 | 100% |
 | fpml-5-10-incomplete-products-securities | option | 1 | 100% |
 | fpml-5-10-invalid-products | creditDefaultSwap | 30 | 98% |
@@ -49,7 +49,7 @@
 | fpml-5-10-products-fx | fxOption | 6 | 92% |
 | fpml-5-10-products-fx | fxSingleLeg | 8 | 97% |
 | fpml-5-10-products-fx | fxSwap | 1 | 100% |
-| fpml-5-10-products-inflation-swaps | swap | 5 | 93% |
+| fpml-5-10-products-inflation-swaps | swap | 5 | 97% |
 | fpml-5-10-products-rates | bondOption | 2 | 95% |
 | fpml-5-10-products-rates | bulletPayment | 1 | 71% |
 | fpml-5-10-products-rates | capFloor | 5 | 100% |
@@ -120,7 +120,7 @@
 | fpml-5-13-products-fx-derivatives | fxSwap | 3 | 99% |
 | fpml-5-13-products-fx-derivatives | fxVarianceSwap | 1 | 101% |
 | fpml-5-13-products-fx-derivatives | fxVolatilitySwap | 1 | 100% |
-| fpml-5-13-products-inflation-swaps | swap | 13 | 95% |
+| fpml-5-13-products-inflation-swaps | swap | 13 | 97% |
 | fpml-5-13-products-interest-rate-derivatives | bulletPayment | 1 | 71% |
 | fpml-5-13-products-interest-rate-derivatives | capFloor | 3 | 100% |
 | fpml-5-13-products-interest-rate-derivatives | fra | 2 | 100% |
