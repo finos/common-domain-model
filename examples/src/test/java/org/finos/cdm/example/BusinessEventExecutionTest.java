@@ -377,7 +377,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.NOTIONAL_RESET);
 
         assertEquals(1, ws.getBusinessEvent().getAfter().size(), "The business event of the resulting workflow step must contain only one after trade state");
-        assertEquals(beforeTradeState.getTrade(), ws.getBusinessEvent().getAfter().get(0).getTrade(), "The before and the after trades must be the same"); // fails due to changes in Create_rest Function
+        assertEquals(beforeTradeState.getTrade(), ws.getBusinessEvent().getAfter().get(0).getTrade(), "The before and the after trades must be the same");
         if (beforeTradeState.getResetHistory() != null)
             assertEquals(beforeTradeState.getResetHistory().size() + 1, ws.getBusinessEvent().getAfter().get(0).getResetHistory().size(), "Before reset history count + 1 must be equal to after reset history count");
         else
@@ -1054,10 +1054,6 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 //TODO Review if payout1 is used
         // Initialize and build the ResetInstruction.
         return ResetInstruction.builder()
-             //   .setResetDate(date)         // The date on which the reset occurs.
-               // .setRateRecordDate(date)    // The date for recording the rate associated with the reset.
-                //.setPayout(List.of(payout))          // Associates the reset instruction with a referenced payout.
-                //.setPayoutValue(payout1)
                 .setReset(resets)
                 .build();                   // Builds and returns the finalized ResetInstruction.
     }
