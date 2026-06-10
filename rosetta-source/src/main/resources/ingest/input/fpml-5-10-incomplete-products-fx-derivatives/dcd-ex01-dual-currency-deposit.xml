@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-10-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+        == Copyright (c) 2014-2018 All rights reserved.
+        == Financial Products Markup Language is subject to the FpML public license.
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<!-- 
+                
+        ==ABN Amro pays 8% USD fixed rate loan on ACT/360 basis for 1 million Deposit from Midland starting June-24-2008 and maturing July 24, 2008. The principal can be repaid after being converted into the JPY (alternative currency) at 109.48 strike rate at maturity (depending on the spot foreign exchange rate.) 
+        ==Quote: 109.48m 1-month JPY Put on 1m USD @ strike of 109.48
+                
+        == This Dual Currency Deposit in FpML 4.x is represented using the Strategy component in order to bundle an instance of fxSimpleOption and termDeposit.
+-->
+<!--5.0:Message type is a Root of the message-->
+<!--5.0 Messaging: changed <requestTradeConfirmation> -><requestConfirmation>-->
+<requestConfirmation xmlns="http://www.fpml.org/FpML-5/confirmation"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-10"
+                     xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-10.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <header>
+    <messageId messageIdScheme="http://www.abn.com/coding-scheme/messageId">FX87653</messageId>
+    <sentBy messageAddressScheme="http://www.abn.com/partyId">ABNANL2A</sentBy>
+    <sendTo messageAddressScheme="http://www.abn.com/partyId">MIDLGB22</sendTo>
+    <creationTimestamp>2008-06-04T08:57:00Z</creationTimestamp>
+  </header>
+  <isCorrection>false</isCorrection>
+  <correlationId correlationIdScheme="http://www.abn.com/coding-scheme/correlationId">FX65431</correlationId>
+  <sequenceNumber>1</sequenceNumber>
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1" />
+        <tradeId tradeIdScheme="http://www.midlandnb.com/swaps/trade-id">MB87623</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2" />
+        <tradeId tradeIdScheme="http://www.abn.com/swaps/trade-id">AA9876</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2008-06-24</tradeDate>
+    </tradeHeader>
+<!--FpML 5-1 can represent DualCurrencyDeposit using the 'termDeposit' product's 'features', instead of the 'strategy' - [termDeposit]  and [fxSimpleOption] products-->
+    <termDeposit>
+      <productType productTypeScheme="http://www.sample.com/coding-scheme/product-type-simple">DualCurrencyDeposit</productType>
+<!--In FpML 5-1, 09-23-2010 FXWG appr. - to rename element from 'initialPayerReference' to 'payerPartyReference' (depositor)-->
+      <payerPartyReference href="party1" />
+<!--In FpML 5-1, 09-23-2010 FXWG appr. - to rename element from 'initialReceiverReference' to 'receiverPartyReference' (deposit taker)-->
+      <receiverPartyReference href="party2" />
+      <startDate>2008-06-24</startDate>
+      <maturityDate>2008-07-24</maturityDate>
+      <principal>
+        <currency>USD</currency>
+        <amount>1000000.00</amount>
+      </principal>
+      <fixedRate>0.08</fixedRate>
+<!--FpML 5-1, 'dayCountFraction' was moved after 'fixedRate' -->
+      <dayCountFraction>ACT/360</dayCountFraction>
+<!--FpML 5-1, new 'features' structure added to represent Dual Currency Deposit-->
+      <features>
+        <dualCurrency>
+          <currency>JPY</currency>
+          <fixingDate>2008-07-22</fixingDate>
+          <fixingTime>
+            <hourMinuteTime>10:00:00</hourMinuteTime>
+            <businessCenter>USNY</businessCenter>
+          </fixingTime>
+          <strike>
+            <rate>109.48</rate>
+            <strikeQuoteBasis>AlternateCurrencyPerDepositCurrency</strikeQuoteBasis>
+          </strike>
+          <spotRate>107.85</spotRate>
+          <interestAtRisk>false</interestAtRisk>
+        </dualCurrency>
+      </features>
+      <interest>
+        <currency>USD</currency>
+        <amount>6666.67</amount>
+      </interest>
+    </termDeposit>
+  </trade>
+  <party id="party1">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">TR24TWEY5RVRQV65HD49</partyId>
+    <partyName>MIDLAND</partyName>
+  </party>
+  <party id="party2">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">BFXS5XCH7N0Y05NIXW11</partyId>
+    <partyName>ABN AMRO</partyName>
+  </party>
+</requestConfirmation>

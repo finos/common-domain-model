@@ -13,6 +13,7 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
+import cdm.event.common.functions.CalculateReset;
 import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
@@ -32,15 +33,14 @@ import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.OptionPayout;
 import cdm.product.template.Payout;
 import cdm.product.template.TradeLot;
-import cdm.product.template.metafields.ReferenceWithMetaOptionPayout;
 import cdm.product.template.metafields.ReferenceWithMetaPayout;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.MetaFields;
+import jakarta.inject.Inject;
 import org.finos.cdm.example.util.ResourcesUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -52,6 +52,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,11 +63,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * the creation and validation of different primitive instructions, such as Contract Formation,
  * Stock Splits, and other legal and financial event instructions. Each method builds a
  * specific type of business event, ensuring that the system behaves as expected for various scenarios.
- *
+ * <p>
  * The tests also include various constructs for instructions for trades
  * and events such as adjustments, splits, and valuations. This class serves as both
  * a documentation tool and a practical set of unit tests for ensuring correctness in business logic.
- *
+ * <p>
  * It includes example methods for:
  * - Creating instructions for trade-related events.
  * - Verifying that trade instructions are properly processed and validated.
@@ -83,6 +84,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     @Inject
     Create_AcceptedWorkflowStepFromInstruction createWorkflowStepFunc;
 
+    @Inject
+    CalculateReset calculateResetFunc;
+
     /**
      * Contract Formation
      * The contract formation primitive function represents the transition of the trade state to a legally binding legal agreement after the trade is confirmed.
@@ -91,7 +95,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     public void mustCreateContractFormationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in contract formation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json"); //processes/msg-new-trade-CFTC-SEC-and-canada.json
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json"); //processes/msg-new-trade-CFTC-SEC-and-canada.json
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the contract formation instruction containing a legal agreement
@@ -116,7 +120,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         // Load a sample TradeState from a JSON file and resolve its references.
         // We will use this deserialized tradeState to extract the information of a trade in order to create the execution instruction more easily.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Extract the product from the loaded TradeState. This represents the financial product being traded.
@@ -176,7 +180,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateFullNovationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Novation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-Vanilla-party-roles-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/EUR-Vanilla-party-roles-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
         //beforeTradeState = beforeTradeState.toBuilder().setState(State.builder().setClosedState(ClosedState.builder().build()));
 
@@ -190,7 +194,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.ZERO).build())).build(), QuantityChangeDirectionEnum.INCREASE);
 
         // Creation of the novation instruction through a split instruction
-        SplitInstruction splitInstruction = buildNovationPrimitiveInstruction( PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction).build());
+        SplitInstruction splitInstruction = buildNovationPrimitiveInstruction(PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction).build());
 
         // Adding the novation instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setSplit(splitInstruction).build();
@@ -198,7 +202,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         // Creation of the workflow step of a novation event
         WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.NOVATION);
 
-        assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0),"The counterparty with role party1 should be different than the one on the before tradeState.");
+        assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0), "The counterparty with role party1 should be different than the one on the before tradeState.");
         assertEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(1), beforeTradeState.getTrade().getCounterparty().get(1), "The counterparty with role party2 should be the same as the one on the before tradeState.");
         assertEquals(BigDecimal.ZERO, ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), "The quantity of the trade with the same counterparties as the original must be 0.");
 
@@ -214,7 +218,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreatePartialNovationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Novation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-Vanilla-party-roles-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/EUR-Vanilla-party-roles-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         //New party to replace in the first after trade for the party1
@@ -229,7 +233,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         QuantityChangeInstruction quantityChangeInstruction2 = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().addQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(1).getQuantity().get(0).getValue().getValue().subtract(BigDecimal.valueOf(6000000))).build())).build(), QuantityChangeDirectionEnum.INCREASE);
 
         // Creation of the novation instruction through a split instruction
-        SplitInstruction splitInstruction = buildNovationPrimitiveInstruction( PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).setQuantityChange(quantityChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction2).build());
+        SplitInstruction splitInstruction = buildNovationPrimitiveInstruction(PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).setQuantityChange(quantityChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction2).build());
 
         // Adding the novation instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setSplit(splitInstruction).build();
@@ -237,7 +241,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         // Creation of the workflow step of a novation event
         WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.NOVATION);
 
-        assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0),"The counterparty with role party1 should be different than the one on the before tradeState.");
+        assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0), "The counterparty with role party1 should be different than the one on the before tradeState.");
         assertEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(1), beforeTradeState.getTrade().getCounterparty().get(1), "The counterparty with role party2 should be the same as the one on the before tradeState.");
         assertEquals(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().add(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()), "The priceQuantity of the original trade must be equivalent to the sum of the quantities of the new trades.");
 
@@ -247,14 +251,15 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Increase
      * The intent is to Increase the quantity or notional of the contract.
+     *
      * @throws IOException
      */
     @Test
     void mustCreateIncreaseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Increase.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
-        assertNotNull(beforeTradeState,"before TradeState must not be null");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
+        assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
         PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().add(BigDecimal.valueOf(1000000))).build()).build();
@@ -263,7 +268,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.INCREASE;
 
         // Creation of the increase instruction through a quantity change instruction
-        QuantityChangeInstruction increaseInstruction = buildQuantityChangePrimitiveInstruction (beforeTradeState, change, direction);
+        QuantityChangeInstruction increaseInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, change, direction);
 
         // Adding the increase instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setQuantityChange(increaseInstruction).build();
@@ -271,11 +276,11 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         // Creation of the workflow step of an increase event
         WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, null); //EventIntentEnum.INCREASE
 
-        assertNull(ws.getBusinessEvent().getIntent(),"Workflow step intent must be null");
+        assertNull(ws.getBusinessEvent().getIntent(), "Workflow step intent must be null");
         assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "The workflow step instruction contains only one instruction");
         assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getQuantityChange(), "The workflow step instruction contains a quantity change");
-        assertTrue( beforeTradeState.getTrade().getTradeLot().size() < ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().size(), "The before trade has less tradeLot than the after trade");
-        assertTrue( beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().compareTo(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()) <  0, "The quantity of the before tradeState must be less than the quantity of the after tradeState.");
+        assertTrue(beforeTradeState.getTrade().getTradeLot().size() < ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().size(), "The before trade has less tradeLot than the after trade");
+        assertTrue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().compareTo(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()) < 0, "The quantity of the before tradeState must be less than the quantity of the after tradeState.");
     }
 
     /**
@@ -286,7 +291,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateDecreaseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in decrease.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
@@ -296,13 +301,13 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.DECREASE;
 
         // Creation of the decrease instruction through a quantity change instruction
-        QuantityChangeInstruction decreaseInstruction = buildQuantityChangePrimitiveInstruction (beforeTradeState, change, direction);
+        QuantityChangeInstruction decreaseInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, change, direction);
 
         // Adding the decrease instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setQuantityChange(decreaseInstruction).build();
 
         // Creation of the workflow step of a decrease event
-        WorkflowStep ws =  mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, null);//EventIntentEnum.DECREASE
+        WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, null);//EventIntentEnum.DECREASE
 
         assertNull(ws.getBusinessEvent().getIntent(), "Workflow step intent must be null");
         assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "Workflow step must contain only one primitive instruction");
@@ -319,7 +324,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateTerminationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Full Termination.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
@@ -329,13 +334,13 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.REPLACE;
 
         // Creation of the termination instruction through a quantity change instruction
-        QuantityChangeInstruction terminationInstruction = buildQuantityChangePrimitiveInstruction (beforeTradeState, change, direction);
+        QuantityChangeInstruction terminationInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, change, direction);
 
         // Adding the termination instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setQuantityChange(terminationInstruction).build();
 
         // Creation of the workflow step of a termination event
-        WorkflowStep ws =  mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, null); // EventIntentEnum.EARLY_TERMINATION_PROVISION?
+        WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, null); // EventIntentEnum.EARLY_TERMINATION_PROVISION?
 
         assertNull(ws.getBusinessEvent().getIntent(), "Workflow step intent must be null");
         assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "Workflow step must contain only one primitive instruction");
@@ -348,13 +353,14 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * Reset
      * Refers to the periodic adjustment of a floating reference rate (such as LIBOR or SOFR) to reflect the current prevailing rate.
      * It is commonly used in derivatives involving floating interest rates.
+     *
      * @throws IOException
      */
     @Test
     void mustCreateResetBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Reset.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Payout to be applied to the trade.
@@ -362,7 +368,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         ReferenceWithMetaPayout refPayout = ReferenceWithMetaPayout.builder().setValue(payout).build();
 
         // Creation of the reset instruction
-        ResetInstruction resetInstruction = buildResetPrimitiveInstruction (refPayout, payout, event_date );
+        ResetInstruction resetInstruction = buildResetPrimitiveInstruction(refPayout, payout, event_date);
 
         // Adding the reset instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setReset(resetInstruction).build();
@@ -372,9 +378,10 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         assertEquals(1, ws.getBusinessEvent().getAfter().size(), "The business event of the resulting workflow step must contain only one after trade state");
         assertEquals(beforeTradeState.getTrade(), ws.getBusinessEvent().getAfter().get(0).getTrade(), "The before and the after trades must be the same");
-        if(beforeTradeState.getResetHistory() != null )
+        if (beforeTradeState.getResetHistory() != null)
             assertEquals(beforeTradeState.getResetHistory().size() + 1, ws.getBusinessEvent().getAfter().get(0).getResetHistory().size(), "Before reset history count + 1 must be equal to after reset history count");
-        else assertEquals(1, ws.getBusinessEvent().getAfter().get(0).getResetHistory().size(), "Before reset history count + 1 must be equal to after reset history count");
+        else
+            assertEquals(1, ws.getBusinessEvent().getAfter().get(0).getResetHistory().size(), "Before reset history count + 1 must be equal to after reset history count");
     }
 
     /**
@@ -386,14 +393,14 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateValuationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Valuation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Valuation to be applied to the trade
         Valuation valuation = new Valuation.ValuationBuilderImpl();
 
         // Creation of the valuation instruction
-        ValuationInstruction valuationInstruction = buildValuationPrimitiveInstruction (valuation);
+        ValuationInstruction valuationInstruction = buildValuationPrimitiveInstruction(valuation);
 
         // Adding the valuation instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setValuation(valuationInstruction).build();
@@ -415,7 +422,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateExerciseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Option Exercise.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/cb-option-usi.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/cb-option-usi.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
         assertNotNull(beforeTradeState.getTrade().getProduct().getEconomicTerms().getPayout().stream()
                         .filter(payout -> payout.getOptionPayout() != null)
@@ -435,7 +442,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         // Creation of the workflow step of an option exercise event
         WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.OPTION_EXERCISE);
 
-        assertEquals(1,ws.getBusinessEvent().getInstruction().size(), "The resulting workflow step must contain only one instruction in the business event");
+        assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "The resulting workflow step must contain only one instruction in the business event");
         assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getExercise(), "The resulting workflow step must contain the Option Exercise instruction in the busines event");
     }
 
@@ -447,11 +454,11 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateTransferBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Transfer.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the transfer instruction
-        TransferInstruction transferInstruction = buildTransferPrimitiveInstruction ();
+        TransferInstruction transferInstruction = buildTransferPrimitiveInstruction();
 
         // Adding the transfer instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setTransfer(transferInstruction).build();
@@ -469,11 +476,11 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateAmendmentBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Amendment.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the amendment instruction through a terms change instruction
-        TermsChangeInstruction amendmentInstruction = buildTermsChangePrimitiveInstruction (beforeTradeState);
+        TermsChangeInstruction amendmentInstruction = buildTermsChangePrimitiveInstruction(beforeTradeState);
 
         // Adding the amendment instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setTermsChange(amendmentInstruction).build();
@@ -492,14 +499,14 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateStockSplitBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Stock Split.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqd-ex01-american-call-stock-long-form.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Adjustment ratio to be applied to the trade
         BigDecimal adjustmentRatio = new BigDecimal("0.23");
 
         // Creation of the stock split instruction
-        StockSplitInstruction stockSplitInstruction = buildStockSplitPrimitiveInstruction (adjustmentRatio);
+        StockSplitInstruction stockSplitInstruction = buildStockSplitPrimitiveInstruction(adjustmentRatio);
 
         // Adding the stock split instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setStockSplit(stockSplitInstruction).build();
@@ -510,8 +517,8 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         Trade beforeTrade = beforeTradeState.getTrade();
         Trade afterTrade = ws.getBusinessEvent().getAfter().get(0).getTrade();
 
-        assertEquals(beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), "The before and the after trade must have the same quantity in te price quantity of the trade");
-        assertNotEquals(beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getValue(),afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getValue(), "The before and the after trade must have a different price in the price quantity of the trade");
+        assertEquals(beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(1).getValue().getValue(), afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(1).getValue().getValue(), "The before and the after trade must have the same quantity in te price quantity of the trade");
+        assertNotEquals(beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getValue(), afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getValue(), "The before and the after trade must have a different price in the price quantity of the trade");
 
         FinancialUnitEnum beforeFinancialUnit = beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getPerUnitOf().getFinancialUnit();
         FinancialUnitEnum afterFinancialUnit = ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getPerUnitOf().getFinancialUnit();
@@ -531,7 +538,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateAllocationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Allocation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the allocation instruction through the split instruction
@@ -556,7 +563,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateCorporateActionBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Corporate Action.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
         //assertNotNull("before", beforeTradeState.getObservationHistory());
 
@@ -587,7 +594,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateCreditEventBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Credit Event.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Observation that must be applied to the trade
@@ -616,13 +623,13 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateCompressionBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in the Execution instruction
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the execution instruction and adding it to the primitive instruction that will be included in the resulting workflow step
         NonTransferableProduct product = beforeTradeState.getTrade().getProduct();
 
-        List <? extends TradeLot> tradeLot = beforeTradeState.getTrade().getTradeLot();
+        List<? extends TradeLot> tradeLot = beforeTradeState.getTrade().getTradeLot();
 
         List<PriceQuantity> pricequantity = List.of();
 
@@ -647,19 +654,19 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         PrimitiveInstruction p1 = PrimitiveInstruction.builder().setExecution(executionInstruction).build();
 
         // Trade to be included in the first quantity change instruction
-        TradeState beforeTradeState2 = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-OIS-uti.json");
+        TradeState beforeTradeState2 = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/EUR-OIS-uti.json");
         assertNotNull(beforeTradeState2, "before TradeState must not be null");
 
         // Creation of the first quantity change instruction and adding it to the primitive instruction that will be included in the resulting workflow step
-        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState2, new PriceQuantity.PriceQuantityBuilderImpl(),QuantityChangeDirectionEnum.REPLACE);
+        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState2, new PriceQuantity.PriceQuantityBuilderImpl(), QuantityChangeDirectionEnum.REPLACE);
         PrimitiveInstruction p2 = PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction).build();
 
         // Trade to be included in the second quantity change instruction
-        TradeState beforeTradeState3 = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/credit/cd-swaption-uti.json");
+        TradeState beforeTradeState3 = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cd-swaption-uti.json");
         assertNotNull(beforeTradeState3, "before TradeState must not be null");
 
         // Creation of the second quantity change instruction and adding it to the primitive instruction that will be included in the resulting workflow step
-        QuantityChangeInstruction quantityChangeInstruction2 = buildQuantityChangePrimitiveInstruction(beforeTradeState3, new PriceQuantity.PriceQuantityBuilderImpl(),QuantityChangeDirectionEnum.INCREASE);
+        QuantityChangeInstruction quantityChangeInstruction2 = buildQuantityChangePrimitiveInstruction(beforeTradeState3, new PriceQuantity.PriceQuantityBuilderImpl(), QuantityChangeDirectionEnum.INCREASE);
         PrimitiveInstruction p3 = PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction2).build();
 
         // Creation of the workflow step of a compression event, containing the different instructions and its before tradeStates
@@ -669,10 +676,10 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         int quant = 0;
 
         //Go through every instruction in the business event
-        for(int i = 0; i < ws.getBusinessEvent().getInstruction().size(); ++i){
-            if(ws.getBusinessEvent().getInstruction().get(i).getPrimitiveInstruction().getExecution() != null)
+        for (int i = 0; i < ws.getBusinessEvent().getInstruction().size(); ++i) {
+            if (ws.getBusinessEvent().getInstruction().get(i).getPrimitiveInstruction().getExecution() != null)
                 exec++;
-            else if(ws.getBusinessEvent().getInstruction().get(i).getPrimitiveInstruction().getQuantityChange()!= null)
+            else if (ws.getBusinessEvent().getInstruction().get(i).getPrimitiveInstruction().getQuantityChange() != null)
                 quant++;
         }
 
@@ -688,7 +695,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateClearingBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Clearing.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setRole(CounterpartyRoleEnum.PARTY_1).build());
@@ -725,7 +732,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * Builds a ContractFormationInstruction with the provided legal agreement.
      *
      * @param legalAgreement The legal agreement to be associated with the contract formation instruction.
-     * @return              A ContractFormationInstruction object containing the specified legal agreement.
+     * @return A ContractFormationInstruction object containing the specified legal agreement.
      */
     public static ContractFormationInstruction buildContractFormationPrimitiveInstruction(LegalAgreement legalAgreement) {
 
@@ -765,7 +772,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @param primitiveInstruction The instruction containing the primitive operation details used to build the proposed WorkflowStep.
      * @param tradeState           The current state of the trade, which serves as input to construct the WorkflowStep.
      * @param intent               The intended purpose or type of event being executed (e.g., trade execution, amendment, etc.).
-     * @return                     An accepted WorkflowStep, which is the validated and finalized result of the given input parameters.
+     * @return An accepted WorkflowStep, which is the validated and finalized result of the given input parameters.
      */
     private WorkflowStep mustCreateAcceptedWorkflowStepAsExpected(PrimitiveInstruction primitiveInstruction, TradeState tradeState, EventIntentEnum intent) {
 
@@ -809,7 +816,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @param tradeState2 The current state of the second trade involved in the compression.
      * @param tradeState3 The current state of the third trade involved in the compression.
      * @param intent      The intended purpose or type of event (e.g., compression, termination, etc.).
-     * @return            An accepted WorkflowStep, which represents the validated and finalized result of the compression event.
+     * @return An accepted WorkflowStep, which represents the validated and finalized result of the compression event.
      */
     private WorkflowStep mustCreateCompressionAcceptedWorkflowStepAsExpected(PrimitiveInstruction p1, PrimitiveInstruction p2, PrimitiveInstruction p3, TradeState tradeState, TradeState tradeState2, TradeState tradeState3, EventIntentEnum intent) {
 
@@ -850,7 +857,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @param eventDate            The date of the event, representing when the WorkflowStep is proposed to occur.
      * @param eventTime            The time of the event, used in conjunction with the date for precise event timestamping.
      * @param eventIntent          The intent or purpose of the event (e.g., creation, modification, compression) as an enumerated value.
-     * @return                     A proposed WorkflowStep object containing all the specified inputs, ready for further processing.
+     * @return A proposed WorkflowStep object containing all the specified inputs, ready for further processing.
      */
     public WorkflowStep buildProposedWorkflowStep(TradeState before, PrimitiveInstruction primitiveInstruction, Date eventDate, LocalTime eventTime, EventIntentEnum eventIntent) {
 
@@ -888,16 +895,16 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds a proposed WorkflowStep for a compression event, incorporating multiple trade states and primitive instructions.
      *
-     * @param before    The initial TradeState for the first trade involved in the compression event.
-     * @param before2   The initial TradeState for the second trade involved in the compression event.
-     * @param before3   The initial TradeState for the third trade involved in the compression event.
-     * @param p1        The first primitive instruction defining the action to be applied to the first trade state.
-     * @param p2        The second primitive instruction defining the action to be applied to the second trade state.
-     * @param p3        The third primitive instruction defining the action to be applied to the third trade state.
-     * @param eventDate The date of the compression event, representing when it is proposed to occur.
-     * @param eventTime The time of the compression event, used in conjunction with the date for precise timestamping.
+     * @param before      The initial TradeState for the first trade involved in the compression event.
+     * @param before2     The initial TradeState for the second trade involved in the compression event.
+     * @param before3     The initial TradeState for the third trade involved in the compression event.
+     * @param p1          The first primitive instruction defining the action to be applied to the first trade state.
+     * @param p2          The second primitive instruction defining the action to be applied to the second trade state.
+     * @param p3          The third primitive instruction defining the action to be applied to the third trade state.
+     * @param eventDate   The date of the compression event, representing when it is proposed to occur.
+     * @param eventTime   The time of the compression event, used in conjunction with the date for precise timestamping.
      * @param eventIntent The intent or purpose of the compression event, as an enumerated value.
-     * @return          A proposed WorkflowStep object containing the input instructions and metadata for further processing.
+     * @return A proposed WorkflowStep object containing the input instructions and metadata for further processing.
      */
     public WorkflowStep buildProposedWorkflowStepCompression(TradeState before, TradeState before2, TradeState before3, PrimitiveInstruction p1, PrimitiveInstruction p2, PrimitiveInstruction p3, Date eventDate, LocalTime eventTime, EventIntentEnum eventIntent) {
 
@@ -947,9 +954,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds an ExecutionInstruction based on the provided TradeState.
      *
-     * @return           An ExecutionInstruction object populated with data extracted from the given TradeState.
+     * @return An ExecutionInstruction object populated with data extracted from the given TradeState.
      */
-    public static ExecutionInstruction buildExecutionPrimitiveInstruction( NonTransferableProduct product, List<? extends TradeLot> tradeLot, List<PriceQuantity> priceQuantity, List<? extends Counterparty> counterparty, List<? extends Party> party, FieldWithMetaDate date, List<? extends TradeIdentifier> tradeIdentifier) {
+    public static ExecutionInstruction buildExecutionPrimitiveInstruction(NonTransferableProduct product, List<? extends TradeLot> tradeLot, List<PriceQuantity> priceQuantity, List<? extends Counterparty> counterparty, List<? extends Party> party, FieldWithMetaDate date, List<? extends TradeIdentifier> tradeIdentifier) {
 
         // Initialize the ExecutionInstruction builder.
         ExecutionInstruction.ExecutionInstructionBuilder executionInstructionBuilder = ExecutionInstruction.builder();
@@ -979,7 +986,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      *
      * @param tradeState The current state of the trade, containing information such as trade identifiers and existing counterparties.
      * @param newParty   The new counterparty to replace the existing one in the trade.
-     * @return           A PartyChangeInstruction object containing the details of the counterparty change.
+     * @return A PartyChangeInstruction object containing the details of the counterparty change.
      */
     private static PartyChangeInstruction buildPartyChangePrimitiveInstruction(TradeState tradeState, Counterparty newParty) {
 
@@ -995,20 +1002,33 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      *
      * @param tradeState The current state of the trade, containing information such as trade identifiers.
      * @param eventDate  The date on which the exercise action occurs, either adjustable or adjusted to reflect business conventions.
-     * @return           An ExerciseInstruction object representing the details required to execute the option.
+     * @return An ExerciseInstruction object representing the details required to execute the option.
      */
     public static ExerciseInstruction buildExercisePrimitiveInstruction(TradeState tradeState, AdjustableOrAdjustedDate eventDate) {
 
+        Payout exerciseOptionPayout = Payout.builder().build();
+
+        if (exerciseOptionPayout.getOptionPayout() == null) {
+            OptionPayout fromTrade = tradeState.getTrade().getProduct().getEconomicTerms().getPayout().stream()
+                    .map(Payout::getOptionPayout)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElseThrow();
+            exerciseOptionPayout = Payout.builder()
+                    .setOptionPayout(fromTrade)
+                    .build();
+        }
+
         // Create a reference to the option payout as part of the exercise process.
-        ReferenceWithMetaOptionPayout option = ReferenceWithMetaOptionPayout.builder()
-                .setValue(OptionPayout.builder().build()) // Build a basic OptionPayout structure.
+        ReferenceWithMetaPayout option = ReferenceWithMetaPayout.builder()
+                .setValue(exerciseOptionPayout)  // Build a basic OptionPayout structure.
                 .build();
 
         // Initialize and build the ExerciseInstruction.
         return ExerciseInstruction.builder()
                 .setExerciseDate(eventDate)                                                 // Set the date on which the option is exercised.
                 .setExerciseTime(BusinessCenterTime.builder().build())                      // Set a placeholder exercise time, typically defined as business center time.
-                .setExerciseOptionValue(OptionPayout.builder().build())                     // Define the value of the exercised option.
+                .setExerciseOptionValue(exerciseOptionPayout)                     // Define the value of the exercised option.
                 .setExerciseQuantity(PrimitiveInstruction.builder().build())                // Set the quantity to be exercised, typically linked to a primitive instruction.
                 .setExerciseOption(option)                                                  // Associate the exercise with the referenced option.
                 .addReplacementTradeIdentifier(tradeState.getTrade().getTradeIdentifier())  // Add a replacement trade identifier from the trade state for tracking purposes.
@@ -1018,20 +1038,23 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds a ResetInstruction for a trade, specifying reset and rate record dates, and payout details.
      *
-     * @param payout     A reference to the payout object associated with the reset.
-     * @param payout1    The actual payout value to be set for the reset instruction.
-     * @param date       The date of the reset and the rate record, applicable to this instruction.
-     * @return           A ResetInstruction object containing the provided reset and payout details.
+     * @param payout  A reference to the payout object associated with the reset.
+     * @param payout1 The actual payout value to be set for the reset instruction.
+     * @param date    The date of the reset and the rate record, applicable to this instruction.
+     * @return A ResetInstruction object containing the provided reset and payout details.
      */
-    public static ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
+    public ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
 
-        //TODO Review if payout1 is used
+        List<? extends Reset> resets = calculateResetFunc.evaluate(CalculateResetInstruction.builder()
+                .setPayout(List.of(payout))
+                .setResetDate(date)
+                .setRateRecordDate(date)
+                .build());
+
+//TODO Review if payout1 is used
         // Initialize and build the ResetInstruction.
         return ResetInstruction.builder()
-                .setResetDate(date)         // The date on which the reset occurs.
-                .setRateRecordDate(date)    // The date for recording the rate associated with the reset.
-                .setPayout(List.of(payout))          // Associates the reset instruction with a referenced payout.
-                //.setPayoutValue(payout1)    // Sets the specific payout value for the reset.
+                .setReset(resets)
                 .build();                   // Builds and returns the finalized ResetInstruction.
     }
 
@@ -1041,7 +1064,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @param tradeState The current state of the trade, containing the trade identifier and other details.
      * @param change     The new desired quantity to be set for the trade.
      * @param direction  The direction of the quantity change (e.g., increase or decrease).
-     * @return           A QuantityChangeInstruction object containing the specified quantity change and direction.
+     * @return A QuantityChangeInstruction object containing the specified quantity change and direction.
      */
     public static QuantityChangeInstruction buildQuantityChangePrimitiveInstruction(TradeState tradeState, PriceQuantity change, QuantityChangeDirectionEnum direction) {
 
@@ -1056,8 +1079,8 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds a ValuationInstruction for a trade, specifying the valuation amount and whether the previous valuation history should be replaced.
      *
-     * @param valuation  The calculated valuation amount to be applied.
-     * @return           A ValuationInstruction object containing the specified valuation details and history management.
+     * @param valuation The calculated valuation amount to be applied.
+     * @return A ValuationInstruction object containing the specified valuation details and history management.
      */
     public static ValuationInstruction buildValuationPrimitiveInstruction(Valuation valuation) {
 
@@ -1071,7 +1094,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds a TransferInstruction for a trade, initializing it with a transfer state.
      *
-     * @return           A TransferInstruction object containing an initialized transfer state.
+     * @return A TransferInstruction object containing an initialized transfer state.
      */
     public static TransferInstruction buildTransferPrimitiveInstruction() {
 
@@ -1085,7 +1108,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * Builds a TermsChangeInstruction for a trade, specifying the product, ancillary party, and adjustment type.
      *
      * @param tradeState The current state of the trade, which provides information about the product, ancillary party, and other trade details.
-     * @return           A TermsChangeInstruction object containing the specified product, ancillary party, and adjustment type.
+     * @return A TermsChangeInstruction object containing the specified product, ancillary party, and adjustment type.
      */
     public static TermsChangeInstruction buildTermsChangePrimitiveInstruction(TradeState tradeState) {
 
@@ -1101,7 +1124,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * Builds a StockSplitInstruction for a trade, specifying the adjustment ratio and effective date.
      *
      * @param adjustmentRatio The ratio by which the stock split is applied, determining how the stock is adjusted.
-     * @return              A StockSplitInstruction object containing the adjustment ratio and effective date for the stock split.
+     * @return A StockSplitInstruction object containing the adjustment ratio and effective date for the stock split.
      */
     public static StockSplitInstruction buildStockSplitPrimitiveInstruction(BigDecimal adjustmentRatio) {
 
@@ -1115,7 +1138,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds a SplitInstruction for a trade, specifying a breakdown of the primitive instruction.
      *
-     * @return           A SplitInstruction object containing a breakdown of the primitive instruction.
+     * @return A SplitInstruction object containing a breakdown of the primitive instruction.
      */
     public static SplitInstruction buildSplitPrimitiveInstruction() {
 
@@ -1129,7 +1152,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds a Novation SplitInstruction for a trade, specifying a breakdown of the primitive instruction.
      *
-     * @return           A SplitInstruction object containing a breakdown of the primitive instruction.
+     * @return A SplitInstruction object containing a breakdown of the primitive instruction.
      */
     public static SplitInstruction buildNovationPrimitiveInstruction(PrimitiveInstruction partyChange, PrimitiveInstruction quantityChange) {
 
@@ -1143,7 +1166,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds a SplitInstruction for a Clearing instruction, specifying a breakdown of each primitive instruction.
      *
-     * @return           A SplitInstruction object containing a breakdown of each primitive instruction.
+     * @return A SplitInstruction object containing a breakdown of each primitive instruction.
      */
     public static SplitInstruction buildSplitClearingPrimitiveInstruction(PrimitiveInstruction p1, PrimitiveInstruction p2, PrimitiveInstruction p3) {
 
@@ -1159,7 +1182,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * Builds an ObservationInstruction for a given observation event.
      *
      * @param observation The observation event containing the details of the event to be observed.
-     * @return            An ObservationInstruction object containing the specified observation event.
+     * @return An ObservationInstruction object containing the specified observation event.
      */
     public static ObservationInstruction buildObservationPrimitiveInstruction(ObservationEvent observation) {
 

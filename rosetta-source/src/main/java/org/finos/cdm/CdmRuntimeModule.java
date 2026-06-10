@@ -2,180 +2,185 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
+import cdm.base.staticdata.codelist.LoadCodeListImpl;
+import cdm.base.staticdata.codelist.functions.LoadCodeList;
+import cdm.ingest.fpml.confirmation.common.functions.StringContains;
+import cdm.ingest.fpml.confirmation.common.functions.StringContainsImpl;
+import cdm.ingest.fpml.confirmation.pricequantity.functions.*;
+import cdm.ingest.fpml.confirmation.product.commodityoption.functions.CalculateCommodityCalculationPeriods;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
-import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
-import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
-import cdm.product.common.settlement.functions.UpdateAmountForEachQuantity;
-import cdm.product.common.settlement.functions.UpdateAmountForEachQuantityImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
-import com.regnosys.rosetta.translate.datamodel.json.CreateiQJsonSchemaParser;
-import com.regnosys.rosetta.translate.datamodel.json.JsonSchemaParser;
+import com.regnosys.runefpml.RuneFpmlRuntimeModule;
 import com.rosetta.model.lib.ModuleConfig;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
-import org.isda.cdm.processor.CdmReferenceConfig;
-import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
+import org.finos.cdm.qualify.CdmQualificationHandlerProvider;
+import org.finos.cdm.reference.CdmReferenceConfig;
 
-@ModuleConfig(model="COMMON-DOMAIN-MODEL", type="Rosetta")
+@ModuleConfig(model = "COMMON-DOMAIN-MODEL", type = "Rosetta")
 public class CdmRuntimeModule extends AbstractModule {
 
-	@Override
-	protected void configure() {
-		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
-		bind(QualificationHandlerProvider.class).to(bindQualificationConfigProvider());
-		bind(ValidatorFactory.class).to(bindValidatorFactory());
-		bind(ReferenceConfig.class).toInstance(CdmReferenceConfig.get());
+    @Override
+    protected void configure() {
+        // upstream model dependency
+        install(new RuneFpmlRuntimeModule());
 
-		// Requires DSL get-item(index)
-		bind(VectorOperation.class).to(bindVectorOperation());
-		bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
+        bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
+        bind(QualificationHandlerProvider.class).to(bindQualificationConfigProvider());
+        bind(ValidatorFactory.class).to(bindValidatorFactory());
+        bind(ReferenceConfig.class).toInstance(CdmReferenceConfig.get());
 
-		// Requires DSL remove-item(index)
-		bind(PopOffDateList.class).to(bindPopOffDateList());
+        // Requires DSL get-item(index)
+        bind(VectorOperation.class).to(bindVectorOperation());
+        bind(VectorGrowthOperation.class).to(bindVectorGrowthOperation());
 
-		// Access to reference metadata (not supported in DSL)
-		bind(FpmlIrd8.class).to(bindFpmlIrd8());
+        // Requires DSL remove-item(index)
+        bind(PopOffDateList.class).to(bindPopOffDateList());
 
-		// Rounding (not supported in DSL)
-		bind(RoundToNearest.class).to(bindRoundToNearest());
-		bind(RoundToPrecision.class).to(bindRoundToPrecision());
-		bind(RoundToSignificantFigures.class).to(bindRoundToSignificantFigures());
+        // Access to reference metadata (not supported in DSL)
+        bind(FpmlIrd8.class).to(bindFpmlIrd8());
 
-		// Data providers (external data)
-		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays()).asEagerSingleton();
-		bind(IndexValueObservation.class).to(bindIndexValueObservation()).asEagerSingleton();
+        // Rounding (not supported in DSL)
+        bind(RoundToNearest.class).to(bindRoundToNearest());
+        bind(RoundToPrecision.class).to(bindRoundToPrecision());
+        bind(RoundToSignificantFigures.class).to(bindRoundToSignificantFigures());
 
-		// Require DSL changes to prevent overwriting of reference metadata  (not supported in DSL)
-		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
-		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
+        // Data providers (external data)
+        bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays()).asEagerSingleton();
+        bind(IndexValueObservation.class).to(bindIndexValueObservation()).asEagerSingleton();
 
-		// Date functions (not supported in DSL)
-		bind(Now.class).to(bindNow());
-		bind(Today.class).to(bindToday());
-		bind(ToTime.class).to(bindToTime());
-		bind(AddDays.class).to(bindAddDays());
-		bind(DayOfWeek.class).to(bindDayOfWeek());
-		bind(DateDifference.class).to(bindDateDifference());
-		bind(LeapYearDateDifference.class).to(bindLeapYearDateDiff());
-		bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
-		bind(CalculationPeriod.class).to(bindCalculationPeriod());
-		bind(CalculationPeriods.class).to (bindCalculationPeriods());
-		bind(ResolveAdjustableDate.class).to(bindResolveAdjustableDate());
-		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
-		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
+        // Date functions (not supported in DSL)
+        bind(Now.class).to(bindNow());
+        bind(Today.class).to(bindToday());
+        bind(ToTime.class).to(bindToTime());
+        bind(AddDays.class).to(bindAddDays());
+        bind(DayOfWeek.class).to(bindDayOfWeek());
+        bind(DateDifference.class).to(bindDateDifference());
+        bind(LeapYearDateDifference.class).to(bindLeapYearDateDiff());
+        bind(CalculationPeriodRange.class).to(bindCalculationPeriodRange());
+        bind(CalculationPeriod.class).to(bindCalculationPeriod());
+        bind(CalculationPeriods.class).to(bindCalculationPeriods());
+        bind(ResolveAdjustableDate.class).to(bindResolveAdjustableDate());
+        bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
 
+		// External FpML Coding Schemes data loader
+		bind(LoadCodeList.class).to(bindLoadCodeList());
+    
+    // Ingest
+		bind(StringContains.class).to(StringContainsImpl.class);
+		bind(CreateKey.class).to(CreateKeyImpl.class);
+		bind(CreateAssetKey.class).to(CreateAssetKeyImpl.class);
+		bind(CreateKeyForQuotedCurrencyPair.class).to(CreateKeyForQuotedCurrencyPairImpl.class);
+        bind(CalculateCommodityCalculationPeriods.class).to(CalculateCommodityCalculationPeriodsImpl.class);
+        bind(MapCommodityOptionStrikePriceSchedule.class).to(MapCommodityOptionStrikePriceScheduleImpl.class);
+
+    }
+
+	protected Class<? extends LoadCodeList> bindLoadCodeList() {
+		return LoadCodeListImpl.class;
 	}
 
-	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
-		return CalculationPeriodRangeImpl.class;
-	}
+    protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
+        return CalculationPeriodRangeImpl.class;
+    }
 
-	protected Class<? extends VectorOperation> bindVectorOperation() {
-		return VectorOperationImpl.class;
-	}
+    protected Class<? extends VectorOperation> bindVectorOperation() {
+        return VectorOperationImpl.class;
+    }
 
-	protected Class<? extends VectorGrowthOperation> bindVectorGrowthOperation() {
-		return VectorGrowthOperationImpl.class;
-	}
+    protected Class<? extends VectorGrowthOperation> bindVectorGrowthOperation() {
+        return VectorGrowthOperationImpl.class;
+    }
 
-	protected Class<? extends QualifyFunctionFactory> bindQualifyFunctionFactory() {
-		return QualifyFunctionFactory.Default.class;
-	}
+    protected Class<? extends QualifyFunctionFactory> bindQualifyFunctionFactory() {
+        return QualifyFunctionFactory.Default.class;
+    }
 
-	protected Class<? extends QualificationHandlerProvider> bindQualificationConfigProvider() {
-		return CdmQualificationHandlerProvider.class;
-	}
+    protected Class<? extends QualificationHandlerProvider> bindQualificationConfigProvider() {
+        return CdmQualificationHandlerProvider.class;
+    }
 
-	protected Class<? extends ValidatorFactory> bindValidatorFactory() {
-		return ValidatorFactory.Default.class;
-	}
+    protected Class<? extends ValidatorFactory> bindValidatorFactory() {
+        return ValidatorFactory.Default.class;
+    }
 
-	// Functions
+    // Functions
 
-	protected Class<? extends CalculationPeriod> bindCalculationPeriod() {
-		return CalculationPeriodImpl.class;
-	}
+    protected Class<? extends CalculationPeriod> bindCalculationPeriod() {
+        return CalculationPeriodImpl.class;
+    }
 
-	protected Class<? extends CalculationPeriods> bindCalculationPeriods() {
-		return CalculationPeriodsImpl.class;
-	}
+    protected Class<? extends CalculationPeriods> bindCalculationPeriods() {
+        return CalculationPeriodsImpl.class;
+    }
 
-	private Class<? extends ResolveAdjustableDate> bindResolveAdjustableDate() {
-		return ResolveAdjustableDateImpl.class;
-	}
+    private Class<? extends ResolveAdjustableDate> bindResolveAdjustableDate() {
+        return ResolveAdjustableDateImpl.class;
+    }
 
-	private Class<? extends ResolveAdjustableDates> bindResolveAdjustableDates() {
-		return ResolveAdjustableDatesImpl.class;
-	}
+    private Class<? extends ResolveAdjustableDates> bindResolveAdjustableDates() {
+        return ResolveAdjustableDatesImpl.class;
+    }
 
-	protected Class<? extends RoundToNearest> bindRoundToNearest() {
-		return RoundToNearestImpl.class;
-	}
+    protected Class<? extends RoundToNearest> bindRoundToNearest() {
+        return RoundToNearestImpl.class;
+    }
 
-	protected Class<? extends RoundToPrecision> bindRoundToPrecision() {
-		return RoundToPrecisionImpl.class;
-	}
+    protected Class<? extends RoundToPrecision> bindRoundToPrecision() {
+        return RoundToPrecisionImpl.class;
+    }
 
-	protected Class<? extends RoundToSignificantFigures> bindRoundToSignificantFigures() {
-		return RoundToSignificantFiguresImpl.class;
-	}
+    protected Class<? extends RoundToSignificantFigures> bindRoundToSignificantFigures() {
+        return RoundToSignificantFiguresImpl.class;
+    }
 
-	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
-		return FpmlIrd8Impl.class;
-	}
+    protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
+        return FpmlIrd8Impl.class;
+    }
 
-	protected Class<? extends Now> bindNow() {
-		return NowImpl.class;
-	}
+    protected Class<? extends Now> bindNow() {
+        return NowImpl.class;
+    }
 
-	protected Class<? extends ToTime> bindToTime() {
-		return ToTimeImpl.class;
-	}
+    protected Class<? extends ToTime> bindToTime() {
+        return ToTimeImpl.class;
+    }
 
-	protected Class<? extends AddDays> bindAddDays() {
-		return AddDaysImpl.class;
-	}
+    protected Class<? extends AddDays> bindAddDays() {
+        return AddDaysImpl.class;
+    }
 
-	protected Class<? extends PopOffDateList> bindPopOffDateList() {
-		return PopOffDateListImpl.class;
-	}
+    protected Class<? extends PopOffDateList> bindPopOffDateList() {
+        return PopOffDateListImpl.class;
+    }
 
-	protected Class<? extends BusinessCenterHolidays> bindBusinessCenterHolidays() {
-		return BusinessCenterHolidaysEmptyDataProvider.class;
-	}
+    protected Class<? extends BusinessCenterHolidays> bindBusinessCenterHolidays() {
+        return BusinessCenterHolidaysEmptyDataProvider.class;
+    }
 
-	protected Class<? extends DateDifference> bindDateDifference() {
-		return DateDifferenceImpl.class;
-	}
+    protected Class<? extends DateDifference> bindDateDifference() {
+        return DateDifferenceImpl.class;
+    }
 
-	protected Class<? extends LeapYearDateDifference> bindLeapYearDateDiff() {
-		return LeapYearDateDifferenceImpl.class;
-	}
+    protected Class<? extends LeapYearDateDifference> bindLeapYearDateDiff() {
+        return LeapYearDateDifferenceImpl.class;
+    }
 
-	protected Class<? extends DayOfWeek> bindDayOfWeek() {
-		return DayOfWeekImpl.class;
-	}
+    protected Class<? extends DayOfWeek> bindDayOfWeek() {
+        return DayOfWeekImpl.class;
+    }
 
-	protected Class<? extends IndexValueObservation> bindIndexValueObservation() {
-		return IndexValueObservationEmptyDataProvider.class;
-	}
+    protected Class<? extends IndexValueObservation> bindIndexValueObservation() {
+        return IndexValueObservationEmptyDataProvider.class;
+    }
 
-	protected Class<? extends Today> bindToday() {
-		return TodayImpl.class;
-	}
-
-	protected Class<? extends UpdateAmountForEachQuantity> bindUpdateAmountForEachQuantity() {
-		return UpdateAmountForEachQuantityImpl.class;
-	}
-
-	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
-		return UpdateAmountForEachMatchingQuantityImpl.class;
-	}
-
+    protected Class<? extends Today> bindToday() {
+        return TodayImpl.class;
+    }
 }

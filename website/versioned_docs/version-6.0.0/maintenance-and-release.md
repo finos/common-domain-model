@@ -4,7 +4,7 @@ title: Maintenance and Release
 
 ## Reviewing model changes
 
-Contributions are reviewed by the Contribution Review Working Group and once approved, the [CDM Maintainers](/docs/maintainers) will release them following the guidelines in this document.  The [CDM Maintainers](docs/maintainers) document includes a description of the overall change approval process.
+Contributions are reviewed by the Contribution Review Working Group and once approved, the [CDM Maintainers](/docs/maintainers) will release them following the guidelines in this document.  The [CDM Maintainers](/docs/maintainers) document includes a description of the overall change approval process.
 
 ### Review checklist
 
@@ -179,3 +179,5 @@ This section covers scheduling of minor, development, and patch releases, and ap
 | Minor Release (6.1.0)| 2 maintainers        | Scheduling is up to the maintainers, but aim to keep to around every 4 weeks and no more than fortnightly       |
 | Patch Release (6.1.1)| 1 maintainer         | Scheduling is up to the maintainer            |
 | Development Release (6.0.0-dev.13)| 1 maintainer         | Scheduling is up to the maintainer            |
+
+![](/img/CDM–Build-Release-Process.png)

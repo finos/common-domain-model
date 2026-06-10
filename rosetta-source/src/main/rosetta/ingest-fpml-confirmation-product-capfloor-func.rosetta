@@ -1,0 +1,153 @@
+namespace cdm.ingest.fpml.confirmation.product.capfloor: <"FpML CapFloor product mapping functions.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.product.swap.* as swap
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.ird.* as fpml
+import fpml.consolidated.shared.* as fpml
+
+func MapCapFloorCounterpartyList:
+    inputs:
+        fpmlCapFloor fpml.CapFloor (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlCapFloor -> capFloorStream -> payerPartyReference,
+                fpmlCapFloor -> capFloorStream -> receiverPartyReference
+            )
+
+func MapCapFloorAncillaryPartyList:
+    inputs:
+        fpmlCapFloor fpml.CapFloor (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapEarlyTerminationProvisionToAncillaryParty(
+                fpmlCapFloor -> earlyTerminationProvision,
+                cdmCounterpartyList
+            )
+
+func MapCapFloorNonTransferableProduct:
+    inputs:
+        fpmlCapFloor fpml.CapFloor (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlCapFloor -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCapFloor -> primaryAssetClass,
+                        fpmlCapFloor -> secondaryAssetClass,
+                        fpmlCapFloor -> productType
+                    ),
+            economicTerms: MapCapFloorEconomicTerms(fpmlCapFloor, cdmCounterpartyList)
+        }
+
+func MapCapFloorEconomicTerms:
+    inputs:
+        fpmlCapFloor fpml.CapFloor (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+    set economicTerms:
+        EconomicTerms {
+            payout: swap.MapSwapPayout(fpmlCapFloor -> capFloorStream, cdmCounterpartyList),
+            terminationProvision: swap.MapTerminationProvision(
+                        fpmlCapFloor -> earlyTerminationProvision,
+                        empty,
+                        empty,
+                        cdmCounterpartyList
+                    ),
+            ...
+        }
+
+func MapCapFloorPriceQuantityList:
+    inputs:
+        fpmlCapFloor fpml.CapFloor (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList: fpmlCapFloor -> capFloorStream extract MapCapfloorPriceQuantity
+
+func MapCapfloorPriceQuantity:
+    inputs:
+        fpmlCapFloorStream fpml.InterestRateStream (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    alias calculationPeriodAmount: fpmlCapFloorStream -> calculationPeriodAmount
+
+    set priceQuantity:
+        PriceQuantity {
+            price: MapCapfloorCalculationPeriodAmountToPriceList(
+                        calculationPeriodAmount,
+                        fpmlCapFloorStream
+                    ),
+            quantity: swap.MapCalculationPeriodAmountToQuantityList(
+                        calculationPeriodAmount,
+                        fpmlCapFloorStream
+                    ),
+            observable: MapRateOptionToObservableWithLocation(
+                        calculationPeriodAmount -> calculation -> rateCalculation,
+                        fpmlCapFloorStream
+                    ),
+            ...
+        }
+
+func MapCapfloorCalculationPeriodAmountToPriceList:
+    inputs:
+        fpmlCalculationPeriodAmount fpml.CalculationPeriodAmount (0..1)
+        fpmlLeg fpml.Leg (0..1)
+    output:
+        priceSchedules PriceSchedule (0..*)
+            [metadata location]
+
+    alias fpmlRate: fpmlCalculationPeriodAmount -> calculation -> rateCalculation
+
+    alias fpmlCurrency: swap.GetInterestRatePriceCurrency(fpmlCalculationPeriodAmount)
+
+    alias fixedRateSchedule:
+        fpmlCalculationPeriodAmount -> calculation -> fixedRateSchedule default fpmlCalculationPeriodAmount -> calculation -> fixedRateSchedule
+
+    add priceSchedules:
+        MapFixedRateScheduleToPriceWithLocation(fixedRateSchedule, fpmlCurrency, fpmlLeg)
+
+    add priceSchedules:
+        MapSpreadScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
+
+    add priceSchedules:
+        MapCapRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
+    add priceSchedules:
+        MapFloorRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
+
+func MapCapFloorAccountPartyReference:
+    inputs:
+        fpmlCapFloor fpml.CapFloor (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        fpmlCapFloor -> capFloorStream
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )

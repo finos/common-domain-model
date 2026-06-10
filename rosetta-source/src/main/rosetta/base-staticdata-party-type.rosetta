@@ -5,7 +5,6 @@ import cdm.base.*
 import cdm.base.staticdata.identifier.*
 
 type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, with an associated party reference. The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the CounterpartyEnum (e.g. values Party1 or Party2). The CounterpartyEnum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the CounterpartyEnum to be associated with an actual party reference.">
-
     role CounterpartyRoleEnum (1..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference.">
     partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
         [metadata reference]
@@ -104,11 +103,9 @@ type ContactInformation: <"A class to specify contact information associated wit
 
 type LegalEntity: <"A class to specify a legal entity, with a required name and an optional entity identifier (such as the LEI).">
     [metadata key]
-
-    entityId string (0..*) <"A legal entity identifier (e.g. RED entity code).">
-        [metadata scheme]
     name string (1..1) <"The legal entity name.">
         [metadata scheme]
+    entityIdentifier EntityIdentifier (0..*) <"A legal entity identifier with a source (e.g. RED entity code).">
 
 type NaturalPerson: <"A class to represent the attributes that are specific to a natural person.">
     [metadata key]
@@ -155,6 +152,12 @@ type PartyIdentifier: <"Comprises an identifier and a source. The associated met
         [metadata scheme]
     identifierType PartyIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
 
+type EntityIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the EntityIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+    [metadata key]
+    identifier string (1..1) <"Provides an identifier associated with a legal entity.">
+        [metadata scheme]
+    identifierType EntityIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
+
 type PersonIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PersonIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
     identifier string (1..1) <"Provides an identifier associated with a person. The identifier is unique within the public source specified in the source attribute.">
@@ -163,15 +166,6 @@ type PersonIdentifier: <"Comprises an identifier and a source. The associated me
     country string (0..1) <"The ISO 3166 standard code for the country issuing the identifier.">
         [metadata scheme]
 
-type PartyContactInformation: <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
-
-    partyReference Party (0..1) <"The reference to the party to which the contact information refers to.">
-        [metadata reference]
-    contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">
-    businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
-    person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">
-    additionalInformation string (0..1) <"Specification of special instructions of the relevant party.">
-
 type PartyRole: <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
 
     partyReference Party (1..1) <"A reference to the party to which the role refers to.">
@@ -179,6 +173,16 @@ type PartyRole: <"A class to specify the role(s) that party(ies) may have in rel
     role PartyRoleEnum (1..1) <"The party role.">
     ownershipPartyReference Party (0..1) <"A reference to the party that has ownership of this party role information. FpML specifies that For shared trade information, this attribute will reference the originator of the data (for example, an execution facility or clearing house).">
         [metadata reference]
+
+type AssetPartyRole:
+    partyReference Party (1..1) <"A reference to the party to which the role refers to.">
+        [metadata reference]
+    role AssetPartyRoleEnum (1..1) <"The party role.">
+
+type AssetAncillaryPartyRole:
+    partyReference Party (1..1) <"A reference to the party to which the role refers to.">
+        [metadata reference]
+    role AssetAncillaryPartyRoleEnum (1..1) <"The party role.">
 
 type TelephoneNumber: <"A class to specify a telephone number as a type of phone number (e.g. work, personal, ...) alongside with the actual number.">
 

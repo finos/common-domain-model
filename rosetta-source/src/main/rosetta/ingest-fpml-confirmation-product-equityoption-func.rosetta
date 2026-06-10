@@ -1,0 +1,241 @@
+namespace cdm.ingest.fpml.confirmation.product.equityoption: <"FpML EquityOption product mapping functions.">
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.eqd.* as fpml
+import fpml.consolidated.option.shared.* as fpml
+import fpml.consolidated.shared.* as fpml
+
+func MapEquityOptionCounterpartyList:
+    inputs:
+        fpmlEquityOption fpml.EquityOption (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlEquityOption -> buyerPartyReference,
+                fpmlEquityOption -> sellerPartyReference
+            )
+
+func MapEquityOptionNonTransferableProduct:
+    inputs:
+        fpmlEquityOption fpml.EquityOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlEquityOption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlEquityOption -> primaryAssetClass,
+                        fpmlEquityOption -> secondaryAssetClass,
+                        fpmlEquityOption -> productType
+                    ),
+            economicTerms: MapEquityOptionEconomicTerms(
+                        fpmlEquityOption,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapEquityOptionEconomicTerms:
+    inputs:
+        fpmlEquityOption fpml.EquityOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapEquityOptionPayout(fpmlEquityOption, cdmCounterpartyList),
+            ...
+        }
+
+func MapEquityOptionPayout:
+    inputs:
+        fpmlEquityOption fpml.EquityOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    alias unit:
+        UnitType {
+            currency: MapCurrency(
+                        fpmlEquityOption -> strike -> currency default fpmlEquityOption -> equityExercise -> settlementCurrency
+                    ),
+            ...
+        }
+
+    alias perUnitOf:
+        GetUnitTypeForUnderlyingAsset(
+                fpmlEquityOption -> underlyer -> singleUnderlyer -> underlyingAsset
+            )
+    alias passThroughItem: fpmlEquityOption -> feature -> passThrough -> passThroughItem
+    alias apo: fpmlEquityOption -> feature -> asian -> averagingPeriodOut
+    alias api: fpmlEquityOption -> feature -> asian -> averagingPeriodIn
+
+    set payout:
+        Payout {
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlEquityOption -> sellerPartyReference,
+                                fpmlEquityOption -> buyerPartyReference,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapEquityDerivativeBaseQuantityListWithAddress(
+                                        fpmlEquityOption,
+                                        fpmlEquityOption -> numberOfOptions
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
+                                fpmlEquityOption -> equityExercise,
+                                empty
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlEquityOption -> buyerPartyReference,
+                                fpmlEquityOption -> sellerPartyReference,
+                                cdmCounterpartyList
+                            ),
+                    feature:
+                        OptionFeature {
+                            averagingFeature:
+                                AveragingFeature {
+                                    averagingCalculation: empty,
+                                    averagingInOut: fpmlEquityOption -> feature -> asian -> averagingInOut to-enum AveragingInOutEnum,
+                                    averagingPeriodOut:
+                                        AveragingPeriod {
+                                            averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
+                                                        apo -> averagingDateTimes
+                                                    )
+                                                    first,
+                                            averagingObservations: MapAveragingObservations(
+                                                        apo -> averagingObservations
+                                                    )
+                                                    first,
+                                            marketDisruption: fpmlEquityOption -> feature -> asian -> averagingPeriodOut -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                                            ...
+                                        },
+                                    averagingPeriodIn:
+                                        AveragingPeriod {
+                                            averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
+                                                        api -> averagingDateTimes
+                                                    )
+                                                    first,
+                                            marketDisruption: fpmlEquityOption -> feature -> asian -> averagingPeriodIn -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                                            ...
+                                        },
+                                    ...
+                                },
+                            passThrough:
+                                PassThrough {
+                                    passThroughItem:
+                                        PassThroughItem {
+                                            payerReceiver:
+                                                PayerReceiver {
+                                                    payer: MapCounterpartyRoleEnum(
+                                                                passThroughItem only-element -> payerPartyReference -> href,
+                                                                cdmCounterpartyList
+                                                            ),
+                                                    receiver: MapCounterpartyRoleEnum(
+                                                                passThroughItem only-element -> receiverPartyReference -> href,
+                                                                cdmCounterpartyList
+                                                            )
+                                                },
+                                            passThroughPercentage: passThroughItem only-element -> passThroughPercentage
+                            },},
+                            ...
+                        },
+                    underlier:
+                        Underlier {
+                            Observable: MapUnderlyerToObservableWithAddress(
+                                        fpmlEquityOption -> underlyer
+                                    ),
+                            ...
+                        },
+                    optionType: fpmlEquityOption -> optionType to-enum OptionTypeEnum,
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlEquityExercise(fpmlEquityOption -> equityExercise),
+                                empty,
+                                fpmlEquityOption -> equityExercise -> automaticExercise,
+                                fpmlEquityOption -> buyerPartyReference,
+                                fpmlEquityOption -> sellerPartyReference,
+                                cdmCounterpartyList
+                            ),
+                    strike: MapOptionStrikePrice(
+                                fpmlEquityOption -> strike -> strikePrice,
+                                fpmlEquityOption -> strike -> strikePercentage,
+                                unit,
+                                perUnitOf
+                            ),
+                    ...
+                },
+            ...
+        }
+
+func MapAveragingObservations:
+    inputs:
+        fpmlAveragingObservationList fpml.AveragingObservationList (0..*)
+    output:
+        observationList AveragingObservationList (0..*)
+
+    alias averagingObservation: fpmlAveragingObservationList -> averagingObservation first
+
+    add observationList:
+        AveragingObservationList {
+            averagingObservation:
+                WeightedAveragingObservation {
+                    dateTime: averagingObservation -> dateTime,
+                    observationNumber: averagingObservation -> observationNumber,
+                    weight: averagingObservation -> weight
+        }}
+
+func MapEquityOptionPriceQuantityList:
+    inputs:
+        fpmlEquityOption fpml.EquityOption (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        PriceQuantity {
+            quantity: MapEquityDerivativeBaseQuantityListWithLocation(
+                        fpmlEquityOption,
+                        fpmlEquityOption -> numberOfOptions,
+                        fpmlEquityOption -> optionEntitlement,
+                        fpmlEquityOption -> underlyer -> singleUnderlyer -> openUnits
+                    ),
+            observable: MapUnderlyerToObservableWithLocation(fpmlEquityOption -> underlyer),
+            ...
+        }
+
+func MapEquityOptionAccountPartyReference:
+    inputs:
+        fpmlEquityOption fpml.EquityOption (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapBuyerSellerToAccountPartyReference(
+                fpmlAccount,
+                fpmlEquityOption -> buyerAccountReference,
+                fpmlEquityOption -> sellerAccountReference
+            )

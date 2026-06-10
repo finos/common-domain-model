@@ -1,0 +1,720 @@
+namespace cdm.ingest.fpml.confirmation.payment
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
+import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.observable.asset.*
+import cdm.product.common.settlement.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.bond.option.* as fpml
+import fpml.consolidated.cd.* as fpml
+import fpml.consolidated.com.* as fpml
+import fpml.consolidated.correlation.swaps.* as fpml
+import fpml.consolidated.dividend.swaps.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
+import fpml.consolidated.eqd.* as fpml
+import fpml.consolidated.fpmlreturn.swaps.* as fpml
+import fpml.consolidated.fx.* as fpml
+import fpml.consolidated.generic.* as fpml
+import fpml.consolidated.ird.* as fpml
+import fpml.consolidated.option.shared.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.variance.swaps.* as fpml
+import fpml.consolidated.volatility.swaps.* as fpml
+
+func MapTransferStateList:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        transfer TransferState (0..*)
+
+    alias fpmlProduct: fpmlTrade -> product
+
+    // additionalPayment
+    add transfer:
+        fpmlProduct switch
+            fpml.FxVolatilitySwap then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.FxVarianceSwap then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.Swap then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.GenericProduct then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.Fra then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.CorrelationSwap then
+                MapClassifiablePaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.VolatilitySwap then
+                MapClassifiablePaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.VarianceSwap then
+                MapClassifiablePaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.CapFloor then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            fpml.EquitySwapTransactionSupplement then
+                MapReturnSwapAdditionalPaymentListToTransferStateList(
+                        additionalPayment,
+                        Upfront
+                    ),
+            fpml.ReturnSwap then
+                MapReturnSwapAdditionalPaymentListToTransferStateList(
+                        additionalPayment,
+                        Upfront
+                    ),
+            default empty
+
+    // initialPayment and singlePayment
+    add transfer:
+        fpmlProduct switch
+            fpml.CreditDefaultSwap then
+                if feeLeg -> initialPayment exists
+                then MapInitialPaymentToTransferState(feeLeg -> initialPayment, Upfront)
+                else if feeLeg -> singlePayment exists
+                then MapSinglePaymentListToTransferStateList(
+                            feeLeg -> singlePayment,
+                            Upfront
+                        ),
+            default empty
+
+    // equityPremium
+    add transfer:
+        fpmlProduct switch
+            fpml.EquityOption then
+                MapEquityPremiumToTransferState(equityPremium, Premium),
+            default empty
+
+    // premium
+    add transfer:
+        fpmlProduct switch
+            fpml.GenericProduct then
+                MapSimplePaymentToTransferState(premium, Premium),
+            fpml.CapFloor then
+                MapPaymentListToTransferStateList(premium, Premium),
+            fpml.Swaption then
+                MapPaymentListToTransferStateList(premium, Premium),
+            fpml.FxDigitalOption then
+                MapFxOptionPremiumListToTransferStateList(premium, Premium),
+            fpml.FxOption then
+                MapFxOptionPremiumListToTransferStateList(premium, Premium),
+            fpml.DividendSwapOptionTransactionSupplement then
+                MapEquityPremiumListToTransferStateList(equityPremium, Premium),
+            fpml.VarianceOptionTransactionSupplement then
+                MapEquityPremiumListToTransferStateList(equityPremium, Premium),
+            fpml.CommodityBasketOption then
+                MapCommodityPremiumListToTransferStateList(premium, Premium),
+            fpml.CommodityOption then
+                MapCommodityPremiumListToTransferStateList(premium, Premium),
+            fpml.CommoditySwaption then
+                MapCommodityPremiumListToTransferStateList(premium, Premium),
+            fpml.EquityOptionTransactionSupplement then
+                MapEquityPremiumListToTransferStateList(equityPremium, Premium),
+            fpml.BondOption then
+                MapPremiumListToTransferStateList(premium, Premium),
+            fpml.CreditDefaultSwapOption then
+                MapPremiumListToTransferStateList(premium, Premium),
+            fpml.BrokerEquityOption then
+                MapEquityPremiumListToTransferStateList(equityPremium, Premium),
+            default empty
+
+    // otherPartyPayment
+    add transfer: MapPaymentListToTransferStateList(fpmlTrade -> otherPartyPayment, Upfront)
+
+func MapPaymentListToTransferStateList:
+    inputs:
+        fpmlPaymentList fpml.Payment (0..*)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferStateList TransferState (0..*)
+
+    add transferStateList:
+        fpmlPaymentList
+            extract
+                MapPaymentToTransferState(
+                        item,
+                        MapUnscheduledTransferEnum(paymentType -> value) default transferType
+                    )
+
+func MapPaymentToTransferState:
+    inputs:
+        fpmlPayment fpml.Payment (0..1)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlPayment exists
+        then TransferState {
+            transfer:
+                Transfer {
+                    UnscheduledTransfer:
+                        UnscheduledTransfer {
+                            quantity: MapTransferQuantity(fpmlPayment -> paymentAmount),
+                            asset: MapTransferCashAsset(fpmlPayment -> paymentAmount),
+                            payerReceiver: MapPaymentToPartyReferencePayerReceiver(
+                                        fpmlPayment -> payerPartyReference,
+                                        fpmlPayment -> receiverPartyReference
+                                    ),
+                            settlementDate: MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate(
+                                        fpmlPayment -> paymentDate
+                                    ),
+                            transferType: transferType,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        } with-meta {
+            key: fpmlPayment -> id
+        }
+
+func MapClassifiablePaymentListToTransferStateList:
+    inputs:
+        fpmlClassifiablePaymentList fpml.ClassifiablePayment (0..*)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferStateList TransferState (0..*)
+
+    add transferStateList:
+        fpmlClassifiablePaymentList
+            extract MapNonNegativePaymentToTransferState(item, transferType)
+
+func MapNonNegativePaymentToTransferState:
+    inputs:
+        fpmlNonNegativePayment fpml.NonNegativePayment (0..1)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlNonNegativePayment exists
+        then TransferState {
+            transfer:
+                Transfer {
+                    UnscheduledTransfer:
+                        UnscheduledTransfer {
+                            quantity: MapTransferQuantity(
+                                        fpmlNonNegativePayment -> paymentAmount
+                                    ),
+                            asset: MapTransferCashAsset(
+                                        fpmlNonNegativePayment -> paymentAmount
+                                    ),
+                            payerReceiver: MapPaymentToPartyReferencePayerReceiver(
+                                        fpmlNonNegativePayment -> payerPartyReference,
+                                        fpmlNonNegativePayment -> receiverPartyReference
+                                    ),
+                            settlementDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                        fpmlNonNegativePayment -> paymentDate -> adjustableDate -> unadjustedDate -> value -> date,
+                                        fpmlNonNegativePayment -> paymentDate -> adjustableDate,
+                                        fpmlNonNegativePayment -> paymentDate -> relativeDate
+                                    ),
+                            transferType: transferType,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        } with-meta {
+            key: fpmlNonNegativePayment -> id
+        }
+
+func MapSimplePaymentToTransferState:
+    inputs:
+        fpmlSimplePayment fpml.SimplePayment (0..1)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlSimplePayment exists
+        then TransferState {
+            transfer:
+                Transfer {
+                    UnscheduledTransfer:
+                        UnscheduledTransfer {
+                            quantity: MapTransferQuantity(
+                                        fpmlSimplePayment -> paymentAmount
+                                    ),
+                            asset: MapTransferCashAsset(fpmlSimplePayment -> paymentAmount),
+                            payerReceiver: MapPaymentToPartyReferencePayerReceiver(
+                                        fpmlSimplePayment -> payerPartyReference,
+                                        fpmlSimplePayment -> receiverPartyReference
+                                    ),
+                            settlementDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                        fpmlSimplePayment -> paymentDate -> adjustableDate -> unadjustedDate -> value -> date,
+                                        fpmlSimplePayment -> paymentDate -> adjustableDate,
+                                        fpmlSimplePayment -> paymentDate -> relativeDate
+                                    ),
+                            transferType: transferType,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        } with-meta {
+            key: fpmlSimplePayment -> id
+        }
+
+func MapReturnSwapAdditionalPaymentListToTransferStateList:
+    inputs:
+        fpmlReturnSwapAdditionalPaymentList fpml.ReturnSwapAdditionalPayment (0..*)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferStateList TransferState (0..*)
+
+    add transferStateList:
+        fpmlReturnSwapAdditionalPaymentList
+            extract MapReturnSwapAdditionalPaymentToTransferState(item, transferType)
+
+func MapReturnSwapAdditionalPaymentToTransferState:
+    inputs:
+        fpmlReturnSwapAdditionalPayment fpml.ReturnSwapAdditionalPayment (0..1)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlReturnSwapAdditionalPayment exists
+        then TransferState {
+            transfer:
+                Transfer {
+                    UnscheduledTransfer:
+                        UnscheduledTransfer {
+                            quantity: MapTransferQuantity(
+                                        fpmlReturnSwapAdditionalPayment -> additionalPaymentAmount -> paymentAmount
+                                    ),
+                            asset: MapTransferCashAsset(
+                                        fpmlReturnSwapAdditionalPayment -> additionalPaymentAmount -> paymentAmount
+                                    ),
+                            payerReceiver: MapPaymentToPartyReferencePayerReceiver(
+                                        fpmlReturnSwapAdditionalPayment -> payerPartyReference,
+                                        fpmlReturnSwapAdditionalPayment -> receiverPartyReference
+                                    ),
+                            settlementDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                        empty,
+                                        fpmlReturnSwapAdditionalPayment -> additionalPaymentDate -> adjustableDate,
+                                        fpmlReturnSwapAdditionalPayment -> additionalPaymentDate -> relativeDate
+                                    ),
+                            transferType: transferType,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        } with-meta {
+            key: fpmlReturnSwapAdditionalPayment -> id
+        }
+
+func MapInitialPaymentToTransferState:
+    inputs:
+        fpmlInitialPayment fpml.InitialPayment (0..1)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlInitialPayment exists
+        then TransferState {
+            transfer:
+                Transfer {
+                    UnscheduledTransfer:
+                        UnscheduledTransfer {
+                            quantity: MapMoneyToTransferQuantity(
+                                        fpmlInitialPayment -> paymentAmount
+                                    ),
+                            asset: MapMoneyToTransferCashAsset(
+                                        fpmlInitialPayment -> paymentAmount
+                                    ),
+                            payerReceiver: MapPaymentToPartyReferencePayerReceiver(
+                                        fpmlInitialPayment -> payerPartyReference,
+                                        fpmlInitialPayment -> receiverPartyReference
+                                    ),
+                            settlementDate:
+                                AdjustableOrAdjustedOrRelativeDate {
+                                    unadjustedDate: fpmlInitialPayment -> adjustablePaymentDate -> date,
+                                    adjustedDate: fpmlInitialPayment -> adjustedPaymentDate -> date,
+                                    ...
+                                },
+                            transferType: transferType,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        } with-meta {
+            key: fpmlInitialPayment -> id
+        }
+
+func MapSinglePaymentListToTransferStateList:
+    inputs:
+        fpmlSinglePaymentList fpml.SinglePayment (0..*)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferState TransferState (0..*)
+    add transferState:
+        fpmlSinglePaymentList extract MapSinglePaymentToTransferState(item, transferType)
+
+func MapSinglePaymentToTransferState:
+    inputs:
+        fpmlSinglePayment fpml.SinglePayment (0..1)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlSinglePayment exists
+        then TransferState {
+            transfer:
+                Transfer {
+                    UnscheduledTransfer:
+                        UnscheduledTransfer {
+                            quantity: MapMoneyToTransferQuantity(
+                                        fpmlSinglePayment -> fixedAmount
+                                    ),
+                            asset: MapMoneyToTransferCashAsset(
+                                        fpmlSinglePayment -> fixedAmount
+                                    ),
+                            payerReceiver: empty,
+                            settlementDate:
+                                AdjustableOrAdjustedOrRelativeDate {
+                                    unadjustedDate: fpmlSinglePayment -> adjustablePaymentDate -> date,
+                                    adjustedDate: fpmlSinglePayment -> adjustedPaymentDate -> date,
+                                    ...
+                                },
+                            transferType: transferType,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        } with-meta {
+            key: fpmlSinglePayment -> id
+        }
+
+func MapPremiumListToTransferStateList:
+    inputs:
+        fpmlPremiumList fpml.Premium (0..*)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferStateList TransferState (0..*)
+
+    add transferStateList:
+        fpmlPremiumList extract MapSimplePaymentToTransferState(item, transferType) // TODO map other fields
+
+func MapFxOptionPremiumListToTransferStateList:
+    inputs:
+        fpmlFxOptionPremiumList fpml.FxOptionPremium (0..*)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferStateList TransferState (0..*)
+
+    add transferStateList:
+        fpmlFxOptionPremiumList
+            extract MapNonNegativePaymentToTransferState(item, transferType) // TODO map other fields
+
+func MapCommodityPremiumListToTransferStateList:
+    inputs:
+        fpmlCommodityPremiumList fpml.CommodityPremium (0..*)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferStateList TransferState (0..*)
+
+    add transferStateList:
+        fpmlCommodityPremiumList
+            extract MapNonNegativePaymentToTransferState(item, transferType) // TODO map other fields
+
+func MapEquityPremiumListToTransferStateList:
+    inputs:
+        fpmlEquityPremiumList fpml.EquityPremium (0..*)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferStateList TransferState (0..*)
+
+    add transferStateList:
+        fpmlEquityPremiumList extract MapEquityPremiumToTransferState(item, transferType)
+
+func MapEquityPremiumToTransferState:
+    inputs:
+        fpmlEquityPremium fpml.EquityPremium (0..1)
+        transferType UnscheduledTransferEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlEquityPremium exists
+        then TransferState {
+            transfer:
+                Transfer {
+                    UnscheduledTransfer:
+                        UnscheduledTransfer {
+                            quantity: MapTransferQuantity(
+                                        fpmlEquityPremium -> paymentAmount
+                                    ),
+                            asset: MapTransferCashAsset(fpmlEquityPremium -> paymentAmount),
+                            payerReceiver: MapPaymentToPartyReferencePayerReceiver(
+                                        fpmlEquityPremium -> payerPartyReference,
+                                        fpmlEquityPremium -> receiverPartyReference
+                                    ),
+                            settlementDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                        MapZoneDateTimeToDate(
+                                                fpmlEquityPremium -> paymentDate -> unadjustedDate -> value
+                                            ),
+                                        fpmlEquityPremium -> paymentDate,
+                                        empty
+                                    ),
+                            transferType: transferType,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        } with-meta {
+            key: fpmlEquityPremium -> id
+        }
+
+func MapTransferCashAsset:
+    inputs:
+        fpmlNonNegativeMoney fpml.NonNegativeMoney (0..1)
+    output:
+        asset Asset (0..1)
+
+    set asset:
+        if fpmlNonNegativeMoney exists
+        then Asset {
+                Cash:
+                    Cash {
+                        identifier:
+                            AssetIdentifier {
+                                identifier: fpmlNonNegativeMoney -> currency -> value,
+                                identifierType: CurrencyCode
+                            },
+                        assetType: Cash,
+                        ...
+                    },
+                ...
+            }
+
+func MapMoneyToTransferCashAsset:
+    inputs:
+        fpmlMoney fpml.Money (0..1)
+    output:
+        asset Asset (0..1)
+
+    set asset:
+        if fpmlMoney exists
+        then Asset {
+                Cash:
+                    Cash {
+                        identifier:
+                            AssetIdentifier {
+                                identifier: fpmlMoney -> currency -> value,
+                                identifierType: CurrencyCode
+                            },
+                        assetType: Cash,
+                        ...
+                    },
+                ...
+            }
+
+func MapPaymentToPartyReferencePayerReceiver:
+    inputs:
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+    output:
+        partyReferencePayerReceiver PartyReferencePayerReceiver (0..1)
+
+    set partyReferencePayerReceiver -> payerPartyReference -> reference:
+        fpmlPayerPartyReference -> href
+    set partyReferencePayerReceiver -> receiverPartyReference -> reference:
+        fpmlReceiverPartyReference -> href
+
+func MapTransferQuantity:
+    inputs:
+        fpmlPaymentAmount fpml.NonNegativeMoney (0..1)
+    output:
+        quantity NonNegativeQuantity (0..1)
+
+    set quantity:
+        NonNegativeQuantity {
+            value: fpmlPaymentAmount -> amount,
+            unit:
+                UnitType {
+                    currency: MapStringWithScheme(
+                                fpmlPaymentAmount -> currency -> value,
+                                fpmlPaymentAmount -> currency -> currencyScheme
+                            ),
+                    ...
+                },
+            ...
+        }
+
+func MapMoneyToTransferQuantity:
+    inputs:
+        fpmlMoney fpml.Money (0..1)
+    output:
+        quantity NonNegativeQuantity (0..1)
+
+    set quantity:
+        NonNegativeQuantity {
+            value: fpmlMoney -> amount,
+            unit:
+                UnitType {
+                    currency: MapStringWithScheme(
+                                fpmlMoney -> currency -> value,
+                                fpmlMoney -> currency -> currencyScheme
+                            ),
+                    ...
+                },
+            ...
+        }
+
+func MapPrincipalPayments:
+    inputs:
+        fpmlPrincipalExchanges fpml.PrincipalExchanges (0..1)
+        fpmlPrincipalExchangeList fpml.PrincipalExchange (0..*)
+        fpmlCurrency fpml.Currency (0..1)
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        principalPayments PrincipalPayments (0..1)
+
+    set principalPayments:
+        PrincipalPayments {
+            initialPayment: fpmlPrincipalExchanges -> initialExchange,
+            finalPayment: fpmlPrincipalExchanges -> finalExchange,
+            intermediatePayment: fpmlPrincipalExchanges -> intermediateExchange,
+            principalPaymentSchedule: MapPrincipalPaymentSchedule(
+                        fpmlPrincipalExchanges,
+                        fpmlPrincipalExchangeList,
+                        fpmlCurrency,
+                        fpmlPayerPartyReference,
+                        fpmlReceiverPartyReference,
+                        cdmCounterpartyList
+                    ),
+            ...
+        } with-meta {
+            key: fpmlPrincipalExchanges -> id
+        }
+
+func MapPrincipalPaymentSchedule:
+    inputs:
+        fpmlPrincipalExchanges fpml.PrincipalExchanges (0..1)
+        fpmlPrincipalExchangeList fpml.PrincipalExchange (0..*)
+        fpmlCurrency fpml.Currency (0..1)
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        principalPaymentSchedule PrincipalPaymentSchedule (0..1)
+
+    alias sortedPrincipalExchangeList:
+        fpmlPrincipalExchangeList
+            sort [ unadjustedPrincipalExchangeDate default adjustedPrincipalExchangeDate ]
+    alias initialPrincipalExchange:
+        if fpmlPrincipalExchanges -> initialExchange
+        then sortedPrincipalExchangeList first
+    alias finalPrincipalExchange:
+        if fpmlPrincipalExchanges -> finalExchange
+        then sortedPrincipalExchangeList last
+
+    set principalPaymentSchedule:
+        PrincipalPaymentSchedule {
+            initialPrincipalPayment: if initialPrincipalExchange exists
+                    then MapPrincipalPayment(
+                            initialPrincipalExchange,
+                            fpmlCurrency,
+                            fpmlPayerPartyReference,
+                            fpmlReceiverPartyReference,
+                            cdmCounterpartyList
+                        ),
+            finalPrincipalPayment: if finalPrincipalExchange exists
+                    then MapPrincipalPayment(
+                            finalPrincipalExchange,
+                            fpmlCurrency,
+                            fpmlPayerPartyReference,
+                            fpmlReceiverPartyReference,
+                            cdmCounterpartyList
+                        ),
+            ...
+        }
+
+func MapPrincipalPayment:
+    inputs:
+        fpmlPrincipalExchange fpml.PrincipalExchange (0..1)
+        fpmlCurrency fpml.Currency (0..1)
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        principalPayment PrincipalPayment (0..1)
+
+    alias amount: fpmlPrincipalExchange -> principalExchangeAmount
+
+    set principalPayment:
+        PrincipalPayment {
+            principalPaymentDate: MapPrincipalPaymentDate(fpmlPrincipalExchange),
+            payerReceiver: MapPrincipalPayerReceiver(
+                        fpmlPrincipalExchange,
+                        fpmlPayerPartyReference,
+                        fpmlReceiverPartyReference,
+                        cdmCounterpartyList
+                    ),
+            principalAmount:
+                Money {
+                    value: if amount < 0 then amount * -1 else amount,
+                    unit:
+                        UnitType {
+                            currency: MapCurrency(fpmlCurrency),
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }
+
+func MapPrincipalPayerReceiver:
+    inputs:
+        fpmlPrincipalExchange fpml.PrincipalExchange (0..1)
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payerReceiver PayerReceiver (0..1)
+
+    alias payer:
+        MapCounterpartyRoleEnum(fpmlPayerPartyReference -> href, cdmCounterpartyList)
+    alias receiver:
+        MapCounterpartyRoleEnum(fpmlReceiverPartyReference -> href, cdmCounterpartyList)
+
+    set payerReceiver:
+        if fpmlPrincipalExchange -> principalExchangeAmount >= 0
+        then PayerReceiver {
+                payer: payer,
+                receiver: receiver,
+            }
+        else PayerReceiver {
+            payer: receiver,
+            receiver: payer,
+        }
+
+func MapPrincipalPaymentDate:
+    inputs:
+        fpmlPrincipalExchange fpml.PrincipalExchange (0..1)
+    output:
+        principalPaymentDate AdjustableDate (0..1)
+
+    set principalPaymentDate:
+        AdjustableDate {
+            adjustedDate: fpmlPrincipalExchange -> adjustedPrincipalExchangeDate -> date,
+            unadjustedDate: fpmlPrincipalExchange -> unadjustedPrincipalExchangeDate -> date,
+            ...
+        }

@@ -152,7 +152,7 @@ Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML's *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-[`tradable-product`](/docs/product-model#TradableProduct) section of the
+[`tradable-product`](./product-model#tradable-product) section of the
 documentation.
 
 ---
@@ -280,7 +280,7 @@ type Observation:
 ### Transfer
 
 A transfer is a multi-purpose object that represents the transfer of any
-asset, including cash, from one party to another. The `Transfer` object
+asset from one party to another. The `Transfer` object
 is associated to an enumeration to qualify the status that the transfer
 is in, from instruction to settlement or rejection.
 
@@ -300,14 +300,23 @@ type TransferState:
 ```
 
 ``` Haskell
-type Transfer extends AssetFlowBase:
- identifier Identifier (0..*)
-        [metadata scheme]
-    payerReceiver PartyReferencePayerReceiver (1..1) 
-    settlementOrigin Payout (0..1)
+choice Transfer:
+    ScheduledTransfer
+    UnscheduledTransfer 
+    ContingentTransfer   
+
+type UnscheduledTransfer extends TransferBase: 
+    transferType UnscheduledTransferEnum (0..1) 
+
+type ScheduledTransfer extends TransferBase:
+    transferType ScheduledTransferEnum (1..1)
+    payoutReference Payout (0..1)
         [metadata reference]
-    resetOrigin Reset (0..1)
-    transferExpression TransferExpression (1..1)
+        
+type ContingentTransfer extends TransferBase:
+    transferType ContingentTransferEnum (0..1)
+    payoutReference Payout (0..1) 
+    corporateActionTransferType CorporateActionTypeEnum (0..1)
 ```
 
 ## Primitive Events {#primitive-event}
@@ -597,10 +606,7 @@ func Create_Reset:
 
 ``` Haskell
 type ResetInstruction:
-  payout Payout (1..*)
-    [metadata reference]
-  rateRecordDate date (0..1)
-  resetDate date (1..1)
+    reset Reset (0..*)
 ```
 
 #### Transfer Primitive
@@ -903,7 +909,7 @@ Other selected attributes of a business event are explained below.
     events (e.g. observations), or may be redundant with the event date.
 -   The event qualifier attribute is derived from the event
     qualification features. This is further detailed in the [event
-    qualification](event-model.md/#Event-Qualification)above. 
+    qualification](event-model#event-qualification-section)above. 
 
 ## Workflow
 
@@ -977,7 +983,9 @@ type EventInstruction:
   intent EventIntentEnum (0..1)
   corporateActionIntent CorporateActionTypeEnum (0..1)
   eventDate date (0..1)
+  eventTime TimeZone (0..1)
   effectiveDate date (0..1)
+  effectiveTime TimeZone (0..1)
   packageInformation IdentifiedList (0..1)
   instruction Instruction (0..*)
 ```

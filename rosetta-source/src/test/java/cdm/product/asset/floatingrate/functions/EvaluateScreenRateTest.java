@@ -1,6 +1,6 @@
 package cdm.product.asset.floatingrate.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
+
 import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.product.asset.FloatingRate;
@@ -10,7 +10,7 @@ import cdm.product.common.schedule.ResetDates;
 import com.google.inject.Binder;
 import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -33,7 +33,7 @@ public class EvaluateScreenRateTest extends AbstractFunctionTest {
     void shouldEvaluateRate() {
         InterestRateIndex fro = initFro();
         FloatingRate rate = initFloatingRate(fro);
-        ResetDates resetDates = initResetDates(BusinessCenterEnum.GBLO, 3, 2, false);
+        ResetDates resetDates = initResetDates("GBLO", 3, 2, false);
 
         CalculationPeriodBase dec2020 = period(Date.of(2020, 12, 10), Date.of(2021, 3, 10));
         FloatingRateSettingDetails result = func.evaluate(rate, resetDates, dec2020);

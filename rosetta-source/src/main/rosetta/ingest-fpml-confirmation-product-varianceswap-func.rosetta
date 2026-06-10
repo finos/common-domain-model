@@ -1,0 +1,244 @@
+namespace cdm.ingest.fpml.confirmation.product.varianceswap: <"FpML VarianceSwap product mapping functions.">
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.variance.swaps.* as fpml
+
+func MapVarianceSwapCounterpartyList:
+    inputs:
+        fpmlVarianceSwap fpml.VarianceSwap (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlVarianceSwap -> varianceLeg first -> payerPartyReference,
+                fpmlVarianceSwap -> varianceLeg first -> receiverPartyReference
+            )
+
+func MapVarianceSwapNonTransferableProduct:
+    inputs:
+        fpmlVarianceSwap fpml.VarianceSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlVarianceSwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlVarianceSwap -> primaryAssetClass,
+                        fpmlVarianceSwap -> secondaryAssetClass,
+                        fpmlVarianceSwap -> productType
+                    ),
+            economicTerms: MapVarianceSwapEconomicTerms(
+                        fpmlVarianceSwap,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapVarianceSwapEconomicTerms:
+    inputs:
+        fpmlVarianceSwap fpml.VarianceSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    alias fpmlEffectiveDates: fpmlVarianceSwap -> varianceLeg filter effectiveDate exists
+
+    set economicTerms:
+        EconomicTerms {
+            effectiveDate: MapAdjustableOrRelativeDate(
+                        fpmlVarianceSwap -> varianceLeg -> effectiveDate first
+                    ),
+            terminationDate: MapAdjustableOrRelativeDate(
+                        fpmlVarianceSwap -> varianceLeg -> terminationDate first
+                    ),
+            payout: fpmlVarianceSwap -> varianceLeg
+                    extract MapVarianceLegToPerformancePayout(item, cdmCounterpartyList),
+            ...
+        }
+
+func MapVarianceLegToPerformancePayout:
+    inputs:
+        fpmlVarianceLeg fpml.VarianceLeg (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            PerformancePayout:
+                PerformancePayout {
+                    payerReceiver: MapPayerReceiver(
+                                fpmlVarianceLeg -> payerPartyReference,
+                                fpmlVarianceLeg -> receiverPartyReference,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapNotionalAmountToQuantityWithAddress(
+                                        fpmlVarianceLeg -> amount -> variance -> varianceAmount -> amount,
+                                        fpmlVarianceLeg
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapOptionSettlementModelToSettlementTerms(
+                                fpmlVarianceLeg -> settlementType,
+                                fpmlVarianceLeg -> settlementCurrency,
+                                fpmlVarianceLeg -> settlementDate
+                            ),
+                    observationTerms: MapAdjustableOrRelativeDateToObservationTerms(
+                                fpmlVarianceLeg -> amount -> observationStartDate
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapUnderlyerToObservableWithAddress(
+                                        fpmlVarianceLeg -> underlyer
+                                    ),
+                            ...
+                        },
+                    valuationDates:
+                        ValuationDates {
+                            finalValuationDate: MapPerformanceValuationDates(
+                                        empty,
+                                        fpmlVarianceLeg -> valuation
+                                    ),
+                            ...
+                        },
+                    paymentDates: empty,
+                    returnTerms:
+                        ReturnTerms {
+                            varianceReturnTerms: MapVarianceLegToVarianceReturnTerms(
+                                        fpmlVarianceLeg
+                                    ),
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }
+
+func MapVarianceLegToVarianceReturnTerms:
+    inputs:
+        fpmlVarianceLeg fpml.VarianceLeg (0..1)
+    output:
+        varianceReturnTerms VarianceReturnTerms (0..1)
+
+    alias fpmlAsset: fpmlVarianceLeg -> amount -> variance -> exchangeTradedContractNearest
+    alias fpmlVariance: fpmlVarianceLeg -> amount -> variance
+
+    set varianceReturnTerms:
+        VarianceReturnTerms {
+            valuationTerms:
+                ValuationTerms {
+                    futuresPriceValuation: fpmlVarianceLeg -> valuation -> futuresPriceValuation,
+                    optionsPriceValuation: fpmlVarianceLeg -> valuation -> optionsPriceValuation,
+                    ...
+                },
+            dividendApplicability:
+                DividendApplicability {
+                    optionsExchangeDividends: fpmlVarianceLeg -> amount -> optionsExchangeDividends,
+                    additionalDividends: fpmlVarianceLeg -> amount -> additionalDividends,
+                    allDividends: fpmlVarianceLeg -> amount -> allDividends
+                },
+            initialLevel: fpmlVarianceLeg -> amount -> variance -> initialLevel,
+            varianceStrikePrice: if fpmlVarianceLeg -> amount -> variance -> varianceStrikePrice exists
+                    then Price {
+                        value: fpmlVarianceLeg -> amount -> variance -> varianceStrikePrice,
+                        priceType: Variance,
+                        ...
+                    },
+            varianceCapFloor:
+                VarianceCapFloor {
+                    boundedVariance:
+                        BoundedVariance {
+                            realisedVarianceMethod: fpmlVarianceLeg -> amount -> variance -> boundedVariance -> realisedVarianceMethod to-enum RealisedVarianceMethodEnum,
+                            daysInRangeAdjustment: fpmlVarianceLeg -> amount -> variance -> boundedVariance -> daysInRangeAdjustment,
+                            upperBarrier: fpmlVarianceLeg -> amount -> variance -> boundedVariance -> upperBarrier,
+                            lowerBarrier: fpmlVarianceLeg -> amount -> variance -> boundedVariance -> lowerBarrier
+                        },
+                    varianceCap: fpmlVarianceLeg -> amount -> variance -> varianceCap,
+                    ...
+                },
+            vegaNotionalAmount:
+                NonNegativeQuantitySchedule {
+                    value: fpmlVarianceLeg -> amount -> variance -> vegaNotionalAmount,
+                    unit:
+                        UnitType {
+                            currency: if fpmlVarianceLeg -> amount -> variance -> vegaNotionalAmount exists
+                                    then fpmlVarianceLeg -> amount -> variance -> varianceAmount -> currency -> value,
+                            ...
+                        },
+                    ...
+                },
+            exchangeTradedContractNearest:
+                Observable {
+                    Asset: if fpmlAsset exists
+                            then MapAsset(fpmlAsset),
+                    ...
+                },
+            expectedN: fpmlVarianceLeg -> amount -> variance -> expectedN,
+            ...
+        }
+
+func MapVarianceSwapPriceQuantityList:
+    inputs:
+        fpmlVarianceSwap fpml.VarianceSwap (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        fpmlVarianceSwap -> varianceLeg extract MapVarianceLegToPriceQuantity
+
+func MapVarianceLegToPriceQuantity:
+    inputs:
+        fpmlVarianceLeg fpml.VarianceLeg (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            quantity: MapNotionalAmountToQuantityWithLocation(
+                        fpmlVarianceLeg -> amount -> variance -> varianceAmount -> amount,
+                        empty,
+                        fpmlVarianceLeg -> amount -> variance -> varianceAmount -> currency,
+                        fpmlVarianceLeg
+                    ),
+            observable: MapUnderlyerToObservableWithLocation(fpmlVarianceLeg -> underlyer),
+            ...
+        }
+
+func MapVarianceSwapAccountPartyReference:
+    inputs:
+        fpmlVarianceSwap fpml.VarianceSwap (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        fpmlVarianceSwap -> varianceLeg
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then filter reference exists
+            then first

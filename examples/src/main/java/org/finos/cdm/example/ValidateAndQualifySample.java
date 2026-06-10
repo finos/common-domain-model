@@ -26,7 +26,7 @@ public class ValidateAndQualifySample extends AbstractExample {
     @Override
     public void example() throws RuntimeException {
         // Deserialise (and resolve references)
-        String resourceName = "result-json-files/fpml-5-10/products/rates/EUR-Vanilla-uti.json";
+        String resourceName = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/EUR-Vanilla-uti.json";
         TradeState tradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, resourceName);
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
 

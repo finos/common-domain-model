@@ -1,0 +1,1069 @@
+namespace cdm.ingest.fpml.confirmation.party
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.ingest.fpml.confirmation.product.bondoption.*
+import cdm.ingest.fpml.confirmation.product.brokerequityoption.*
+import cdm.ingest.fpml.confirmation.product.capfloor.*
+import cdm.ingest.fpml.confirmation.product.commodityforward.*
+import cdm.ingest.fpml.confirmation.product.commodityoption.*
+import cdm.ingest.fpml.confirmation.product.commodityswap.*
+import cdm.ingest.fpml.confirmation.product.commodityswaption.*
+import cdm.ingest.fpml.confirmation.product.correlationswap.*
+import cdm.ingest.fpml.confirmation.product.creditdefaultswap.*
+import cdm.ingest.fpml.confirmation.product.creditdefaultswapoption.*
+import cdm.ingest.fpml.confirmation.product.dividendswapoptiontransactionsupplement.*
+import cdm.ingest.fpml.confirmation.product.dividendswaptransactionsupplement.*
+import cdm.ingest.fpml.confirmation.product.equityforward.*
+import cdm.ingest.fpml.confirmation.product.equityoption.*
+import cdm.ingest.fpml.confirmation.product.equityoptiontransactionsupplement.*
+import cdm.ingest.fpml.confirmation.product.equityswaptransactionsupplement.*
+import cdm.ingest.fpml.confirmation.product.fra.*
+import cdm.ingest.fpml.confirmation.product.fxdigitaloption.*
+import cdm.ingest.fpml.confirmation.product.fxoption.*
+import cdm.ingest.fpml.confirmation.product.fxsingleleg.*
+import cdm.ingest.fpml.confirmation.product.fxswap.*
+import cdm.ingest.fpml.confirmation.product.fxvarianceswap.*
+import cdm.ingest.fpml.confirmation.product.fxvolatilityswap.*
+import cdm.ingest.fpml.confirmation.product.genericproduct.*
+import cdm.ingest.fpml.confirmation.product.returnswap.*
+import cdm.ingest.fpml.confirmation.product.swap.*
+import cdm.ingest.fpml.confirmation.product.swaption.*
+import cdm.ingest.fpml.confirmation.product.varianceoptiontransactionsupplement.*
+import cdm.ingest.fpml.confirmation.product.varianceswap.*
+import cdm.ingest.fpml.confirmation.product.varianceswaptransactionsupplement.*
+import cdm.ingest.fpml.confirmation.product.volatilityswap.*
+import cdm.ingest.fpml.confirmation.product.volatilityswaptransactionsupplement.*
+
+import com.rosetta.model.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.bond.option.* as fpml
+import fpml.consolidated.cd.* as fpml
+import fpml.consolidated.com.* as fpml
+import fpml.consolidated.correlation.swaps.* as fpml
+import fpml.consolidated.dividend.swaps.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
+import fpml.consolidated.eqd.* as fpml
+import fpml.consolidated.fpmlreturn.swaps.* as fpml
+import fpml.consolidated.fx.* as fpml
+import fpml.consolidated.generic.* as fpml
+import fpml.consolidated.ird.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.variance.swaps.* as fpml
+import fpml.consolidated.volatility.swaps.* as fpml
+
+func MapCounterpartyList:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        fpmlTrade -> product switch
+            fpml.BondOption then MapBondOptionCounterpartyList,
+            fpml.BrokerEquityOption then MapBrokerEquityOptionCounterpartyList,
+            fpml.CapFloor then MapCapFloorCounterpartyList,
+            fpml.CommodityForward then MapCommodityForwardCounterpartyList,
+            fpml.CommodityOption then MapCommodityOptionCounterpartyList,
+            fpml.CommoditySwap then MapCommoditySwapCounterpartyList,
+            fpml.CommoditySwaption then MapCommoditySwaptionCounterpartyList,
+            fpml.CorrelationSwap then MapCorrelationSwapCounterpartyList,
+            fpml.CreditDefaultSwap then MapCreditDefaultSwapCounterpartyList,
+            fpml.CreditDefaultSwapOption then MapCreditDefaultSwapOptionCounterpartyList,
+            fpml.DividendSwapOptionTransactionSupplement then MapDividendSwapOptionTransactionSupplementCounterpartyList,
+            fpml.DividendSwapTransactionSupplement then MapDividendSwapTransactionSupplementCounterpartyList,
+            fpml.EquityForward then MapEquityForwardCounterpartyList,
+            fpml.EquityOption then MapEquityOptionCounterpartyList,
+            fpml.EquityOptionTransactionSupplement then MapEquityOptionTransactionSupplementCounterpartyList,
+            fpml.EquitySwapTransactionSupplement then MapEquitySwapTransactionSupplementCounterpartyList,
+            fpml.Fra then MapFraCounterpartyList,
+            fpml.FxOption then MapFxOptionCounterpartyList,
+            fpml.FxDigitalOption then MapFxDigitalOptionCounterpartyList,
+            fpml.FxSingleLeg then MapFxSingleLegCounterpartyList,
+            fpml.FxSwap then MapFxSwapCounterpartyList,
+            fpml.FxVarianceSwap then MapFxVarianceSwapCounterpartyList,
+            fpml.FxVolatilitySwap then MapFxVolatilitySwapCounterpartyList,
+            fpml.GenericProduct then MapGenericProductCounterpartyList,
+            fpml.ReturnSwap then MapReturnSwapCounterpartyList,
+            fpml.Swap then MapSwapCounterpartyList,
+            fpml.Swaption then MapSwaptionCounterpartyList,
+            fpml.VarianceOptionTransactionSupplement then MapVarianceOptionTransactionSupplementCounterpartyList,
+            fpml.VarianceSwap then MapVarianceSwapCounterpartyList,
+            fpml.VarianceSwapTransactionSupplement then MapVarianceSwapTransactionSupplementCounterpartyList,
+            fpml.VolatilitySwap then MapVolatilitySwapCounterpartyList,
+            fpml.VolatilitySwapTransactionSupplement then MapVolatilitySwapTransactionSupplementCounterpartyList,
+            default empty
+
+func MapPayerReceiverModelToCounterpartyList:
+    inputs:
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapCounterparty(CounterpartyRoleEnum -> Party1, fpmlPayerPartyReference)
+
+    add counterpartyList:
+        MapCounterparty(CounterpartyRoleEnum -> Party2, fpmlReceiverPartyReference)
+
+func MapBuyerSellerModelToCounterpartyList:
+    inputs:
+        fpmlBuyerPartyReference fpml.PartyReference (1..1)
+        fpmlSellerPartyReference fpml.PartyReference (1..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapCounterparty(CounterpartyRoleEnum -> Party1, fpmlBuyerPartyReference)
+
+    add counterpartyList:
+        MapCounterparty(CounterpartyRoleEnum -> Party2, fpmlSellerPartyReference)
+
+func MapCounterparty:
+    inputs:
+        cdmRole CounterpartyRoleEnum (1..1)
+        fpmlPartyReference fpml.PartyReference (0..1)
+    output:
+        counterparty Counterparty (0..1)
+
+    set counterparty:
+        Counterparty {
+            role: cdmRole,
+            partyReference: MapPartyReference(fpmlPartyReference -> href)
+        }
+
+func MapCounterpartyRoleEnum:
+    inputs:
+        fpmlPartyReference string (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        counterpartyRoleEnum CounterpartyRoleEnum (0..1)
+
+    set counterpartyRoleEnum:
+        cdmCounterpartyList
+            filter partyReference -> reference exists
+            then filter partyReference -> reference = fpmlPartyReference
+            then extract role
+            then only-element
+
+func MapMultipleCounterpartyRoleEnum:
+    inputs:
+        fpmlPartyReference1 string (0..1)
+        fpmlPartyReference2 string (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        counterpartyRoleEnum CounterpartyRoleEnum (0..2)
+
+    add counterpartyRoleEnum:
+        cdmCounterpartyList
+            filter partyReference -> reference exists
+            then filter partyReference -> reference = fpmlPartyReference1
+            then extract role
+
+    add counterpartyRoleEnum:
+        cdmCounterpartyList
+            filter partyReference -> reference exists
+            then filter partyReference -> reference = fpmlPartyReference2
+            then extract role
+
+func MapAncillaryPartyList:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapCalculationAgentIndependentToAncillaryParty(fpmlTrade -> calculationAgent)
+
+    add ancillaryPartyList:
+        fpmlTrade -> product switch
+            fpml.BondOption then
+                MapBondOptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.CapFloor then
+                MapCapFloorAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.CommoditySwaption then
+                MapCommoditySwaptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.CreditDefaultSwapOption then
+                MapCreditDefaultSwapOptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.DividendSwapOptionTransactionSupplement then
+                MapDividendSwapOptionTransactionSupplementAncillaryPartyList(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.FxDigitalOption then
+                MapFxDigitalOptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.FxOption then
+                MapFxOptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.Swap then
+                MapSwapAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.Swaption then
+                MapSwaptionAncillaryPartyList(item, cdmCounterpartyList),
+            fpml.VarianceOptionTransactionSupplement then
+                MapVarianceOptionTransactionSupplementAncillaryPartyList(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            default empty
+
+func MapSwaptionPhysicalSettlementToAncillaryParty:
+    inputs:
+        fpmlSwaptionPhysicalSettlement fpml.SwaptionPhysicalSettlement (0..1)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlSwaptionPhysicalSettlement -> predeterminedClearingOrganizationPartyReference exists
+        then MapAncillaryParty(
+                    PredeterminedClearingOrganizationParty,
+                    fpmlSwaptionPhysicalSettlement -> predeterminedClearingOrganizationPartyReference -> href,
+                    empty,
+                    empty
+                )
+
+func MapExerciseProcedureToAncillaryParty:
+    inputs:
+        fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticePartyReference exists
+        then MapAncillaryParty(
+                    ExerciseNoticeReceiverPartyManual,
+                    fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticePartyReference -> href,
+                    fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> partyReference -> href,
+                    cdmCounterpartyList
+                )
+
+func MapEarlyTerminationProvisionToAncillaryParty:
+    inputs:
+        fpmlEarlyTerminationProvision fpml.EarlyTerminationProvision (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..*)
+
+    add ancillaryParty:
+        MapOptionalEarlyTerminationToAncillaryParty(
+                fpmlEarlyTerminationProvision -> optionalEarlyTermination,
+                cdmCounterpartyList
+            )
+    add ancillaryParty:
+        if fpmlEarlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent exists
+        then MapAncillaryParty(
+                    CalculationAgentMandatoryEarlyTermination,
+                    fpmlEarlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentPartyReference -> href,
+                    empty,
+                    empty
+                )
+
+func MapOptionalEarlyTerminationToAncillaryParty:
+    inputs:
+        fpmlOptionalEarlyTermination fpml.OptionalEarlyTermination (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..*)
+
+    add ancillaryParty:
+        if fpmlOptionalEarlyTermination -> exerciseNotice -> exerciseNoticePartyReference exists
+        then fpmlOptionalEarlyTermination -> exerciseNotice
+            extract
+                MapAncillaryParty(
+                        ExerciseNoticeReceiverPartyOptionalEarlyTermination,
+                        exerciseNoticePartyReference -> href,
+                        partyReference -> href,
+                        cdmCounterpartyList
+                    )
+    add ancillaryParty:
+        if fpmlOptionalEarlyTermination -> calculationAgent exists
+        then MapAncillaryParty(
+                    CalculationAgentOptionalEarlyTermination,
+                    fpmlOptionalEarlyTermination -> calculationAgent -> calculationAgentPartyReference -> href,
+                    empty,
+                    empty
+                )
+
+func MapCancelableProvisionToAncillaryParty:
+    inputs:
+        fpmlCancelableProvision fpml.CancelableProvision (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlCancelableProvision -> exerciseNotice -> exerciseNoticePartyReference exists
+        then MapAncillaryParty(
+                    ExerciseNoticeReceiverPartyCancelableProvision,
+                    fpmlCancelableProvision -> exerciseNotice -> exerciseNoticePartyReference -> href,
+                    fpmlCancelableProvision -> exerciseNotice -> partyReference -> href,
+                    cdmCounterpartyList
+                )
+
+func MapExtendibleProvisionToAncillaryParty:
+    inputs:
+        fpmlExtendibleProvision fpml.ExtendibleProvision (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlExtendibleProvision -> exerciseNotice -> exerciseNoticePartyReference exists
+        then MapAncillaryParty(
+                    ExerciseNoticeReceiverPartyExtendibleProvision,
+                    fpmlExtendibleProvision -> exerciseNotice -> exerciseNoticePartyReference -> href,
+                    fpmlExtendibleProvision -> exerciseNotice -> partyReference -> href,
+                    cdmCounterpartyList
+                )
+
+func MapCalculationAgentIndependentToAncillaryParty:
+    inputs:
+        fpmlCalculationAgent fpml.CalculationAgent (0..1)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlCalculationAgent -> calculationAgentPartyReference exists
+        then MapAncillaryParty(
+                    CalculationAgentIndependent,
+                    fpmlCalculationAgent -> calculationAgentPartyReference -> href,
+                    empty,
+                    empty
+                )
+
+func MapAncillaryParty:
+    inputs:
+        cdmAncillaryRole AncillaryRoleEnum (0..1)
+        fpmlPartyHrefList string (0..*)
+        fpmlOnBehalfOfPartyHref string (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        ancillaryParty AncillaryParty (0..1)
+
+    set ancillaryParty:
+        if fpmlPartyHrefList exists
+        then AncillaryParty {
+                role: cdmAncillaryRole,
+                partyReference: fpmlPartyHrefList extract MapPartyReference,
+                onBehalfOf: MapCounterpartyRoleEnum(
+                            fpmlOnBehalfOfPartyHref,
+                            cdmCounterpartyList
+                        )
+            }
+
+func MapPartyReference:
+    inputs:
+        fpmlPartyHref string (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        if fpmlPartyHref exists
+        then empty with-meta {
+            reference: fpmlPartyHref
+        }
+
+func MapPartyList:
+    inputs:
+        fpmlPartyList fpml.Party (0..*)
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..*)
+    output:
+        partyList Party (0..*)
+
+    add partyList: fpmlPartyList extract MapParty(item, fpmlPartyTradeInformationList)
+
+func MapParty:
+    inputs:
+        fpmlParty fpml.Party (0..1)
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..*)
+    output:
+        party Party (0..1)
+
+    set party:
+        Party {
+            partyId: fpmlParty -> partyId
+                    extract MapPartyIdentifier(item -> value, item -> partyIdScheme),
+            name: MapStringWithScheme(
+                        fpmlParty -> partyName -> value,
+                        fpmlParty -> partyName -> partyNameScheme
+                    ),
+            businessUnit: fpmlParty -> businessUnit extract MapBusinessUnit,
+            person: fpmlParty -> person extract MapNaturalPerson,
+            personRole: MapNaturalPersonRoleList(fpmlParty, fpmlPartyTradeInformationList),
+            account: empty, // MapAccount(empty),
+            contactInformation: MapContactInformation(
+                        fpmlParty -> country,
+                        fpmlParty -> contactInfo
+                    )
+        } with-meta {
+            key: fpmlParty -> id
+        }
+
+func MapPartyIdentifier:
+    inputs:
+        identifierValue string (0..1)
+        identifierScheme string (0..1)
+    output:
+        partyIdentifier PartyIdentifier (0..1)
+
+    set partyIdentifier:
+        PartyIdentifier {
+            identifier: MapStringWithScheme(identifierValue, identifierScheme),
+            identifierType: MapPartyIdentifierTypeEnum(identifierScheme)
+        }
+
+func MapExchangeIdToAssetParty:
+    inputs:
+        fpmlExchangeId fpml.ExchangeId (0..1)
+    output:
+        party Party (0..1)
+
+    set party:
+        Party {
+            partyId: fpmlExchangeId extract MapPartyIdentifier(value, exchangeIdScheme),
+            name: MapStringWithScheme(
+                        fpmlExchangeId -> value,
+                        fpmlExchangeId -> exchangeIdScheme
+                    ),
+            ...
+        }
+
+func MapBusinessUnit:
+    inputs:
+        fpmlBusinessUnit fpml.BusinessUnit (0..1)
+    output:
+        cdmBusinessUnit BusinessUnit (0..1)
+
+    set cdmBusinessUnit:
+        BusinessUnit {
+            name: fpmlBusinessUnit -> name,
+            contactInformation: MapContactInformation(
+                        fpmlBusinessUnit -> country,
+                        fpmlBusinessUnit -> contactInfo
+                    ),
+            ...
+        } with-meta {
+            key: fpmlBusinessUnit -> id
+        }
+
+func MapContactInformation:
+    inputs:
+        fpmlCountry fpml.CountryCode (0..1)
+        fpmlContactInformation fpml.ContactInformation (0..1)
+    output:
+        cdmContactInformation ContactInformation (0..1)
+
+    set cdmContactInformation:
+        if fpmlContactInformation exists
+        then MapContactInfoToContactInformation(fpmlContactInformation)
+        else if fpmlCountry exists
+        then MapCountryToContactInformation(fpmlCountry)
+
+func MapCountryToContactInformation:
+    inputs:
+        fpmlCountry fpml.CountryCode (0..1)
+    output:
+        cdmContactInformation ContactInformation (0..1)
+
+    set cdmContactInformation:
+        ContactInformation {
+            address:
+                Address {
+                    country: MapStringWithScheme(
+                                fpmlCountry -> value,
+                                fpmlCountry -> countryScheme
+                            ),
+                    street: empty,
+                    ...
+                },
+            ...
+        }
+
+func MapContactInfoToContactInformation:
+    inputs:
+        fpmlContactInformation fpml.ContactInformation (0..1)
+    output:
+        cdmContactInformation ContactInformation (0..1)
+
+    set cdmContactInformation:
+        ContactInformation {
+            telephone: fpmlContactInformation -> telephone extract MapTelephoneNumber,
+            address: if fpmlContactInformation -> address exists
+                    then MapAddress(fpmlContactInformation -> address),
+            email: fpmlContactInformation -> email,
+            ...
+        }
+
+func MapTelephoneNumber:
+    inputs:
+        fpmlTelephoneNumber fpml.TelephoneNumber (0..1)
+    output:
+        cdmTelephoneNumber TelephoneNumber (0..1)
+
+    set cdmTelephoneNumber:
+        TelephoneNumber {
+            telephoneNumberType: fpmlTelephoneNumber -> ^type to-enum TelephoneTypeEnum,
+            number: fpmlTelephoneNumber -> number,
+        }
+
+func MapAddress:
+    inputs:
+        fpmlAddress fpml.Address (0..1)
+    output:
+        cdmAddress Address (0..1)
+
+    set cdmAddress:
+        Address {
+            street: fpmlAddress -> streetAddress -> streetLine,
+            city: fpmlAddress -> city,
+            state: fpmlAddress -> state,
+            country: MapStringWithScheme(
+                        fpmlAddress -> country -> value,
+                        fpmlAddress -> country -> countryScheme
+                    ),
+            postalCode: fpmlAddress -> postalCode,
+        }
+
+func MapNaturalPerson:
+    inputs:
+        fpmlPerson fpml.Person (0..1)
+    output:
+        cdmNaturalPerson NaturalPerson (0..1)
+
+    set cdmNaturalPerson:
+        NaturalPerson {
+            personId: fpmlPerson -> personId
+                    extract
+                        MapPersonIdentifier(
+                                item,
+                                fpmlPerson -> contactInfo -> address -> country
+                            ),
+            honorific: fpmlPerson -> honorific,
+            firstName: fpmlPerson -> firstName,
+            middleName: fpmlPerson -> middleName,
+            initial: fpmlPerson -> initial,
+            surname: fpmlPerson -> surname,
+            suffix: fpmlPerson -> suffix,
+            dateOfBirth: fpmlPerson -> dateOfBirth -> date,
+            contactInformation: MapContactInformation(
+                        fpmlPerson -> country,
+                        fpmlPerson -> contactInfo
+                    )
+        } with-meta {
+            key: fpmlPerson -> id
+        }
+
+func MapPersonIdentifier:
+    inputs:
+        fpmlPersonId fpml.PersonId (0..1)
+        fpmlCountryCode fpml.CountryCode (0..1)
+    output:
+        cdmPersonIdentifier PersonIdentifier (0..1)
+            [metadata scheme]
+
+    set cdmPersonIdentifier:
+        PersonIdentifier {
+            identifier: MapStringWithScheme(
+                        fpmlPersonId -> value,
+                        fpmlPersonId -> personIdScheme
+                    ),
+            country: MapStringWithScheme(
+                        fpmlCountryCode -> value,
+                        fpmlCountryCode -> countryScheme
+                    ),
+            ...
+        }
+
+func MapNaturalPersonRoleList:
+    inputs:
+        fpmlParty fpml.Party (0..1)
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..*)
+    output:
+        naturalPersonRoleList NaturalPersonRole (0..*)
+
+    alias relatedPerson: fpmlPartyTradeInformationList -> relatedPerson
+
+    add naturalPersonRoleList:
+        relatedPerson
+            extract
+                if GetPartyPersonForRelatedPerson(fpmlParty, item) exists
+                then MapRelatedPersonToNaturalPersonRole
+
+func GetPartyPersonForRelatedPerson:
+    inputs:
+        fpmlParty fpml.Party (0..1)
+        fpmlRelatedPerson fpml.RelatedPerson (0..1)
+    output:
+        fpmlPerson fpml.Person (0..1)
+
+    set fpmlPerson:
+        fpmlParty -> person
+            filter id = fpmlRelatedPerson -> personReference -> href
+            then first
+
+func MapRelatedPersonToNaturalPersonRole:
+    inputs:
+        fpmlRelatedPerson fpml.RelatedPerson (0..1)
+    output:
+        naturalPersonRole NaturalPersonRole (0..1)
+
+    set naturalPersonRole:
+        NaturalPersonRole {
+            personReference: MapNaturalPersonRoleReference(
+                        fpmlRelatedPerson -> personReference -> href
+                    ),
+            role: [fpmlRelatedPerson -> role -> value to-enum NaturalPersonRoleEnum]
+        }
+
+func MapNaturalPersonRoleReference:
+    inputs:
+        href string (0..1)
+    output:
+        personReference NaturalPerson (0..1)
+            [metadata reference]
+
+    set personReference:
+        if href exists
+        then empty with-meta {
+            reference: href
+        }
+
+func MapPartyRoleList:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        partyRoleList PartyRole (0..*)
+
+    add partyRoleList:
+        fpmlTrade -> determiningParty
+            extract
+                PartyRole {
+                    partyReference: MapPartyReference(href),
+                    role: DeterminingParty,
+                    ...
+                }
+
+    add partyRoleList:
+        fpmlTrade -> barrierDeterminationAgent
+            extract
+                PartyRole {
+                    partyReference: MapPartyReference(href),
+                    role: BarrierDeterminationAgent,
+                    ...
+                }
+
+    add partyRoleList:
+        fpmlTrade -> hedgingParty
+            extract
+                PartyRole {
+                    partyReference: MapPartyReference(href),
+                    role: HedgingParty,
+                    ...
+                }
+
+    add partyRoleList:
+        fpmlTrade -> brokerPartyReference
+            extract
+                PartyRole {
+                    partyReference: MapPartyReference(href),
+                    role: ArrangingBroker,
+                    ...
+                }
+
+    add partyRoleList:
+        fpmlTrade -> tradeHeader -> partyTradeInformation
+            extract MapRelatedPartyToPartyRole
+            then flatten
+
+func MapRelatedPartyToPartyRole:
+    inputs:
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..1)
+    output:
+        partyRole PartyRole (0..*)
+
+    alias relatedParties: fpmlPartyTradeInformationList -> relatedParty
+
+    add partyRole:
+        relatedParties
+            extract
+                PartyRole {
+                    partyReference: MapPartyReference(partyReference -> href),
+                    role: role -> value to-enum PartyRoleEnum,
+                    ownershipPartyReference: MapPartyReference(
+                                fpmlPartyTradeInformationList -> partyReference -> href
+                            )
+                }
+
+func MapAccountList:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        fpmlAccountList fpml.Account (0..*)
+    output:
+        accountList Account (0..*)
+
+    add accountList: fpmlAccountList extract MapAccount(item, fpmlTrade)
+
+func MapAccount:
+    inputs:
+        fpmlAccountList fpml.Account (0..1)
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        account Account (0..1)
+
+    alias partyReference:
+        fpmlTrade -> product switch
+            fpml.BondOption then
+                MapBondOptionAccountPartyReference(item, fpmlAccountList),
+            fpml.BrokerEquityOption then
+                MapBrokerEquityOptionAccountPartyReference(item, fpmlAccountList),
+            fpml.CapFloor then
+                MapCapFloorAccountPartyReference(item, fpmlAccountList),
+            fpml.CommodityForward then
+                MapCommodityForwardAccountPartyReference(item, fpmlAccountList),
+            fpml.CommodityOption then
+                MapCommodityOptionAccountPartyReference(item, fpmlAccountList),
+            fpml.CommoditySwap then
+                MapCommoditySwapAccountPartyReference(item, fpmlAccountList),
+            fpml.CommoditySwaption then
+                MapCommoditySwaptionAccountPartyReference(item, fpmlAccountList),
+            fpml.CorrelationSwap then
+                MapCorrelationSwapAccountPartyReference(item, fpmlAccountList),
+            fpml.CreditDefaultSwap then
+                MapCreditDefaultSwapAccountPartyReference(item, fpmlAccountList),
+            fpml.CreditDefaultSwapOption then
+                MapCreditDefaultSwapOptionAccountPartyReference(item, fpmlAccountList),
+            fpml.DividendSwapOptionTransactionSupplement then
+                MapDividendSwapOptionTransactionSupplementAccountPartyReference(
+                        item,
+                        fpmlAccountList
+                    ),
+            fpml.DividendSwapTransactionSupplement then
+                MapDividendSwapTransactionSupplementAccountPartyReference(
+                        item,
+                        fpmlAccountList
+                    ),
+            fpml.EquityForward then
+                MapEquityForwardAccountPartyReference(item, fpmlAccountList),
+            fpml.EquityOption then
+                MapEquityOptionAccountPartyReference(item, fpmlAccountList),
+            fpml.EquityOptionTransactionSupplement then
+                MapEquityOptionTransactionSupplementAccountPartyReference(
+                        item,
+                        fpmlAccountList
+                    ),
+            fpml.EquitySwapTransactionSupplement then
+                MapEquitySwapTransactionSupplementAccountPartyReference(
+                        item,
+                        fpmlAccountList
+                    ),
+            fpml.Fra then
+                MapFraAccountPartyReference(item, fpmlAccountList),
+            fpml.FxOption then
+                MapFxOptionAccountPartyReference(item, fpmlAccountList),
+            fpml.FxSingleLeg then
+                MapFxSingleLegAccountPartyReference(item, fpmlAccountList),
+            fpml.FxSwap then
+                MapFxSwapAccountPartyReference(item, fpmlAccountList),
+            fpml.FxVarianceSwap then
+                MapFxVarianceSwapAccountPartyReference(item, fpmlAccountList),
+            fpml.FxVolatilitySwap then
+                MapFxVolatilitySwapAccountPartyReference(item, fpmlAccountList),
+            fpml.GenericProduct then
+                MapGenericProductAccountPartyReference(item, fpmlAccountList),
+            fpml.ReturnSwap then
+                MapReturnSwapAccountPartyReference(item, fpmlAccountList),
+            fpml.Swap then
+                MapSwapAccountPartyReference(item, fpmlAccountList),
+            fpml.Swaption then
+                MapSwaptionAccountPartyReference(item, fpmlAccountList),
+            fpml.VarianceOptionTransactionSupplement then
+                MapVarianceOptionTransactionSupplementAccountPartyReference(
+                        item,
+                        fpmlAccountList
+                    ),
+            fpml.VarianceSwap then
+                MapVarianceSwapAccountPartyReference(item, fpmlAccountList),
+            fpml.VarianceSwapTransactionSupplement then
+                MapVarianceSwapTransactionSupplementAccountPartyReference(
+                        item,
+                        fpmlAccountList
+                    ),
+            fpml.VolatilitySwap then
+                MapVolatilitySwapAccountPartyReference(item, fpmlAccountList),
+            fpml.VolatilitySwapTransactionSupplement then
+                MapVolatilitySwapTransactionSupplementAccountPartyReference(
+                        item,
+                        fpmlAccountList
+                    ),
+            default empty
+
+    set account:
+        Account {
+            partyReference: partyReference,
+            accountNumber: MapStringWithScheme(
+                        fpmlAccountList -> accountId only-element -> value,
+                        fpmlAccountList -> accountId only-element -> accountIdScheme
+                    ),
+            accountName: MapStringWithScheme(
+                        fpmlAccountList -> accountName -> value,
+                        fpmlAccountList -> accountName -> accountNameScheme
+                    ),
+            accountType: MapAccountTypeEnum(fpmlAccountList -> accountType -> value),
+            accountBeneficiary: MapPartyReference(
+                        fpmlAccountList -> accountBeneficiary -> href
+                    ),
+            servicingParty: MapPartyReference(fpmlAccountList -> servicingParty -> href)
+        } with-meta {
+            key: fpmlAccountList -> id
+        }
+
+func MapPayerReceiverToAccountPartyReference:
+    inputs:
+        fpmlAccount fpml.Account (0..1)
+        fpmlPayerAccountReference fpml.AccountReference (0..1)
+        fpmlReceiverAccountReference fpml.AccountReference (0..1)
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    alias payerPartyReference:
+        if fpmlPayerAccountReference -> href = fpmlAccount -> id
+        then fpmlPayerPartyReference -> href
+
+    alias receiverPartyReference:
+        if fpmlReceiverAccountReference -> href = fpmlAccount -> id
+        then fpmlReceiverPartyReference -> href
+
+    alias selectedPartyHref:
+        if payerPartyReference exists
+        then payerPartyReference
+        else if receiverPartyReference exists
+        then receiverPartyReference
+
+    set partyReference:
+        empty with-meta {
+            reference: selectedPartyHref
+        }
+
+func MapBuyerSellerToAccountPartyReference:
+    inputs:
+        fpmlAccountList fpml.Account (0..1)
+        fpmlBuyerAccountReferenceList fpml.AccountReference (0..*)
+        fpmlSellerAccountReferenceList fpml.AccountReference (0..*)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    alias buyerPartyReference:
+        fpmlBuyerAccountReferenceList
+            filter href = fpmlAccountList -> id
+            then extract href
+            then distinct only-element
+
+    alias sellerPartyReference:
+        fpmlSellerAccountReferenceList
+            filter href = fpmlAccountList -> id
+            then extract href
+            then distinct only-element
+
+    set partyReference:
+        empty with-meta {
+            reference: buyerPartyReference default sellerPartyReference
+        }
+
+func MapLegalEntity:
+    inputs:
+        fpmlLegalEntity fpml.LegalEntity (0..1)
+    output:
+        legalEntity LegalEntity (0..1)
+
+    alias entityIdFromLegalEntitySequence:
+        fpmlLegalEntity -> entityId extract MapStringWithScheme(value, entityIdScheme)
+
+    alias entityIdFromLegalEntity:
+        fpmlLegalEntity -> entityId extract MapStringWithScheme(value, entityIdScheme)
+
+    set legalEntity:
+        LegalEntity {
+            name: fpmlLegalEntity -> entityName
+                    extract MapStringWithScheme(value, entityNameScheme),
+            entityIdentifier: MapEntityIdentifier(fpmlLegalEntity)
+        }
+    set legalEntity -> key: fpmlLegalEntity -> id
+
+func MapEntityIdentifier:
+    inputs:
+        fpmlLegalEntity fpml.LegalEntity (0..1)
+    output:
+        entityIdentifier EntityIdentifier (0..*)
+
+    add entityIdentifier:
+        fpmlLegalEntity -> entityId
+            extract
+                EntityIdentifier {
+                    identifier: MapStringWithScheme(value, entityIdScheme),
+                    identifierType: MapEntityIdentifierTypeEnum(entityIdScheme)
+                }
+
+func MapEntityIdentifierTypeEnum:
+    inputs:
+        productIdScheme string (0..1)
+    output:
+        source EntityIdentifierTypeEnum (0..1)
+
+    set source:
+        MapPartyIdentifierTypeEnum(productIdScheme) to-enum EntityIdentifierTypeEnum
+            default if StringContains(productIdScheme, "-id-RED-")
+                then REDID
+                else if StringContains(productIdScheme, "iso3166")
+                then CountryCode
+                else Other
+
+func MapLegalEntityReference:
+    inputs:
+        fpmlLegalEntityReference fpml.LegalEntityReference (0..1)
+    output:
+        legalEntity LegalEntity (0..1)
+            [metadata reference]
+
+    set legalEntity:
+        empty with-meta {
+            reference: fpmlLegalEntityReference -> href
+        }
+
+func MapExchangeIdToLegalEntity:
+    inputs:
+        fpmlExchangeId fpml.ExchangeId (0..1)
+    output:
+        legalEntity LegalEntity (0..1)
+
+    set legalEntity:
+        LegalEntity {
+            name: MapStringWithScheme(
+                        fpmlExchangeId -> value,
+                        fpmlExchangeId -> exchangeIdScheme
+                    ),
+            ...
+        }
+
+func MapAssetPartyRole:
+    inputs:
+        assetParty Party (1..1)
+        assetPartyRoleEnum AssetPartyRoleEnum (1..1)
+    output:
+        assetPartyRole AssetPartyRole (1..1)
+
+    set assetPartyRole -> partyReference: assetParty
+    set assetPartyRole -> role: assetPartyRoleEnum
+
+func MapAssetAncillaryPartyRole:
+    inputs:
+        assetAncillaryparty Party (1..1)
+        assetAncillaryPartyRoleEnum AssetAncillaryPartyRoleEnum (1..1)
+    output:
+        assetAncillaryPartyRole AssetAncillaryPartyRole (0..1)
+
+    set assetAncillaryPartyRole -> partyReference: assetAncillaryparty
+
+    set assetAncillaryPartyRole -> role: assetAncillaryPartyRoleEnum
+
+func MapPayerReceiver:
+    inputs:
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payerReceiver PayerReceiver (0..1)
+
+    set payerReceiver:
+        PayerReceiver {
+            payer: MapCounterpartyRoleEnum(
+                        fpmlPayerPartyReference -> href,
+                        cdmCounterpartyList
+                    ),
+            receiver: MapCounterpartyRoleEnum(
+                        fpmlReceiverPartyReference -> href,
+                        cdmCounterpartyList
+            ),
+        }
+
+func MapBuyerSeller:
+    inputs:
+        fpmlBuyerPartyReference fpml.PartyReference (1..1)
+        fpmlSellerPartyReference fpml.PartyReference (1..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        buyerSeller BuyerSeller (0..1)
+
+    set buyerSeller:
+        BuyerSeller {
+            buyer: MapCounterpartyRoleEnum(
+                        fpmlBuyerPartyReference -> href,
+                        cdmCounterpartyList
+                    ),
+            seller: MapCounterpartyRoleEnum(
+                        fpmlSellerPartyReference -> href,
+                        cdmCounterpartyList
+            ),
+        }
+
+func MapSellerAsPayerAndBuyerAsReceiver:
+    inputs:
+        fpmlSellerPartyReference fpml.PartyReference (1..1)
+        fpmlBuyerPartyReference fpml.PartyReference (1..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payerReceiver PayerReceiver (0..1)
+
+    set payerReceiver:
+        PayerReceiver {
+            payer: MapCounterpartyRoleEnum(
+                        fpmlSellerPartyReference -> href,
+                        cdmCounterpartyList
+                    ),
+            receiver: MapCounterpartyRoleEnum(
+                        fpmlBuyerPartyReference -> href,
+                        cdmCounterpartyList
+            ),
+        }
+
+func MapPayerAsSellerAndReceiverAsBuyer:
+    inputs:
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        buyerSeller BuyerSeller (0..1)
+
+    set buyerSeller:
+        BuyerSeller {
+            buyer: MapCounterpartyRoleEnum(
+                        fpmlPayerPartyReference -> href,
+                        cdmCounterpartyList
+                    ),
+            seller: MapCounterpartyRoleEnum(
+                        fpmlReceiverPartyReference -> href,
+                        cdmCounterpartyList
+            ),
+        }
+
+func FlipPayerAndReceiver:
+    inputs:
+        payerReceiver PayerReceiver (0..1)
+    output:
+        flippedPayerReceiver PayerReceiver (0..1)
+
+    set flippedPayerReceiver:
+        PayerReceiver {
+            payer: payerReceiver -> receiver,
+            receiver: payerReceiver -> payer
+        }

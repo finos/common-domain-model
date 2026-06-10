@@ -1,0 +1,208 @@
+namespace cdm.ingest.fpml.confirmation.product.correlationswap: <"FpML CorrelationSwap product mapping functions.">
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.correlation.swaps.* as fpml
+import fpml.consolidated.shared.* as fpml
+
+func MapCorrelationSwapCounterpartyList:
+    inputs:
+        fpmlCorrelationSwap fpml.CorrelationSwap (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlCorrelationSwap -> correlationLeg -> payerPartyReference,
+                fpmlCorrelationSwap -> correlationLeg -> receiverPartyReference
+            )
+
+func MapCorrelationSwapNonTransferableProduct:
+    inputs:
+        fpmlCorrelationSwap fpml.CorrelationSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlCorrelationSwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCorrelationSwap -> primaryAssetClass,
+                        fpmlCorrelationSwap -> secondaryAssetClass,
+                        fpmlCorrelationSwap -> productType
+                    ),
+            economicTerms: MapCorrelationSwapEconomicTerms(
+                        fpmlCorrelationSwap,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapCorrelationSwapEconomicTerms:
+    inputs:
+        fpmlCorrelationSwap fpml.CorrelationSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapCorrelationSwapPayout(fpmlCorrelationSwap, cdmCounterpartyList),
+            ...
+        }
+
+func MapCorrelationSwapPayout:
+    inputs:
+        fpmlCorrelationSwap fpml.CorrelationSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    alias correlationLeg: fpmlCorrelationSwap -> correlationLeg
+
+    set payout:
+        Payout {
+            PerformancePayout:
+                PerformancePayout {
+                    payerReceiver:
+                        PayerReceiver {
+                            payer: MapCounterpartyRoleEnum(
+                                        fpmlCorrelationSwap -> correlationLeg -> payerPartyReference -> href,
+                                        cdmCounterpartyList
+                                    ),
+                            receiver: MapCounterpartyRoleEnum(
+                                        fpmlCorrelationSwap -> correlationLeg -> receiverPartyReference -> href,
+                                        cdmCounterpartyList
+                                    )
+                        },
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapNonNegativeMoneyToQuantityWithAddress(
+                                        fpmlCorrelationSwap -> correlationLeg -> amount -> correlation -> notionalAmount,
+                                        empty,
+                                        correlationLeg
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapCorrelationLegToSettlementTerms(correlationLeg),
+                    observationTerms: MapAdjustableOrRelativeDateToObservationTerms(
+                                fpmlCorrelationSwap -> correlationLeg -> amount -> observationStartDate
+                            ),
+                    valuationDates:
+                        ValuationDates {
+                            finalValuationDate: MapPerformanceValuationDates(
+                                        empty,
+                                        fpmlCorrelationSwap -> correlationLeg -> valuation
+                                    ),
+                            ...
+                        },
+                    underlier:
+                        Underlier {
+                            Observable: MapUnderlyerToObservableWithAddress(
+                                        fpmlCorrelationSwap -> correlationLeg -> underlyer
+                                    ),
+                            ...
+                        },
+                    returnTerms:
+                        ReturnTerms {
+                            correlationReturnTerms: MapCorrelationLegToCorrelationReturnTerms(
+                                        correlationLeg
+                                    ),
+                            ...
+                        },
+                    paymentDates: empty,
+                    ...
+                },
+            ...
+        }
+
+func MapCorrelationLegToCorrelationReturnTerms:
+    inputs:
+        fpmlCorrelationLeg fpml.CorrelationLeg (0..1)
+    output:
+        correlationReturnTerms CorrelationReturnTerms (0..1)
+
+    alias fpmlAmount: fpmlCorrelationLeg -> amount
+
+    set correlationReturnTerms:
+        CorrelationReturnTerms {
+            dividendApplicability:
+                DividendApplicability {
+                    allDividends: fpmlCorrelationLeg -> amount -> allDividends,
+                    ...
+                },
+            expectedN: fpmlCorrelationLeg -> amount -> correlation -> expectedN,
+            valuationTerms: empty,
+            correlationStrikePrice:
+                Price {
+                    value: fpmlCorrelationLeg -> amount -> correlation -> correlationStrikePrice,
+                    priceType: Correlation,
+                    ...
+                },
+            boundedCorrelation:
+                NumberRange {
+                    lowerBound:
+                        NumberBound {
+                            number: fpmlCorrelationLeg -> amount -> correlation -> boundedCorrelation -> minimumBoundaryPercent,
+                            inclusive: empty
+                        },
+                    upperBound:
+                        NumberBound {
+                            number: fpmlCorrelationLeg -> amount -> correlation -> boundedCorrelation -> maximumBoundaryPercent,
+                            inclusive: empty
+            },},
+            numberOfDataSeries: fpmlCorrelationLeg -> amount -> correlation -> numberOfDataSeries,
+            ...
+        }
+
+func MapCorrelationSwapPriceQuantityList:
+    inputs:
+        fpmlCorrelationSwap fpml.CorrelationSwap (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    alias correlationLeg: fpmlCorrelationSwap -> correlationLeg
+
+    add priceQuantityList:
+        PriceQuantity {
+            quantity: MapNonNegativeMoneyToQuantityWithLocation(
+                        fpmlCorrelationSwap -> correlationLeg -> amount -> correlation -> notionalAmount,
+                        empty,
+                        correlationLeg
+                    ),
+            observable: MapUnderlyerToObservableWithLocation(
+                        fpmlCorrelationSwap -> correlationLeg -> underlyer
+                    ),
+            ...
+        }
+
+func MapCorrelationSwapAccountPartyReference:
+    inputs:
+        fpmlCorrelationSwap fpml.CorrelationSwap (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        fpmlCorrelationSwap -> correlationLeg
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )

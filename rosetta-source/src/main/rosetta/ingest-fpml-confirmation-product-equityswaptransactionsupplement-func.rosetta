@@ -1,0 +1,161 @@
+namespace cdm.ingest.fpml.confirmation.product.equityswaptransactionsupplement: <"FpML EquitySwapTransactionSupplement product mapping functions.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.returnswap.* as returnswap
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
+import fpml.consolidated.fpmlreturn.swaps.* as fpml
+import fpml.consolidated.shared.* as fpml
+
+func MapEquitySwapTransactionSupplementCounterpartyList:
+    inputs:
+        fpmlEquitySwapTransactionSupplement fpml.EquitySwapTransactionSupplement (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlEquitySwapTransactionSupplement -> returnSwapLeg first -> payerPartyReference,
+                fpmlEquitySwapTransactionSupplement -> returnSwapLeg first -> receiverPartyReference
+            )
+
+func MapEquitySwapTransactionSupplementNonTransferableProduct:
+    inputs:
+        fpmlEquitySwapTransactionSupplement fpml.EquitySwapTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(
+                        fpmlEquitySwapTransactionSupplement -> productId
+                    ),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlEquitySwapTransactionSupplement -> primaryAssetClass,
+                        fpmlEquitySwapTransactionSupplement -> secondaryAssetClass,
+                        fpmlEquitySwapTransactionSupplement -> productType
+                    ),
+            economicTerms: MapEquitySwapTransactionSupplementEconomicTerms(
+                        fpmlEquitySwapTransactionSupplement,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapEquitySwapTransactionSupplementEconomicTerms:
+    inputs:
+        fpmlEquitySwapTransactionSupplement fpml.EquitySwapTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            effectiveDate: MapAdjustableOrRelativeDate(
+                        fpmlEquitySwapTransactionSupplement -> returnSwapLeg -> effectiveDate
+                            distinct
+                            only-element
+                    ),
+            terminationDate: MapAdjustableOrRelativeDate(
+                        fpmlEquitySwapTransactionSupplement -> returnSwapLeg -> terminationDate
+                            distinct
+                            only-element
+                    ),
+            payout: MapReturnSwapLegListToPayoutList(
+                        fpmlEquitySwapTransactionSupplement -> returnSwapLeg,
+                        cdmCounterpartyList
+                    ),
+            ...
+        }
+
+func MapReturnSwapLegListToPayoutList:
+    inputs:
+        fpmlReturnSwapLegList fpml.DirectionalLeg (0..*)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payoutList Payout (0..*)
+
+    alias fpmlReturnLeg:
+        fpmlReturnSwapLegList
+            extract
+                (switch
+                    fpml.ReturnLeg then item,
+                    default empty)
+            then only-element
+
+    alias fpmlInterestLeg:
+        fpmlReturnSwapLegList
+            extract
+                (switch
+                    fpml.InterestLeg then item,
+                    default empty)
+            then only-element
+
+    add payoutList:
+        fpmlReturnSwapLegList
+            extract
+                item switch
+                    fpml.InterestLeg then
+                        returnswap.MapInterestLegToInterestRatePayout(
+                                item,
+                                cdmCounterpartyList,
+                                fpmlReturnLeg
+                            ),
+                    default empty
+
+    add payoutList:
+        fpmlReturnSwapLegList
+            extract
+                item switch
+                    fpml.ReturnLeg then
+                        returnswap.MapReturnLegToPerformancePayout(
+                                item,
+                                cdmCounterpartyList,
+                                fpmlInterestLeg
+                            ),
+                    default empty
+
+func MapEquitySwapTransactionSupplementPriceQuantityList:
+    inputs:
+        fpmlEquitySwapTransactionSupplement fpml.EquitySwapTransactionSupplement (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    alias returnLeg:
+        (fpmlEquitySwapTransactionSupplement -> returnSwapLeg
+            extract
+                switch
+                    fpml.ReturnLeg then item,
+                    default empty)
+            then only-element
+
+    add priceQuantityList:
+        fpmlEquitySwapTransactionSupplement -> returnSwapLeg
+            extract
+                item switch
+                    fpml.InterestLeg then
+                        returnswap.MapInterestLegToPriceQuantity(item, returnLeg),
+                    fpml.ReturnLeg then returnswap.MapReturnLegToPriceQuantity,
+                    default empty
+
+func MapEquitySwapTransactionSupplementAccountPartyReference:
+    inputs:
+        fpmlEquitySwapTransactionSupplement fpml.EquitySwapTransactionSupplement (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapBuyerSellerToAccountPartyReference(
+                fpmlAccount,
+                fpmlEquitySwapTransactionSupplement -> buyerAccountReference,
+                fpmlEquitySwapTransactionSupplement -> sellerAccountReference
+            )

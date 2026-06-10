@@ -1,0 +1,129 @@
+namespace cdm.ingest.fpml.confirmation.product.fxswap: <"FpML FxSwap product mapping functions.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.product.fxsingleleg.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.fx.* as fpml
+import fpml.consolidated.shared.* as fpml
+
+func MapFxSwapCounterpartyList:
+    inputs:
+        fpmlFxSwap fpml.FxSwap (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1 -> payerPartyReference,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1 -> receiverPartyReference
+            )
+
+func MapFxSwapNonTransferableProduct:
+    inputs:
+        fpmlFxSwap fpml.FxSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlFxSwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlFxSwap -> primaryAssetClass,
+                        fpmlFxSwap -> secondaryAssetClass,
+                        fpmlFxSwap -> productType
+                    ),
+            economicTerms: MapFxSwapEconomicTerms(fpmlFxSwap, cdmCounterpartyList)
+        }
+
+func MapFxSwapEconomicTerms:
+    inputs:
+        fpmlFxSwap fpml.FxSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapFxSwapPayoutList(fpmlFxSwap, cdmCounterpartyList),
+            ...
+        }
+
+func MapFxSwapPayoutList:
+    inputs:
+        fpmlFxSwap fpml.FxSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payoutList Payout (0..*)
+
+    add payoutList:
+        MapFxCoreDetailsModelToSettlementPayout(
+                fpmlFxSwap -> nearLeg -> exchangeRate,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency2,
+                fpmlFxSwap -> nearLeg -> nonDeliverableSettlement,
+                fpmlFxSwap -> nearLeg -> valueDate,
+                fpmlFxSwap -> nearLeg,
+                cdmCounterpartyList
+            )
+
+    add payoutList:
+        MapFxCoreDetailsModelToSettlementPayout(
+                fpmlFxSwap -> farLeg -> exchangeRate,
+                fpmlFxSwap -> farLeg -> exchangedCurrency1,
+                fpmlFxSwap -> farLeg -> exchangedCurrency2,
+                fpmlFxSwap -> farLeg -> nonDeliverableSettlement,
+                fpmlFxSwap -> farLeg -> valueDate,
+                fpmlFxSwap -> farLeg,
+                cdmCounterpartyList
+            )
+
+func MapFxSwapPriceQuantityList:
+    inputs:
+        fpmlFxSwap fpml.FxSwap (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        MapFxCoreDetailsModelPriceQuantityList(
+                fpmlFxSwap -> nearLeg -> exchangeRate,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency2,
+                fpmlFxSwap -> nearLeg
+            )
+
+    add priceQuantityList:
+        MapFxCoreDetailsModelPriceQuantityList(
+                fpmlFxSwap -> farLeg -> exchangeRate,
+                fpmlFxSwap -> farLeg -> exchangedCurrency1,
+                fpmlFxSwap -> farLeg -> exchangedCurrency2,
+                fpmlFxSwap -> farLeg
+            )
+
+func MapFxSwapAccountPartyReference:
+    inputs:
+        fpmlFxSwap fpml.FxSwap (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        [fpmlFxSwap -> nearLeg -> exchangedCurrency1, fpmlFxSwap -> nearLeg -> exchangedCurrency2, fpmlFxSwap -> farLeg -> exchangedCurrency1, fpmlFxSwap -> farLeg -> exchangedCurrency2]
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then filter reference exists
+            then first

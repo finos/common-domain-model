@@ -1,0 +1,1038 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     Code List Representation (genericode) Version 1.0
+     OASIS Standard
+     31 January 2023
+     Copyright (c) OASIS Open 2023. All Rights Reserved.
+     Source: https://docs.oasis-open.org/codelist/genericode/v1.0/os/
+     Latest stage of narrative specification: https://docs.oasis-open.org/codelist/genericode/v1.0/genericode-v1.0.html
+     TC IPR Statement: https://www.oasis-open.org/committees/codelist/ipr.php 
+-->
+<xsd:schema version="1.0" targetNamespace="http://docs.oasis-open.org/codelist/ns/genericode/1.0/" xmlns:gc="http://docs.oasis-open.org/codelist/ns/genericode/1.0/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:rule="http://docs.oasis-open.org/codelist/ns/rule/1.0/">
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <xsd:complexType name="Agency">
+    <xsd:annotation>
+      <xsd:documentation>Details of an agency which produces code lists or related artifacts.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="ShortName" minOccurs="0" type="gc:ShortName">
+        <xsd:annotation>
+          <xsd:documentation>Short name (without whitespace) for the agency.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="LongName" minOccurs="0" maxOccurs="unbounded" type="gc:LongName">
+        <xsd:annotation>
+          <xsd:documentation>Human-readable name for the agency.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Identifier" minOccurs="0" maxOccurs="unbounded" type="gc:GeneralIdentifier">
+        <xsd:annotation>
+          <xsd:documentation>Identifier for the agency.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Annotation">
+    <xsd:annotation>
+      <xsd:documentation>User annotation information.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Description" minOccurs="0" maxOccurs="unbounded" type="gc:AnyOtherLanguageContent">
+        <xsd:annotation>
+          <xsd:documentation>Human-readable information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="AppInfo" minOccurs="0" type="gc:AnyOtherContent">
+        <xsd:annotation>
+          <xsd:documentation>Machine-readable information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="AnyOtherContent">
+    <xsd:annotation>
+      <xsd:documentation>Container for any XML content which is in a different namespace to the Schema's target namespace.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="AnyOtherLanguageContent">
+    <xsd:annotation>
+      <xsd:documentation>Container for any human-readable XML content which is in a different namespace to the Schema's target namespace.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="gc:AnyOtherContent">
+        <xsd:attribute ref="xml:lang">
+          <xsd:annotation>
+            <xsd:documentation>Language for the human-readable XML content.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="CodeList" type="gc:CodeListDocument">
+    <xsd:annotation>
+      <xsd:documentation>Top-level (root) element for a genericode code list definition.
+A code list definition defines the details of a particular (version of a) code list.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:complexType name="CodeListDocument">
+    <xsd:annotation>
+      <xsd:documentation>Document type for genericode code list definitions.</xsd:documentation>
+      <xsd:documentation><rule:text id="R1" category="document">A code list must have at least one key, unless it is a metadata-only definition without a 'SimpleCodeList' element.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="gc:DocumentHeader">
+        <xsd:annotation>
+          <xsd:documentation>General information (metadata) for the code list.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:group ref="gc:ColumnSetChoice">
+        <xsd:annotation>
+          <xsd:documentation>A choice between a column set definition and a column set reference.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:group ref="gc:OuterCodeListChoice" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>The only choice is a simple (explicit) code list definition.
+Not used if the code list definition contains code list metadata only.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R2" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:complexType name="CodeListRef">
+    <xsd:annotation>
+      <xsd:documentation>Reference to a code list, possibly defined in an external document.</xsd:documentation>
+      <xsd:documentation><rule:text id="R3" category="application">The code list reference must be valid.
+An application may use the CanonicalVersionUri to select a local copy of the code list.
+If there is no CanonicalVersionUri, the CanonicalUri may be used to select a local copy of the code list.
+Otherwise the LocationUri value(s) may be tried in order, until a valid code list document is retrieved.
+An application must signal an error to the user if it is not able to retrieve a code list document to match the code list reference.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the referenced code list.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="CanonicalUri" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which uniquely identifies all versions (collectively) of the referenced code list.</xsd:documentation>
+          <xsd:documentation><rule:text id="R4" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R5" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="CanonicalVersionUri" minOccurs="0" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which uniquely identifies a specific version of the referenced code list.</xsd:documentation>
+          <xsd:documentation><rule:text id="R6" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R7" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="LocationUri" minOccurs="0" maxOccurs="unbounded" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Suggested retrieval location for this code list, in genericode format.</xsd:documentation>
+          <xsd:documentation>
+                      <rule:text id="R8" category="application">If the CanonicalVersionUri has been defined, the LocationUri must reference a genericode CodeList document.
+If the CanonicalVersionUri is undefined, the LocationUri must reference a genericode CodeList Metadata document.
+An application must signal an error to the user if a LocationUri does not reference the appropriate type of genericode document.</rule:text>
+                    </xsd:documentation>
+          <xsd:documentation><rule:text id="R9" category="application">An application must signal an error to the user if a document retrieved using a LocationUri is not in genericode format.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R10" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:element name="CodeListSet" type="gc:CodeListSetDocument">
+    <xsd:annotation>
+      <xsd:documentation>Top-level element for the definition of a code list set.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:complexType name="CodeListSetDocument">
+    <xsd:annotation>
+      <xsd:documentation>Document type for the definition of a set of code lists.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="gc:DocumentHeader">
+        <xsd:annotation>
+          <xsd:documentation>General document information for the code list set.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:group ref="gc:CodeListSetChoice" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>Contents of the code list set.  If the code list set does not have any contents, it is a CodeListSet Metadata definition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R11" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:group name="CodeListSetChoice">
+    <xsd:annotation>
+      <xsd:documentation>A choice between a code list reference, an inline code list set, or a code list set reference.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="CodeListRef" type="gc:CodeListRef"/>
+      <xsd:element name="CodeListSet" type="gc:CodeListSetDocument"/>
+      <xsd:element name="CodeListSetRef" type="gc:CodeListSetRef"/>
+    </xsd:choice>
+  </xsd:group>
+  <xsd:complexType name="CodeListSetRef">
+    <xsd:annotation>
+      <xsd:documentation>Reference to a code list set, possibly defined in an external document.</xsd:documentation>
+      <xsd:documentation><rule:text id="R47" category="application">The code list set reference must be valid.
+An application may use the CanonicalVersionUri to select a local copy of the code list set.
+If there is no CanonicalVersionUri, the CanonicalUri may be used to select a local copy of the code list set.
+Otherwise the LocationUri value(s) may be tried in order, until a valid code list set document is retrieved.
+An application must signal an error to the user if it is not able to retrieve a code list set document to match the code list set reference.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the referenced code list set.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="CanonicalUri" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which uniquely identifies all versions (collectively) of the referenced code list set.</xsd:documentation>
+          <xsd:documentation><rule:text id="R48" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R49" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="CanonicalVersionUri" minOccurs="0" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which uniquely identifies a specific version of the referenced code list set.</xsd:documentation>
+          <xsd:documentation><rule:text id="R50" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R51" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="LocationUri" minOccurs="0" maxOccurs="unbounded" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Suggested retrieval location for this code list set, in genericode format.</xsd:documentation>
+          <xsd:documentation>
+                            <rule:text id="R52" category="application">If the CanonicalVersionUri has been defined, the LocationUri must reference a genericode CodeListSet document.
+If the CanonicalVersionUri is undefined, the LocationUri must reference a genericode CodeListSet Metadata document.
+An application must signal an error to the user if a LocationUri does not reference the appropriate type of genericode document.</rule:text>
+                          </xsd:documentation>
+          <xsd:documentation><rule:text id="R53" category="application">An application must signal an error to the user if a document retrieved using a LocationUri is not in genericode format.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R54" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:complexType name="Column">
+    <xsd:annotation>
+      <xsd:documentation>Definition of a column.
+  Each column of a code list defines a piece of metadata that can be specified for each item in the code list.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User information about the column.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="gc:NameSet">
+        <xsd:annotation>
+          <xsd:documentation>Name(s) of the column.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:group ref="gc:IdentificationVersionUriSet" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>URIs used to identify the column and/or the version of the column.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:element name="Data" type="gc:Data">
+        <xsd:annotation>
+          <xsd:documentation>Data type of the column.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attributeGroup ref="gc:IdDefinition">
+      <xsd:annotation>
+        <xsd:documentation>ID which identifies the column within the document.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+    <xsd:attributeGroup ref="gc:RequiredUseDefinition">
+      <xsd:annotation>
+        <xsd:documentation>Whether the column is required or optional.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+  </xsd:complexType>
+  <xsd:group name="ColumnChoice">
+    <xsd:annotation>
+      <xsd:documentation>A choice between a column definition and a column reference.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="Column" type="gc:Column">
+        <xsd:annotation>
+          <xsd:documentation>Definition of a column.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ColumnRef" type="gc:ColumnRef">
+        <xsd:annotation>
+          <xsd:documentation>Reference to a column defined in an external column set or code list.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:choice>
+  </xsd:group>
+  <xsd:complexType name="ColumnRef">
+    <xsd:annotation>
+      <xsd:documentation>Reference to a column defined in an external column set or code list.</xsd:documentation>
+      <xsd:documentation><rule:text id="R12" category="application">The column reference must be valid.
+An application may use the CanonicalVersionUri to select a local copy of the code list or column set which contains the column definition.
+Otherwise the LocationUri value(s) may be tried in order, until a valid code list or column set document (containing the necessary column definition) is retrieved.
+An application must signal an error to the user if it is not able to retrieve a code list or column set document which contains the necessary column definition.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the referenced column.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="gc:IdentificationRefUriSet">
+        <xsd:annotation>
+          <xsd:documentation>Identification of the external column set or code list document which contains the column set definition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:element name="Data" minOccurs="0" type="gc:DataRestrictions">
+        <xsd:annotation>
+          <xsd:documentation>Restrictions to the data type of the referenced column.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attributeGroup ref="gc:IdDefinition">
+      <xsd:annotation>
+        <xsd:documentation>ID which identifies the column within this document.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+    <xsd:attributeGroup ref="gc:ExternalReference">
+      <xsd:annotation>
+        <xsd:documentation>ID which identifies which identifies the column within the external column set or code list.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+    <xsd:attributeGroup ref="gc:OptionalUseDefinition">
+      <xsd:annotation>
+        <xsd:documentation>Whether the column is required or optional.</xsd:documentation>
+        <xsd:documentation><rule:text id="R13" category="application">If specified, this overrides the usage specified in the external column set or code list document.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R14" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:attributeGroup name="ColumnReference">
+    <xsd:annotation>
+      <xsd:documentation>Attribute set for referring to a column definition.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="ColumnRef" type="xsd:IDREF">
+      <xsd:annotation>
+        <xsd:documentation>Reference to a column ID in the document.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+  <xsd:element name="ColumnSet" type="gc:ColumnSetDocument">
+    <xsd:annotation>
+      <xsd:documentation>Top-level element for the definition of a column set.</xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:complexType name="ColumnSet">
+    <xsd:annotation>
+      <xsd:documentation>Definition of a column set (columns and keys for a code list).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:group ref="gc:ColumnSetContent">
+      <xsd:annotation>
+        <xsd:documentation>Column set definitions.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:group>
+    <xsd:attributeGroup ref="gc:DefaultDatatypeLibrary">
+      <xsd:annotation>
+        <xsd:documentation>Identification of the default datatype library for the column set.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R15" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:group name="ColumnSetChoice">
+    <xsd:annotation>
+      <xsd:documentation>A choice between a column set definition and a column set reference.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="ColumnSet" type="gc:ColumnSet">
+        <xsd:annotation>
+          <xsd:documentation>Definition of a column set (columns and keys for the code list).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ColumnSetRef" type="gc:ColumnSetRef">
+        <xsd:annotation>
+          <xsd:documentation>Reference to a column set defined in an external column set or code list document.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:choice>
+  </xsd:group>
+  <xsd:group name="ColumnSetContent">
+    <xsd:annotation>
+      <xsd:documentation>Specific details of a column set.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="gc:ColumnChoice" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>A choice between a column definition and a column reference.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:group ref="gc:KeyChoice" minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation>
+          <xsd:documentation>A choice between a key definition and a key reference.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:complexType name="ColumnSetDocument">
+    <xsd:annotation>
+      <xsd:documentation>Document type for the definition of a column set, which is a set of code list columns and/or keys.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="gc:DocumentHeader">
+        <xsd:annotation>
+          <xsd:documentation>General document information for the column set.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:group ref="gc:ColumnSetContent">
+        <xsd:annotation>
+          <xsd:documentation>Details of the column set.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:sequence>
+    <xsd:attributeGroup ref="gc:DefaultDatatypeLibrary">
+      <xsd:annotation>
+        <xsd:documentation>Identification of the default datatype library for the column set.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R16" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:complexType name="ColumnSetRef">
+    <xsd:annotation>
+      <xsd:documentation>Reference to a column set defined in an external column set or code list document.</xsd:documentation>
+      <xsd:documentation><rule:text id="R17" category="application">The column set reference must be valid.
+An application may use the CanonicalVersionUri to select a local copy of the column set or code list.
+Otherwise the LocationUri value(s) may be tried in order, until a valid column set or code list document is retrieved.
+An application must signal an error to the user if it is not able to retrieve a column set or code list document to match the column set reference.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the referenced column set.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="gc:IdentificationRefUriSet">
+        <xsd:annotation>
+          <xsd:documentation>Identification of the external column set or code list document which contains the column set definition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:sequence>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R18" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:complexType name="Data">
+    <xsd:annotation>
+      <xsd:documentation>Data type definition.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the datatype.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Parameter" minOccurs="0" maxOccurs="unbounded" type="gc:DatatypeFacet">
+        <xsd:annotation>
+          <xsd:documentation>Facet parameter which refines the datatype.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="Type" type="xsd:token" use="required">
+      <xsd:annotation>
+        <xsd:documentation>Unique ID for the datatype within its datatype library.</xsd:documentation>
+        <xsd:documentation><rule:text id="R19" category="document">The datatype ID must not include a namespace prefix.
+For the W3C XML Schema datatypes, possible datatype IDs are 'string', 'token', 'boolean', 'decimal', etc.</rule:text></xsd:documentation>
+        <xsd:documentation><rule:text id="R20" category="document">If the data is complex (i.e. XML), this value is set to the root element name for the XML value, or '*' if the root element name is not restricted.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="DatatypeLibrary" type="xsd:anyURI">
+      <xsd:annotation>
+        <xsd:documentation>URI which uniquely identifies the datatype library.</xsd:documentation>
+        <xsd:documentation><rule:text id="R21" category="application">If this URI not explicitly provided, the datatype library for the enclosing column set is used.</rule:text></xsd:documentation>
+        <xsd:documentation><rule:text id="R22" category="document">If the data is complex (i.e. XML), this value is set to the namespace URI for the XML, or '*' if the namespace URI is not restricted.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attributeGroup ref="gc:Language">
+      <xsd:annotation>
+        <xsd:documentation>Language from which the data is taken or derived.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+  </xsd:complexType>
+  <xsd:complexType name="DataRestrictions">
+    <xsd:annotation>
+      <xsd:documentation>Restrictions to a data type.</xsd:documentation>
+      <xsd:documentation><rule:text id="R23" category="document">The 'gc:lang' attribute may be specified only if no language is already set for the data type that is being restricted.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Parameter" minOccurs="0" maxOccurs="unbounded" type="gc:DatatypeFacet">
+        <xsd:annotation>
+          <xsd:documentation>Facet parameter which refines the datatype.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attributeGroup ref="gc:Language">
+      <xsd:annotation>
+        <xsd:documentation>Language from which the data is taken or derived.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+  </xsd:complexType>
+  <xsd:complexType name="DatatypeFacet">
+    <xsd:annotation>
+      <xsd:documentation>Facet information for refining a datatype.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="ShortName" type="xsd:token" use="required">
+          <xsd:annotation>
+            <xsd:documentation>Short name (token) for the datatype facet.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="LongName" type="xsd:normalizedString">
+          <xsd:annotation>
+            <xsd:documentation>Long name for the datatype facet.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:attributeGroup name="DefaultDatatypeLibrary">
+    <xsd:annotation>
+      <xsd:documentation>Identification of the default datatype library for a column set.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="DatatypeLibrary" type="xsd:anyURI" default="http://www.w3.org/2001/XMLSchema-datatypes">
+      <xsd:annotation>
+        <xsd:documentation>URI which uniquely identifies the default datatype library for the column set.  If not provided, defaults to the URI for W3C XML Schema datatypes.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+  <xsd:group name="DocumentHeader">
+    <xsd:annotation>
+      <xsd:documentation>General document information (metadata).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Identification" type="gc:Identification">
+        <xsd:annotation>
+          <xsd:documentation>Identification and location information (metadata).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:attributeGroup name="ExternalReference">
+    <xsd:annotation>
+      <xsd:documentation>Attribute set used to identify a definition within an external document.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="ExternalRef" type="xsd:NCName" use="required">
+      <xsd:annotation>
+        <xsd:documentation>Unique ID within the external document.</xsd:documentation>
+        <xsd:documentation><rule:text id="R24" category="document">The external reference must not be prefixed with a '#' symbol.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+  <xsd:complexType name="GeneralIdentifier">
+    <xsd:annotation>
+      <xsd:documentation>An identifier value.  Typically not a long or short name.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:normalizedString">
+        <xsd:attributeGroup ref="gc:ValueIdentification"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:attributeGroup name="IdDefinition">
+    <xsd:annotation>
+      <xsd:documentation>Attribute set used to identify a definition within the document.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="Id" type="xsd:ID" use="required">
+      <xsd:annotation>
+        <xsd:documentation>Unique ID within the document.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+  <xsd:complexType name="Identification">
+    <xsd:annotation>
+      <xsd:documentation>Identification and location information (metadata).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:group ref="gc:NameSet">
+        <xsd:annotation>
+          <xsd:documentation>Various names.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:element name="Version" type="xsd:token">
+        <xsd:annotation>
+          <xsd:documentation>Version identifier.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="CanonicalUri" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which uniquely identifies all versions (collectively).</xsd:documentation>
+          <xsd:documentation><rule:text id="R25" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R26" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="gc:VersionLocationUriSet">
+        <xsd:annotation>
+          <xsd:documentation>Identification and location URIs for the version.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:element name="Agency" minOccurs="0" type="gc:Agency">
+        <xsd:annotation>
+          <xsd:documentation>Agency that is responsible for publication and/or maintenance of the information.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:group name="IdentificationRefUriSet">
+    <xsd:annotation>
+      <xsd:documentation>Identification and location URIs.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="CanonicalVersionUri" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which serves as a unique identifier for this version.</xsd:documentation>
+          <xsd:documentation><rule:text id="R27" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R28" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="LocationUri" minOccurs="0" maxOccurs="unbounded" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Suggested retrieval location for this version, in genericode format.</xsd:documentation>
+          <xsd:documentation><rule:text id="R29" category="application">An application must signal an error to the user if a document retrieved using a LocationUri is not in genericode format.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:group name="IdentificationVersionUriSet">
+    <xsd:annotation>
+      <xsd:documentation>URIs used as unique identifiers.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="CanonicalUri" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which uniquely identifies all versions collectively.</xsd:documentation>
+          <xsd:documentation><rule:text id="R30" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R31" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="CanonicalVersionUri" minOccurs="0" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which uniquely identifies this version.</xsd:documentation>
+          <xsd:documentation><rule:text id="R32" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R33" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:complexType name="Key">
+    <xsd:annotation>
+      <xsd:documentation>Definition of a key.
+A key is a set of one or more columns whose values together provide a unique identification of each item in a code list.</xsd:documentation>
+      <xsd:documentation><rule:text id="R34" category="document">Only required columns can be used for keys.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the key.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="gc:NameSet">
+        <xsd:annotation>
+          <xsd:documentation>Name(s) of the key.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:group ref="gc:IdentificationVersionUriSet" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>URIs used to identify the key and/or the version of the key.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+      <xsd:element name="ColumnRef" maxOccurs="unbounded" type="gc:KeyColumnRef">
+        <xsd:annotation>
+          <xsd:documentation>Reference to the document ID of a column in the key.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attributeGroup ref="gc:IdDefinition">
+      <xsd:annotation>
+        <xsd:documentation>ID which identifies the key within the document.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+  </xsd:complexType>
+  <xsd:group name="KeyChoice">
+    <xsd:annotation>
+      <xsd:documentation>A choice between a key definition and a key reference.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="Key" type="gc:Key">
+        <xsd:annotation>
+          <xsd:documentation>Definition of a key.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="KeyRef" type="gc:KeyRef">
+        <xsd:annotation>
+          <xsd:documentation>Reference to a key defined in an external column set or code list.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:choice>
+  </xsd:group>
+  <xsd:complexType name="KeyColumnRef">
+    <xsd:annotation>
+      <xsd:documentation>Reference to a column which forms part of a key.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the column.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="Ref" type="xsd:IDREF" use="required">
+      <xsd:annotation>
+        <xsd:documentation>Reference to the ID of the column within the document.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:complexType name="KeyRef">
+    <xsd:annotation>
+      <xsd:documentation>Reference to a key defined in an external column set or code list.</xsd:documentation>
+      <xsd:documentation><rule:text id="R35" category="application">The key reference must be valid.
+An application may use the CanonicalVersionUri to select a local copy of the code list or column set which contains the key definition.
+Otherwise the LocationUri value(s) may be tried in order, until a valid code list or column set document (containing the necessary key definition) is retrieved.
+An application must signal an error to the user if it is not able to retrieve a code list or column set document which contains the necessary key definition.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the referenced key.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="gc:IdentificationRefUriSet">
+        <xsd:annotation>
+          <xsd:documentation>Identification of the external column set or code list which contains the key definition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:sequence>
+    <xsd:attributeGroup ref="gc:IdDefinition">
+      <xsd:annotation>
+        <xsd:documentation>ID which identifies the key within this document.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+    <xsd:attributeGroup ref="gc:ExternalReference">
+      <xsd:annotation>
+        <xsd:documentation>ID which identifies which identifies the key within the external column set or code list.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+    <xsd:attribute ref="xml:base" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Base URL which applies to relative location URIs.</xsd:documentation>
+        <xsd:documentation><rule:text id="R36" category="application">xml:base does not apply to canonical URIs.</rule:text></xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+  <xsd:attributeGroup name="Language">
+    <xsd:annotation>
+      <xsd:documentation>Attributes which describe the language of a piece of text.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="Lang" type="xsd:language" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Language code which accepts the same values as 'xml:lang'.
+Unlike 'xml:lang', the scope of the language definition is not restricted to the XML content within the element where the 'lang' attribute appears.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+  <xsd:complexType name="LongName">
+    <xsd:annotation>
+      <xsd:documentation>A human-readable name.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:normalizedString">
+        <xsd:attributeGroup ref="gc:ValueIdentification">
+          <xsd:annotation>
+            <xsd:documentation>Information used to identify a particular long name where multiple long names exist.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attributeGroup>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="MimeTypedUri">
+    <xsd:annotation>
+      <xsd:documentation>URI for a resource, with support for specifying the MIME type.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:anyURI">
+        <xsd:attribute name="MimeType" type="xsd:normalizedString">
+          <xsd:annotation>
+            <xsd:documentation>MIME type of the resource which can be retrieved from the URI.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:group name="NameSet">
+    <xsd:annotation>
+      <xsd:documentation>Various names.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="ShortName" type="gc:ShortName">
+        <xsd:annotation>
+          <xsd:documentation>Short name (without whitespace).</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="LongName" minOccurs="0" maxOccurs="unbounded" type="gc:LongName">
+        <xsd:annotation>
+          <xsd:documentation>Human-readable name.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:attributeGroup name="OptionalUseDefinition">
+    <xsd:annotation>
+      <xsd:documentation>Attribute set which defines the usage (optional attribute).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="Use" type="gc:UseType" use="optional">
+      <xsd:annotation>
+        <xsd:documentation>Whether the usage is required or optional.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+  <xsd:group name="OuterCodeListChoice">
+    <xsd:annotation>
+      <xsd:documentation>A choice which currently only allows a simple (explicit) code list definition.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:group ref="gc:SimpleCodeListSequence">
+        <xsd:annotation>
+          <xsd:documentation>Details of a simple code list definition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:choice>
+  </xsd:group>
+  <xsd:attributeGroup name="RequiredUseDefinition">
+    <xsd:annotation>
+      <xsd:documentation>Attribute set which defines the usage (required attribute).</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="Use" type="gc:UseType" use="required">
+      <xsd:annotation>
+        <xsd:documentation>Whether the usage is required or optional.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+  <xsd:complexType name="Row">
+    <xsd:annotation>
+      <xsd:documentation>Row which represents an individual item in a code list.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the row.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Value" maxOccurs="unbounded" type="gc:Value">
+        <xsd:annotation>
+          <xsd:documentation>Column value for the row.</xsd:documentation>
+          <xsd:documentation><rule:text id="R37" category="document">A value must be provided for each required column.
+A value does not need to be provided for a column if the column is optional.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R38" category="document">If a value does not have an explicit column reference, the column is taken to be the column following the column of the preceding value in the row, or the first column if the value is the first value of the row.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="ShortName">
+    <xsd:annotation>
+      <xsd:documentation>A short name without whitespace that is suitable for use in generating names for software artifacts.</xsd:documentation>
+      <xsd:documentation><rule:text id="R39" category="document">Must not contain whitespace characters.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:token">
+        <xsd:attribute ref="xml:lang">
+          <xsd:annotation>
+            <xsd:documentation>The language from which the short name is taken or derived.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="SimpleCodeList">
+    <xsd:annotation>
+      <xsd:documentation>Simple (explicit) code list definition.</xsd:documentation>
+      <xsd:documentation><rule:text id="R40" category="application">Applications must not have any dependency on the ordering of the rows.</rule:text></xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the code list.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Row" minOccurs="0" maxOccurs="unbounded" type="gc:Row">
+        <xsd:annotation>
+          <xsd:documentation>Row which represents an individual item in the code list.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:group name="SimpleCodeListSequence">
+    <xsd:annotation>
+      <xsd:documentation>Details of a simple code list definition.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="SimpleCodeList" type="gc:SimpleCodeList">
+        <xsd:annotation>
+          <xsd:documentation>Simple (explicit) code list definition.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+  <xsd:complexType name="SimpleValue">
+    <xsd:annotation>
+      <xsd:documentation>Simple textual value.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string"/>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="UseType">
+    <xsd:annotation>
+      <xsd:documentation>Indicates whether the usage is required or optional.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="optional"/>
+      <xsd:enumeration value="required"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="Value">
+    <xsd:annotation>
+      <xsd:documentation>An individual code list metadata value.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="Annotation" minOccurs="0" type="gc:Annotation">
+        <xsd:annotation>
+          <xsd:documentation>User annotation for the value.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:group ref="gc:ValueChoice" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>A choice between a simple textual value and a complex (structured) XML value.  If the value is undefined, then neither choice is used.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:group>
+    </xsd:sequence>
+    <xsd:attributeGroup ref="gc:ColumnReference">
+      <xsd:annotation>
+        <xsd:documentation>Reference to the column with which this value is associated.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attributeGroup>
+  </xsd:complexType>
+  <xsd:group name="ValueChoice">
+    <xsd:annotation>
+      <xsd:documentation>A choice between a simple textual value and a complex (structured) XML value.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element name="SimpleValue" type="gc:SimpleValue">
+        <xsd:annotation>
+          <xsd:documentation>Simple textual value.</xsd:documentation>
+          <xsd:documentation><rule:text id="R41" category="document">The value must be valid with respect to the datatype and restrictions of the matching column.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="ComplexValue" type="gc:AnyOtherContent">
+        <xsd:annotation>
+          <xsd:documentation>Complex (structured) XML value.</xsd:documentation>
+          <xsd:documentation><rule:text id="R42" category="document">The names of all direct child elements of the 'ComplexValue' element must match the datatype ID for the matching column, unless that ID is set to '*'.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R43" category="document">The namespace URIs of all direct child elements of the 'ComplexValue' element must match the datatype library URI for the matching column, unless that URI is set to '*'.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:choice>
+  </xsd:group>
+  <xsd:attributeGroup name="ValueIdentification">
+    <xsd:annotation>
+      <xsd:documentation>Information which identifies one of a set of alternate values.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:attribute name="Identifier" type="xsd:normalizedString">
+      <xsd:annotation>
+        <xsd:documentation>A string which identifies one of a set of alternate values.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute ref="xml:lang">
+      <xsd:annotation>
+        <xsd:documentation>The language from which the value is taken or derived.</xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+  <xsd:group name="VersionLocationUriSet">
+    <xsd:annotation>
+      <xsd:documentation>Identification and location URIs for a version.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="CanonicalVersionUri" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Canonical URI which uniquely identifies this version.</xsd:documentation>
+          <xsd:documentation><rule:text id="R44" category="document">Must be an absolute URI, must not be relative.</rule:text></xsd:documentation>
+          <xsd:documentation><rule:text id="R45" category="application">Must not be used as a de facto location URI.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="LocationUri" minOccurs="0" maxOccurs="unbounded" type="xsd:anyURI">
+        <xsd:annotation>
+          <xsd:documentation>Suggested retrieval location for this version, in genericode format.</xsd:documentation>
+          <xsd:documentation><rule:text id="R46" category="application">An application must signal an error to the user if a document retrieved using a LocationUri is not in genericode format.</rule:text></xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="AlternateFormatLocationUri" minOccurs="0" maxOccurs="unbounded" type="gc:MimeTypedUri">
+        <xsd:annotation>
+          <xsd:documentation>Suggested retrieval location for this version, in a non-genericode format.
+Such alternative formats are intended only as additional renditions of the code list information, not as a replacements nor as alternatives for use in application processing.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:group>
+</xsd:schema>

@@ -7,14 +7,14 @@ import cdm.observable.event.ObservationIdentifier;
 import cdm.product.template.PerformancePayout;
 import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static util.ResourcesUtils.getObjectAndResolveReferences;
+import static org.finos.cdm.util.ResourcesUtils.getObjectAndResolveReferences;
 
 public class ResolvePerformanceObservationIdentifiersTest extends AbstractFunctionTest {
 
@@ -26,7 +26,7 @@ public class ResolvePerformanceObservationIdentifiersTest extends AbstractFuncti
     @BeforeEach
     void setUpTestData() throws IOException {
         TradeState tradeState = getObjectAndResolveReferences(TradeState.class,
-                "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+                "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json");
         performancePayout = tradeState.getTrade().getProduct().getEconomicTerms().getPayout().get(0).getPerformancePayout();
     }
 

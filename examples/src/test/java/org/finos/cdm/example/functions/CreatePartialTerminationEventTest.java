@@ -15,8 +15,8 @@ import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
-import cdm.observable.asset.FeeTypeEnum;
 import cdm.observable.asset.PriceQuantity;
+import cdm.product.common.settlement.UnscheduledTransferEnum;
 import jakarta.inject.Inject;
 import org.finos.cdm.example.AbstractExampleTest;
 import org.finos.cdm.example.util.ResourcesUtils;
@@ -71,7 +71,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
      */
     private WorkflowStep getWorkflowStepInstruction() throws IOException {
         // Trade to be partially terminated.  Note that all references are resolved here.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/USD-Vanilla-swap.json");
 
         Date eventDate = Date.of(2013, 2, 12);
 
@@ -81,11 +81,11 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                         .setDirection(QuantityChangeDirectionEnum.DECREASE)
                         .addChange(PriceQuantity.builder()
                                 .addQuantityValue(NonNegativeQuantitySchedule.builder()
-                                                .setValue(BigDecimal.valueOf(7000000))
-                                                .setUnit(UnitType.builder()
-                                                        .setCurrency(FieldWithMetaString.builder()
-                                                                .setValue("USD")
-                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME))))));
+                                        .setValue(BigDecimal.valueOf(7000000))
+                                        .setUnit(UnitType.builder()
+                                                .setCurrency(FieldWithMetaString.builder()
+                                                        .setValue("USD")
+                                                        .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME))))));
 
         // Transfer instruction specifying the partial termination fee
         ReferenceWithMetaParty payerPartyReference = beforeTradeState.getTrade().getCounterparty().get(0).getPartyReference();
@@ -93,19 +93,19 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         TransferInstruction transferInstruction = TransferInstruction.builder()
                 .addTransferState(TransferState.builder()
                         .setTransfer(Transfer.builder()
-                                .setTransferExpression(TransferExpression.builder()
-                                        .setPriceTransfer(FeeTypeEnum.PARTIAL_TERMINATION))
-                                .setPayerReceiver(PartyReferencePayerReceiver.builder()
-                                        .setPayerPartyReference(payerPartyReference)
-                                        .setReceiverPartyReference(receiverPartyReference))
-                                .setQuantity(NonNegativeQuantity.builder()
-                                        .setValue(BigDecimal.valueOf(2000.00))
-                                        .setUnit(UnitType.builder()
-                                                .setCurrency(FieldWithMetaString.builder()
-                                                        .setValue("USD")
-                                                        .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))
-                                .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
-                                        .setAdjustedDateValue(eventDate))));
+                                .setUnscheduledTransfer(UnscheduledTransfer.builder()
+                                        .setTransferType(UnscheduledTransferEnum.PARTIAL_TERMINATION)
+                                        .setPayerReceiver(PartyReferencePayerReceiver.builder()
+                                                .setPayerPartyReference(payerPartyReference)
+                                                .setReceiverPartyReference(receiverPartyReference))
+                                        .setQuantity(NonNegativeQuantity.builder()
+                                                .setValue(BigDecimal.valueOf(2000.00))
+                                                .setUnit(UnitType.builder()
+                                                        .setCurrency(FieldWithMetaString.builder()
+                                                                .setValue("USD")
+                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME)))))
+                                        .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
+                                                .setAdjustedDateValue(eventDate)).build())));
 
         // Create an Instruction that contains:
         // - before TradeState
@@ -171,8 +171,8 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
 
         // Assert transfer fee
         Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
-        assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
-        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getValue());
+        assertEquals(UnscheduledTransferEnum.PARTIAL_TERMINATION, transfer.getUnscheduledTransfer().getTransferType());
+        assertEquals(new BigDecimal("2000.0"), transfer.getUnscheduledTransfer().getQuantity().getValue());
     }
 
     private <T extends RosettaModelObject> T postProcess(T o) {

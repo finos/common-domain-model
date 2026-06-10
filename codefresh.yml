@@ -14,24 +14,29 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
+  CheckRelease:
+    stage: 'setup'
+    image: alpine
+    commands:
+      - if [[ '${{CF_RELEASE_TAG}}' == *'CF_RELEASE_TAG'* ]]; then cf_export IS_RELEASE=false; else cf_export IS_RELEASE=true; fi
+
   MvnSettings:
     stage: 'setup'
     title: Setup Maven settings
     image: alpine/git
     commands:
-      - cf_export MVN_CLI_OPT="-Dmaven.repo.local=\"${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}_m2/repository\""
+      - cf_export MVN_CLI_OPT="-Dmaven.repo.local=\"${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}_m2/repository\" -s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml"
 
   SetProperties:
     stage: 'setup'
     title: Setup build
-    image: alpine/git
+    image: alpine
     commands:
-      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}" --mask
-      - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
+      - cf_export MVN_DEPLOY_FLAGS="${{MVN_CLI_OPT}} -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}" --mask
       - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import" --mask
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
-      - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
-      - cf_export MVN_DEPLOY_FILE_COMMAND="mvn deploy -Prelease -Dcheckstyle.skip=true -Dmaven.deploy.skip=true -s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml"
+      - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/create-deploy-pom.py"
+      - cf_export MVN_DEPLOY_FILE_COMMAND="mvn ${{MVN_CLI_OPT}} deploy -Prelease -Dcheckstyle.skip=true -Dmaven.deploy.skip=true"
 
   ReleaseProperties:
     stage: 'setup'
@@ -40,10 +45,10 @@ steps:
     when:
       condition:
         all:
-          releaseNameNotDefined: "${{TAG_REPO}} == true"
+          releaseNameNotDefined: "${{IS_RELEASE}} == true"
     commands:
-      - cf_export RELEASE_NAME=${{TAG_NAME}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,release,excel,json-schema"
+      - cf_export RELEASE_NAME=${{CF_RELEASE_TAG}}
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,release,excel,json-schema"
 
   SnapshotProperties:
     stage: 'setup'
@@ -52,21 +57,21 @@ steps:
     when:
       condition:
         all:
-          releaseNameNotDefined: "${{TAG_REPO}} == false"
+          releaseNameNotDefined: "${{IS_RELEASE}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,release,excel,json-schema"
 
   Build:
     stage: 'build'
     title: Maven build
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - mvn ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
-      - mvn ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P "${{MAVEN_BUILD_PROFILES}}"
+      - mvn ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
+      - MAVEN_OPTS="-Xmx5g -XX:+UseG1GC" mvn ${{MVN_DEPLOY_FLAGS}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P "${{MAVEN_BUILD_PROFILES}}"
 
   FailBuildPipeline:
     stage: 'build'
@@ -100,10 +105,7 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         commands:
-          - sbt compile
-          - sbt package
-          - sbt doc
-          - sbt packageDoc packageSrc
+          - sbt -v compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
@@ -126,29 +128,22 @@ steps:
           - dotnet build Cdm/Cdm.csproj
           - dotnet test Test/Test.csproj
           - dotnet publish Cdm/Cdm.csproj -c release -o ./app
-      BuildPython:
-        stage: 'build'
-        title: Python build
-        fail_fast: false
-        image: python:3.10-alpine
-        working_directory: ./
-        shell: sh
-        commands:
-          - export PYTHONDONTWRITEBYTECODE=1
-          - python3 -m pip install pydantic
-          - python3 -m pip install jsonpickle
-          - python3 -m pip install ./rosetta-source/target/classes/cdm/python/runtime/rosetta_runtime-2.1.0-py3-none-any.whl
-          - |-
-            python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./rosetta-source/target/classes/cdm/python ./rosetta-source/target/classes/cdm/python
-          - python3 -m pip install ./rosetta-source/target/classes/cdm/python/python_cdm-*-py3-none-any.whl
-          - python3 -m pip install pytest
-#          - pytest -p no:cacheprovider ./cdm-python/test/
-          
+#      BuildPython:
+#        stage: 'build'
+#        title: Python build
+#        fail_fast: false
+        #image: maven:3.9.9-eclipse-temurin-21-alpine
+#        working_directory: ./
+#        shell: bash
+#        commands:
+          # - apk add --no-cache python3 py3-pip wget curl bash
+          #- rosetta-source/src/main/resources/build-resources/python/build-cdm-python.sh
+
   DeployDaml:
     stage: 'build'
     title: DAML deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -162,7 +157,7 @@ steps:
     stage: 'build'
     title: Scala deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -178,7 +173,7 @@ steps:
     stage: 'build'
     title: CSharp8 deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -192,7 +187,7 @@ steps:
     stage: 'build'
     title: CSharp9 deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -206,7 +201,7 @@ steps:
     stage: 'build'
     title: TypeScript deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -220,7 +215,7 @@ steps:
     stage: 'build'
     title: Go deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -234,35 +229,35 @@ steps:
     stage: 'build'
     title: Kotlin deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/kotlin
-      - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
+      - mvn -f kotlin-build-pom.xml ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
 
-  DeployPython:
-    stage: 'build'
-    title: Python deploy
-    fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
-    working_directory: ./rosetta-source/
-    shell: bash
-    commands:
-      - apk add --no-cache python3
-      - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd target/classes/cdm/python
-      - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl runtime/rosetta_runtime-*-py3-none-any.whl
-      - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
-      - ${{MVN_DEPLOY_FILE_COMMAND}}
+#  DeployPython:
+#    stage: 'build'
+    #  title: Python deploy
+#    fail_fast: false
+    #  image: maven:3.9.11-eclipse-temurin-21-alpine
+    # working_directory: ./rosetta-source/
+    #    shell: bash
+#    commands:
+      #- apk add --no-cache python3
+      #- bash -c "${{GPG_IMPORT_COMMAND}}"
+      #- cd src/generated/python
+      #- tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl rune_runtime-*-py3-none-any.whl
+      #- python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
+      #- ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployExcel:
     stage: 'build'
     title: Excel deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -278,7 +273,7 @@ steps:
     stage: 'build'
     title: JSON Schema deploy
     fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -299,7 +294,7 @@ steps:
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
           cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
-          pythonBuildFailure: steps.BuildPython.result == 'failure'
+#          pythonBuildFailure: steps.BuildPython.result == 'failure'
           damlDeployFailure: steps.DeployDaml.result == 'failure'
           scalaDeployFailure: steps.DeployScala.result == 'failure'
           typeScriptDeployFailure: steps.DeployTypeScript.result == 'failure'
@@ -307,24 +302,8 @@ steps:
           cSharp9DeployFailure: steps.DeployCSharp9.result == 'failure'
           goDeployFailure: steps.DeployGo.result == 'failure'
           kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
-          pythonDeployFailure: steps.DeployPython.result == 'failure'
+#          pythonDeployFailure: steps.DeployPython.result == 'failure'
           excelDeployFailure: steps.DeployExcel.result == 'failure'
           jsonSchemaDeployFailure: steps.DeployJsonSchema.result == 'failure'
     commands:
       - exit 1
-
-  TagRepo:
-    stage: 'finalise'
-    title: Tag git repo with release name
-    image: alpine/git
-    when:
-      condition:
-        all:
-          buildPassed: steps.Build.result == 'success'
-          isRelease: "${{TAG_REPO}}"
-    commands:
-      - echo This is a release build, tag repos with release name [${{RELEASE_NAME}}]
-      - git fetch --prune https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}.git "+refs/tags/*:refs/tags/*"
-      - git tag ${{RELEASE_NAME}}
-      - git push https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}.git ${{RELEASE_NAME}}
-

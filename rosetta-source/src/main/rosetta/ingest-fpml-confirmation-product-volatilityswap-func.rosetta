@@ -1,0 +1,238 @@
+namespace cdm.ingest.fpml.confirmation.product.volatilityswap: <"FpML VolatilitySwap product mapping functions.">
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.volatility.swaps.* as fpml
+
+func MapVolatilitySwapCounterpartyList:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlVolatilitySwap -> volatilityLeg first -> payerPartyReference,
+                fpmlVolatilitySwap -> volatilityLeg first -> receiverPartyReference
+            )
+
+func MapVolatilitySwapNonTransferableProduct:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlVolatilitySwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlVolatilitySwap -> primaryAssetClass,
+                        fpmlVolatilitySwap -> secondaryAssetClass,
+                        fpmlVolatilitySwap -> productType
+                    ),
+            economicTerms: MapVolatilitySwapEconomicTerms(
+                        fpmlVolatilitySwap,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapVolatilitySwapEconomicTerms:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: fpmlVolatilitySwap -> volatilityLeg
+                    extract MapVolatilityLegToPerformancePayout(item, cdmCounterpartyList),
+            ...
+        }
+
+func MapVolatilityLegToPerformancePayout:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            PerformancePayout:
+                PerformancePayout {
+                    payerReceiver: MapPayerReceiver(
+                                fpmlVolatilityLeg -> payerPartyReference,
+                                fpmlVolatilityLeg -> receiverPartyReference,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapUnderlyerToObservableWithAddress(
+                                        fpmlVolatilityLeg -> underlyer
+                                    ),
+                            ...
+                        },
+                    priceQuantity: MapVolatilitySwapToResolvablePriceQuantity(
+                                fpmlVolatilityLeg
+                            ),
+                    settlementTerms:
+                        SettlementTerms {
+                            settlementCurrency: MapCurrency(
+                                        fpmlVolatilityLeg -> settlementCurrency
+                                    ),
+                            settlementType: empty,
+                            ...
+                        },
+                    observationTerms: MapAdjustableOrRelativeDateToObservationTerms(
+                                fpmlVolatilityLeg -> amount -> observationStartDate
+                            ),
+                    valuationDates:
+                        ValuationDates {
+                            finalValuationDate: MapPerformanceValuationDates(
+                                        empty,
+                                        fpmlVolatilityLeg -> valuation
+                                    ),
+                            ...
+                        },
+                    returnTerms: MapVolatilitySwapReturnTerms(fpmlVolatilityLeg),
+                    paymentDates: empty,
+                    ...
+                },
+            ...
+        }
+
+func MapVolatilitySwapReturnTerms:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+    output:
+        returnTerms ReturnTerms (0..1)
+
+    set returnTerms:
+        ReturnTerms {
+            volatilityReturnTerms:
+                VolatilityReturnTerms {
+                    volatilityStrikePrice:
+                        Price {
+                            value: fpmlVolatilityLeg -> amount -> volatility -> volatilityStrikePrice,
+                            priceType: if fpmlVolatilityLeg -> amount -> volatility exists
+                                    then Volatility,
+                            ...
+                        },
+                    expectedN: fpmlVolatilityLeg -> amount -> volatility -> expectedN, // not in original
+                    volatilityCapFloor:
+                        VolatilityCapFloor {
+                            applicable: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> applicable,
+                            totalVolatilityCap: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> totalVolatilityCap,
+                            volatilityCapFactor: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> volatilityCapFactor
+                        },
+                    valuationTerms: empty,
+                    ...
+                },
+            ...
+        }
+
+func MapVolatilitySwapToResolvablePriceQuantity:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilityLeg (0..1)
+    output:
+        priceQuantityList ResolvablePriceQuantity (0..1)
+
+    set priceQuantityList:
+        ResolvablePriceQuantity {
+            quantitySchedule: MapVolatilityLegToNonNegativeQuantityScheduleWithAddress(
+                        fpmlVolatilitySwap
+                    ),
+            ...
+        }
+
+func MapVolatilitySwapPriceQuantityList:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        fpmlVolatilitySwap -> volatilityLeg extract MapVolatilityLegToPriceQuantity
+
+func MapVolatilityLegToPriceQuantity:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            observable: MapUnderlyerToObservableWithLocation(fpmlVolatilityLeg -> underlyer),
+            quantity: MapVolatilityLegToNonNegativeQuantityScheduleWithLocation(
+                        fpmlVolatilityLeg
+                    ),
+            ...
+        }
+
+func MapVolatilityLegToNonNegativeQuantityScheduleWithLocation:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+    output:
+        nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
+            [metadata location]
+
+    set nonNegativeQuantitySchedule:
+        NonNegativeQuantitySchedule {
+            value: fpmlVolatilityLeg -> amount -> volatility -> vegaNotionalAmount,
+            unit:
+                UnitType {
+                    currency: MapCurrency(fpmlVolatilityLeg -> settlementCurrency),
+                    ...
+                },
+            ...
+        } with-meta {
+            location: CreateQuantityKey("vegaNotional", fpmlVolatilityLeg)
+        }
+
+func MapVolatilityLegToNonNegativeQuantityScheduleWithAddress:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+    output:
+        nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
+            [metadata address]
+
+    set nonNegativeQuantitySchedule:
+        if fpmlVolatilityLeg -> amount -> volatility -> vegaNotionalAmount exists
+        then empty with-meta {
+            address: CreateQuantityKey("vegaNotional", fpmlVolatilityLeg)
+        }
+
+func MapVolatilitySwapAccountPartyReference:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        fpmlVolatilitySwap -> volatilityLeg
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then filter reference exists
+            then first

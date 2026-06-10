@@ -308,9 +308,7 @@ The below snippet represents the `UmbrellaAgreement` data type.
 
 ``` Haskell
 type UmbrellaAgreement:
-  isApplicable boolean (1..1)
-  language string (0..1)
-  parties UmbrellaAgreementEntity (0..*)
+  agreementSet UmbrellaAgreementSet (1..*)
 ```
 
 ### Agreement Content

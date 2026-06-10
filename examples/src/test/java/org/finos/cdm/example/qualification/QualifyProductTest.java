@@ -75,7 +75,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
 
     @Test
     void mustQualifyIRFra() {
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex08-fra.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex08-fra.json";
         String expectedLabel = "InterestRate_Fra";
 
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
@@ -84,7 +84,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
 
     @Test
     void mustQualifyIRSwaption() {
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex15-amer-swaption.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex15-amer-swaption.json";
         String expectedLabel = "InterestRate_Option_Swaption|InterestRate_IRSwap_FixedFloat";
         final int expectedProductCount = 2;
 
@@ -94,7 +94,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
 
     @Test
     void mustQualifyIRCrossCurrency() {
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex06-xccy-swap.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex06-xccy-swap.json";
         String expectedLabel = "InterestRate_CrossCurrency_FixedFloat";
 
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
@@ -103,7 +103,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
 
     @Test
     void mustQualifyIRCap() {
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex22-cap.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex22-cap.json";
         String expectedLabel = "InterestRate_CapFloor";
 
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
@@ -112,7 +112,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
 
     @Test
     void mustQualifyIRFloor() {
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex23-floor.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex23-floor.json";
         String expectedLabel = "InterestRate_CapFloor";
 
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
@@ -122,7 +122,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
     @Test
     void mustQualifyIRFixedFloatSwap() {
         // Test qualification for an Interest Rate Fixed-Float Swap.
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex01-vanilla-swap.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex01-vanilla-swap.json";
         String expectedLabel = "InterestRate_IRSwap_FixedFloat";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
@@ -131,7 +131,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
     @Test
     void mustQualifyCRSingleNameCDS() {
         // Test qualification for a Credit Default Swap on a Single Name.
-        String filePath = "result-json-files/fpml-5-13/products/credit-derivatives/cd-ex03-long-aussie-corp-fixreg.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-incomplete-products-credit-derivatives/cd-ex03-long-aussie-corp-fixreg.json";
         String expectedLabel = "CreditDefaultSwap_SingleName";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
@@ -140,7 +140,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
     @Test
     void mustQualifyCRCreditIndex() {
         // Test qualification for a Credit Default Swap on an Index.
-        String filePath = "result-json-files/fpml-5-13/products/credit-derivatives/cdindex-ex01-cdx.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-incomplete-products-credit-derivatives/cdindex-ex01-cdx.json";
         String expectedLabel = "CreditDefaultSwap_Index";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
@@ -149,7 +149,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
     @Test
     void mustQualifyCRBasket() {
         // Test qualification for a Credit Default Swap on a Basket.
-        String filePath = "result-json-files/fpml-5-13/products/credit-derivatives/cds-basket.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-incomplete-products-credit-derivatives/cds-basket.json";
         String expectedLabel = "CreditDefaultSwap_Basket";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
@@ -158,7 +158,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
     @Test
     void mustQualifyEQSwap() {
         // Test qualification for an Equity Swap.
-        String filePath = "result-json-files/fpml-5-13/products/equity-swaps/eqs-ex01-single-underlyer-execution-long-form.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-equity-swaps/eqs-ex01-single-underlyer-execution-long-form.json";
         String expectedLabel = "EquitySwap_TotalReturnBasicPerformance_SingleName";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
@@ -167,7 +167,7 @@ final class QualifyProductTest extends AbstractProcessorTest {
     @Test
     void mustQualifyEQVarianceSwap() {
         // Test qualification for an Equity Variance Swap.
-        String filePath = "result-json-files/fpml-5-13/products/variance-swaps/eqvs-ex02-variance-swap-single-stock.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-variance-swaps/eqvs-ex02-variance-swap-single-stock.json";
         String expectedLabel = "EquitySwap_ParameterReturnVariance_SingleName";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);

@@ -1,0 +1,144 @@
+namespace cdm.ingest.fpml.confirmation.header
+version "${project.version}"
+
+import cdm.base.staticdata.identifier.*
+import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.shared.* as fpml
+
+func MapTradeIdentifierList:
+    inputs:
+        fpmlTradeHeader fpml.TradeHeader (1..1)
+        fpmlPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*)
+    output:
+        cdmTradeIdentifierList TradeIdentifier (0..*)
+
+    add cdmTradeIdentifierList:
+        fpmlTradeHeader -> partyTradeIdentifier
+            extract MapPartyTradeIdentifierToTradeIdentifierList
+            then flatten
+    add cdmTradeIdentifierList:
+        fpmlPartyTradeIdentifierList
+            extract MapPartyTradeIdentifierToTradeIdentifierList
+            then flatten
+
+func MapPartyTradeIdentifierToTradeIdentifierList:
+    inputs:
+        fpmlPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..1)
+    output:
+        cdmTradeIdentifier TradeIdentifier (0..*)
+
+    alias issuer:
+        MapStringWithScheme(
+                fpmlPartyTradeIdentifierList -> issuer -> value,
+                fpmlPartyTradeIdentifierList -> issuer -> issuerIdScheme
+            )
+
+    alias identifierForIssuer:
+        MapTradeIdToAssignedIdentifier(fpmlPartyTradeIdentifierList -> tradeId, empty)
+
+    alias identifierForTrade:
+        fpmlPartyTradeIdentifierList -> tradeIdentifierChoice
+            extract
+                MapTradeIdToAssignedIdentifier(
+                        tradeId default versionedTradeId -> tradeId,
+                        versionedTradeId -> version
+                    )
+
+    alias identifierTypeForIssuer:
+        MapTradeIdToIdentifierType(fpmlPartyTradeIdentifierList -> tradeId)
+
+    alias identifierTypeForTrade:
+        fpmlPartyTradeIdentifierList -> tradeIdentifierChoice -> tradeId
+            extract MapTradeIdToIdentifierType
+            then first
+
+    alias issuerReference:
+        MapPartyReference(fpmlPartyTradeIdentifierList -> partyReference -> href)
+
+    set cdmTradeIdentifier:
+        TradeIdentifier {
+            issuer: issuer,
+            issuerReference: issuerReference,
+            assignedIdentifier: identifierForTrade default identifierForIssuer,
+            identifierType: identifierTypeForTrade default identifierTypeForIssuer
+        }
+
+func MapTradeIdentifierSequenceToTradeIdentifier:
+    inputs:
+        fpmlNewTradeIdentifier fpml.PartyTradeIdentifier (0..1)
+    output:
+        cdmTradeIdentifier TradeIdentifier (0..1)
+
+    alias fpmlPartyReference: fpmlNewTradeIdentifier -> partyReference
+    alias fpmlTradeIdentifierChoice: fpmlNewTradeIdentifier -> tradeIdentifierChoice
+
+    set cdmTradeIdentifier -> issuerReference -> reference: fpmlPartyReference -> href
+
+    add cdmTradeIdentifier -> assignedIdentifier:
+        fpmlTradeIdentifierChoice extract MapTradeIdToAssignedIdentifier(tradeId, empty)
+
+    add cdmTradeIdentifier -> assignedIdentifier:
+        fpmlTradeIdentifierChoice
+            extract
+                MapTradeIdToAssignedIdentifier(
+                        versionedTradeId -> tradeId,
+                        versionedTradeId -> version
+                    )
+
+    set cdmTradeIdentifier -> identifierType:
+        fpmlTradeIdentifierChoice -> tradeId
+            extract MapTradeIdToIdentifierType
+            then first
+
+func MapIssuerTradeIdModelToIdentifier:
+    inputs:
+        fpmlIssuer fpml.IssuerId (1..1)
+        fpmlTradeId fpml.TradeId (1..1)
+    output:
+        cdmTradeIdentifier Identifier (0..1)
+
+    set cdmTradeIdentifier:
+        TradeIdentifier {
+            issuer: MapStringWithScheme(fpmlIssuer -> value, fpmlIssuer -> issuerIdScheme),
+            assignedIdentifier: MapTradeIdToAssignedIdentifier(fpmlTradeId, empty),
+            identifierType: MapTradeIdToIdentifierType(fpmlTradeId),
+            ...
+        }
+
+func MapTradeIdToAssignedIdentifier:
+    inputs:
+        fpmlTradeId fpml.TradeId (0..1)
+        fpmlVersion int (0..1)
+    output:
+        cdmAssignedIdentifier AssignedIdentifier (0..1)
+
+    set cdmAssignedIdentifier:
+        AssignedIdentifier {
+            identifier: MapStringWithScheme(
+                        fpmlTradeId -> value,
+                        fpmlTradeId -> tradeIdScheme
+                    ),
+            version: fpmlVersion
+        }
+
+func MapTradeIdToIdentifierType:
+    inputs:
+        fpmlTradeId fpml.TradeId (0..1)
+    output:
+        cdmTradeIdentifierTypeEnum TradeIdentifierTypeEnum (0..1)
+
+    alias tradeIdScheme: fpmlTradeId -> tradeIdScheme
+
+    set cdmTradeIdentifierTypeEnum:
+        if tradeIdScheme = "http://www.fpml.org/coding-scheme/external/uti"
+                or tradeIdScheme = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"
+        then TradeIdentifierTypeEnum -> UniqueTransactionIdentifier
+        else if tradeIdScheme = "http://www.fpml.org/coding-scheme/external/usi"
+                or tradeIdScheme = "http://www.fpml.org/coding-scheme/external/unique-swap-identifier"
+        then TradeIdentifierTypeEnum -> UniqueSwapIdentifier
+        else empty

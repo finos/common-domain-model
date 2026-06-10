@@ -34,8 +34,8 @@ the following dependency needs to be added to the project pom.xml:
     <version>LATEST</version>
 
 > _NOTE:_ All current CDM dependencies are available in Maven Central.
-> CDM releases prior to version 4.0.0 can be found in the ISDA repository: <https://europe-west1-maven.pkg.dev/production-208613/isda-maven>.
-> The dependencies of CDM releases prior to version 4.0.0 can be found in the REGnosys repository: <https://europe-west1-maven.pkg.dev/production-208613/public-maven>.
+> CDM releases prior to version 4.0.0 can be found in the [ISDA repository](https://europe-west1-maven.pkg.dev/production-208613/isda-maven).
+> The dependencies of CDM releases prior to version 4.0.0 can be found in the [REGnosys repository](https://europe-west1-maven.pkg.dev/production-208613/public-maven).
 > Add the following snippet to the `<repositories>` section of your project `pom.xml`:
 >
 > ``` xml

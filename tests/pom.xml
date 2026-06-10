@@ -20,22 +20,6 @@
                 <version>${project.parent.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.regnosys</groupId>
-                <artifactId>ingest-test-framework</artifactId>
-                <version>${rosetta.bundle.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.regnosys.rosetta</groupId>
-                        <artifactId>com.regnosys.rosetta.xcore</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.osgi</groupId>
-                        <artifactId>org.osgi.service.prefs</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <version>${junit.version}</version>
@@ -59,13 +43,8 @@
             <artifactId>cdm-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.regnosys</groupId>
-            <artifactId>ingest-test-framework</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.regnosys</groupId>
-            <artifactId>rosetta-testing</artifactId>
+            <groupId>org.finos.rune-testing</groupId>
+            <artifactId>rune-testing</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -74,6 +53,42 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>update-expectations</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <classpathScope>test</classpathScope>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath/>
+                                        <argument>org.finos.cdm.testpack.CdmTestPackCreator</argument>
+                                    </arguments>
+                                    <environmentVariables>
+                                        <WRITE_EXPECTATIONS>true</WRITE_EXPECTATIONS>
+                                        <CREATE_EXPECTATION_FILES>true</CREATE_EXPECTATION_FILES>
+                                        <TEST_WRITE_BASE_PATH>${maven.multiModuleProjectDirectory}/rosetta-source/src/main/resources</TEST_WRITE_BASE_PATH>
+                                    </environmentVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <pluginManagement>
@@ -136,6 +151,29 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <!--  <mainClass></mainClass>-->
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
         	</plugins>
         </pluginManagement>
         <plugins>
@@ -171,6 +209,7 @@
                     </reportSet>
                 </reportSets>
             </plugin>
+
         </plugins>
     </reporting>
 </project>

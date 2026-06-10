@@ -41,8 +41,8 @@ widely adopted and freely available programming languages and is
 systematically distributed as part of the CDM release.
 
 The code generation process is based on the Rune DSL and is further
-described in the [Code Generation Section](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators), including an up-to-date
-list of [available languages](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Support for further languages can be
+described in the [Code Generation Section](https://docs.rosetta-technology.io/rosetta/rune-dsl/rosetta-code-generators/), including an up-to-date
+list of available languages. Support for further languages can be
 added as required by market participants.
 
 ## Scope
@@ -548,7 +548,7 @@ a new template that is not yet in use across the industry).
 Some of those calculations are presented below:
 
 ``` Haskell
-func EquityCashSettlementAmount:
+func EquityCashSettlementAmount: 
     inputs:
         tradeState TradeState (1..1)
         date date (1..1)
@@ -556,11 +556,10 @@ func EquityCashSettlementAmount:
         equityCashSettlementAmount Transfer (1..1)
 
     alias payout:
-        tradeState -> trade -> product -> economicTerms -> payout 
-            filter PerformancePayout exists 
+        tradeState -> trade -> product -> economicTerms -> payout
+            filter PerformancePayout exists
             then only-element
-    alias equityPerformancePayout:
-        payout -> PerformancePayout
+    alias equityPerformancePayout: payout -> PerformancePayout
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -578,20 +577,19 @@ func EquityCashSettlementAmount:
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> quantity -> value:
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value: 
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> quantity -> unit -> currency:
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency: 
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
-    set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
-    set equityCashSettlementAmount -> settlementDate -> adjustedDate:
+    set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin:
-        payout as-key
+    set equityCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
 ```
 
 ``` Haskell
@@ -660,7 +658,7 @@ func Create_SecurityLendingInvoice:
 ## Lifecycle Event Process
 
 While the lifecycle event model described in the
-[event-model-section](/docs/event-model) provides a
+[event-model-section](event-model.md) provides a
 standardised data representation of those events using the concept of
 *primitive event* components, the CDM must further specify the
 processing of those events to ensure standardised implementations across
@@ -672,7 +670,7 @@ In particular, the CDM must ensure that:
 -   The lifecycle event process model constructs valid CDM event
     objects.
 -   The constructed events qualify according to the qualification logic
-    described in the [event-qualification-section](/docs/event-model#event-qualification-section).
+    described in the [event-qualification-section](event-model#event-qualification-section).
 -   The lineage between states allows an accurate reconstruction of the
     trade's lifecycle sequence.
 
@@ -721,34 +719,49 @@ These above steps are codified in the `Create_Reset` function, which
 defines how the `Reset` instance should be constructed.
 
 ``` Haskell
-func Create_Reset:
+func CalculateReset:
     inputs:
-        instruction ResetInstruction (1..1)
-        tradeState TradeState (1..1)
+        instruction CalculateResetInstruction (1..1)
     output:
-        reset TradeState (1..1)
-
+        reset Reset (0..*)
+    
     alias payout:
-       instruction -> payout
+        instruction -> payout
 
-   alias observationDate:
-       if instruction -> rateRecordDate exists
-       then instruction -> rateRecordDate
-       else instruction -> resetDate
+    alias observationDate:
+        if instruction -> rateRecordDate exists
+        then instruction -> rateRecordDate
+        else instruction -> resetDate
 
-   alias observationIdentifiers:
-       if payout -> PerformancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> PerformancePayout only-element, instruction -> resetDate)
-       else if payout -> InterestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> InterestRatePayout only-element, observationDate)
+    alias observationIdentifiers:
+        if payout -> PerformancePayout count = 1
+        then ResolvePerformanceObservationIdentifiers(
+                    payout -> PerformancePayout only-element,
+                    instruction -> resetDate
+                )
+        else if payout -> InterestRatePayout exists
+        then ResolveInterestRateObservationIdentifiers(
+                    payout -> InterestRatePayout only-element,
+                    observationDate
+                )
 
-   alias observation:
-       ResolveObservation([observationIdentifiers], empty)
+    alias observation:
+        ResolveObservation([observationIdentifiers], empty)
 
-   set reset:
-       tradeState
-
-   add reset -> resetHistory:
-       if payout -> PerformancePayout count = 1 then ResolvePerformanceReset(payout -> PerformancePayout only-element, observation, instruction -> resetDate)
-       else if payout -> InterestRatePayout exists then ResolveInterestRateReset(payout -> InterestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
+    add reset:
+        if payout -> PerformancePayout count = 1
+        then ResolvePerformanceReset(
+                    payout -> PerformancePayout only-element,
+                    observation,
+                    instruction -> resetDate
+                )
+        else if payout -> InterestRatePayout exists
+        then ResolveInterestRateReset(
+                    payout -> InterestRatePayout,
+                    observation,
+                    instruction -> resetDate,
+                    instruction -> rateRecordDate
+                )
 ```
 
 First, `ResolvePerformanceObservationIdentifiers` defines the specific

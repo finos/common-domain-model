@@ -1,0 +1,462 @@
+namespace cdm.ingest.fpml.confirmation.message
+version "${project.version}"
+
+import cdm.event.common.*
+import cdm.event.workflow.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.tradestate.*
+import cdm.ingest.fpml.confirmation.workflowstep.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.confirmation.processes.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.main.* as fpml
+
+func Ingest_FpmlConfirmationToTradeState:
+    [ingest XML]
+    inputs:
+        fpmlDocument fpml.Document (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    set tradeState:
+        fpmlDocument switch
+            fpml.ConfirmationAgreed then MapConfirmationAgreedToTradeState,
+            fpml.DataDocument then MapDataDocumentToTradeState,
+            fpml.ExecutionNotification then MapExecutionNotificationToTradeState,
+            fpml.RequestClearing then MapRequestClearingToTradeState,
+            fpml.RequestConfirmation then MapRequestConfirmationToTradeState,
+            default empty
+
+func Ingest_FpmlConfirmationToWorkflowStep:
+    [ingest XML]
+    inputs:
+        fpmlDocument fpml.Document (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    set workflowStep:
+        fpmlDocument switch
+            fpml.ClearingConfirmed then MapClearingConfirmedToWorkflowStep,
+            fpml.ExecutionAdvice then MapExecutionAdviceToWorkflowStep,
+            fpml.ExecutionAdviceRetracted then MapExecutionAdviceRetractedToWorkflowStep,
+            fpml.ExecutionNotification then MapExecutionNotificationToWorkflowStep,
+            fpml.RequestClearing then MapRequestClearingToWorkflowStep,
+            fpml.TradeChangeAdvice then MapTradeChangeAdviceToWorkflowStep,
+            default empty
+
+func MapConfirmationAgreedToTradeState:
+    inputs:
+        fpmlConfirmationAgreed fpml.ConfirmationAgreed (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlConfirmationAgreed -> tradePackage,
+                fpmlConfirmationAgreed -> trade,
+                fpmlConfirmationAgreed -> novation,
+                fpmlConfirmationAgreed -> termination,
+                fpmlConfirmationAgreed -> amendment
+            )
+
+    set tradeState:
+        MapTradeState(
+                fpmlConfirmationAgreed -> trade,
+                fpmlConfirmationAgreed -> party,
+                fpmlConfirmationAgreed -> account,
+                empty,
+                empty
+            )
+
+func MapDataDocumentToTradeState:
+    inputs:
+        fpmlDataDocument fpml.DataDocument (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    set tradeState:
+        MapTradeState(
+                fpmlDataDocument -> trade only-element,
+                fpmlDataDocument -> party,
+                fpmlDataDocument -> account,
+                empty,
+                empty
+            )
+
+func MapExecutionNotificationToTradeState:
+    inputs:
+        fpmlExecutionNotification fpml.ExecutionNotification (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlExecutionNotification -> tradePackage,
+                fpmlExecutionNotification -> trade,
+                empty,
+                empty,
+                empty
+            )
+
+    set tradeState:
+        MapTradeState(
+                fpmlTrade,
+                fpmlExecutionNotification -> party,
+                fpmlExecutionNotification -> account,
+                empty,
+                empty
+            )
+
+func MapRequestClearingToTradeState:
+    inputs:
+        fpmlRequestClearing fpml.RequestClearing (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlRequestClearing -> tradePackage,
+                fpmlRequestClearing -> trade,
+                empty,
+                empty,
+                empty
+            )
+
+    set tradeState:
+        MapTradeState(
+                fpmlTrade,
+                fpmlRequestClearing -> party,
+                fpmlRequestClearing -> account,
+                empty,
+                empty
+            )
+
+func MapRequestConfirmationToTradeState:
+    inputs:
+        fpmlRequestConfirmation fpml.RequestConfirmation (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlRequestConfirmation -> tradePackage,
+                fpmlRequestConfirmation -> trade,
+                fpmlRequestConfirmation -> novation,
+                fpmlRequestConfirmation -> termination,
+                fpmlRequestConfirmation -> amendment
+            )
+
+    set tradeState:
+        MapTradeState(
+                fpmlTrade,
+                fpmlRequestConfirmation -> party,
+                fpmlRequestConfirmation -> account,
+                empty,
+                empty
+            )
+
+func MapClearingConfirmedToWorkflowStep:
+    inputs:
+        fpmlClearingConfirmed fpml.ClearingConfirmed (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTermination: fpmlClearingConfirmed -> termination
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlClearingConfirmed -> tradePackage,
+                fpmlClearingConfirmed -> trade,
+                empty,
+                empty,
+                empty
+            )
+    alias eventDate: GetEventDate(empty, fpmlTermination, empty, fpmlTrade)
+    alias effectiveDate: GetEffectiveDate(empty, fpmlTermination, empty)
+
+    alias intent:
+        MapIntent(
+                fpmlTrade,
+                fpmlClearingConfirmed -> originatingEvent,
+                fpmlClearingConfirmed -> terminatingEvent,
+                empty,
+                empty,
+                empty,
+                empty
+            )
+
+    set workflowStep:
+        MapWorkflowStep(
+                fpmlClearingConfirmed -> header -> messageId,
+                fpmlClearingConfirmed -> header -> creationTimestamp,
+                fpmlClearingConfirmed -> header -> sentBy,
+                fpmlClearingConfirmed -> header -> sendTo,
+                empty,
+                fpmlTrade,
+                empty,
+                fpmlTermination,
+                empty,
+                fpmlClearingConfirmed -> party,
+                fpmlClearingConfirmed -> account,
+                fpmlClearingConfirmed -> quote,
+                intent,
+                eventDate,
+                effectiveDate,
+                empty,
+                empty
+            )
+
+func MapExecutionAdviceToWorkflowStep:
+    inputs:
+        fpmlExecutionAdvice fpml.ExecutionAdvice (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlExecutionAdvice -> tradePackage,
+                fpmlExecutionAdvice -> trade,
+                fpmlExecutionAdvice -> novation,
+                fpmlExecutionAdvice -> termination,
+                fpmlExecutionAdvice -> amendment
+            )
+
+    alias fpmlTermination: fpmlExecutionAdvice -> termination
+    alias fpmlNovation: fpmlExecutionAdvice -> novation
+    alias fpmlAmendment: fpmlExecutionAdvice -> amendment
+    alias action:
+        MapMessageAction(
+                fpmlExecutionAdvice -> isCorrection,
+                fpmlExecutionAdvice -> withdrawal -> reason distinct only-element -> value
+            )
+
+    alias intent:
+        MapIntent(
+                fpmlTrade,
+                fpmlExecutionAdvice -> originatingEvent,
+                fpmlExecutionAdvice -> terminatingEvent,
+                fpmlExecutionAdvice -> novation,
+                fpmlExecutionAdvice -> termination,
+                fpmlExecutionAdvice -> amendment,
+                fpmlExecutionAdvice -> optionExercise
+            )
+
+    alias eventDate: GetEventDate(fpmlAmendment, fpmlTermination, fpmlNovation, fpmlTrade)
+    alias effectiveDate: GetEffectiveDate(fpmlAmendment, fpmlTermination, fpmlNovation)
+
+    set workflowStep:
+        MapWorkflowStep(
+                fpmlExecutionAdvice -> header -> messageId,
+                fpmlExecutionAdvice -> header -> creationTimestamp,
+                fpmlExecutionAdvice -> header -> sentBy,
+                fpmlExecutionAdvice -> header -> sendTo,
+                action,
+                fpmlTrade,
+                fpmlNovation,
+                fpmlTermination,
+                fpmlAmendment,
+                fpmlExecutionAdvice -> party,
+                fpmlExecutionAdvice -> account,
+                fpmlExecutionAdvice -> quote,
+                intent,
+                eventDate,
+                effectiveDate,
+                empty,
+                empty
+            )
+
+func MapExecutionAdviceRetractedToWorkflowStep:
+    inputs:
+        fpmlExecutionAdviceRetracted fpml.ExecutionAdviceRetracted (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlExecutionAdviceRetracted -> tradePackage,
+                fpmlExecutionAdviceRetracted -> trade,
+                fpmlExecutionAdviceRetracted -> novation,
+                fpmlExecutionAdviceRetracted -> termination,
+                fpmlExecutionAdviceRetracted -> amendment
+            )
+
+    alias fpmlTermination: fpmlExecutionAdviceRetracted -> termination
+    alias fpmlNovation: fpmlExecutionAdviceRetracted -> novation
+    alias fpmlAmendment: fpmlExecutionAdviceRetracted -> amendment
+    alias action:
+        MapMessageAction(
+                empty,
+                fpmlExecutionAdviceRetracted -> withdrawal -> reason distinct only-element -> value
+            )
+
+    alias intent:
+        MapIntent(
+                fpmlTrade,
+                fpmlExecutionAdviceRetracted -> originatingEvent,
+                fpmlExecutionAdviceRetracted -> terminatingEvent,
+                fpmlExecutionAdviceRetracted -> novation,
+                fpmlExecutionAdviceRetracted -> termination,
+                fpmlExecutionAdviceRetracted -> amendment,
+                fpmlExecutionAdviceRetracted -> optionExercise
+            )
+
+    alias eventDate: GetEventDate(fpmlAmendment, fpmlTermination, fpmlNovation, fpmlTrade)
+    alias effectiveDate: GetEffectiveDate(fpmlAmendment, fpmlTermination, fpmlNovation)
+
+    set workflowStep:
+        MapWorkflowStep(
+                fpmlExecutionAdviceRetracted -> header -> messageId,
+                fpmlExecutionAdviceRetracted -> header -> creationTimestamp,
+                fpmlExecutionAdviceRetracted -> header -> sentBy,
+                fpmlExecutionAdviceRetracted -> header -> sendTo,
+                action,
+                fpmlTrade,
+                fpmlNovation,
+                fpmlTermination,
+                fpmlAmendment,
+                fpmlExecutionAdviceRetracted -> party,
+                fpmlExecutionAdviceRetracted -> account,
+                empty,
+                intent,
+                eventDate,
+                effectiveDate,
+                empty,
+                empty
+            )
+
+func MapExecutionNotificationToWorkflowStep:
+    inputs:
+        fpmlExecutionNotification fpml.ExecutionNotification (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlExecutionNotification -> tradePackage,
+                fpmlExecutionNotification -> trade,
+                empty,
+                empty,
+                empty
+            )
+
+    alias action: MapMessageAction(fpmlExecutionNotification -> isCorrection, empty)
+
+    alias intent:
+        MapIntent(
+                fpmlTrade,
+                fpmlExecutionNotification -> originatingEvent,
+                empty,
+                empty,
+                empty,
+                empty,
+                fpmlExecutionNotification -> optionExercise
+            )
+
+    alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
+    alias effectiveDate: GetEffectiveDate(empty, empty, empty)
+
+    set workflowStep:
+        MapWorkflowStep(
+                fpmlExecutionNotification -> header -> messageId,
+                fpmlExecutionNotification -> header -> creationTimestamp,
+                fpmlExecutionNotification -> header -> sentBy,
+                fpmlExecutionNotification -> header -> sendTo,
+                action,
+                fpmlTrade,
+                empty,
+                empty,
+                empty,
+                fpmlExecutionNotification -> party,
+                fpmlExecutionNotification -> account,
+                fpmlExecutionNotification -> quote,
+                intent,
+                eventDate,
+                effectiveDate,
+                empty,
+                empty
+            )
+
+func MapRequestClearingToWorkflowStep:
+    inputs:
+        fpmlRequestClearing fpml.RequestClearing (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlRequestClearing -> tradePackage,
+                fpmlRequestClearing -> trade,
+                empty,
+                empty,
+                empty
+            )
+    alias intent:
+        MapIntent(
+                fpmlTrade,
+                fpmlRequestClearing -> originatingEvent,
+                empty,
+                empty,
+                empty,
+                empty,
+                empty
+            )
+
+    alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
+    alias effectiveDate: GetEffectiveDate(empty, empty, empty)
+    alias action: MapMessageAction(fpmlRequestClearing -> isCorrection, empty)
+
+    set workflowStep:
+        MapWorkflowStep(
+                fpmlRequestClearing -> header -> messageId,
+                fpmlRequestClearing -> header -> creationTimestamp,
+                fpmlRequestClearing -> header -> sentBy,
+                fpmlRequestClearing -> header -> sendTo,
+                action,
+                fpmlTrade,
+                empty,
+                empty,
+                empty,
+                fpmlRequestClearing -> party,
+                fpmlRequestClearing -> account,
+                fpmlRequestClearing -> quote,
+                intent,
+                eventDate,
+                effectiveDate,
+                empty,
+                empty
+            )
+
+func MapTradeChangeAdviceToWorkflowStep:
+    inputs:
+        fpmlTradeChangeAdvice fpml.TradeChangeAdvice (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade: fpmlTradeChangeAdvice -> change -> trade
+
+    alias intent: MapIntent(fpmlTrade, empty, empty, empty, empty, empty, empty)
+
+    alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
+    alias effectiveDate: GetEffectiveDate(empty, empty, empty)
+    alias action: MapMessageAction(fpmlTradeChangeAdvice -> isCorrection, empty)
+
+    set workflowStep:
+        MapWorkflowStep(
+                fpmlTradeChangeAdvice -> header -> messageId,
+                fpmlTradeChangeAdvice -> header -> creationTimestamp,
+                fpmlTradeChangeAdvice -> header -> sentBy,
+                fpmlTradeChangeAdvice -> header -> sendTo,
+                action,
+                fpmlTrade,
+                empty,
+                empty,
+                empty,
+                fpmlTradeChangeAdvice -> party,
+                fpmlTradeChangeAdvice -> account,
+                fpmlTradeChangeAdvice -> quote,
+                intent,
+                eventDate,
+                effectiveDate,
+                empty,
+                empty
+            )
