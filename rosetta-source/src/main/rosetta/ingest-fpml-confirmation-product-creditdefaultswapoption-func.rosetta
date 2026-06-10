@@ -8,7 +8,7 @@ import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.product.*
-import cdm.ingest.fpml.confirmation.product.creditdefaultswap.*
+import cdm.ingest.fpml.confirmation.product.creditdefaultswap.* as creditdefaultswap
 import cdm.observable.asset.*
 import cdm.observable.event.*
 import cdm.product.common.settlement.*
@@ -28,14 +28,26 @@ func MapCreditDefaultSwapOptionCounterpartyList:
 
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(
-                fpmlCreditDefaultSwapOption -> buyerSellerModel
+                fpmlCreditDefaultSwapOption -> buyerPartyReference,
+                fpmlCreditDefaultSwapOption -> sellerPartyReference
             )
 
 func MapCreditDefaultSwapOptionAncillaryPartyList:
     inputs:
         fpmlCreditDefaultSwapOption fpml.CreditDefaultSwapOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapSwaptionPhysicalSettlementToAncillaryParty(
+                fpmlCreditDefaultSwapOption -> clearingInstructions
+            )
+    add ancillaryPartyList:
+        MapExerciseProcedureToAncillaryParty(
+                fpmlCreditDefaultSwapOption -> exerciseProcedure,
+                cdmCounterpartyList
+            )
 
 func MapCreditDefaultSwapOptionNonTransferableProduct:
     inputs:
@@ -47,10 +59,12 @@ func MapCreditDefaultSwapOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(
-                        fpmlCreditDefaultSwapOption -> productModel
+            identifier: MapProductIdentifierList(fpmlCreditDefaultSwapOption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCreditDefaultSwapOption -> primaryAssetClass,
+                        fpmlCreditDefaultSwapOption -> secondaryAssetClass,
+                        fpmlCreditDefaultSwapOption -> productType
                     ),
-            taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwapOption -> productModel),
             economicTerms: MapCreditDefaultSwapOptionEconomicTerms(
                         fpmlCreditDefaultSwapOption,
                         cdmCounterpartyList,
@@ -91,7 +105,8 @@ func MapCreditDefaultSwapOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlCreditDefaultSwapOption -> buyerSellerModel,
+                                fpmlCreditDefaultSwapOption -> sellerPartyReference,
+                                fpmlCreditDefaultSwapOption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -104,14 +119,18 @@ func MapCreditDefaultSwapOptionPayout:
                     principalPayment: empty, // MapPrincipalPayments(fpmlTrade, fpmlPartiesAndAccountsModel),
                     settlementTerms:
                         SettlementTerms {
-                            settlementType: Physical,
-                            physicalSettlementTerms: MapPhysicalSettlementtTermsWithReference(
+                            settlementType: fpmlCreditDefaultSwapOption -> settlementType to-enum SettlementTypeEnum,
+                            settlementCurrency: MapCurrency(
+                                        fpmlCreditDefaultSwapOption -> settlementCurrency
+                                    ),
+                            physicalSettlementTerms: MapPhysicalSettlementTermsWithReference(
                                         fpmlCreditDefaultSwapOption
                                     ),
                             ...
                         },
                     buyerSeller: MapBuyerSeller(
-                                fpmlCreditDefaultSwapOption -> buyerSellerModel,
+                                fpmlCreditDefaultSwapOption -> buyerPartyReference,
+                                fpmlCreditDefaultSwapOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     feature: MapSwapOptionFeature(
@@ -125,7 +144,7 @@ func MapCreditDefaultSwapOptionPayout:
                         Underlier {
                             Product:
                                 Product {
-                                    NonTransferableProduct: MapCreditDefaultSwapNonTransferableProduct(
+                                    NonTransferableProduct: creditdefaultswap.MapCreditDefaultSwapNonTransferableProduct(
                                                 fpmlCreditDefaultSwapOption -> creditDefaultSwap,
                                                 empty,
                                                 cdmCounterpartyList
@@ -141,14 +160,15 @@ func MapCreditDefaultSwapOptionPayout:
                                 fpmlCreditDefaultSwapOption -> exercise,
                                 fpmlCreditDefaultSwapOption -> exerciseProcedure,
                                 empty,
-                                fpmlCreditDefaultSwapOption -> buyerSellerModel,
+                                fpmlCreditDefaultSwapOption -> buyerPartyReference,
+                                fpmlCreditDefaultSwapOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     strike: MapSwapOptionStrikePrice(
                                 fpmlCreditDefaultSwapOption,
                                 fpmlCreditDefaultSwapOption -> strike -> spread,
                                 empty,
-                                fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> calculationAmount -> currency
+                                fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> calculationAmount -> currency first
                             )
                 },
             ...
@@ -164,7 +184,7 @@ func MapSwapOptionFeature:
     set feature:
         OptionFeature {
             barrier: MapBarrier(
-                        fpmlCreditDefaultSwapOption -> feature -> optionFeatureModel -> knock,
+                        fpmlCreditDefaultSwapOption -> feature -> knock,
                         fpmlCreditDefaultSwapOption,
                         cdmCounterpartyList
                     ),
@@ -180,14 +200,13 @@ func MapBarrier:
         barrier Barrier (0..1)
     set barrier:
         Barrier {
-            knockIn: if fpmlKnock -> knockSequence -> knockIn exists
+            knockIn: if fpmlKnock -> knockIn exists
                     then MapTriggerEvent(
-                            fpmlKnock -> knockSequence -> knockIn,
+                            fpmlKnock -> knockIn,
                             fpmlCreditDefaultSwapOption,
                             cdmCounterpartyList
                         ),
-            knockOut: if fpmlKnock -> knockOut exists
-                        or fpmlKnock -> knockSequence -> knockOut exists
+            knockOut: if fpmlKnock -> knockOut exists or fpmlKnock -> knockOut exists
                     then MapTriggerEvent(
                             fpmlKnock -> knockOut,
                             fpmlCreditDefaultSwapOption,
@@ -224,7 +243,7 @@ func MapTrigger:
     set trigger:
         Trigger {
             creditEventsReference: MapCreditEventsReferenceWithReference(
-                        fpmlTrigger -> triggerChoice -> creditEventsReference,
+                        fpmlTrigger -> creditEventsReference,
                         fpmlCreditDefaultSwapOption,
                         cdmCounterpartyList
                     ),
@@ -242,7 +261,7 @@ func MapCreditEventsReferenceWithReference:
             [metadata reference]
 
     alias creditEvents:
-        fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents
+        fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents first
 
     set creditEventsReference:
         CreditEvents {
@@ -299,10 +318,10 @@ func MapCreditEventsReferenceWithReference:
         } with-meta {
             key: fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms -> creditEvents -> id first
         } with-meta {
-            reference: fpmlCreditDefaultSwapOption -> feature -> optionFeatureModel -> knock -> knockOut -> trigger -> triggerChoice -> creditEventsReference -> href
+            reference: fpmlCreditDefaultSwapOption -> feature -> knock -> knockOut -> trigger -> creditEventsReference -> href
         }
 
-func MapPhysicalSettlementtTermsWithReference:
+func MapPhysicalSettlementTermsWithReference:
     inputs:
         fpmlCreditDefaultSwapOption fpml.CreditDefaultSwapOption (0..1)
     output:
@@ -326,7 +345,7 @@ func MapCreditDefaultSwapOptionUnderlier:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            economicTerms: MapCreditDefaultSwapEconomicTerms(
+            economicTerms: creditdefaultswap.MapCreditDefaultSwapEconomicTerms(
                         fpmlCreditDefaultSwapOptionDetailsModel,
                         fpmlTradeHeader,
                         cdmCounterpartyList
@@ -341,13 +360,13 @@ func MapCreditDefaultSwapOptionPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
-        MapFeeLegToPriceQuantity(
+        creditdefaultswap.MapFeeLegToPriceQuantity(
                 fpmlCreditDefaultSwapOption -> creditDefaultSwap -> feeLeg,
                 fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms
             )
 
     add priceQuantityList:
-        MapProtectionTermsToPriceQuantity(
+        creditdefaultswap.MapProtectionTermsToPriceQuantity(
                 fpmlCreditDefaultSwapOption -> creditDefaultSwap -> protectionTerms
             )
 
@@ -362,5 +381,6 @@ func MapCreditDefaultSwapOptionAccountPartyReference:
     set partyReference:
         MapBuyerSellerToAccountPartyReference(
                 fpmlAccount,
-                fpmlCreditDefaultSwapOption -> buyerSellerModel
+                fpmlCreditDefaultSwapOption -> buyerAccountReference,
+                fpmlCreditDefaultSwapOption -> sellerAccountReference
             )

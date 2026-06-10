@@ -26,13 +26,10 @@ func MapEquityOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlEquityOption -> buyerSellerModel)
-
-func MapEquityOptionAncillaryPartyList:
-    inputs:
-        fpmlEquityOption fpml.EquityOption (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlEquityOption -> buyerPartyReference,
+                fpmlEquityOption -> sellerPartyReference
+            )
 
 func MapEquityOptionNonTransferableProduct:
     inputs:
@@ -43,8 +40,12 @@ func MapEquityOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlEquityOption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlEquityOption -> productModel),
+            identifier: MapProductIdentifierList(fpmlEquityOption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlEquityOption -> primaryAssetClass,
+                        fpmlEquityOption -> secondaryAssetClass,
+                        fpmlEquityOption -> productType
+                    ),
             economicTerms: MapEquityOptionEconomicTerms(
                         fpmlEquityOption,
                         cdmCounterpartyList
@@ -79,18 +80,21 @@ func MapEquityOptionPayout:
             ...
         }
 
-    alias perUnitOf: GetPerUnitOfForEquityDerivativeBase(fpmlEquityOption)
-    alias prm:
-        fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> payerReceiverModel
-    alias apo: fpmlEquityOption -> featureModel -> feature -> asian -> averagingPeriodOut
-    alias api: fpmlEquityOption -> featureModel -> feature -> asian -> averagingPeriodIn
+    alias perUnitOf:
+        GetUnitTypeForUnderlyingAsset(
+                fpmlEquityOption -> underlyer -> singleUnderlyer -> underlyingAsset
+            )
+    alias passThroughItem: fpmlEquityOption -> feature -> passThrough -> passThroughItem
+    alias apo: fpmlEquityOption -> feature -> asian -> averagingPeriodOut
+    alias api: fpmlEquityOption -> feature -> asian -> averagingPeriodIn
 
     set payout:
         Payout {
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlEquityOption -> buyerSellerModel,
+                                fpmlEquityOption -> sellerPartyReference,
+                                fpmlEquityOption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -106,7 +110,8 @@ func MapEquityOptionPayout:
                                 empty
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlEquityOption -> buyerSellerModel,
+                                fpmlEquityOption -> buyerPartyReference,
+                                fpmlEquityOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     feature:
@@ -114,24 +119,27 @@ func MapEquityOptionPayout:
                             averagingFeature:
                                 AveragingFeature {
                                     averagingCalculation: empty,
-                                    averagingInOut: fpmlEquityOption -> featureModel -> feature -> asian -> averagingInOut to-enum AveragingInOutEnum,
+                                    averagingInOut: fpmlEquityOption -> feature -> asian -> averagingInOut to-enum AveragingInOutEnum,
                                     averagingPeriodOut:
                                         AveragingPeriod {
                                             averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
                                                         apo -> averagingDateTimes
-                                                    ),
+                                                    )
+                                                    first,
                                             averagingObservations: MapAveragingObservations(
                                                         apo -> averagingObservations
-                                                    ),
-                                            marketDisruption: apo -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                                                    )
+                                                    first,
+                                            marketDisruption: fpmlEquityOption -> feature -> asian -> averagingPeriodOut -> marketDisruption -> value to-enum MarketDisruptionEnum,
                                             ...
                                         },
                                     averagingPeriodIn:
                                         AveragingPeriod {
                                             averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
                                                         api -> averagingDateTimes
-                                                    ),
-                                            marketDisruption: api -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                                                    )
+                                                    first,
+                                            marketDisruption: fpmlEquityOption -> feature -> asian -> averagingPeriodIn -> marketDisruption -> value to-enum MarketDisruptionEnum,
                                             ...
                                         },
                                     ...
@@ -143,15 +151,15 @@ func MapEquityOptionPayout:
                                             payerReceiver:
                                                 PayerReceiver {
                                                     payer: MapCounterpartyRoleEnum(
-                                                                prm -> payerModel -> payerPartyReference -> href,
+                                                                passThroughItem only-element -> payerPartyReference -> href,
                                                                 cdmCounterpartyList
                                                             ),
                                                     receiver: MapCounterpartyRoleEnum(
-                                                                prm -> receiverModel -> receiverPartyReference -> href,
+                                                                passThroughItem only-element -> receiverPartyReference -> href,
                                                                 cdmCounterpartyList
                                                             )
                                                 },
-                                            passThroughPercentage: fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> passThroughPercentage
+                                            passThroughPercentage: passThroughItem only-element -> passThroughPercentage
                             },},
                             ...
                         },
@@ -166,13 +174,14 @@ func MapEquityOptionPayout:
                     exerciseTerms: MapExerciseTerms(
                                 GetFpmlEquityExercise(fpmlEquityOption -> equityExercise),
                                 empty,
-                                fpmlEquityOption -> equityExercise -> equityExerciseValuationSettlementSequence -> automaticExercise,
-                                fpmlEquityOption -> buyerSellerModel,
+                                fpmlEquityOption -> equityExercise -> automaticExercise,
+                                fpmlEquityOption -> buyerPartyReference,
+                                fpmlEquityOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     strike: MapOptionStrikePrice(
                                 fpmlEquityOption -> strike -> strikePrice,
-                                fpmlEquityOption -> strike -> equityStrikeSequence -> strikePercentage,
+                                fpmlEquityOption -> strike -> strikePercentage,
                                 unit,
                                 perUnitOf
                             ),
@@ -183,17 +192,19 @@ func MapEquityOptionPayout:
 
 func MapAveragingObservations:
     inputs:
-        averagingObservationList fpml.AveragingObservationList (0..*)
+        fpmlAveragingObservationList fpml.AveragingObservationList (0..*)
     output:
         observationList AveragingObservationList (0..*)
+
+    alias averagingObservation: fpmlAveragingObservationList -> averagingObservation first
 
     add observationList:
         AveragingObservationList {
             averagingObservation:
                 WeightedAveragingObservation {
-                    dateTime: averagingObservationList -> averagingObservation -> dateTime,
-                    observationNumber: averagingObservationList -> averagingObservation -> observationNumber,
-                    weight: averagingObservationList -> averagingObservation -> weight
+                    dateTime: averagingObservation -> dateTime,
+                    observationNumber: averagingObservation -> observationNumber,
+                    weight: averagingObservation -> weight
         }}
 
 func MapEquityOptionPriceQuantityList:
@@ -207,7 +218,8 @@ func MapEquityOptionPriceQuantityList:
             quantity: MapEquityDerivativeBaseQuantityListWithLocation(
                         fpmlEquityOption,
                         fpmlEquityOption -> numberOfOptions,
-                        fpmlEquityOption -> optionEntitlement
+                        fpmlEquityOption -> optionEntitlement,
+                        fpmlEquityOption -> underlyer -> singleUnderlyer -> openUnits
                     ),
             observable: MapUnderlyerToObservableWithLocation(fpmlEquityOption -> underlyer),
             ...
@@ -224,5 +236,6 @@ func MapEquityOptionAccountPartyReference:
     set partyReference:
         MapBuyerSellerToAccountPartyReference(
                 fpmlAccount,
-                fpmlEquityOption -> buyerSellerModel
+                fpmlEquityOption -> buyerAccountReference,
+                fpmlEquityOption -> sellerAccountReference
             )

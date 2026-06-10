@@ -13,6 +13,7 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
+import cdm.event.common.functions.CalculateReset;
 import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
@@ -32,7 +33,6 @@ import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.OptionPayout;
 import cdm.product.template.Payout;
 import cdm.product.template.TradeLot;
-import cdm.product.template.metafields.ReferenceWithMetaOptionPayout;
 import cdm.product.template.metafields.ReferenceWithMetaPayout;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +52,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,6 +83,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     @Inject
     Create_AcceptedWorkflowStepFromInstruction createWorkflowStepFunc;
+
+    @Inject
+    CalculateReset calculateResetFunc;
 
     /**
      * Contract Formation
@@ -1002,16 +1006,29 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      */
     public static ExerciseInstruction buildExercisePrimitiveInstruction(TradeState tradeState, AdjustableOrAdjustedDate eventDate) {
 
+        Payout exerciseOptionPayout = Payout.builder().build();
+
+        if (exerciseOptionPayout.getOptionPayout() == null) {
+            OptionPayout fromTrade = tradeState.getTrade().getProduct().getEconomicTerms().getPayout().stream()
+                    .map(Payout::getOptionPayout)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElseThrow();
+            exerciseOptionPayout = Payout.builder()
+                    .setOptionPayout(fromTrade)
+                    .build();
+        }
+
         // Create a reference to the option payout as part of the exercise process.
-        ReferenceWithMetaOptionPayout option = ReferenceWithMetaOptionPayout.builder()
-                .setValue(OptionPayout.builder().build()) // Build a basic OptionPayout structure.
+        ReferenceWithMetaPayout option = ReferenceWithMetaPayout.builder()
+                .setValue(exerciseOptionPayout)  // Build a basic OptionPayout structure.
                 .build();
 
         // Initialize and build the ExerciseInstruction.
         return ExerciseInstruction.builder()
                 .setExerciseDate(eventDate)                                                 // Set the date on which the option is exercised.
                 .setExerciseTime(BusinessCenterTime.builder().build())                      // Set a placeholder exercise time, typically defined as business center time.
-                .setExerciseOptionValue(OptionPayout.builder().build())                     // Define the value of the exercised option.
+                .setExerciseOptionValue(exerciseOptionPayout)                     // Define the value of the exercised option.
                 .setExerciseQuantity(PrimitiveInstruction.builder().build())                // Set the quantity to be exercised, typically linked to a primitive instruction.
                 .setExerciseOption(option)                                                  // Associate the exercise with the referenced option.
                 .addReplacementTradeIdentifier(tradeState.getTrade().getTradeIdentifier())  // Add a replacement trade identifier from the trade state for tracking purposes.
@@ -1026,15 +1043,18 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @param date    The date of the reset and the rate record, applicable to this instruction.
      * @return A ResetInstruction object containing the provided reset and payout details.
      */
-    public static ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
+    public ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
 
-        //TODO Review if payout1 is used
+        List<? extends Reset> resets = calculateResetFunc.evaluate(CalculateResetInstruction.builder()
+                .setPayout(List.of(payout))
+                .setResetDate(date)
+                .setRateRecordDate(date)
+                .build());
+
+//TODO Review if payout1 is used
         // Initialize and build the ResetInstruction.
         return ResetInstruction.builder()
-                .setResetDate(date)         // The date on which the reset occurs.
-                .setRateRecordDate(date)    // The date for recording the rate associated with the reset.
-                .setPayout(List.of(payout))          // Associates the reset instruction with a referenced payout.
-                //.setPayoutValue(payout1)    // Sets the specific payout value for the reset.
+                .setReset(resets)
                 .build();                   // Builds and returns the finalized ResetInstruction.
     }
 

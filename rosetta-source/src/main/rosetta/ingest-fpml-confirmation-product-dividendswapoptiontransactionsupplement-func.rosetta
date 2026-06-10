@@ -21,14 +21,21 @@ func MapDividendSwapOptionTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(
-                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel
+                fpmlDividendSwapOptionTransactionSupplement -> buyerPartyReference,
+                fpmlDividendSwapOptionTransactionSupplement -> sellerPartyReference
             )
 
 func MapDividendSwapOptionTransactionSupplementAncillaryPartyList:
     inputs:
         fpmlDividendSwapOptionTransactionSupplement fpml.DividendSwapOptionTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapSwaptionPhysicalSettlementToAncillaryParty(
+                fpmlDividendSwapOptionTransactionSupplement -> clearingInstructions
+            )
 
 func MapDividendSwapOptionTransactionSupplementNonTransferableProduct:
     inputs:
@@ -40,10 +47,12 @@ func MapDividendSwapOptionTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlDividendSwapOptionTransactionSupplement -> productModel
+                        fpmlDividendSwapOptionTransactionSupplement -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlDividendSwapOptionTransactionSupplement -> productModel
+                        fpmlDividendSwapOptionTransactionSupplement -> primaryAssetClass,
+                        fpmlDividendSwapOptionTransactionSupplement -> secondaryAssetClass,
+                        fpmlDividendSwapOptionTransactionSupplement -> productType
                     ),
             economicTerms: MapDividendSwapOptionTransactionSupplementEconomicTerms(
                         fpmlDividendSwapOptionTransactionSupplement,
@@ -79,7 +88,8 @@ func MapDividendSwapOptionTransactionSupplementPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlDividendSwapOptionTransactionSupplement -> sellerPartyReference,
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
@@ -87,7 +97,8 @@ func MapDividendSwapOptionTransactionSupplementPayout:
                                 empty
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerPartyReference,
+                                fpmlDividendSwapOptionTransactionSupplement -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -108,7 +119,8 @@ func MapDividendSwapOptionTransactionSupplementPayout:
                                     ),
                                 empty,
                                 empty,
-                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerPartyReference,
+                                fpmlDividendSwapOptionTransactionSupplement -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     ...
@@ -138,5 +150,6 @@ func MapDividendSwapOptionTransactionSupplementAccountPartyReference:
     set partyReference:
         MapBuyerSellerToAccountPartyReference(
                 fpmlAccount,
-                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel
+                fpmlDividendSwapOptionTransactionSupplement -> buyerAccountReference,
+                fpmlDividendSwapOptionTransactionSupplement -> sellerAccountReference
             )

@@ -21,18 +21,21 @@ func MapVarianceOptionTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(
-                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel
+                fpmlVarianceOptionTransactionSupplement -> buyerPartyReference,
+                fpmlVarianceOptionTransactionSupplement -> sellerPartyReference
             )
 
 func MapVarianceOptionTransactionSupplementAncillaryPartyList:
     inputs:
         fpmlVarianceOptionTransactionSupplement fpml.VarianceOptionTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
 
     add ancillaryPartyList:
-        fpmlVarianceOptionTransactionSupplement -> clearingInstructions -> predeterminedClearingOrganizationPartyReference
-            extract MapAncillaryParty(PredeterminedClearingOrganizationParty, href)
+        MapSwaptionPhysicalSettlementToAncillaryParty(
+                fpmlVarianceOptionTransactionSupplement -> clearingInstructions
+            )
 
 func MapVarianceOptionTransactionSupplementNonTransferableProduct:
     inputs:
@@ -44,10 +47,12 @@ func MapVarianceOptionTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlVarianceOptionTransactionSupplement -> productModel
+                        fpmlVarianceOptionTransactionSupplement -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlVarianceOptionTransactionSupplement -> productModel
+                        fpmlVarianceOptionTransactionSupplement -> primaryAssetClass,
+                        fpmlVarianceOptionTransactionSupplement -> secondaryAssetClass,
+                        fpmlVarianceOptionTransactionSupplement -> productType
                     ),
             economicTerms: MapVarianceOptionTransactionSupplementEconomicTerms(
                         fpmlVarianceOptionTransactionSupplement,
@@ -83,7 +88,8 @@ func MapVarianceOptionTransactionSupplementPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlVarianceOptionTransactionSupplement -> sellerPartyReference,
+                                fpmlVarianceOptionTransactionSupplement -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
@@ -91,7 +97,8 @@ func MapVarianceOptionTransactionSupplementPayout:
                                 fpmlVarianceOptionTransactionSupplement -> clearingInstructions
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlVarianceOptionTransactionSupplement -> buyerPartyReference,
+                                fpmlVarianceOptionTransactionSupplement -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -113,7 +120,8 @@ func MapVarianceOptionTransactionSupplementPayout:
                                     ),
                                 empty,
                                 empty,
-                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlVarianceOptionTransactionSupplement -> buyerPartyReference,
+                                fpmlVarianceOptionTransactionSupplement -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     ...
@@ -143,5 +151,6 @@ func MapVarianceOptionTransactionSupplementAccountPartyReference:
     set partyReference:
         MapBuyerSellerToAccountPartyReference(
                 fpmlAccount,
-                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel
+                fpmlVarianceOptionTransactionSupplement -> buyerAccountReference,
+                fpmlVarianceOptionTransactionSupplement -> sellerAccountReference
             )

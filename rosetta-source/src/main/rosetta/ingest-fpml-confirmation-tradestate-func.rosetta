@@ -1,8 +1,11 @@
 namespace cdm.ingest.fpml.confirmation.tradestate: <"FpML type mapping functions.">
 version "${project.version}"
 
+import cdm.base.math.*
+import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.header.*
 import cdm.ingest.fpml.confirmation.legal.*
@@ -42,9 +45,12 @@ import cdm.ingest.fpml.confirmation.product.varianceswaptransactionsupplement.*
 import cdm.ingest.fpml.confirmation.product.volatilityswap.*
 import cdm.ingest.fpml.confirmation.product.volatilityswaptransactionsupplement.*
 import cdm.observable.asset.*
+import cdm.product.collateral.*
 import cdm.product.template.*
 
+import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.bond.option.* as fpml
+import fpml.consolidated.business.events.* as fpml
 import fpml.consolidated.cd.* as fpml
 import fpml.consolidated.com.* as fpml
 import fpml.consolidated.correlation.swaps.* as fpml
@@ -63,13 +69,22 @@ import fpml.consolidated.volatility.swaps.* as fpml
 func MapTradeState:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+        fpmlPartyList fpml.Party (0..*)
+        fpmlAccountList fpml.Account (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
+        fpmlAdditionalPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
     output:
         tradeState TradeState (0..1)
 
     set tradeState:
         TradeState {
-            trade: MapTrade(fpmlTrade, fpmlPartiesAndAccountsModel),
+            trade: MapTrade(
+                        fpmlTrade,
+                        fpmlPartyList,
+                        fpmlAccountList,
+                        fpmlQuoteList,
+                        fpmlAdditionalPartyTradeIdentifierList
+                    ),
             transferHistory: MapTransferStateList(fpmlTrade),
             ...
         }
@@ -77,7 +92,10 @@ func MapTradeState:
 func MapTrade:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+        fpmlPartyList fpml.Party (0..*)
+        fpmlAccountList fpml.Account (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
+        fpmlAdditionalPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
     output:
         trade Trade (0..1)
 
@@ -86,19 +104,125 @@ func MapTrade:
     set trade:
         Trade {
             product: MapNonTransferableProduct(fpmlTrade, counterpartyList),
-            tradeLot: MapTradeLotList(fpmlTrade, fpmlPartiesAndAccountsModel),
+            tradeLot: MapTradeLotList(fpmlTrade, fpmlQuoteList),
             counterparty: counterpartyList,
-            ancillaryParty: MapAncillaryPartyList(fpmlTrade),
+            ancillaryParty: MapAncillaryPartyList(fpmlTrade, counterpartyList),
             adjustment: MapNotionalAdjustmentEnum(ExtractNotionalAdjustmentByLeg(fpmlTrade)),
-            tradeIdentifier: MapTradeIdentifierList(fpmlTrade -> tradeHeader),
+            tradeIdentifier: MapTradeIdentifierList(
+                        fpmlTrade -> tradeHeader,
+                        fpmlAdditionalPartyTradeIdentifierList
+                    ),
             tradeDate: MapIdentifiedDate(fpmlTrade -> tradeHeader -> tradeDate),
             party: MapPartyList(
-                        fpmlPartiesAndAccountsModel -> party,
+                        fpmlPartyList,
                         fpmlTrade -> tradeHeader -> partyTradeInformation
                     ),
             partyRole: MapPartyRoleList(fpmlTrade),
             contractDetails: MapContractDetails(fpmlTrade, counterpartyList),
-            account: MapAccountList(fpmlTrade, fpmlPartiesAndAccountsModel),
+            account: MapAccountList(fpmlTrade, fpmlAccountList),
+            collateral: MapCollateral(fpmlTrade -> tradeHeader),
+            executionDetails: MapExecutionDetails(fpmlTrade, fpmlQuoteList),
+            ...
+        }
+
+func MapExecutionDetails:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
+    output:
+        executionDetails ExecutionDetails (0..1)
+
+    alias quotationModel:
+        fpmlQuoteList
+            filter
+                measureType -> value = "PackagePrice"
+                    or measureType -> value = "PackageSpread"
+            then only-element
+
+    alias unitFromQuotation:
+        if quotationModel -> currency exists
+        then MapCurrency(quotationModel -> currency)
+
+    alias arithmeticOp:
+        if quotationModel -> measureType -> value = "PackageSpread"
+        then ArithmeticOperationEnum -> Add
+        else empty
+
+    alias swapStreamNotionalCurrency:
+        fpmlTrade -> product switch
+            fpml.Swap then
+                MapCurrency(
+                        swapStream -> calculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule -> currency first
+                    ),
+            default empty
+
+    alias unitValue:
+        if quotationModel exists
+        then (if unitFromQuotation exists
+            then unitFromQuotation
+            else swapStreamNotionalCurrency)
+
+    set executionDetails:
+        ExecutionDetails {
+            executionType: empty,
+            packageReference:
+                IdentifiedList {
+                    listId: MapIssuerTradeIdModelToIdentifier(
+                                fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> issuer,
+                                fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> tradeId
+                            ),
+                    price:
+                        Price {
+                            value: quotationModel -> value,
+                            unit:
+                                UnitType {
+                                    currency: unitValue,
+                                    ...
+                                },
+                            perUnitOf:
+                                UnitType {
+                                    currency: unitValue,
+                                    ...
+                                },
+                            priceType: if quotationModel -> measureType -> value = "PackagePrice"
+                                    then AssetPrice
+                                else if quotationModel -> measureType -> value = "PackageSpread"
+                                then InterestRate,
+                            arithmeticOperator: arithmeticOp,
+                            ...
+                        },
+                    componentId: empty,
+                },
+            ...
+        }
+
+func MapCollateral:
+    inputs:
+        fpmlTradeHeader fpml.TradeHeader (0..1)
+    output:
+        collateral Collateral (0..1)
+    set collateral:
+        Collateral {
+            portfolioIdentifier: MapPortfolioNameToIdentifier(
+                        fpmlTradeHeader -> partyTradeInformation -> collateralPortfolio
+                    ),
+            ...
+        }
+
+func MapPortfolioNameToIdentifier:
+    inputs:
+        fpmlPortfolioNameList fpml.PortfolioName (0..*)
+    output:
+        cdmIdentifier Identifier (0..1)
+
+    set cdmIdentifier:
+        Identifier {
+            assignedIdentifier: fpmlPortfolioNameList
+                    extract
+                        AssignedIdentifier {
+                            identifier: MapStringWithScheme(value, portfolioNameScheme),
+                            ...
+                        },
             ...
         }
 
@@ -240,40 +364,54 @@ func MapNonTransferableProduct:
         }
 
     set nonTransferableProduct -> economicTerms -> calculationAgent:
-        MapCalculationAgent(fpmlTrade -> calculationAgentModel)
+        MapCalculationAgent(
+                fpmlTrade -> calculationAgent,
+                fpmlTrade -> calculationAgentBusinessCenter
+            )
+
+    set nonTransferableProduct -> economicTerms -> nonStandardisedTerms:
+        if fpmlTrade -> tradeHeader -> partyTradeInformation -> nonStandardTerms exists
+        then fpmlTrade -> tradeHeader -> partyTradeInformation -> nonStandardTerms any = True
 
 func MapCalculationAgent:
     inputs:
-        fpmlCalculationAgentModel fpml.CalculationAgentModel (0..1)
+        fpmlCalculationAgent fpml.CalculationAgent (0..1)
+        fpmlCalculationAgentBusinessCenter fpml.BusinessCenter (0..1)
     output:
         calculationAgent CalculationAgent (0..1)
 
     set calculationAgent:
         CalculationAgent {
-            calculationAgentParty: if fpmlCalculationAgentModel -> calculationAgent -> calculationAgentPartyReference -> href exists
+            calculationAgentParty: if fpmlCalculationAgent -> calculationAgentPartyReference -> href exists
                     then CalculationAgentIndependent,
             calculationAgentPartyEnum: empty,
             calculationAgentBusinessCenter: MapBusinessCenter(
-                        fpmlCalculationAgentModel -> calculationAgentBusinessCenter
+                        fpmlCalculationAgentBusinessCenter
             ),
         }
 
 func MapTradeLotList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
     output:
         tradeLotList TradeLot (0..*)
 
+    alias quotationModel:
+        fpmlQuoteList
+            filter measureType -> value = "PriceNotation"
+            then only-element
+
     add tradeLotList:
         TradeLot {
-            priceQuantity: MapPriceQuantityList(fpmlTrade),
+            priceQuantity: MapPriceQuantityList(fpmlTrade, quotationModel),
             ...
         }
 
 func MapPriceQuantityList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
+        fpmlQuotation fpml.BasicQuotation (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
@@ -301,7 +439,8 @@ func MapPriceQuantityList:
             fpml.FxSwap then MapFxSwapPriceQuantityList,
             fpml.FxVarianceSwap then MapFxVarianceSwapPriceQuantityList,
             fpml.FxVolatilitySwap then MapFxVolatilitySwapPriceQuantityList,
-            fpml.GenericProduct then MapGenericProductPriceQuantityList,
+            fpml.GenericProduct then
+                MapGenericProductPriceQuantityList(item, fpmlQuotation),
             fpml.ReturnSwap then MapReturnSwapPriceQuantityList,
             fpml.Swap then MapSwapPriceQuantityList,
             fpml.Swaption then MapSwaptionPriceQuantityList,

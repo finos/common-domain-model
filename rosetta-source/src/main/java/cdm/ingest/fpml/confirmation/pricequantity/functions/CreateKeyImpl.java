@@ -12,7 +12,7 @@ public class CreateKeyImpl extends CreateKey {
     protected String doEvaluate(String keyPrefix, String id, Leg fpmlLeg) {
         int index = (Optional.ofNullable(keyPrefix).map(Objects::hashCode).orElse(2) +
                 Optional.ofNullable(id).map(Objects::hashCode).orElse(3) +
-                Optional.ofNullable(fpmlLeg).map(Objects::hashCode).orElse(4)) % 1000;
+                Optional.ofNullable(fpmlLeg).map(Objects::hashCode).orElse(4)) % 10000;
         return String.format("%s-$%d",
                 Optional.ofNullable(keyPrefix).orElse("empty"),
                 Math.abs(index));

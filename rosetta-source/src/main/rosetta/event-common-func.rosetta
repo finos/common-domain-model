@@ -486,8 +486,9 @@ func Create_ContractFormation: <"Function specification that represents an execu
         contractFormation TradeState (1..1) <"Primitive event containing the execution as its before state and the contract as the after state.">
 
     set contractFormation: execution
-    add contractFormation -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions.">
-        instruction -> legalAgreement
+    set contractFormation -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions, and ensure no duplicates.">
+        [instruction -> legalAgreement, contractFormation -> trade -> contractDetails -> documentation]
+            distinct
     set contractFormation -> state -> positionState: <"Assign the position status to formed.">
         PositionStatusEnum -> Formed
 
@@ -498,10 +499,10 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     output:
         exercise TradeState (1..*)
 
-    alias optionPayout: <"Extracts the optionPayout from exerciseInstruction if provided or from the original trade if absent">
+    alias optionPayout: <"Extracts the option payout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
-        then exerciseInstruction -> exerciseOption
-        else originalTrade -> trade -> product -> economicTerms -> payout -> OptionPayout only-element
+        then exerciseInstruction -> exerciseOption -> OptionPayout
+        else originalTrade -> trade -> product -> economicTerms -> payout only-element -> OptionPayout
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
         optionPayout -> underlier
@@ -512,7 +513,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
         else Create_NonTransferableProduct(underlier, optionPayout -> payerReceiver)
 
     alias productWithDirection: <"If the option is a Put, then the direction on the result product needs to be flipped from that on the underlier.">
-        if optionPayout -> optionType = OptionTypeEnum -> Put
+        if optionPayout -> optionType = Put
         then Update_ProductDirection(
                     resultProduct,
                     optionPayout -> payerReceiver -> payer,
@@ -570,12 +571,11 @@ func Create_NonTransferableProduct: <"Creates a NonTransferableProduct (ie Econo
     set newProduct -> economicTerms -> payout -> SettlementPayout -> payerReceiver:
         payerReceiver
 
-func Create_Reset: <"Defines how a Reset should be constructed.">
+func CalculateReset: <"Function specification to calculate a reset.">
     inputs:
-        instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
-        tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+        instruction CalculateResetInstruction (1..1) <"The instruction containing the parameters and payout references required to calculate the reset.">
     output:
-        reset TradeState (1..1)
+        reset Reset (0..*)
 
     alias payout: <"Specifies the payout that is resetting.">
         instruction -> payout
@@ -600,9 +600,7 @@ func Create_Reset: <"Defines how a Reset should be constructed.">
     alias observation: <"Represents the single observation that will be used to compute the reset value.">
         ResolveObservation([observationIdentifiers], empty)
 
-    set reset: tradeState
-
-    add reset -> resetHistory: <"To handle the various ways Contracts can change over time, ">
+    add reset: <"Calculates and appends the reset value for the contract by resolving the specific performance or interest rate reset logic based on the underlying payout type.">
         if payout -> PerformancePayout count = 1
         then ResolvePerformanceReset(
                     payout -> PerformancePayout only-element,
@@ -616,6 +614,18 @@ func Create_Reset: <"Defines how a Reset should be constructed.">
                     instruction -> resetDate,
                     instruction -> rateRecordDate
                 )
+
+func Create_Reset: <"This function processes a lifecycle reset event (e.g., a floating interest rate) for an active trade. It takes the incoming Reset Instruction and applies it to the current state of the trade.">
+    inputs:
+        instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
+        tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+    output:
+        reset TradeState (1..1)
+
+    set reset: tradeState
+
+    add reset -> resetHistory: <"Assigns the reset contained in the reset instruction to the resetHistory attribute.">
+        instruction -> reset
 
 func CalculateTransfer: <"Function specification to calculate a transfer, e.g. following a reset on a contract">
     inputs:
@@ -1923,26 +1933,6 @@ func Create_SubstitutionInstruction: <"Creates the terms change instruction that
 
     set termsChangeInstruction -> product -> economicTerms -> collateral -> collateralPortfolio:
         newCollateralPortfolio
-
-func Qualify_Substitution: <"Qualification of a collateral substitution event.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
-
-    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
-
-    set is_event:
-        beforeEconomicterms -> terminationDate exists
-            and openEconomicTerms -> effectiveDate exists
-            and openEconomicTerms -> terminationDate exists
-            and openEconomicTerms -> payout <> beforeEconomicterms -> payout
-            and openEconomicTerms -> collateral <> beforeEconomicterms -> collateral
-            and openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate
-            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
 
 func Create_PackageExecutionDetails: <"Add a package component to an execution details object. This package component is constructed using an identifier for the package and the list of identifiers for its components.">
     inputs:

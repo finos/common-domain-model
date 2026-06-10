@@ -47,8 +47,10 @@ type AssetBase:
     identifier AssetIdentifier (1..*) 
     taxonomy Taxonomy (0..*) 
     isExchangeListed boolean (0..1) 
-    exchange LegalEntity (0..1)  
-    relatedExchange LegalEntity (0..*) 
+    party Party (0..*)
+    partyRole AssetPartyRole (0..1)
+    ancillaryPartyRole AssetAncillaryPartyRole (0..*)
+    assetType AssetTypeEnum (1..1)
 ```
 
 The data types are designed to carry the minimal amount of information that is needed to uniquely identify the asset
@@ -108,7 +110,6 @@ The additional attributes on `Loan` can be used when needed to uniquely identify
 
 ``` Haskell
 type Loan extends InstrumentBase:
-    borrower LegalEntity (0..*)
     lien string (0..1)
         [metadata scheme]
     facilityType string (0..1)
@@ -270,13 +271,11 @@ It can be used as the underlier of a basic Payout that describes the buying and 
 :::
 
 ``` Haskell
-type TransferableProduct extends Asset:
+type TransferableProduct:
+    asset Asset (1..1)
     economicTerms EconomicTerms (1..1)
+    productPartyRole CounterpartyRoleEnum (1..1)
 ```
-
-Because `TransferableProduct` extends `Asset`, it inherits its `identifier` and `taxonomy` attributes from it.
-In that case, those attributes are of type, respectively, `AssetIdentifier` and `Taxonomy`.
-
 #### NonTransferableProduct
 
 By contrast with a transferable product, which can be held by a single party who can in turn transfer it to another,

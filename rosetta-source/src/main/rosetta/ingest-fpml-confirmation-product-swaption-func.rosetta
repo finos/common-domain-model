@@ -4,13 +4,15 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
-import cdm.ingest.fpml.confirmation.product.swap.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.swap.* as swap
 import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.ird.* as fpml
 import fpml.consolidated.shared.* as fpml
 
@@ -21,13 +23,32 @@ func MapSwaptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlSwaption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlSwaption -> buyerPartyReference,
+                fpmlSwaption -> sellerPartyReference
+            )
 
 func MapSwaptionAncillaryPartyList:
     inputs:
         fpmlSwaption fpml.Swaption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
     output:
         ancillaryPartyList AncillaryParty (0..*)
+
+    add ancillaryPartyList:
+        MapSwaptionPhysicalSettlementToAncillaryParty(fpmlSwaption -> physicalSettlement)
+    add ancillaryPartyList:
+        MapExerciseProcedureToAncillaryParty(
+                fpmlSwaption -> exerciseProcedure,
+                cdmCounterpartyList
+            )
+    add ancillaryPartyList:
+        MapEarlyTerminationProvisionToAncillaryParty(
+                fpmlSwaption -> earlyTerminationProvision,
+                cdmCounterpartyList
+            )
+    add ancillaryPartyList:
+        MapCalculationAgentIndependentToAncillaryParty(fpmlSwaption -> calculationAgent)
 
 func MapSwaptionNonTransferableProduct:
     inputs:
@@ -38,8 +59,12 @@ func MapSwaptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlSwaption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlSwaption -> productModel),
+            identifier: MapProductIdentifierList(fpmlSwaption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlSwaption -> primaryAssetClass,
+                        fpmlSwaption -> secondaryAssetClass,
+                        fpmlSwaption -> productType
+                    ),
             economicTerms: MapSwaptionEconomicTerms(fpmlSwaption, cdmCounterpartyList)
         }
 
@@ -53,7 +78,7 @@ func MapSwaptionEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: MapSwaptionPayout(fpmlSwaption, cdmCounterpartyList),
-            terminationProvision: MapTerminationProvision(
+            terminationProvision: swap.MapTerminationProvision(
                         fpmlSwaption -> earlyTerminationProvision,
                         empty,
                         empty,
@@ -74,7 +99,8 @@ func MapSwaptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> sellerPartyReference,
+                                fpmlSwaption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: if fpmlSwaption -> cashSettlement exists
@@ -85,14 +111,15 @@ func MapSwaptionPayout:
                                 fpmlSwaption -> physicalSettlement
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> buyerPartyReference,
+                                fpmlSwaption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
                         Underlier {
                             Product:
                                 Product {
-                                    NonTransferableProduct: MapSwapNonTransferableProduct(
+                                    NonTransferableProduct: swap.MapSwapNonTransferableProduct(
                                                 fpmlSwaption -> swap,
                                                 cdmCounterpartyList
                                             ),
@@ -101,12 +128,15 @@ func MapSwaptionPayout:
                             ...
                         },
                     optionType: if fpmlSwaption -> swaptionStraddle = True
-                            then Straddle,
+                            then Straddle
+                        else if fpmlSwaption -> optionType to-enum fpml.SwaptionTypeEnum = Payer
+                        then Payer,
                     exerciseTerms: MapExerciseTerms(
                                 fpmlSwaption -> exercise,
                                 fpmlSwaption -> exerciseProcedure,
                                 empty,
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> buyerPartyReference,
+                                fpmlSwaption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     ...
@@ -138,7 +168,7 @@ func MapSwaptionPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    add priceQuantityList: MapSwapPriceQuantityList(fpmlSwaption -> swap)
+    add priceQuantityList: swap.MapSwapPriceQuantityList(fpmlSwaption -> swap)
 
 func MapSwaptionAccountPartyReference:
     inputs:
@@ -149,4 +179,8 @@ func MapSwaptionAccountPartyReference:
             [metadata reference]
 
     set partyReference:
-        MapBuyerSellerToAccountPartyReference(fpmlAccount, fpmlSwaption -> buyerSellerModel)
+        MapBuyerSellerToAccountPartyReference(
+                fpmlAccount,
+                fpmlSwaption -> buyerAccountReference,
+                fpmlSwaption -> sellerAccountReference
+            )
