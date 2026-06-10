@@ -79,14 +79,12 @@ func ProcessFloatingRateReset: <"Entry point for the function that performs the 
         floatingRate FloatingRateSettingDetails (1..1) <"Details of the rate observation/calculation.">
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum -> Screen): <"Evaluate the rate for a screen rate - call logic to determine how to observe the screen rate.">
-    [calculation]
     // set up convenience aliases
     alias resetDates: interestRatePayout -> resetDates
     alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
     set floatingRate: EvaluateScreenRate(rateDef, resetDates, calcPeriod) // Call the screen rate evaluation logic
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum -> Modular): <"Evaluate the rate for a modular calculated rate.  Call the calculated rate calculation logic to determine the value of the reset.">
-    [calculation]
     // set up convenience aliases
     alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
     alias resetDates: interestRatePayout -> resetDates
@@ -115,7 +113,6 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
             )
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum -> OIS): <"Evaluate the rate for an OIS calculated rate. Call the calculated rate calculation logic to determine the value of the reset.  See the 2021 ISDA Definitions Section 6.6.3.">
-    [calculation]
     // set up convenience aliases
     alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
     alias resetDates: interestRatePayout -> resetDates
@@ -140,7 +137,6 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
             )
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum -> OvernightAvg): <"Evaluate the rate for a daily average calculated FRO. Call the calculated rate calculation logic to determine the value of the reset. See the 2021 ISDA Definitions Section 6.6.3.">
-    [calculation]
     // set up convenience aliases
     alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
     alias resetDates: interestRatePayout -> resetDates
@@ -273,7 +269,6 @@ func GetFloatingRateProcessingParameters: <"Determine the processing parameters 
     set processingParameters -> negativeTreatment: negativeTreatment
 
 func SpreadAmount: <"Look up the spread amount for a calculation period.">
-    [calculation]
     inputs:
         interestRatePayout InterestRatePayout (1..1) <"An interest rate stream.">
         calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which you want the spread.">
@@ -287,7 +282,6 @@ func SpreadAmount: <"Look up the spread amount for a calculation period.">
             )
 
 func MultiplierAmount: <"Look up the multiplier amount for a calculation period.">
-    [calculation]
     inputs:
         interestRatePayout InterestRatePayout (1..1) <"An interest rate stream.">
         calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which you want the multiplier.">
@@ -301,7 +295,6 @@ func MultiplierAmount: <"Look up the multiplier amount for a calculation period.
             )
 
 func CapRateAmount: <"Look up the cap rate amount for a calculation period.">
-    [calculation]
     inputs:
         interestRatePayout InterestRatePayout (1..1) <"An interest rate stream.">
         calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which you want the cap rate.">
@@ -315,7 +308,6 @@ func CapRateAmount: <"Look up the cap rate amount for a calculation period.">
             )
 
 func FloorRateAmount: <"Look up the floor rate amount for a calculation period.">
-    [calculation]
     inputs:
         interestRatePayout InterestRatePayout (1..1) <"An interest rate stream.">
         calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which you want the floor rate.">
@@ -430,7 +422,6 @@ func ApplyFloatingRatePostSpreadProcessing: <"Perform post-spread rate treatment
     set processedRate: ApplyFinalRateRounding(cappedAndFlooredRate, processing -> rounding)
 
 func ApplyCapsAndFloors: <"Apply any cap or floor rate as a constraint on a regular swap rate, as discussed in the 2021 ISDA Definitions, section 6.5.8 and 6.5.9.">
-    [calculation]
     inputs:
         processing FloatingRateProcessingParameters (1..1)
         inputRate number (1..1) <"The floating rate prior to treatment, either a single term rate, or a calculated rate such as an OIS or lookback compounded rate.">
@@ -458,7 +449,6 @@ func ApplyUSRateTreatment: <"Apply the US rate treatment logic where applicable 
     set treatedRate: baseRate // temporary, stub definition until support is added
 
 func ApplyFinalRateRounding: <"Apply the final rate rounding treatment logic as described in the 2021 ISDA Definitions, section 4.8.1.">
-    [calculation]
     inputs:
         baseRate number (1..1) <"Rate before rounding.">
         finalRateRounding Rounding (0..1) <"type of rounding (precision and direction).">

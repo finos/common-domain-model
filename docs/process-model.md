@@ -170,9 +170,7 @@ Amount* and *Floating Amount* , the ISDA 2006 definitions of Day Count
 Fraction rules, and performance calculations for Equity Swaps. The CDM
 also specifies related utility functions.
 
-These calculation processes leverage the *calculation function*
-component of the Rune DSL which is associated to a `[calculation]`
-annotation.
+These calculation processes are specified as functions in the Rune DSL.
 
 Explanations of these processes are provided in the following sections.
 
@@ -453,7 +451,6 @@ structure: a calculation formula that reflects the terms of the ISDA
 
 ``` Haskell
 func FloatingAmount:
-  [calculation]
   inputs:
       interestRatePayout InterestRatePayout (1..1)
       rate number (0..1)
@@ -496,7 +493,6 @@ example below:
 
 ``` Haskell
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
-   [calculation]
 
    alias startYear: startDate -> year
    alias endYear: endDate -> year
