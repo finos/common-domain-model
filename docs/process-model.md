@@ -719,34 +719,49 @@ These above steps are codified in the `Create_Reset` function, which
 defines how the `Reset` instance should be constructed.
 
 ``` Haskell
-func Create_Reset:
+func CalculateReset:
     inputs:
-        instruction ResetInstruction (1..1)
-        tradeState TradeState (1..1)
+        instruction CalculateResetInstruction (1..1)
     output:
-        reset TradeState (1..1)
-
+        reset Reset (0..*)
+    
     alias payout:
-       instruction -> payout
+        instruction -> payout
 
-   alias observationDate:
-       if instruction -> rateRecordDate exists
-       then instruction -> rateRecordDate
-       else instruction -> resetDate
+    alias observationDate:
+        if instruction -> rateRecordDate exists
+        then instruction -> rateRecordDate
+        else instruction -> resetDate
 
-   alias observationIdentifiers:
-       if payout -> PerformancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> PerformancePayout only-element, instruction -> resetDate)
-       else if payout -> InterestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> InterestRatePayout only-element, observationDate)
+    alias observationIdentifiers:
+        if payout -> PerformancePayout count = 1
+        then ResolvePerformanceObservationIdentifiers(
+                    payout -> PerformancePayout only-element,
+                    instruction -> resetDate
+                )
+        else if payout -> InterestRatePayout exists
+        then ResolveInterestRateObservationIdentifiers(
+                    payout -> InterestRatePayout only-element,
+                    observationDate
+                )
 
-   alias observation:
-       ResolveObservation([observationIdentifiers], empty)
+    alias observation:
+        ResolveObservation([observationIdentifiers], empty)
 
-   set reset:
-       tradeState
-
-   add reset -> resetHistory:
-       if payout -> PerformancePayout count = 1 then ResolvePerformanceReset(payout -> PerformancePayout only-element, observation, instruction -> resetDate)
-       else if payout -> InterestRatePayout exists then ResolveInterestRateReset(payout -> InterestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
+    add reset:
+        if payout -> PerformancePayout count = 1
+        then ResolvePerformanceReset(
+                    payout -> PerformancePayout only-element,
+                    observation,
+                    instruction -> resetDate
+                )
+        else if payout -> InterestRatePayout exists
+        then ResolveInterestRateReset(
+                    payout -> InterestRatePayout,
+                    observation,
+                    instruction -> resetDate,
+                    instruction -> rateRecordDate
+                )
 ```
 
 First, `ResolvePerformanceObservationIdentifiers` defines the specific
