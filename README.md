@@ -125,7 +125,7 @@ The following Working Groups are currently active in this project:
 
 Changes to the CDM may be proposed by anyone but are governed by the process described here.
 
-![](.github/finos-cdm-governance-structure.png)
+![](.github/FINOS-CDM-Working-Groups.png)
 
 ## Working Groups
 
@@ -138,7 +138,7 @@ Changes to the CDM may be proposed by anyone but are governed by the process des
 
 **CDM Steering Working Group.** The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
 
-![](.github/Group-Roles-Scope.png)
+![](.github/CDM-Governance-Landscape.png)
 
 **CDM Steering Working Group Purpose:** The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
 
