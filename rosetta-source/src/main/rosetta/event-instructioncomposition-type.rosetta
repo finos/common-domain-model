@@ -27,7 +27,8 @@ type InstructionComposition: <"Represents an Instruction Composition orchestrati
 
     condition CompositionStateByType: <"Validates structural integrity by ensuring that the specific InstructionCompositionState type provided (e.g., ResetInstructionState) is strictly aligned with the declared InstructionCompositionType.">
         if instructionCompositionType = ResetInstruction
-        then compositionState -> ResetInstructionState exists
+        then (compositionState switch
+                ResetInstructionState then True) = True
 
 type CompositionStep: <"Represents a single atomic step in the Instruction Composition lifecycle, including its instructions, status, and optional output. Each CompositionStep is defined by an identifier, a timestamp and a single Instruction.">
     identifier string (0..1) <"Identification of the Instruction Composition step.">
