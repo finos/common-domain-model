@@ -10,7 +10,7 @@ A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
 CDM [design principles](design-principles.md) and
 [agile development approach](development-approach.md) and submitted
-to FINOS staff and the Architecture & Review Committee for approval. In
+to FINOS staff and the relevant Working Group (such as the [CRWG](https://cdm.finos.org/docs/CDM-Contribution-Review-WG) or [TAWG](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)) for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
 reviewing, revising or extending the proposal.
@@ -18,7 +18,7 @@ reviewing, revising or extending the proposal.
 Once approved, the amendment will be scheduled to be merged with the
 CDM's main code branch by the CDM Maintainers.
 
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
+This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository. Each [Working Group](working-groups.md) must adhere to the requirements.
 
 ## 1. Roles
 
@@ -79,13 +79,13 @@ The attached deck summarizes the governance guidelines discussed below.
 
 [CDM Release Guidelines Task Force Summary - July 15 2024  (1).pdf](https://github.com/user-attachments/files/16550591/CDM.Release.Guidelines.Task.Force.Summary.-.July.15.2024.1.pdf)
 
-The [Steering Working Group](docs/CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content. The [major release scheduling guidelines](major-release-scheduling-guidelines.md) page  discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
+The [Steering Working Group](docs/CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content. The [major release scheduling guidelines](docs/major-release-scheduling-guidelines.md) page  discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
 
 
 ## 7.0 Change Control Guidelines
 
-The [change control guidelines](change-control-guidelines.md) discusses how changes to the CDM are controlled within and between releases, in particular:
+The [change control guidelines](docs/change-control-guidelines.md) discusses how changes to the CDM are controlled within and between releases, in particular:
 
 * Principles
   * What we are trying to achieve with the change control guidelines; 
