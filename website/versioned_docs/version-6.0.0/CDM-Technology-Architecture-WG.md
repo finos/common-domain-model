@@ -6,6 +6,8 @@ title: CDM Technology Architecture Working Group
 
 The CDM Technology Architecture Working Group focuses on aligning the architecture, tooling services, infrastructure, development practices, and deployment of the CDM with both existing and future technologies.
 
+[View TAWG Terms of Reference](https://github.com/finos/common-domain-model/blob/master/website/static/pdfs/CDM.Technology.Architecture.WG.ToR.v1.pdf)
+
 ### Responsibilities
 
 - Defining and working on technical aspects and architecture-related items, such as language distributions, packaging, libraries, serialization, reference data architecture, and integration with other data standards.

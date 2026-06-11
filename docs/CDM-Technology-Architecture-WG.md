@@ -6,6 +6,8 @@ title: CDM Technology Architecture Working Group
 
 The CDM Technology Architecture [Working Group](cdm-org-structure.md) focuses on aligning the architecture, tooling services, infrastructure, development practices, and deployment of the CDM with both existing and future technologies by leveraging [Rune](https://github.com/finos/rune-dsl/blob/main/README.md). Please note, Rune is currently being mantained and developed by the relevant Rune Working Groups to which the Technology Architecture Working Group provides input to. 
 
+[View TAWG Terms of Reference](https://github.com/finos/common-domain-model/blob/master/website/static/pdfs/CDM.Technology.Architecture.WG.ToR.v1.pdf)
+
 ### Responsibilities
 
 - Defining and working on technical aspects and architecture-related items, such as language distributions, packaging, libraries, serialization, reference data architecture, and integration with other data standards.
