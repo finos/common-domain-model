@@ -449,8 +449,8 @@ type InterestRatePayout extends PayoutBase:
    cashflowRepresentation CashflowRepresentation (0..1)
    stubPeriod StubPeriod (0..1)
    bondReference BondReference (0..1)
-   fixedAmount string (0..1)
-   floatingAmount string (0..1)
+   fixedAmount calculation (0..1)
+   floatingAmount calculation (0..1)
 ```
 
 ---
