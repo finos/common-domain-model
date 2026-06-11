@@ -730,8 +730,6 @@ type WorkflowStep:
     action ActionEnum (0..1) 
     party Party (0..*) 
     account Account (0..*) 
-    lineage Lineage (0..1) 
-        [deprecated]
     creditLimitInformation CreditLimitInformation (0..1)
     workflowState WorkflowState (0..1) 
 ```
