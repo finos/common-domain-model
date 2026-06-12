@@ -407,7 +407,6 @@ combines an interest rate payout and a performance payout; etc.
 
 ``` Haskell
 choice Payout:
-  [metadata key]
   AssetPayout
   CommodityPayout
   CreditDefaultPayout
@@ -426,6 +425,7 @@ are expected to be common across many payouts.
 
 ``` Haskell
 type PayoutBase:
+  [metadata key]
   payerReceiver PayerReceiver (1..1)
   priceQuantity ResolvablePriceQuantity (0..1)
   principalPayment PrincipalPayments (0..1)
