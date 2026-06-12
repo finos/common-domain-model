@@ -13,6 +13,7 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
+import cdm.event.common.functions.CalculateReset;
 import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
@@ -82,6 +83,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     @Inject
     Create_AcceptedWorkflowStepFromInstruction createWorkflowStepFunc;
+
+    @Inject
+    CalculateReset calculateResetFunc;
 
     /**
      * Contract Formation
@@ -1039,15 +1043,18 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @param date    The date of the reset and the rate record, applicable to this instruction.
      * @return A ResetInstruction object containing the provided reset and payout details.
      */
-    public static ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
+    public ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
 
-        //TODO Review if payout1 is used
+        List<? extends Reset> resets = calculateResetFunc.evaluate(CalculateResetInstruction.builder()
+                .setPayout(List.of(payout))
+                .setResetDate(date)
+                .setRateRecordDate(date)
+                .build());
+
+//TODO Review if payout1 is used
         // Initialize and build the ResetInstruction.
         return ResetInstruction.builder()
-                .setResetDate(date)         // The date on which the reset occurs.
-                .setRateRecordDate(date)    // The date for recording the rate associated with the reset.
-                .setPayout(List.of(payout))          // Associates the reset instruction with a referenced payout.
-                //.setPayoutValue(payout1)    // Sets the specific payout value for the reset.
+                .setReset(resets)
                 .build();                   // Builds and returns the finalized ResetInstruction.
     }
 
