@@ -1,4 +1,4 @@
-package org.isda.cdm;
+package org.finos.cdm;
 
 import cdm.base.datetime.functions.BusinessCenterHolidays;
 import cdm.base.datetime.functions.BusinessCenterHolidaysTestDataProvider;

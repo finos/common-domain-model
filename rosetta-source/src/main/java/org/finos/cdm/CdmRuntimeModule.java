@@ -20,7 +20,7 @@ import com.regnosys.runefpml.RuneFpmlRuntimeModule;
 import com.rosetta.model.lib.ModuleConfig;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
-import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
+import org.finos.cdm.qualify.CdmQualificationHandlerProvider;
 import org.finos.cdm.reference.CdmReferenceConfig;
 
 @ModuleConfig(model = "COMMON-DOMAIN-MODEL", type = "Rosetta")

@@ -1,4 +1,4 @@
-package org.isda.cdm.codelist;
+package org.finos.cdm.codelist;
 
 import cdm.base.staticdata.codelist.CodeList;
 import com.fasterxml.jackson.databind.ObjectMapper;
