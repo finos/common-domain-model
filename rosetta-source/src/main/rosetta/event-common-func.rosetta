@@ -20,6 +20,8 @@ import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 import cdm.product.template.*
 import cdm.legaldocumentation.csa.*
+import cdm.legaldocumentation.*
+
 
 func QuantityIncreased:
     inputs:
@@ -2392,14 +2394,14 @@ func InterestPayoutObligationsFulfilled: <"Determines whether the obligations de
 func Create_AgreementEvent: <"Creates an agreement event from primitive instructions and their associated event date, effective date and intent.">
     [creation AgreementEvent]
     inputs:
-        agreementInstruction AgreementInstruction (1..*)
+        instruction AgreementInstruction (1..*)
+        intent AgreementEventIntentEnum (0..*)
         eventDate date (1..1)
         effectiveDate date (1..1)
-        intent AgreementEventIntentEnum (0..*)
     output:
         agreementEvent AgreementEvent (1..1)
     
-    add agreementEvent -> instruction: agreementInstruction
+    add agreementEvent -> instruction: instruction
 
     set agreementEvent -> intent: intent
 
@@ -2407,50 +2409,34 @@ func Create_AgreementEvent: <"Creates an agreement event from primitive instruct
 
     set agreementEvent -> effectiveDate: effectiveDate
 
-func Create_LegalAgreement: <"Creates a Legal Agreement record based on a before legal agreement and the application of party and or term changes that are represented by a Legal agreement amendment).
-    The primitive instructions are applied in the following order:
-        Always first:
-            - party change
-            - terms change">
+    add agreementEvent -> after:
+        instruction
+            extract
+                if item -> primitiveInstruction -> termsChange exists
+                then Create_AgreementTermsChange (
+                        item -> primitiveInstruction -> termsChange,
+                        item -> before
+                )
+                else if item -> primitiveInstruction -> partyChange exists
+                then Create_AgreementPartyChange (
+                        item -> primitiveInstruction -> partyChange,
+                        item -> before
+                )
+
+func Create_AgreementTermsChange: <"Creates and applies change in terms to an existing Legal Agreement record based on a before legal agreement and the application of term election changes that are represented by a Legal agreement amendment.">
     inputs:
-        vmCSATermsChange CreditSupportAgreementVariationMarginElections (0..1) <"A set of instructions that define the amended terms for an Variation Margin Credit Support Annex as per an amendment document.">
-        imCSATermsChange CreditSupportAgreementInitialMarginElections (0..1) <"A set of instructions that define the amended terms for an Initial Margin Credit Support Annex as per an amendment document.">
-        legacyCSATermsChange CreditSupportAgreementLegacyElections (0..1) <"A set of instructions that define the amended terms for an Legacy Credit Support Annex as per an amendment document.">
-        partyChange PartyChangeInstruction (0..1) <"A set of instructions that define the amended parties for a Legal agreement.">
-        before LegalAgreement (0..1) <"The original Legal agreement terms on which the primitive instructions are applied">
+        termsChange AgreementTermsChangeInstruction (1..*)
+        before LegalAgreement (1..1)
     output:
-        after LegalAgreement (1..1) <"The returned Legal agreement terms representing the updated Legal agreement terms based on te application of the amended terms covered by a defined amendment agreement.">
+        after LegalAgreement
 
-    alias VMCSAAgreementTermsChange: <"Create execution if instruction exists, if not, then before must exist.">
-        if vmCSATermsChange is absent
-        then before
-        else Create_VMCSATermsChange(vmCSATermsChange, after)
-
-    alias imCreditSupportAgreementTermsChange: <"Create execution if instruction exists, if not, then before must exist.">
-        if imCSATermsChange is absent
-        then before
-        else Create_IMCSATermsChange(imCSATermsChange, after)
-
-    alias LegacyCreditSupportAgreementTermsChange: <"Create execution if instruction exists, if not, then before must exist.">
-        if legacyCSATermsChange is absent
-        then before
-        else Create_LegacyCSATermsChange(legacyCSATermsChange, after)
-
-    alias AgreementPartyChange: <"Create execution if instruction exists, if not, then must exist.">
-        if partyChange is absent
-        then before
-        else Create_AgreementPartyChange (partyChange, after)
-
-func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change to the parties.">
-    inputs:
-        partyChange PartyChangeInstruction (0..1) <"Instructions to be used as an input to the function when identifying party changes to the agreement.">
-        before LegalAgreement (1..1) <"States the current agreement parties to be amnended.">
-    output:
-        after LegalAgreement (1..1) <"States the agreement parties after the amendment change has been processed">
-    
-    alias agtPartyChange: <"Create agreementpartychange if agreementPartyChangeInstruction exists, if not, then before must exist.">
-        if partyChange is absent
-        then before
+    set after:
+        if termsChange -> vmCSATermsChange exists
+        then Create_VMCSATermsChange (termsChange -> vmCSATermsChange only-element, before)
+        else if termsChange -> imCSATermsChange exists
+        then Create_IMCSATermsChange (termsChange -> imCSATermsChange only-element, before)
+        else if termsChange -> legacyCSATermsChange exists
+        then Create_LegacyCSATermsChange (termsChange -> legacyCSATermsChange only-element, before)
 
 func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
     inputs:
@@ -2459,6 +2445,10 @@ func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
 
+    set after: before
+
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementVariationMarginElections: vmCSATermsChange
+
 func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
     inputs:
         imCSATermsChange CreditSupportAgreementInitialMarginElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
@@ -2466,9 +2456,54 @@ func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
 
+    set after: before
+
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementInitialMarginElections: imCSATermsChange
+
 func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
     inputs:
         agreementTermsChange CreditSupportAgreementLegacyElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
         before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
+
+    set after: before
+
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementLegacyElections: legacyCSATermsChange
+
+func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change to the parties.">
+    inputs:
+        before LegalAgreement (1..1)
+        counterparty Counterparty (1..1)
+        partyRole PartyRole (0..1)
+    output:
+        after LegalAgreement (1..1) <"States the agreement parties after the amendment change has been processed">
+
+    set after: before
+
+    set after -> otherParty: partyRole
+
+func ChangeCounterparty:
+    inputs:
+        originalCP Counterparty (2..2)
+        changeCP Counterparty (1..1)
+    output:
+        newCP Counterparty (2..2)
+
+    alias counterparty1:
+        if changeCP -> role = CounterpartyRoleEnum -> Party1
+        then Counterparty {
+            partyReference: changeCP -> partyReference,
+            role: changeCP -> role
+        }
+        else ExtractCounterpartyByRole(originalCP, CounterpartyRoleEnum -> Party1)
+    alias counterparty2:
+        if changeCP -> role = CounterpartyRoleEnum -> Party2
+        then Counterparty {
+            partyReference: changeCP -> partyReference,
+            role: changeCP -> role
+        }
+        else ExtractCounterpartyByRole(originalCP, CounterpartyRoleEnum -> Party2)
+
+    set newCP: [counterparty1, counterparty2]
+
