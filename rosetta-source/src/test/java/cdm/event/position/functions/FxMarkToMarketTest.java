@@ -10,7 +10,7 @@ import cdm.product.template.*;
 import com.google.inject.Binder;
 import javax.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

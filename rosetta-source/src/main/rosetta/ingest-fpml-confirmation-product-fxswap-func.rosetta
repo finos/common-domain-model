@@ -20,7 +20,8 @@ func MapFxSwapCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlFxSwap -> nearLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1 -> payerPartyReference,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1 -> receiverPartyReference
             )
 
 func MapFxSwapNonTransferableProduct:
@@ -32,8 +33,12 @@ func MapFxSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlFxSwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlFxSwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlFxSwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlFxSwap -> primaryAssetClass,
+                        fpmlFxSwap -> secondaryAssetClass,
+                        fpmlFxSwap -> productType
+                    ),
             economicTerms: MapFxSwapEconomicTerms(fpmlFxSwap, cdmCounterpartyList)
         }
 
@@ -59,14 +64,22 @@ func MapFxSwapPayoutList:
 
     add payoutList:
         MapFxCoreDetailsModelToSettlementPayout(
-                fpmlFxSwap -> nearLeg -> fxCoreDetailsModel,
+                fpmlFxSwap -> nearLeg -> exchangeRate,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency2,
+                fpmlFxSwap -> nearLeg -> nonDeliverableSettlement,
+                fpmlFxSwap -> nearLeg -> valueDate,
                 fpmlFxSwap -> nearLeg,
                 cdmCounterpartyList
             )
 
     add payoutList:
         MapFxCoreDetailsModelToSettlementPayout(
-                fpmlFxSwap -> farLeg -> fxCoreDetailsModel,
+                fpmlFxSwap -> farLeg -> exchangeRate,
+                fpmlFxSwap -> farLeg -> exchangedCurrency1,
+                fpmlFxSwap -> farLeg -> exchangedCurrency2,
+                fpmlFxSwap -> farLeg -> nonDeliverableSettlement,
+                fpmlFxSwap -> farLeg -> valueDate,
                 fpmlFxSwap -> farLeg,
                 cdmCounterpartyList
             )
@@ -79,12 +92,16 @@ func MapFxSwapPriceQuantityList:
 
     add priceQuantityList:
         MapFxCoreDetailsModelPriceQuantityList(
-                fpmlFxSwap -> nearLeg -> fxCoreDetailsModel,
+                fpmlFxSwap -> nearLeg -> exchangeRate,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency2,
                 fpmlFxSwap -> nearLeg
             )
 
     add priceQuantityList:
         MapFxCoreDetailsModelPriceQuantityList(
-                fpmlFxSwap -> farLeg -> fxCoreDetailsModel,
+                fpmlFxSwap -> farLeg -> exchangeRate,
+                fpmlFxSwap -> farLeg -> exchangedCurrency1,
+                fpmlFxSwap -> farLeg -> exchangedCurrency2,
                 fpmlFxSwap -> farLeg
             )

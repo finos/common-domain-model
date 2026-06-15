@@ -1,0 +1,32 @@
+namespace cdm.event.instructioncomposition
+version "${project.version}"
+
+import cdm.event.common.*
+
+type InstructionComposition: <"Represents an instruction composition orchestration, holding data, shared history, and an ordered sequence of CompositionSteps.">
+    [rootType]
+    compositionStep CompositionStep (1..*) <"Ordered sequence of CompositionSteps that drive the instruction composition process (atomic actions, calculations, validations).">
+    compositionState CompositionState (0..1) <"Shared state accumulated across executed steps, capturing intermediate and final outputs of the instruction composition process.">
+    instructionCompositionType InstructionCompositionTypeEnum (1..1) <"Type of Instruction Composition being orchestrated (e.g. ResetInstruction).">
+    identifier string (1..1) <"Unique identifier of this InstructionComposition instance.">
+    tradeId TradeIdentifier (0..1) <"Identifier of the underlying trade to which this InstructionComposition relates.">
+    instructionCompositionOutput InstructionCompositionOutput (0..1) <"Outputs of each Instruction Composition process. The recording of this information will be done in a single step at the end of the process for each Instruction Composition.">
+
+    condition InstructionCompositionType: <"All CompositionSteps within this InstructionComposition must declare the same InstructionCompositionType as the InstructionComposition itself.">
+        compositionStep -> compositionStepInstruction -> instructionCompositionType all = instructionCompositionType
+
+type CompositionStep: <"Represents a single atomic step in the instruction composition lifecycle, including its instructions, status, and optional output.">
+    identifier string (0..1) <"Identification of the Instruction Composition step.">
+    timestamp zonedDateTime (0..1) <"Date and time of the execution of the Instruction Composition step after being executed.">
+    compositionStepInstruction CompositionStepInstruction (1..1) <"Set of instructions defining the steps of each Instruction Composition process.">
+
+type CompositionStepInstruction: <"Set of instructions defining the steps of each Instruction Composition process.">
+    instructionCompositionType InstructionCompositionTypeEnum (1..1) <"Definition of the Instruction Composition.">
+    compositionStepInstructions CompositionStepInstructions (1..1) <"List of all Instruction CompositionSteps that can be reusable across Instruction Compositions.">
+
+type CompositionStepInstructions: <"Container for all instruction steps that can be used within an InstructionComposition.">
+
+type InstructionCompositionOutput: <"Records the relevant output of each Instruction Composition. Will be updated while executing the relevant steps of the Instruction Composition so at the end of the process the output should be completed and ready to use in other parts of the system.">
+    resetInstruction ResetInstruction (0..1) <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
+
+choice CompositionState: <"A container that holds the cumulative state of an Instruction Composition. It selects the specific history/state schema (e.g., ResetInstructionState) based on the lifecycle process being executed.">

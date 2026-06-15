@@ -22,7 +22,10 @@ func MapSwaptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlSwaption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlSwaption -> buyerPartyReference,
+                fpmlSwaption -> sellerPartyReference
+            )
 
 func MapSwaptionAncillaryPartyList:
     inputs:
@@ -55,8 +58,12 @@ func MapSwaptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlSwaption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlSwaption -> productModel),
+            identifier: MapProductIdentifierList(fpmlSwaption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlSwaption -> primaryAssetClass,
+                        fpmlSwaption -> secondaryAssetClass,
+                        fpmlSwaption -> productType
+                    ),
             economicTerms: MapSwaptionEconomicTerms(fpmlSwaption, cdmCounterpartyList)
         }
 
@@ -91,7 +98,8 @@ func MapSwaptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> sellerPartyReference,
+                                fpmlSwaption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: if fpmlSwaption -> cashSettlement exists
@@ -102,7 +110,8 @@ func MapSwaptionPayout:
                                 fpmlSwaption -> physicalSettlement
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> buyerPartyReference,
+                                fpmlSwaption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -125,7 +134,8 @@ func MapSwaptionPayout:
                                 fpmlSwaption -> exercise,
                                 fpmlSwaption -> exerciseProcedure,
                                 empty,
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> buyerPartyReference,
+                                fpmlSwaption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     ...
