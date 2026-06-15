@@ -77,11 +77,36 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
     output:
         updatedResetCompositionState ResetInstructionState (1..1)
 
+    // Step 1: Floating Rate Index & Trade Date
+    set updatedResetCompositionState -> floatingRateIndex:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption -> floatingRateIndex
+        else currentResetCompositionState -> floatingRateIndex
+    set updatedResetCompositionState -> tradeDate:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption -> tradeDate
+        else currentResetCompositionState -> tradeDate
+
 func NextCompositionStepToExecute: <"Determines the next logical execution step for a given Instruction Composition by evaluating its current execution history and process type.">
     inputs:
         currentInstructionComposition InstructionComposition (1..1)
     output:
         nextCompositionStep InstructionCompositionSteps (0..1)
+
+    // Reset Instruction Composition
+    alias resetInstructionNextStep:
+        InstructionCompositionSteps {
+            ResetInstructionSteps: ResetInstructionNextStep(
+                        (currentInstructionComposition -> compositionState switch
+                            ResetInstructionState then item),
+                        currentInstructionComposition -> instructionCompositionOutput
+                    )
+        }
+
+    set nextCompositionStep:
+        if currentInstructionComposition -> instructionCompositionType = ResetInstruction
+        then resetInstructionNextStep
+        else empty
 
 func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
     inputs:
