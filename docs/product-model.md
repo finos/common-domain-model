@@ -1188,10 +1188,7 @@ the word `Qualify` followed by an underscore `_` and then the product
 type from the applicable taxonomy (also separated by underscores).
 
 The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual
-products, foreign exchange, and repurchase agreements. Given the
-prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent
-name from that taxonomy is also systematically indicated in the CDM,
-using a `synonym` annotation displayed under the function output. An
+products, foreign exchange, and repurchase agreements. An
 example is provided below for the qualification of a Zero-Coupon
 Fixed-Float Inflation Swap:
 
