@@ -478,16 +478,16 @@ func MapCommoditySwapPriceQuantityList:
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract
-                item switch
+                (item switch
                     fpml.FixedLeg then MapFixedLegToPriceQuantity,
-                    default empty
+                    default empty) then flatten
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract
-                item switch
+                (item switch
                     fpml.FloatingLeg then MapFloatingLegToPriceQuantity,
-                    default empty
+                    default empty) then flatten
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
@@ -528,16 +528,16 @@ func MapFixedLegToPriceQuantity:
     inputs:
         fpmlFixedLeg fpml.FixedLeg (0..1)
     output:
-        priceQuantity PriceQuantity (0..1)
+        priceQuantity PriceQuantity (0..*)
 
     set priceQuantity:
-        PriceQuantity {
-            quantity: MapCommodityNotionalQuantityToQuantityListWithLocation(
+        MapCommodityNotionalQuantityToQuantityListWithLocation(
                         fpmlFixedLeg -> notionalQuantity,
                         fpmlFixedLeg -> totalNotionalQuantity,
                         fpmlFixedLeg -> notionalQuantitySchedule,
                         fpmlFixedLeg
-                    ),
+                    ) extract PriceQuantity {
+            quantity: item,
             price: MapCommodityFixedLegToPriceWithLocation(
                         fpmlFixedLeg -> fixedPrice,
                         fpmlFixedLeg -> fixedPriceSchedule,
@@ -550,20 +550,20 @@ func MapFloatingLegToPriceQuantity:
     inputs:
         fpmlFloatingLeg fpml.FloatingLeg (0..1)
     output:
-        priceQuantity PriceQuantity (0..1)
+        priceQuantity PriceQuantity (0..*)
 
     alias priceCapacityUnit:
         // if fpmlFloatingLeg exists then
         MapCapacityUnitEnum(fpmlFloatingLeg -> notionalQuantity -> quantityUnit -> value)
 
     set priceQuantity:
-        PriceQuantity {
-            quantity: MapCommodityNotionalQuantityToQuantityListWithLocation(
+        MapCommodityNotionalQuantityToQuantityListWithLocation(
                         fpmlFloatingLeg -> notionalQuantity,
                         fpmlFloatingLeg -> totalNotionalQuantity,
                         fpmlFloatingLeg -> notionalQuantitySchedule,
                         fpmlFloatingLeg
-                    ),
+                    ) extract PriceQuantity {
+            quantity: item,
             observable: MapAssetToObservableWithLocation(fpmlFloatingLeg -> commodity),
             price: MapCommoditySpreadToPriceWithLocation(
                         fpmlFloatingLeg -> calculation -> spread,

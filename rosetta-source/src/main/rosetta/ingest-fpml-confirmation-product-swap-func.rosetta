@@ -714,26 +714,26 @@ func MapSwapPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    add priceQuantityList: fpmlSwap -> swapStream extract MapSwapPriceQuantity
+    add priceQuantityList: fpmlSwap -> swapStream extract MapSwapPriceQuantity then flatten
 
 func MapSwapPriceQuantity:
     inputs:
         fpmlSwapStream fpml.InterestRateStream (0..1)
     output:
-        priceQuantity PriceQuantity (0..1)
+        priceQuantity PriceQuantity (0..*)
 
     alias calculationPeriodAmount: fpmlSwapStream -> calculationPeriodAmount
 
     set priceQuantity:
-        PriceQuantity {
+        MapCalculationPeriodAmountToQuantityList(
+                        calculationPeriodAmount,
+                        fpmlSwapStream
+                    ) extract PriceQuantity {
             price: MapCalculationPeriodAmountToPriceList(
                         calculationPeriodAmount,
                         fpmlSwapStream
                     ),
-            quantity: MapCalculationPeriodAmountToQuantityList(
-                        calculationPeriodAmount,
-                        fpmlSwapStream
-                    ),
+            quantity: item,
             observable: MapRateOptionToObservableWithLocation(
                         calculationPeriodAmount -> calculation -> rateCalculation,
                         fpmlSwapStream
