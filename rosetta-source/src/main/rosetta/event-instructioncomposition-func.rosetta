@@ -87,6 +87,17 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
         then nextStepToAdd -> collectFloatingRateOption -> tradeDate
         else currentResetCompositionState -> tradeDate
 
+    // Step 2: Unadjusted Calculation Period & Reset Date
+    set updatedResetCompositionState -> unadjustedCalculationPeriod:
+        if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
+        then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedCalculationPeriod
+        else currentResetCompositionState -> unadjustedCalculationPeriod
+
+    set updatedResetCompositionState -> unadjustedResetDate:
+        if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
+        then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedResetDate
+        else currentResetCompositionState -> unadjustedResetDate
+
 func NextCompositionStepToExecute: <"Determines the next logical execution step for a given Instruction Composition by evaluating its current execution history and process type.">
     inputs:
         currentInstructionComposition InstructionComposition (1..1)
