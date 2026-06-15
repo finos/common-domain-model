@@ -1,7 +1,7 @@
 package cdm.base.math.functions;
 
 import javax.inject.Inject;
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
