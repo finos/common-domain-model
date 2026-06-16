@@ -2,7 +2,7 @@
 title: The Common Domain Model
 ---
 
-**There are seven modelling dimensions** to the CDM, which are detailed
+**There are six modelling dimensions** to the CDM, which are detailed
 in the following sections:
 
 - [product-model](/docs/product-model) 
@@ -10,7 +10,6 @@ in the following sections:
 - [legal-agreements](/docs/legal-agreements)
 - [process-model](/docs/process-model)
 - [reference-data-model](/docs/reference-data-model) 
-- [mapping](/docs/mapping)
 - [namespace](/docs/namespace)
 
 
