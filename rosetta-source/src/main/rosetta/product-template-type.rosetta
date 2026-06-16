@@ -19,7 +19,8 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 
-type TransferableProduct extends Asset: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+type TransferableProduct: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+    asset Asset (1..1) <"An Asset is defined as something that can be owned and transferred in the financial markets.">
     economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
     productPartyRole CounterpartyRoleEnum (1..1) <"Overrides the parties on the trade to identify the party with the obligation to pay dividends or coupons, e.g issuer.">
 
@@ -404,7 +405,7 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     condition Basket: <"If the underlier is a basket, it must contain only transferable assets.">
         if underlier -> Observable -> Basket exists
         then (underlier -> Observable -> Basket -> basketConstituent
-                extract Asset exists
+                extract observable -> Asset exists
                 ) all = True
 
     condition Index: <"If the underlier is an Index, then it can only be cash settled.">

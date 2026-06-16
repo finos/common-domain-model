@@ -3,7 +3,7 @@ package cdm.product.qualification.functions;
 import cdm.event.common.TradeState;
 import cdm.product.template.EconomicTerms;
 import javax.inject.Inject;
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 import org.finos.cdm.util.ResourcesUtils;
 
