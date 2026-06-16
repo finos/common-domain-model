@@ -2417,18 +2417,19 @@ func Create_AgreementEvent: <"Creates an agreement event from primitive instruct
                         item -> primitiveInstruction -> termsChange,
                         item -> before
                 )
-                else if item -> primitiveInstruction -> partyChange exists
-                then Create_AgreementPartyChange (
-                        item -> primitiveInstruction -> partyChange,
-                        item -> before
-                )
+                else if item -> primitiveInstruction -> partyChange exists then empty
+            //     then Create_AgreementPartyChange (
+            //            item -> primitiveInstruction -> partyChange -> counterparty,
+            //            item - > primitiveInstruction -> partyChange -> partyRole,
+            //            item -> before
+            //    )
 
 func Create_AgreementTermsChange: <"Creates and applies change in terms to an existing Legal Agreement record based on a before legal agreement and the application of term election changes that are represented by a Legal agreement amendment.">
     inputs:
         termsChange AgreementTermsChangeInstruction (1..*)
         before LegalAgreement (1..1)
     output:
-        after LegalAgreement
+        after LegalAgreement (1..1)
 
     set after:
         if termsChange -> vmCSATermsChange exists
@@ -2462,7 +2463,7 @@ func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
 
 func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
     inputs:
-        agreementTermsChange CreditSupportAgreementLegacyElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
+        legacyCSATermsChange CreditSupportAgreementLegacyElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
         before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
@@ -2473,13 +2474,16 @@ func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraint
 
 func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change to the parties.">
     inputs:
-        before LegalAgreement (1..1)
         counterparty Counterparty (1..1)
         partyRole PartyRole (0..1)
+        before LegalAgreement (1..1)
     output:
         after LegalAgreement (1..1) <"States the agreement parties after the amendment change has been processed">
 
     set after: before
+
+    set after -> agreementTerms -> counterparty:
+    ChangeCounterparty(before -> agreementTerms -> counterparty, counterparty)
 
     set after -> otherParty: partyRole
 
