@@ -57,10 +57,9 @@ The namespace hierarchy in the CDM contains 7 components
 -   Observable -- contains observable concepts: market data, holiday
     calendars, asset class specific specifications
 -   Product -- contains generic product concepts: quantity, price,
-    economic terms and payout, that are built using template features
+    economic terms and payout
 -   Regulation -- contains regulation concepts: regulatory bodies,
     corpus, report definitions and field rules
--   Synonym -- contains model to model synonym mappings
 
 Each of these higher-level namespaces is further divided into
 lower-level namespaces. The independent components in each namespace are

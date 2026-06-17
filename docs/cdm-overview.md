@@ -116,7 +116,6 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Legal Agreement
     -   Process
     -   Reference Data
-    -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
     model definitions expressed in the Rune DSL using [available code
     generators](https://docs.rosetta-technology.io/rosetta/rune-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
