@@ -606,10 +606,7 @@ func Create_Reset:
 
 ``` Haskell
 type ResetInstruction:
-  payout Payout (1..*)
-    [metadata reference]
-  rateRecordDate date (0..1)
-  resetDate date (1..1)
+    reset Reset (0..*)
 ```
 
 #### Transfer Primitive
@@ -843,9 +840,8 @@ message.
 
 ---
 **Note:**
-The type of the `eventQualifier` attribute in `BusinessEvent`, called
-`eventType`, is a *meta-type* that indicates that its value is meant to
-be populated using some functional logic. That functional logic must be
+The `eventQualifier` attribute in `BusinessEvent` is meant to be
+populated using some functional logic. That functional logic must be
 represented by a qualification function annotated with
 `[qualification BusinessEvent]`, as in the example above. This mechanism
 is further detailed in the Rosetta DSL documentation.

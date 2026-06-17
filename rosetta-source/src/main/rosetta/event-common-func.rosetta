@@ -571,12 +571,11 @@ func Create_NonTransferableProduct: <"Creates a NonTransferableProduct (ie Econo
     set newProduct -> economicTerms -> payout -> SettlementPayout -> payerReceiver:
         payerReceiver
 
-func Create_Reset: <"Defines how a Reset should be constructed.">
+func CalculateReset: <"Function specification to calculate a reset.">
     inputs:
-        instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
-        tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+        instruction CalculateResetInstruction (1..1) <"The instruction containing the parameters and payout references required to calculate the reset.">
     output:
-        reset TradeState (1..1)
+        reset Reset (0..*)
 
     alias payout: <"Specifies the payout that is resetting.">
         instruction -> payout
@@ -601,9 +600,7 @@ func Create_Reset: <"Defines how a Reset should be constructed.">
     alias observation: <"Represents the single observation that will be used to compute the reset value.">
         ResolveObservation([observationIdentifiers], empty)
 
-    set reset: tradeState
-
-    add reset -> resetHistory: <"To handle the various ways Contracts can change over time, ">
+    add reset: <"Calculates and appends the reset value for the contract by resolving the specific performance or interest rate reset logic based on the underlying payout type.">
         if payout -> PerformancePayout count = 1
         then ResolvePerformanceReset(
                     payout -> PerformancePayout only-element,
@@ -617,6 +614,18 @@ func Create_Reset: <"Defines how a Reset should be constructed.">
                     instruction -> resetDate,
                     instruction -> rateRecordDate
                 )
+
+func Create_Reset: <"This function processes a lifecycle reset event (e.g., a floating interest rate) for an active trade. It takes the incoming Reset Instruction and applies it to the current state of the trade.">
+    inputs:
+        instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
+        tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+    output:
+        reset TradeState (1..1)
+
+    set reset: tradeState
+
+    add reset -> resetHistory: <"Assigns the reset contained in the reset instruction to the resetHistory attribute.">
+        instruction -> reset
 
 func CalculateTransfer: <"Function specification to calculate a transfer, e.g. following a reset on a contract">
     inputs:
@@ -1444,7 +1453,7 @@ func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a
         instruction PrimitiveInstruction (1..1)
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, terminationDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective and termination dates changed (i.e. terms change instruction) and price / quantity changed.">
         [
@@ -1513,7 +1522,7 @@ func Create_OnDemandRateChangePrimitiveInstruction: <"Creates a full primitive i
         tradeState -> trade -> tradeLot count = 1
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, effectiveDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective date and price (rate) changed.">
         [
@@ -1593,7 +1602,7 @@ func Create_CancellationPrimitiveInstruction: <"Creates a primitive instruction 
         instruction PrimitiveInstruction (1..1)
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, cancellationDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with termination date changed and price / quantity changed (taking new repurchase price into account).">
         [
@@ -1676,7 +1685,7 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
         tradeLots extract item -> lotIdentifier only-element
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, empty)]
 
     add instruction -> split -> breakdown: <"The second part of the split consists in a quantity change and a new execution for each provided trade lot. The quantity change takes care of the shaping according to the provided quantities. The execution adds the required package component to the execution details.">
         tradeLots
@@ -1721,7 +1730,7 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
         instruction PrimitiveInstruction (1..1)
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, empty)]
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
         [
@@ -1785,7 +1794,8 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
             ...
         }
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
+    set instruction -> split -> breakdown:
+        [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
         [
@@ -1857,7 +1867,8 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
     condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
         tradeState -> trade -> tradeLot count = 1
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
+    set instruction -> split -> breakdown:
+        [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
         [
@@ -2039,6 +2050,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
 func Create_TerminationInstruction: <"Creates the relevant primitive instruction for a termination, which consists in a quantity change to bring the quantity to zero.">
     inputs:
         tradeState TradeState (1..1) <"The original trade to be termintaed.">
+        effectiveDate AdjustableOrRelativeDate (0..1) <"Date of Termination">
     output:
         instruction PrimitiveInstruction (1..1)
 
@@ -2055,6 +2067,7 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
     alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
         PriceQuantity {
             quantity: changeQuantity,
+            effectiveDate: effectiveDate,
             ...
         }
 
@@ -2180,6 +2193,13 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         if primitiveInstruction -> valuation is absent
         then observation
         else Create_Valuation(primitiveInstruction -> valuation, observation)
+
+    alias terminationDate: <"Use effective Date in absence of eventDate, if it exists">
+        if primitiveInstruction -> quantityChange -> change -> effectiveDate exists
+        then ResolveAdjustableDate(
+                    primitiveInstruction -> quantityChange -> change -> effectiveDate first
+                )
+        else empty
 
     alias stockSplit:
         if primitiveInstruction -> stockSplit is absent
