@@ -5,7 +5,7 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
+import cdm.observable.asset.* 
 
 choice Asset: <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the attributes must be used.">
     Cash <"An Asset that consists solely of a monetary holding in a currency.">
@@ -26,17 +26,19 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
         if partyRole -> role = Exchange then isExchangeListed = True
 
     condition ExchangeListed: <"if isExchangeListed is true then partyRole is Exchange.">
-        if isExchangeListed then partyRole -> role = Exchange
+        if isExchangeListed and partyRole exists
+        then partyRole -> role = Exchange
 
     condition IssuerRole: <"If the asset type is a security then the role must be issuer.">
-        if assetType = Security then partyRole -> role = Issuer
+        if assetType = Security and partyRole exists
+        then partyRole -> role = Issuer
 
     condition ExchangeRole: <"If the asset type is a listed derivative then the role must be exchange.">
-        if assetType = ListedDerivative
+        if assetType = ListedDerivative and partyRole exists
         then partyRole -> role = Exchange
 
     condition LenderBorrowerRole: <"If the asset type is a Loan then the role must be Lender.">
-        if assetType = Loan
+        if assetType = Loan and partyRole exists
         then partyRole -> role = Lender or partyRole -> role = Borrower
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
