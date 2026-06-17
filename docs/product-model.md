@@ -407,7 +407,6 @@ combines an interest rate payout and a performance payout; etc.
 
 ``` Haskell
 choice Payout:
-  [metadata key]
   AssetPayout
   CommodityPayout
   CreditDefaultPayout
@@ -426,6 +425,7 @@ are expected to be common across many payouts.
 
 ``` Haskell
 type PayoutBase:
+  [metadata key]
   payerReceiver PayerReceiver (1..1)
   priceQuantity ResolvablePriceQuantity (0..1)
   principalPayment PrincipalPayments (0..1)
@@ -1188,10 +1188,7 @@ the word `Qualify` followed by an underscore `_` and then the product
 type from the applicable taxonomy (also separated by underscores).
 
 The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual
-products, foreign exchange, and repurchase agreements. Given the
-prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent
-name from that taxonomy is also systematically indicated in the CDM,
-using a `synonym` annotation displayed under the function output. An
+products, foreign exchange, and repurchase agreements. An
 example is provided below for the qualification of a Zero-Coupon
 Fixed-Float Inflation Swap:
 
