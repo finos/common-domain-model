@@ -20,14 +20,9 @@ func MapVolatilitySwapTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg first -> payerReceiverModel
+                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg first -> payerPartyReference,
+                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg first -> receiverPartyReference
             )
-
-func MapVolatilitySwapTransactionSupplementAncillaryPartyList:
-    inputs:
-        fpmlVolatilitySwapTransactionSupplement fpml.VolatilitySwapTransactionSupplement (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
 
 func MapVolatilitySwapTransactionSupplementNonTransferableProduct:
     inputs:
@@ -39,10 +34,12 @@ func MapVolatilitySwapTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlVolatilitySwapTransactionSupplement -> productModel
+                        fpmlVolatilitySwapTransactionSupplement -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlVolatilitySwapTransactionSupplement -> productModel
+                        fpmlVolatilitySwapTransactionSupplement -> primaryAssetClass,
+                        fpmlVolatilitySwapTransactionSupplement -> secondaryAssetClass,
+                        fpmlVolatilitySwapTransactionSupplement -> productType
                     ),
             economicTerms: MapVolatilitySwapTransactionSupplementEconomicTerms(
                         fpmlVolatilitySwapTransactionSupplement,
@@ -83,7 +80,14 @@ func MapVolatilitySwapTransactionSupplementAccountPartyReference:
             [metadata reference]
 
     set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg -> payerReceiverModel
-            )
+        fpmlVolatilitySwapTransactionSupplement -> volatilityLeg
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then filter reference exists
+            then first

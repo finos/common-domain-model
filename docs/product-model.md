@@ -47,8 +47,10 @@ type AssetBase:
     identifier AssetIdentifier (1..*) 
     taxonomy Taxonomy (0..*) 
     isExchangeListed boolean (0..1) 
-    exchange LegalEntity (0..1)  
-    relatedExchange LegalEntity (0..*) 
+    party Party (0..*)
+    partyRole AssetPartyRole (0..1)
+    ancillaryPartyRole AssetAncillaryPartyRole (0..*)
+    assetType AssetTypeEnum (1..1)
 ```
 
 The data types are designed to carry the minimal amount of information that is needed to uniquely identify the asset
@@ -108,7 +110,6 @@ The additional attributes on `Loan` can be used when needed to uniquely identify
 
 ``` Haskell
 type Loan extends InstrumentBase:
-    borrower LegalEntity (0..*)
     lien string (0..1)
         [metadata scheme]
     facilityType string (0..1)
@@ -270,13 +271,11 @@ It can be used as the underlier of a basic Payout that describes the buying and 
 :::
 
 ``` Haskell
-type TransferableProduct extends Asset:
+type TransferableProduct:
+    asset Asset (1..1)
     economicTerms EconomicTerms (1..1)
+    productPartyRole CounterpartyRoleEnum (1..1)
 ```
-
-Because `TransferableProduct` extends `Asset`, it inherits its `identifier` and `taxonomy` attributes from it.
-In that case, those attributes are of type, respectively, `AssetIdentifier` and `Taxonomy`.
-
 #### NonTransferableProduct
 
 By contrast with a transferable product, which can be held by a single party who can in turn transfer it to another,
@@ -408,7 +407,6 @@ combines an interest rate payout and a performance payout; etc.
 
 ``` Haskell
 choice Payout:
-  [metadata key]
   AssetPayout
   CommodityPayout
   CreditDefaultPayout
@@ -427,6 +425,7 @@ are expected to be common across many payouts.
 
 ``` Haskell
 type PayoutBase:
+  [metadata key]
   payerReceiver PayerReceiver (1..1)
   priceQuantity ResolvablePriceQuantity (0..1)
   principalPayment PrincipalPayments (0..1)
@@ -1189,10 +1188,7 @@ the word `Qualify` followed by an underscore `_` and then the product
 type from the applicable taxonomy (also separated by underscores).
 
 The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual
-products, foreign exchange, and repurchase agreements. Given the
-prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent
-name from that taxonomy is also systematically indicated in the CDM,
-using a `synonym` annotation displayed under the function output. An
+products, foreign exchange, and repurchase agreements. An
 example is provided below for the qualification of a Zero-Coupon
 Fixed-Float Inflation Swap:
 
@@ -1201,7 +1197,6 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
   [qualification Product]
   inputs: economicTerms EconomicTerms (1..1)
   output: is_product boolean (1..1)
-    [synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
   set is_product:
     Qualify_BaseProduct_Inflation(economicTerms) = True
     and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False

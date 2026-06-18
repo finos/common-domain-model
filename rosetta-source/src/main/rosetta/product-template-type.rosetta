@@ -9,7 +9,6 @@ import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
-import cdm.mapping.config.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
 import cdm.observable.event.*
@@ -20,8 +19,13 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 
-type TransferableProduct extends Asset: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+type TransferableProduct: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+    asset Asset (1..1) <"An Asset is defined as something that can be owned and transferred in the financial markets.">
     economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
+    productPartyRole CounterpartyRoleEnum (1..1) <"Overrides the parties on the trade to identify the party with the obligation to pay dividends or coupons, e.g issuer.">
+
+    condition AssetPartyRoleExists: <"A TransferableProduct must contain an asset and a partyRole.">
+        asset ->> partyRole exists
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
@@ -116,10 +120,6 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
     condition IndependentCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
         then calculationAgent -> calculationAgentParty = AncillaryRoleEnum -> CalculationAgentIndependent
-
-    condition AssetPayoutDividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then it should be a Term trade.">
-        if payout -> AssetPayout -> dividendTerms exists
-        then terminationDate exists
 
 type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     buyerSeller BuyerSeller (1..1)
@@ -274,7 +274,6 @@ type PortfolioReturnTerms extends ReturnTerms: <"Specifies an individual type of
         [metadata address "pointsTo"=PriceQuantity->price]
 
 choice Payout: <"Represents the set of future cashflow methodologies in the form of specific payout data type(s) which result from the financial product.  Examples: a trade in a cash asset will use only a settlement payout; for derivatives, two interest rate payouts can be combined to specify an interest rate swap; one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
-    [metadata key]
 
     AssetPayout <"Defines the assets and movements in a security financing transaction.">
     CommodityPayout <"Defines the payout for the floating leg of a Commodity Swap.">
@@ -408,7 +407,7 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     condition Basket: <"If the underlier is a basket, it must contain only transferable assets.">
         if underlier -> Observable -> Basket exists
         then (underlier -> Observable -> Basket -> basketConstituent
-                extract Asset exists
+                extract observable -> Asset exists
                 ) all = True
 
     condition Index: <"If the underlier is an Index, then it can only be cash settled.">
@@ -830,7 +829,7 @@ type MultipleExercise extends PartialExercise: <"A class defining multiple exerc
 
 type PartialExercise: <"A class defining partial exercise. As defined in the 2000 ISDA Definitions, Section 12.3 Partial Exercise, the buyer of the option may exercise all or less than all the notional amount of the underlying swap but may not be less than the minimum notional amount (if specified) and must be an integral multiple of the integral multiple amount if specified.">
 
-    notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document. This element has been made optional as part of its integration in the OptionBaseExtended, because not required for the options on securities.">
+    notionalReference Money (0..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document. This element has been made optional as part of its integration in the OptionBaseExtended, because not required for the options on securities.">
         [metadata reference]
     integralMultipleAmount number (0..1) <"A notional amount which restricts the amount of notional that can be exercised when partial exercise or multiple exercise is applicable. The integral multiple amount defines a lower limit of notional that can be exercised and also defines a unit multiple of notional that can be exercised, i.e. only integer multiples of this amount can be exercised.">
     minimumNotionalAmount number (0..1) <"The minimum notional amount that can be exercised on a given exercise date. See multipleExercise.">
@@ -843,7 +842,6 @@ type Strike: <"A class describing a single cap or floor rate.">
     [metadata key]
 
     strikeRate number (1..1) <"The rate for a cap or floor.">
-        [synonym FIX_5_0_SP2 value "StrikePrice" tag 202]
     buyer PayerReceiverEnum (0..1) <"The buyer of the option.">
     seller PayerReceiverEnum (0..1) <"The party that has sold.">
 

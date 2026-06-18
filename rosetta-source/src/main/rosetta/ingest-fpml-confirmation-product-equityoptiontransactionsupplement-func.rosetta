@@ -23,14 +23,9 @@ func MapEquityOptionTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(
-                fpmlEquityOptionTransactionSupplement -> buyerSellerModel
+                fpmlEquityOptionTransactionSupplement -> buyerPartyReference,
+                fpmlEquityOptionTransactionSupplement -> sellerPartyReference
             )
-
-func MapEquityOptionTransactionSupplementAncillaryPartyList:
-    inputs:
-        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
 
 func MapEquityOptionTransactionSupplementNonTransferableProduct:
     inputs:
@@ -42,10 +37,12 @@ func MapEquityOptionTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlEquityOptionTransactionSupplement -> productModel
+                        fpmlEquityOptionTransactionSupplement -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlEquityOptionTransactionSupplement -> productModel
+                        fpmlEquityOptionTransactionSupplement -> primaryAssetClass,
+                        fpmlEquityOptionTransactionSupplement -> secondaryAssetClass,
+                        fpmlEquityOptionTransactionSupplement -> productType
                     ),
             economicTerms: MapEquityOptionTransactionSupplementEconomicTerms(
                         fpmlEquityOptionTransactionSupplement,
@@ -85,14 +82,17 @@ func MapEquityOptionTransactionSupplementPayout:
         }
 
     alias perUnitOf:
-        GetPerUnitOfForEquityDerivativeBase(fpmlEquityOptionTransactionSupplement)
+        GetUnitTypeForUnderlyingAsset(
+                fpmlEquityOptionTransactionSupplement -> underlyer -> singleUnderlyer -> underlyingAsset
+            )
 
     set payout:
         Payout {
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlEquityOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlEquityOptionTransactionSupplement -> sellerPartyReference,
+                                fpmlEquityOptionTransactionSupplement -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -108,7 +108,8 @@ func MapEquityOptionTransactionSupplementPayout:
                                 empty
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlEquityOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlEquityOptionTransactionSupplement -> buyerPartyReference,
+                                fpmlEquityOptionTransactionSupplement -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -124,13 +125,14 @@ func MapEquityOptionTransactionSupplementPayout:
                                         fpmlEquityOptionTransactionSupplement -> equityExercise
                                     ),
                                 empty,
-                                fpmlEquityOptionTransactionSupplement -> equityExercise -> equityExerciseValuationSettlementSequence -> automaticExercise,
-                                fpmlEquityOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlEquityOptionTransactionSupplement -> equityExercise -> automaticExercise,
+                                fpmlEquityOptionTransactionSupplement -> buyerPartyReference,
+                                fpmlEquityOptionTransactionSupplement -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     strike: MapOptionStrikePrice(
                                 fpmlEquityOptionTransactionSupplement -> strike -> strikePrice,
-                                fpmlEquityOptionTransactionSupplement -> strike -> equityStrikeSequence -> strikePercentage,
+                                fpmlEquityOptionTransactionSupplement -> strike -> strikePercentage,
                                 unit,
                                 perUnitOf
                             ),
@@ -150,7 +152,8 @@ func MapEquityOptionTransactionSupplementPriceQuantityList:
             quantity: MapEquityDerivativeBaseQuantityListWithLocation(
                         fpmlEquityOptionTransactionSupplement,
                         fpmlEquityOptionTransactionSupplement -> numberOfOptions,
-                        fpmlEquityOptionTransactionSupplement -> optionEntitlement
+                        fpmlEquityOptionTransactionSupplement -> optionEntitlement,
+                        empty
                     ),
             observable: MapUnderlyerToObservableWithLocation(
                         fpmlEquityOptionTransactionSupplement -> underlyer
@@ -169,5 +172,6 @@ func MapEquityOptionTransactionSupplementAccountPartyReference:
     set partyReference:
         MapBuyerSellerToAccountPartyReference(
                 fpmlAccount,
-                fpmlEquityOptionTransactionSupplement -> buyerSellerModel
+                fpmlEquityOptionTransactionSupplement -> buyerAccountReference,
+                fpmlEquityOptionTransactionSupplement -> sellerAccountReference
             )

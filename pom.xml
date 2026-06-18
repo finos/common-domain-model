@@ -81,9 +81,9 @@
         <!-- release version is overridden in rosetta-source -->
         <maven.compiler.release>11</maven.compiler.release>
 
-        <rune-fpml.version>1.5.0</rune-fpml.version>
-        <rosetta.dsl.version>9.75.3</rosetta.dsl.version>
-        <rosetta.bundle.version>11.108.0</rosetta.bundle.version>
+        <rune-fpml.version>3.2.0</rune-fpml.version>
+        <rosetta.dsl.version>10.0.0-dev.17</rosetta.dsl.version>
+        <rosetta.bundle.version>12.0.0-dev.25</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>
 
         <xtext.version>2.38.0</xtext.version>
@@ -96,7 +96,7 @@
         <guava.version>33.3.1-jre</guava.version>
         <jackson.version>2.17.1</jackson.version>
 
-        <!-- org.isda.CodeListTransformer -->
+        <!-- org.finos.cdm.CodeListTransformer -->
         <saxon.version>10.6</saxon.version>
 
         <!-- test -->
@@ -104,7 +104,7 @@
         <junit-platform-commons.version>1.9.1</junit-platform-commons.version>
         <mockito.version>5.1.1</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <logback.version>1.5.13</logback.version>
+        <logback.version>1.5.25</logback.version>
 
         <!-- plugins -->
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
@@ -159,13 +159,13 @@
                         <artifactId>maven-source-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>attach-sources</id>
-                                <phase>none</phase> <!-- Disable this execution -->
+                                <id>default</id>
+                                <phase>none</phase>
                             </execution>
                             <execution>
-                                <id>default</id>
+                                <id>attach-sources</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>jar-no-fork</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -206,7 +206,9 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
-                        <argLine>-Xss16m -Xmx1024m</argLine>
+                        <forkCount>2</forkCount>
+                        <reuseForks>true</reuseForks>
+                        <argLine>-Xss16m -Xmx700m</argLine>
                         <trimStackTrace>false</trimStackTrace>
                     </configuration>
                 </plugin>
@@ -239,8 +241,8 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>com.regnosys.rosetta</groupId>
-                    <artifactId>rosetta-maven-plugin</artifactId>
+                    <groupId>org.finos.rune</groupId>
+                    <artifactId>rune-maven-plugin</artifactId>
                     <version>${rosetta.dsl.version}</version>
                     <dependencies>
                         <dependency>
@@ -249,13 +251,13 @@
                             <version>${rosetta.code-gen.version}</version>
                         </dependency>
                         <dependency>
-                            <groupId>com.regnosys.rosetta</groupId>
-                            <artifactId>com.regnosys.rosetta</artifactId>
+                            <groupId>org.finos.rune</groupId>
+                            <artifactId>rune-lang</artifactId>
                             <version>${rosetta.dsl.version}</version>
                         </dependency>
                         <dependency>
-                            <groupId>com.regnosys.rosetta</groupId>
-                            <artifactId>com.regnosys.rosetta.lib</artifactId>
+                            <groupId>org.finos.rune</groupId>
+                            <artifactId>rune-runtime</artifactId>
                             <version>${rosetta.dsl.version}</version>
                         </dependency>
                     </dependencies>
@@ -349,30 +351,30 @@
             </dependency>
             <!-- rosetta START -->
             <dependency>
-                <groupId>com.regnosys.rune-fpml</groupId>
-                <artifactId>rosetta-source</artifactId>
-                <version>${rune-fpml.version}</version>
+                <groupId>org.finos.rune-common</groupId>
+                <artifactId>rune-common</artifactId>
+                <version>${rosetta.bundle.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.regnosys.rosetta</groupId>
-                <artifactId>com.regnosys.rosetta</artifactId>
+                <groupId>org.finos.rune</groupId>
+                <artifactId>rune-lang</artifactId>
                 <version>${rosetta.dsl.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>com.regnosys.rosetta</groupId>
-                        <artifactId>com.regnosys.rosetta.xcore</artifactId>
+                        <groupId>org.finos.rune</groupId>
+                        <artifactId>rune-xcore-plugin-dependencies</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.regnosys.rosetta</groupId>
-                <artifactId>com.regnosys.rosetta.lib</artifactId>
+                <groupId>org.finos.rune</groupId>
+                <artifactId>rune-runtime</artifactId>
                 <version>${rosetta.dsl.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.regnosys</groupId>
-                <artifactId>rosetta-common</artifactId>
-                <version>${rosetta.bundle.version}</version>
+                <groupId>com.regnosys.rune-fpml</groupId>
+                <artifactId>rosetta-source</artifactId>
+                <version>${rune-fpml.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.regnosys.rosetta.code-generators</groupId>
@@ -380,14 +382,14 @@
                 <version>${rosetta.code-gen.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.regnosys</groupId>
-                <artifactId>rosetta-testing</artifactId>
+                <groupId>org.finos.rune-testing</groupId>
+                <artifactId>rune-testing</artifactId>
                 <version>${rosetta.bundle.version}</version>
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
-                        <groupId>com.regnosys.rosetta</groupId>
-                        <artifactId>com.regnosys.rosetta.xcore</artifactId>
+                        <groupId>org.finos.rune</groupId>
+                        <artifactId>rune-xcore-plugin-dependencies</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.osgi</groupId>
@@ -463,7 +465,7 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
-            <!-- org.isda.CodeListTransformer dependency -->
+            <!-- org.finos.cdm.CodeListTransformer dependency -->
             <dependency>
                 <groupId>net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>
@@ -496,8 +498,8 @@
             </dependency>
             <!-- plugins START -->
             <dependency>
-                <groupId>com.regnosys.rosetta</groupId>
-                <artifactId>rosetta-maven-plugin</artifactId>
+                <groupId>org.finos.rune</groupId>
+                <artifactId>rune-maven-plugin</artifactId>
                 <version>${rosetta.dsl.version}</version>
             </dependency>
             <dependency>

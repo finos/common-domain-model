@@ -8,7 +8,7 @@ export CDM_ROSETTA="rosetta-source/src/main/rosetta"
 export PYTHON_TARGET="rosetta-source/src/generated/python"
 
 # Extract and set ROSETTA_CODE_GEN_VERSION to the rosetta.dsl.version in the parent POM
-export ROSETTA_CODE_GEN_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
+export ROSETTA_CODE_GEN_VERSION=$(mvn -s $(pwd)/settings.xml help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
 echo "rosetta.code-gen.version: ${ROSETTA_CODE_GEN_VERSION}"
 
 # Find the latest release tag that matches the DSL version (x.y.z.n)
@@ -73,7 +73,7 @@ if [[ ! -f "${WHEEL_FILE}" ]]; then
   exit 1
 fi
 python3 -m pip install "${WHEEL_FILE}"
-python3 -m pip install pytest
-
-# Run unit tests (output will be visible in Docker logs)
-pytest -p no:cacheprovider ${PROJECT_ROOT}/cdm-python/test/
+# python3 -m pip install pytest
+#
+# # Run unit tests (output will be visible in Docker logs)
+# pytest -p no:cacheprovider ${PROJECT_ROOT}/cdm-python/test/

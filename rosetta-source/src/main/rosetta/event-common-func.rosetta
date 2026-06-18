@@ -97,7 +97,7 @@ func TransfersForDate:
     output:
         transfersForDate Transfer (0..*)
 
-    add transfersForDate: transfers filter settlementDate -> adjustedDate = date
+    add transfersForDate: transfers filter item ->> settlementDate -> adjustedDate = date
 
 func FilterCashTransfers:
     inputs:
@@ -105,7 +105,7 @@ func FilterCashTransfers:
     output:
         cashTransfers Transfer (0..*)
 
-    add cashTransfers: transfers filter quantity -> unit -> currency exists
+    add cashTransfers: transfers filter item ->> quantity -> unit -> currency exists
 
 func FilterSecurityTransfers:
     inputs:
@@ -113,7 +113,7 @@ func FilterSecurityTransfers:
     output:
         securityTransfers Transfer (0..*)
 
-    add securityTransfers: transfers filter asset -> Instrument -> Security exists
+    add securityTransfers: transfers filter item ->> asset -> Instrument -> Security exists
 
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
     inputs:
@@ -184,17 +184,18 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releva
     condition IsInterestRatePayout: <"Payout must be an InterestRatePayout.">
         payout -> InterestRatePayout exists
 
-    set interestCashSettlementAmount -> quantity -> value: performance
-    set interestCashSettlementAmount -> quantity -> unit -> currency:
+    set interestCashSettlementAmount -> ScheduledTransfer -> quantity -> value: performance
+    set interestCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
         interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
-    set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
+    set interestCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if performance >= 0 then payer else receiver
-    set interestCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+    set interestCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if performance >= 0 then receiver else payer
 
-    set interestCashSettlementAmount -> settlementDate -> adjustedDate: date
+    set interestCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
+        date
 
-    set interestCashSettlementAmount -> settlementOrigin: payout as-key
+    set interestCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
 
 func ResolveReset: <"Defines the interface for adopters to resolve a reset, given a trade state and a date.">
     [codeImplementation]
@@ -311,19 +312,19 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> quantity -> value: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> quantity -> unit -> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
-    set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
-    set equityCashSettlementAmount -> settlementDate -> adjustedDate:
+    set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin: payout as-key
+    set equityCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
 
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return)  Equity Notional Amount.">
     inputs:
@@ -485,8 +486,9 @@ func Create_ContractFormation: <"Function specification that represents an execu
         contractFormation TradeState (1..1) <"Primitive event containing the execution as its before state and the contract as the after state.">
 
     set contractFormation: execution
-    add contractFormation -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions.">
-        instruction -> legalAgreement
+    set contractFormation -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions, and ensure no duplicates.">
+        [instruction -> legalAgreement, contractFormation -> trade -> contractDetails -> documentation]
+            distinct
     set contractFormation -> state -> positionState: <"Assign the position status to formed.">
         PositionStatusEnum -> Formed
 
@@ -497,10 +499,10 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     output:
         exercise TradeState (1..*)
 
-    alias optionPayout: <"Extracts the optionPayout from exerciseInstruction if provided or from the original trade if absent">
+    alias optionPayout: <"Extracts the option payout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
-        then exerciseInstruction -> exerciseOption
-        else originalTrade -> trade -> product -> economicTerms -> payout -> OptionPayout only-element
+        then exerciseInstruction -> exerciseOption -> OptionPayout
+        else originalTrade -> trade -> product -> economicTerms -> payout only-element -> OptionPayout
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
         optionPayout -> underlier
@@ -511,7 +513,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
         else Create_NonTransferableProduct(underlier, optionPayout -> payerReceiver)
 
     alias productWithDirection: <"If the option is a Put, then the direction on the result product needs to be flipped from that on the underlier.">
-        if optionPayout -> optionType = OptionTypeEnum -> Put
+        if optionPayout -> optionType = Put
         then Update_ProductDirection(
                     resultProduct,
                     optionPayout -> payerReceiver -> payer,
@@ -569,12 +571,11 @@ func Create_NonTransferableProduct: <"Creates a NonTransferableProduct (ie Econo
     set newProduct -> economicTerms -> payout -> SettlementPayout -> payerReceiver:
         payerReceiver
 
-func Create_Reset: <"Defines how a Reset should be constructed.">
+func CalculateReset: <"Function specification to calculate a reset.">
     inputs:
-        instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
-        tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+        instruction CalculateResetInstruction (1..1) <"The instruction containing the parameters and payout references required to calculate the reset.">
     output:
-        reset TradeState (1..1)
+        reset Reset (0..*)
 
     alias payout: <"Specifies the payout that is resetting.">
         instruction -> payout
@@ -599,9 +600,7 @@ func Create_Reset: <"Defines how a Reset should be constructed.">
     alias observation: <"Represents the single observation that will be used to compute the reset value.">
         ResolveObservation([observationIdentifiers], empty)
 
-    set reset: tradeState
-
-    add reset -> resetHistory: <"To handle the various ways Contracts can change over time, ">
+    add reset: <"Calculates and appends the reset value for the contract by resolving the specific performance or interest rate reset logic based on the underlying payout type.">
         if payout -> PerformancePayout count = 1
         then ResolvePerformanceReset(
                     payout -> PerformancePayout only-element,
@@ -615,6 +614,18 @@ func Create_Reset: <"Defines how a Reset should be constructed.">
                     instruction -> resetDate,
                     instruction -> rateRecordDate
                 )
+
+func Create_Reset: <"This function processes a lifecycle reset event (e.g., a floating interest rate) for an active trade. It takes the incoming Reset Instruction and applies it to the current state of the trade.">
+    inputs:
+        instruction ResetInstruction (1..1) <"Specifies the reset instructions.">
+        tradeState TradeState (1..1) <"Specifies the trade that is resetting.">
+    output:
+        reset TradeState (1..1)
+
+    set reset: tradeState
+
+    add reset -> resetHistory: <"Assigns the reset contained in the reset instruction to the resetHistory attribute.">
+        instruction -> reset
 
 func CalculateTransfer: <"Function specification to calculate a transfer, e.g. following a reset on a contract">
     inputs:
@@ -705,17 +716,17 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
         if instruction -> quantity exists
         then instruction -> quantity -> unit -> financialUnit = FinancialUnitEnum -> Share
 
-    set transfer -> quantity:
+    set transfer -> ScheduledTransfer -> quantity:
         NonNegativeQuantity {
             value: securityQuantity -> value,
             unit: securityQuantity -> unit,
             ...
         }
 
-    add transfer -> asset -> Instrument -> Security -> identifier:
+    add transfer -> ScheduledTransfer -> asset -> Instrument -> Security -> identifier:
         assetPayout -> underlier ->> identifier
 
-    set transfer -> payerReceiver -> payerPartyReference:
+    set transfer -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if instruction -> payerReceiver -> payer exists
         then ExtractCounterpartyByRole(
                     instruction -> tradeState -> trade -> counterparty,
@@ -727,7 +738,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
                     assetPayout -> payerReceiver -> payer
                 ) -> partyReference
 
-    set transfer -> payerReceiver -> receiverPartyReference:
+    set transfer -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if instruction -> payerReceiver -> payer exists
         then ExtractCounterpartyByRole(
                     instruction -> tradeState -> trade -> counterparty,
@@ -739,9 +750,9 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
                     assetPayout -> payerReceiver -> receiver
                 ) -> partyReference
 
-    set transfer -> settlementDate -> adjustedDate: instruction -> date
+    set transfer -> ScheduledTransfer -> settlementDate -> adjustedDate: instruction -> date
 
-    set transfer -> settlementOrigin: payout as-key
+    set transfer -> ScheduledTransfer -> payoutReference: payout as-key
 
 func ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
     inputs:
@@ -767,7 +778,7 @@ func ResolveTransfer: <"Defines how to calculate the amount due to be transferre
                     instruction -> resets,
                     instruction -> date
                 )
-    set transfer -> settlementDate -> adjustedDate: instruction -> date
+    set transfer -> ScheduledTransfer -> settlementDate -> adjustedDate: instruction -> date
 
 func ResolveCashSettlementDate: <"A product agnostic function that resolves the settlement date of the payout for the period in question">
     [codeImplementation]
@@ -830,13 +841,13 @@ func SecurityFinanceCashSettlementAmount:
         tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Asset ->> identifier
             = assetPayout -> underlier ->> identifier
 
-    set cashSettlementAmount -> quantity -> value:
+    set cashSettlementAmount -> ScheduledTransfer -> quantity -> value:
         securityPrice -> value * securityQuantity -> value * marginRatio
 
-    set cashSettlementAmount -> quantity -> unit -> currency:
+    set cashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
         securityPrice -> unit -> currency
 
-    set cashSettlementAmount -> payerReceiver -> payerPartyReference:
+    set cashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if payerReceiver exists
         then ExtractCounterpartyByRole(
                     tradeState -> trade -> counterparty,
@@ -848,7 +859,7 @@ func SecurityFinanceCashSettlementAmount:
                     assetPayout -> payerReceiver -> receiver
                 ) -> partyReference
 
-    set cashSettlementAmount -> payerReceiver -> receiverPartyReference:
+    set cashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if payerReceiver exists
         then ExtractCounterpartyByRole(
                     tradeState -> trade -> counterparty,
@@ -860,9 +871,9 @@ func SecurityFinanceCashSettlementAmount:
                     assetPayout -> payerReceiver -> payer
                 ) -> partyReference
 
-    set cashSettlementAmount -> settlementDate -> adjustedDate: date
+    set cashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate: date
 
-    set cashSettlementAmount -> settlementOrigin: payout as-key
+    set cashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
 
 func Create_Split: <"Defines the logic for splitting a trade into separate copies. The split instruction contains a breakdown into N set of primitive instructions. Each set contains the primitive instructions to be applied to each post-split trade, eventually producing N trades. The split function underpins a number of business events such as clearing or allocation.">
     inputs:
@@ -957,8 +968,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
         else trade -> tradeLot only-element
 
     alias newPriceQuantity: <"Update the PriceQuantity based on the change and direction inputs. For an increase, if the trade lot exists, apply the changes to the existing PriceQuantity; otherwise, add the changed PriceQuantity to the list of TradeLots. For a decrease or replace, apply the changes to the existing PriceQuantity.">
-        if instruction -> direction = QuantityChangeDirectionEnum -> Increase
-                and tradeLotExists = False
+        if instruction -> direction = Increase and tradeLotExists = False
         then instruction -> change
         else UpdateAmountForEachMatchingQuantity(
                 tradeLot -> priceQuantity,
@@ -967,8 +977,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
             )
 
     alias newTradeLots: <"Add or merge updated TradeLot.">
-        if instruction -> direction = QuantityChangeDirectionEnum -> Increase
-                and tradeLotExists = False
+        if instruction -> direction = Increase and tradeLotExists = False
         then AddTradeLot(
                     trade,
                     TradeLot {
@@ -983,11 +992,6 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
                     priceQuantity: newPriceQuantity
                 }
             )
-
-    condition CashPriceOnly: <"Only termination where the termination price is specified as a cash price is supported for now.">
-        if instruction -> direction = QuantityChangeDirectionEnum -> Decrease
-                and instruction -> change -> price exists
-        then instruction -> change -> price -> priceType all = PriceTypeEnum -> CashPrice
 
     set quantityChange: tradeState
 
@@ -1333,22 +1337,23 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
                 interestRatePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set transfer -> quantity -> value: performance
+    // @TODO Where this is a return, UnscheduledTransfer -> Return should be specified. You can also compare Payer/Receiver on the Payout vs the Payer/Receiver on the Transfer
+    set transfer -> ScheduledTransfer -> quantity -> value: performance
 
-    set transfer -> quantity -> unit -> currency:
+    set transfer -> ScheduledTransfer -> quantity -> unit -> currency:
         interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
 
-    set transfer -> payerReceiver -> payerPartyReference:
+    set transfer -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if performance >= 0
         then payerPartyReference
         else receiverPartyReference
 
-    set transfer -> payerReceiver -> receiverPartyReference:
+    set transfer -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if performance >= 0
         then receiverPartyReference
         else payerPartyReference
 
-    set transfer -> settlementDate -> adjustedDate: transferDate
+    set transfer -> ScheduledTransfer -> settlementDate -> adjustedDate: transferDate
 
 func ToMoney:
     inputs:
@@ -1448,7 +1453,7 @@ func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a
         instruction PrimitiveInstruction (1..1)
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, terminationDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective and termination dates changed (i.e. terms change instruction) and price / quantity changed.">
         [
@@ -1517,7 +1522,7 @@ func Create_OnDemandRateChangePrimitiveInstruction: <"Creates a full primitive i
         tradeState -> trade -> tradeLot count = 1
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, effectiveDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective date and price (rate) changed.">
         [
@@ -1597,7 +1602,7 @@ func Create_CancellationPrimitiveInstruction: <"Creates a primitive instruction 
         instruction PrimitiveInstruction (1..1)
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, cancellationDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with termination date changed and price / quantity changed (taking new repurchase price into account).">
         [
@@ -1680,7 +1685,7 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
         tradeLots extract item -> lotIdentifier only-element
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, empty)]
 
     add instruction -> split -> breakdown: <"The second part of the split consists in a quantity change and a new execution for each provided trade lot. The quantity change takes care of the shaping according to the provided quantities. The execution adds the required package component to the execution details.">
         tradeLots
@@ -1725,7 +1730,7 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
         instruction PrimitiveInstruction (1..1)
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, empty)]
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
         [
@@ -1789,7 +1794,8 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
             ...
         }
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
+    set instruction -> split -> breakdown:
+        [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
         [
@@ -1861,7 +1867,8 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
     condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
         tradeState -> trade -> tradeLot count = 1
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
+    set instruction -> split -> breakdown:
+        [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
         [
@@ -1927,26 +1934,6 @@ func Create_SubstitutionInstruction: <"Creates the terms change instruction that
     set termsChangeInstruction -> product -> economicTerms -> collateral -> collateralPortfolio:
         newCollateralPortfolio
 
-func Qualify_Substitution: <"Qualification of a collateral substitution event.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
-
-    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
-
-    set is_event:
-        beforeEconomicterms -> terminationDate exists
-            and openEconomicTerms -> effectiveDate exists
-            and openEconomicTerms -> terminationDate exists
-            and openEconomicTerms -> payout <> beforeEconomicterms -> payout
-            and openEconomicTerms -> collateral <> beforeEconomicterms -> collateral
-            and openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate
-            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
-
 func Create_PackageExecutionDetails: <"Add a package component to an execution details object. This package component is constructed using an identifier for the package and the list of identifiers for its components.">
     inputs:
         executionDetails ExecutionDetails (0..1) <"The original execution details. These may be empty.">
@@ -2009,35 +1996,31 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
 
     alias transfer: <"A fully structured Transfer or the following need to be provided to create a cashflow.">
         Transfer {
-            quantity:
-                NonNegativeQuantity {
-                    value: interestAmount -> value,
-                    unit: interestAmount -> unit,
-                    ...
-                },
-            asset:
-                Asset {
-                    Cash:
-                        Cash {
-                            identifier:
-                                AssetIdentifier {
-                                    identifier: interestAmount -> unit -> currency,
-                                    identifierType: CurrencyCode
+            ScheduledTransfer:
+                ScheduledTransfer {
+                    quantity:
+                        NonNegativeQuantity {
+                            value: interestAmount -> value,
+                            unit: interestAmount -> unit,
+                            ...
+                        },
+                    asset:
+                        Asset {
+                            Cash:
+                                Cash {
+                                    identifier:
+                                        AssetIdentifier {
+                                            identifier: interestAmount -> unit -> currency,
+                                            identifierType: CurrencyCode
+                                        },
+                                    assetType: Cash,
+                                    ...
                                 },
-                            assetType: Cash,
                             ...
                         },
-                    ...
-                },
-            settlementDate: settlementDate -> adjustableOrRelativeDate,
-            payerReceiver: payerReceiver,
-            transferExpression:
-                TransferExpression {
-                    scheduledTransfer:
-                        ScheduledTransfer {
-                            transferType: NetInterest,
-                            ...
-                        },
+                    settlementDate: settlementDate -> adjustableOrRelativeDate,
+                    payerReceiver: payerReceiver,
+                    transferType: NetInterest,
                     ...
                 },
             ...
@@ -2067,6 +2050,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
 func Create_TerminationInstruction: <"Creates the relevant primitive instruction for a termination, which consists in a quantity change to bring the quantity to zero.">
     inputs:
         tradeState TradeState (1..1) <"The original trade to be termintaed.">
+        effectiveDate AdjustableOrRelativeDate (0..1) <"Date of Termination">
     output:
         instruction PrimitiveInstruction (1..1)
 
@@ -2083,6 +2067,7 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
     alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
         PriceQuantity {
             quantity: changeQuantity,
+            effectiveDate: effectiveDate,
             ...
         }
 
@@ -2208,6 +2193,13 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         if primitiveInstruction -> valuation is absent
         then observation
         else Create_Valuation(primitiveInstruction -> valuation, observation)
+
+    alias terminationDate: <"Use effective Date in absence of eventDate, if it exists">
+        if primitiveInstruction -> quantityChange -> change -> effectiveDate exists
+        then ResolveAdjustableDate(
+                    primitiveInstruction -> quantityChange -> change -> effectiveDate first
+                )
+        else empty
 
     alias stockSplit:
         if primitiveInstruction -> stockSplit is absent
@@ -2364,9 +2356,9 @@ func AssetPayoutObligationsFulfilled: <"Determines whether the obligations defin
 
     alias securityTransferredQuantity: <"The total quantity of settled security transfers can be extracted from the transferHistory.">
         transferHistory
-            filter transfer -> asset -> Instrument -> Security exists
+            filter transfer ->> asset -> Instrument -> Security exists
             then filter transferStatus = Settled
-            then transfer -> quantity -> value sum
+            then transfer ->> quantity -> value sum
 
     set isFulfilled:
         if securityTransferredQuantity = payoutQuantitySchedule
@@ -2387,9 +2379,9 @@ func InterestPayoutObligationsFulfilled: <"Determines whether the obligations de
 
     alias cashTransferredQuantity: <"The total quantity of settled cash transfers can be extracted from the transferHistory.">
         transferHistory
-            filter transfer -> asset -> Cash exists
+            filter transfer ->> asset -> Cash exists
             then filter transferStatus = Settled
-            then transfer -> quantity -> value sum
+            then transfer ->> quantity -> value sum
 
     set isFulfilled:
         if cashTransferredQuantity = payoutQuantitySchedule

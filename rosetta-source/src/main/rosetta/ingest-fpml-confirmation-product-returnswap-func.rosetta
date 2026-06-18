@@ -8,7 +8,7 @@ import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
-import cdm.ingest.fpml.confirmation.product.swap.*
+import cdm.ingest.fpml.confirmation.product.swap.* as swap
 import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
@@ -30,14 +30,9 @@ func MapReturnSwapCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlReturnSwap -> returnSwapLeg first -> payerReceiverModel
+                fpmlReturnSwap -> returnSwapLeg first -> payerPartyReference,
+                fpmlReturnSwap -> returnSwapLeg first -> receiverPartyReference
             )
-
-func MapReturnSwapAncillaryPartyList:
-    inputs:
-        fpmlReturnSwap fpml.ReturnSwap (0..1)
-    output:
-        ancillaryPartyList AncillaryParty (0..*)
 
 func MapReturnSwapNonTransferableProduct:
     inputs:
@@ -48,8 +43,12 @@ func MapReturnSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlReturnSwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlReturnSwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlReturnSwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlReturnSwap -> primaryAssetClass,
+                        fpmlReturnSwap -> secondaryAssetClass,
+                        fpmlReturnSwap -> productType
+                    ),
             economicTerms: MapReturnSwapEconomicTerms(fpmlReturnSwap, cdmCounterpartyList)
         }
 
@@ -68,30 +67,59 @@ func MapReturnSwapEconomicTerms:
             terminationDate: MapAdjustableOrRelativeDate(
                         fpmlReturnSwap -> returnSwapLeg -> terminationDate first
                     ),
-            payout: fpmlReturnSwap -> returnSwapLeg
-                    extract MapReturnSwapLegToPayout(item, cdmCounterpartyList),
+            payout: MapReturnSwapLegListToPayoutList(
+                        fpmlReturnSwap -> returnSwapLeg,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
-func MapReturnSwapLegToPayout:
+func MapReturnSwapLegListToPayoutList:
     inputs:
-        fpmlDirectionalLeg fpml.DirectionalLeg (0..1)
+        fpmlReturnSwapLegList fpml.DirectionalLeg (0..*)
         cdmCounterpartyList Counterparty (0..2)
     output:
-        payout Payout (0..1)
+        payoutList Payout (0..*)
 
-    set payout:
-        fpmlDirectionalLeg switch
-            fpml.InterestLeg then
-                MapInterestLegToInterestRatePayout(item, cdmCounterpartyList),
-            fpml.ReturnLeg then
-                MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
-            default empty
+    alias fpmlReturnLeg:
+        fpmlReturnSwapLegList
+            extract
+                (switch
+                    fpml.ReturnLeg then item,
+                    default empty)
+            then only-element
+
+    alias fpmlInterestLeg:
+        fpmlReturnSwapLegList
+            extract
+                (switch
+                    fpml.InterestLeg then item,
+                    default empty)
+            then only-element
+
+    add payoutList:
+        fpmlReturnSwapLegList
+            extract
+                switch
+                    fpml.InterestLeg then
+                        MapInterestLegToInterestRatePayout(
+                                item,
+                                cdmCounterpartyList,
+                                fpmlReturnLeg
+                            ),
+                    fpml.ReturnLeg then
+                        MapReturnLegToPerformancePayout(
+                                item,
+                                cdmCounterpartyList,
+                                fpmlInterestLeg
+                            ),
+                    default empty
 
 func MapInterestLegToInterestRatePayout:
     inputs:
         fpmlInterestLeg fpml.InterestLeg (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlReturnLeg fpml.ReturnLeg (0..1)
     output:
         payout Payout (0..1)
 
@@ -103,13 +131,16 @@ func MapInterestLegToInterestRatePayout:
             InterestRatePayout:
                 InterestRatePayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlInterestLeg -> payerReceiverModel,
+                                fpmlInterestLeg -> payerPartyReference,
+                                fpmlInterestLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity: MapResolvablePriceQuantity(
                                 fpmlInterestLeg -> notional,
                                 empty,
-                                fpmlInterestLeg
+                                fpmlInterestLeg,
+                                fpmlReturnLeg -> notional,
+                                fpmlReturnLeg
                             ),
                     rateSpecification:
                         RateSpecification {
@@ -123,7 +154,7 @@ func MapInterestLegToInterestRatePayout:
                                                     )
                             }},
                             FloatingRateSpecification: if fpmlFloatingRateCalculation exists
-                                    then MapFloatingRateSpecification(
+                                    then swap.MapFloatingRateSpecification(
                                             fpmlFloatingRateCalculation,
                                             fpmlInterestLeg
                                         ),
@@ -155,19 +186,30 @@ func MapResolvablePriceQuantity:
         fpmlReturnSwapNotional fpml.ReturnSwapNotional (0..1)
         fpmlReset boolean (0..1)
         fpmlLeg fpml.Leg (0..1)
+        fpmlOtherReturnSwapNotional fpml.ReturnSwapNotional (0..1)
+        fpmlOtherLeg fpml.Leg (0..1)
     output:
         resolvablePriceQuantity ResolvablePriceQuantity (0..1)
 
     set resolvablePriceQuantity:
         ResolvablePriceQuantity {
-            quantitySchedule: MapNotionalAmountToQuantityWithAddress(
-                        fpmlReturnSwapNotional -> notionalAmount -> amount,
-                        fpmlLeg
-                    ),
+            quantitySchedule: if fpmlReturnSwapNotional -> notionalAmount -> amount exists
+                    then MapNotionalAmountToQuantityWithAddress(
+                            fpmlReturnSwapNotional -> notionalAmount -> amount,
+                            fpmlLeg
+                        )
+                // this should not be necessary, the reporting logic should simply check the quantity reference
+                else if fpmlReturnSwapNotional -> relativeNotionalAmount -> href exists
+                        and fpmlReturnSwapNotional -> relativeNotionalAmount -> href = fpmlOtherReturnSwapNotional -> notionalAmount -> id
+                then MapNotionalAmountToQuantityWithAddress(
+                            fpmlOtherReturnSwapNotional -> notionalAmount -> amount,
+                            fpmlOtherLeg
+                        ),
             quantityReference: MapResolvablePriceQuantityReference(
                         fpmlReturnSwapNotional -> relativeNotionalAmount -> href
                     ),
-            reset: fpmlReset,
+            reset: if fpmlReturnSwapNotional -> notionalAmount -> amount exists
+                    then fpmlReset,
             ...
         } with-meta {
             key: fpmlReturnSwapNotional -> notionalAmount -> id
@@ -200,10 +242,8 @@ func MapStubCalculationPeriodToStubPeriod:
     set stubPeriod:
         StubPeriod {
             calculationPeriodDatesReference: empty,
-            finalStub: MapStubValue(fpmlStubCalculationPeriod -> finalStub),
-            initialStub: MapStubValue(
-                        fpmlStubCalculationPeriod -> stubCalculationPeriodSequence -> initialStub
-                    )
+            finalStub: swap.MapStubValue(fpmlStubCalculationPeriod -> finalStub),
+            initialStub: swap.MapStubValue(fpmlStubCalculationPeriod -> initialStub)
         }
 
 func MapInterestLegPaymentDates:
@@ -247,7 +287,9 @@ func MapInterestLegResetDates:
             fixingDates: MapRelativeDateOffset(
                         fpmlInterestLegResetDates -> fixingDates -> relativeDate
                     ),
-            resetFrequency: MapResetFrequency(fpmlInterestLegResetDates -> resetFrequency),
+            resetFrequency: swap.MapResetFrequency(
+                        fpmlInterestLegResetDates -> resetFrequency
+                    ),
             ...
         }
     set resetDates -> calculationPeriodDatesReference -> reference:
@@ -257,6 +299,7 @@ func MapReturnLegToPerformancePayout:
     inputs:
         fpmlReturnLeg fpml.ReturnLeg (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlInterestLeg fpml.InterestLeg (0..1)
     output:
         payout Payout (0..1)
 
@@ -265,7 +308,8 @@ func MapReturnLegToPerformancePayout:
             PerformancePayout:
                 PerformancePayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlReturnLeg -> payerReceiverModel,
+                                fpmlReturnLeg -> payerPartyReference,
+                                fpmlReturnLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     paymentDates:
@@ -281,13 +325,11 @@ func MapReturnLegToPerformancePayout:
                     priceQuantity: MapResolvablePriceQuantity(
                                 fpmlReturnLeg -> notional,
                                 fpmlReturnLeg -> rateOfReturn -> notionalReset,
-                                fpmlReturnLeg
+                                fpmlReturnLeg,
+                                fpmlInterestLeg -> notional,
+                                fpmlInterestLeg
                             ),
-                    settlementTerms: if fpmlReturnLeg -> optionSettlementModel exists
-                            then MapOptionSettlementModelToSettlementTerms(
-                                    fpmlReturnLeg -> optionSettlementModel
-                                )
-                        else MapReturnSwapAmountToSettlementTerms(fpmlReturnLeg -> amount),
+                    settlementTerms: MapReturnSwapLegToSettlementTerms(fpmlReturnLeg),
                     underlier:
                         Underlier {
                             Observable: MapUnderlyerToObservableWithAddress(
@@ -342,15 +384,15 @@ func MapReturnLegValuationToValuationDates:
     set valuationDates:
         ValuationDates {
             interimValuationDate: MapPerformanceValuationDates(
-                        fpmlReturnLegValuation -> valuationPriceInterim -> priceSequence -> determinationMethod,
+                        fpmlReturnLegValuation -> valuationPriceInterim -> determinationMethod,
                         fpmlReturnLegValuation -> valuationPriceInterim -> valuationRules
                     ),
             finalValuationDate: MapPerformanceValuationDates(
-                        fpmlReturnLegValuation -> valuationPriceFinal -> priceSequence -> determinationMethod,
+                        fpmlReturnLegValuation -> valuationPriceFinal -> determinationMethod,
                         fpmlReturnLegValuation -> valuationPriceFinal -> valuationRules
                     ),
             initialValuationDate: MapPerformanceValuationDates(
-                        fpmlReturnLegValuation -> initialPrice -> priceSequence -> determinationMethod,
+                        fpmlReturnLegValuation -> initialPrice -> determinationMethod,
                         fpmlReturnLegValuation -> initialPrice -> valuationRules
                     )
         }
@@ -369,9 +411,9 @@ func MapReturnSwapDividendReturnTerms:
                 DividendReturnTerms {
                     dividendPayoutRatio:
                         DividendPayoutRatio {
-                            totalRatio: fpmlDividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
-                            cashRatio: fpmlDividendConditions -> declaredCashAndCashEquivalentDividendPercentageModel -> declaredCashDividendPercentage,
-                            nonCashRatio: fpmlDividendConditions -> declaredCashAndCashEquivalentDividendPercentageModel -> declaredCashEquivalentDividendPercentage,
+                            totalRatio: fpmlDividendPayout -> dividendPayoutRatio,
+                            cashRatio: fpmlDividendConditions -> declaredCashDividendPercentage,
+                            nonCashRatio: fpmlDividendConditions -> declaredCashEquivalentDividendPercentage,
                             ...
                         },
                     firstOrSecondPeriod: MapDividendPeriodEnum(dividendPeriod to-string),
@@ -383,17 +425,19 @@ func MapReturnSwapDividendReturnTerms:
                                 excessDividendAmount to-string
                             ),
                     dividendCurrency: MapDividendCurrency(
-                                currencyAndDeterminationMethodModel
+                                currency,
+                                determinationMethod,
+                                currencyReference
                             ),
                     dividendComposition: fpmlDividendConditions -> dividendComposition to-enum DividendCompositionEnum,
                     nonCashDividendTreatment: fpmlDividendConditions -> nonCashDividendTreatment to-enum NonCashDividendTreatmentEnum,
                     dividendPeriod:
                         DividendPeriod {
                             startDate: MapDateReferenceToDividendPaymentDate(
-                                        dividendConditionsSequence -> dividendPeriodEffectiveDate
+                                        dividendPeriodEffectiveDate
                                     ),
                             endDate: MapDateReferenceToDividendPaymentDate(
-                                        dividendConditionsSequence -> dividendPeriodEndDate
+                                        dividendPeriodEndDate
                                     ),
                             dividendPaymentDate: MapDividendPaymentDate(dividendPaymentDate),
                             dateAdjustments: empty,
@@ -404,17 +448,17 @@ func MapReturnSwapDividendReturnTerms:
 
 func MapDividendCurrency:
     inputs:
-        fpmlCurrencyAndDeterminationMethodModel fpml.CurrencyAndDeterminationMethodModel (0..1)
+        fpmlCurrency fpml.IdentifiedCurrency (0..1)
+        fpmlDeterminationMethod fpml.DeterminationMethod (0..1)
+        fpmlCurrencyReference fpml.IdentifiedCurrencyReference (0..1)
     output:
         dividendCurrency DividendCurrency (0..1)
 
     set dividendCurrency:
         DividendCurrency {
-            currency: MapCurrency(fpmlCurrencyAndDeterminationMethodModel -> currency),
-            determinationMethod: fpmlCurrencyAndDeterminationMethodModel -> determinationMethod -> value to-enum DeterminationMethodEnum,
-            currencyReference: MapCurrencyReference(
-                        fpmlCurrencyAndDeterminationMethodModel -> currencyReference
-                    )
+            currency: MapCurrency(fpmlCurrency),
+            determinationMethod: fpmlDeterminationMethod -> value to-enum DeterminationMethodEnum,
+            currencyReference: MapCurrencyReference(fpmlCurrencyReference)
         }
 
 func MapReturnSwapPriceQuantityList:
@@ -547,7 +591,14 @@ func MapReturnSwapAccountPartyReference:
             [metadata reference]
 
     set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlReturnSwap -> returnSwapLeg -> payerReceiverModel
-            )
+        fpmlReturnSwap -> returnSwapLeg
+            extract
+                MapPayerReceiverToAccountPartyReference(
+                        fpmlAccount,
+                        payerAccountReference,
+                        receiverAccountReference,
+                        payerPartyReference,
+                        receiverPartyReference
+                    )
+            then filter reference exists
+            then first
