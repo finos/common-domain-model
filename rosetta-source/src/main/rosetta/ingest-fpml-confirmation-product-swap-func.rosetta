@@ -301,33 +301,30 @@ func MapInflationRateSpecification:
         inflationRateSpecification InflationRateSpecification (0..1)
 
     set inflationRateSpecification:
+        fpmlInflationRateCalculation
+            extract
         InflationRateSpecification {
-            rateOption: MapRateOptionWithAddress(fpmlInflationRateCalculation, fpmlLeg),
-            spreadSchedule: MapSpreadScheduleWithAddress(
-                        fpmlInflationRateCalculation -> spreadSchedule,
-                        fpmlLeg
-                    ),
-            capRateSchedule: MapCapRateScheduleWithAddress(
-                        fpmlInflationRateCalculation -> capRateSchedule,
-                        fpmlLeg
-                    ),
+                    rateOption: MapRateOptionWithAddress(item, fpmlLeg),
+                    spreadSchedule: MapSpreadScheduleWithAddress(spreadSchedule, fpmlLeg),
+                    capRateSchedule: MapCapRateScheduleWithAddress(capRateSchedule, fpmlLeg),
             floorRateSchedule: MapFloorRateScheduleWithAddress(
-                        fpmlInflationRateCalculation -> floorRateSchedule,
+                                floorRateSchedule,
                         fpmlLeg
                     ),
-            initialRate: MapInitialRate(
-                        fpmlInflationRateCalculation -> initialRate,
-                        fpmlInflationRateCalculation -> floatingRateIndex
+                    initialRate: MapInitialRate(initialRate, floatingRateIndex),
+                    finalRateRounding: MapFinalRateRounding(finalRateRounding),
+                    rateTreatment: rateTreatment to-enum RateTreatmentEnum,
+                    inflationLag: MapOffset(inflationLag),
+                    indexSource: MapStringWithScheme(
+                                indexSource -> value,
+                                indexSource -> rateSourcePageScheme
                     ),
-            finalRateRounding: MapFinalRateRounding(
-                        fpmlInflationRateCalculation -> finalRateRounding
+                    mainPublication: MapStringWithScheme(
+                                mainPublication -> value,
+                                mainPublication -> mainPublicationScheme
                     ),
-            rateTreatment: fpmlInflationRateCalculation -> rateTreatment to-enum RateTreatmentEnum,
-            inflationLag: empty,
-            indexSource: empty,
-            mainPublication: empty,
-            interpolationMethod: empty,
-            fallbackBondApplicable: empty,
+                    interpolationMethod: interpolationMethod -> value to-enum InterpolationMethodEnum,
+                    fallbackBondApplicable: fallbackBondApplicable,
             ...
         }
 
