@@ -22,7 +22,6 @@ import cdm.product.template.*
 import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.*
 
-
 func QuantityIncreased:
     inputs:
         before TradeState (1..1)
@@ -944,6 +943,8 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
         partyRole -> partyReference
     add newTrade -> trade -> partyRole: <"Add party role">
         partyRole
+    set newTrade -> trade -> contractDetails -> documentation: <"Add or amend party details.">
+        originalTrade -> trade -> contractDetails -> documentation extract Create_AgreementPartyChange(counterparty, partyRole, item)
     set newTrade -> transferHistory: <"Clear transfer history.">
         EmptyTransferHistory()
 
@@ -2400,7 +2401,7 @@ func Create_AgreementEvent: <"Creates an agreement event from primitive instruct
         effectiveDate date (1..1)
     output:
         agreementEvent AgreementEvent (1..1)
-    
+
     add agreementEvent -> instruction: instruction
 
     set agreementEvent -> intent: intent
@@ -2413,16 +2414,16 @@ func Create_AgreementEvent: <"Creates an agreement event from primitive instruct
         instruction
             extract
                 if item -> primitiveInstruction -> termsChange exists
-                then Create_AgreementTermsChange (
-                        item -> primitiveInstruction -> termsChange,
-                        item -> before
-                )
+                then Create_AgreementTermsChange(
+                            item -> primitiveInstruction -> termsChange,
+                            item -> before
+                        )
                 else if item -> primitiveInstruction -> partyChange exists
-                then Create_AgreementPartyChange (
-                    item -> primitiveInstruction -> partyChange -> counterparty only-element,
-                    item -> primitiveInstruction -> partyChange -> partyRole only-element,
-                    item -> before
-                )
+                then Create_AgreementPartyChange(
+                            item -> primitiveInstruction -> partyChange -> counterparty only-element,
+                            item -> primitiveInstruction -> partyChange -> partyRole only-element,
+                            item -> before
+                        )
 
 func Create_AgreementTermsChange: <"Creates and applies change in terms to an existing Legal Agreement record based on a before legal agreement and the application of term election changes that are represented by a Legal agreement amendment.">
     inputs:
@@ -2433,11 +2434,14 @@ func Create_AgreementTermsChange: <"Creates and applies change in terms to an ex
 
     set after:
         if termsChange -> vmCSATermsChange exists
-        then Create_VMCSATermsChange (termsChange -> vmCSATermsChange only-element, before)
+        then Create_VMCSATermsChange(termsChange -> vmCSATermsChange only-element, before)
         else if termsChange -> imCSATermsChange exists
-        then Create_IMCSATermsChange (termsChange -> imCSATermsChange only-element, before)
+        then Create_IMCSATermsChange(termsChange -> imCSATermsChange only-element, before)
         else if termsChange -> legacyCSATermsChange exists
-        then Create_LegacyCSATermsChange (termsChange -> legacyCSATermsChange only-element, before)
+        then Create_LegacyCSATermsChange(
+                    termsChange -> legacyCSATermsChange only-element,
+                    before
+                )
 
 func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementevent based on a change in terms due to an amendment agreement.">
     inputs:
@@ -2448,7 +2452,8 @@ func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
 
     set after: before
 
-    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementVariationMarginElections: vmCSATermsChange
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementVariationMarginElections:
+        vmCSATermsChange
 
 func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change in terms due to an amendment agreement.">
     inputs:
@@ -2459,7 +2464,8 @@ func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
 
     set after: before
 
-    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementInitialMarginElections: imCSATermsChange
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementInitialMarginElections:
+        imCSATermsChange
 
 func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change in terms due to an amendment agreement.">
     inputs:
@@ -2470,7 +2476,8 @@ func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraint
 
     set after: before
 
-    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementLegacyElections: legacyCSATermsChange
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementLegacyElections:
+        legacyCSATermsChange
 
 func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change to the parties.">
     inputs:
@@ -2483,7 +2490,7 @@ func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraint
     set after: before
 
     set after -> agreementTerms -> counterparty:
-    ChangeCounterparty(before -> agreementTerms -> counterparty, counterparty)
+        ChangeCounterparty(before -> agreementTerms -> counterparty, counterparty)
 
     set after -> otherParty: partyRole
 
@@ -2497,17 +2504,16 @@ func ChangeCounterparty:
     alias counterparty1:
         if changeCounterparty -> role = CounterpartyRoleEnum -> Party1
         then Counterparty {
-            partyReference: changeCounterparty -> partyReference,
-            role: changeCounterparty -> role
-        }
+                partyReference: changeCounterparty -> partyReference,
+                role: changeCounterparty -> role
+            }
         else ExtractCounterpartyByRole(originalCounterparty, CounterpartyRoleEnum -> Party1)
     alias counterparty2:
         if changeCounterparty -> role = CounterpartyRoleEnum -> Party2
         then Counterparty {
-            partyReference: changeCounterparty -> partyReference,
-            role: changeCounterparty -> role
-        }
+                partyReference: changeCounterparty -> partyReference,
+                role: changeCounterparty -> role
+            }
         else ExtractCounterpartyByRole(originalCounterparty, CounterpartyRoleEnum -> Party2)
 
     set newCounterparty: [counterparty1, counterparty2]
-
