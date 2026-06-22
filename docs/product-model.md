@@ -979,31 +979,22 @@ per Share:
 ``` Javascript
 "price": [
   {
+    "@key:scoped": "price-1",
     "value": {
       "value": 37.44,
       "unit": {
-        "currency": {
-          "value": "USD"
-          }
-        },
-        "perUnitOf": {
-          "financialUnit": "SHARE"
-        },
-        "priceExpression": {
-          "priceType": "ASSET_PRICE",
-          "grossOrNet": "NET"
-        },
+        "currency": "USD"
       },
-      "meta": {
-        "location": [
-          {
-            "scope": "DOCUMENT",
-            "value": "price-1"
-          }
-        ]
+      "perUnitOf": {
+        "financialUnit": "SHARE"
+      },
+      "priceExpression": {
+        "priceType": "ASSET_PRICE",
+        "grossOrNet": "NET"
       }
     }
-  ]
+  }
+]
 ```
 
 The full form of this example can be seen by ingesting one of the
@@ -1060,6 +1051,7 @@ for 200,000 barrels.
 ``` Javascript
 "quantity": [
   {
+    "@key:scoped": "quantity-1",
     "value": {
       "value": 200,
       "unit": {
@@ -1069,14 +1061,6 @@ for 200,000 barrels.
         "value": 1000,
         "unit": "BBL"
       }
-    },
-    "meta": {
-      "location": [
-        {
-          "scope": "DOCUMENT",
-          "value": "quantity-1"
-        }
-      ]
     }
   }
 ]
@@ -1301,19 +1285,17 @@ type ProductTaxonomy extends Taxonomy:
 "productTaxonomy": [
   {
     "primaryAssetClass": {
-      "meta": {
-        "scheme": "http://www.fpml.org/coding-scheme/asset-class-simple"
-      },
-      "value": "INTEREST_RATE"
-    },
+      "@scheme": "http://www.fpml.org/coding-scheme/asset-class-simple",
+      "@data": "INTEREST_RATE"
+    }
   },
   {
     "taxonomyValue": {
-      "meta": {
-        "scheme": "http://www.fpml.org/coding-scheme/product-taxonomy"
-      },
-      "value": "InterestRate:IRSwap:FixedFloat"
-    }
+      "name": {
+        "@scheme": "http://www.fpml.org/coding-scheme/product-taxonomy",
+        "@data": "InterestRate:IRSwap:FixedFloat"
+      }
+    },
     "taxonomySource": "ISDA"
   },
   {

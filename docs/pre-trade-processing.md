@@ -263,29 +263,20 @@ availability will know that they are acting as an agent in this instance.
 	"availableInventoryType": "AvailableToLend",
 	"party": [
 		{
+			"@key:external": "agent1",
 			"partyId": {
-				"identifier": {
-					"value": "AGENT1"
-				}
+				"identifier": "AGENT1"
 			},
-			"name": {
-				"value": "Agency Services Limited"
-			},
-			"meta": {
-				"globalKey": "x123rt",
-				"externalKey": "agent1"
-			}
+			"name": "Agency Services Limited"
 		}
 	],
 	"partyRole": [
 		{
 			"partyReference": {
-				"globalReference": "x123rt",
-				"externalReference": "agent1"
+				"@ref:external": "agent1"
 			},
 			"role": "AgentLender"
 		}
-				
 	],
 	"availableInventoryRecord": [
 		{
@@ -306,7 +297,7 @@ availability will know that they are acting as an agent in this instance.
 				{
 					"collateralType": "NonCash"
 				}
-			}
+			]
 		}
 	]
 }
@@ -498,49 +489,33 @@ to borrow.
 	"availableInventoryType": "RequestToBorrow",
 	"party": [
 		{
+			"@key:external": "borrower1",
 			"partyId": {
-				"identifier": {
-					"value": "BORROWER1"
-				}
+				"identifier": "BORROWER1"
 			},
-			"name": {
-				"value": "ACME Bank"
-			},
-			"meta": {
-				"globalKey": "pe4h12",
-				"externalKey": "borrower1"
-			}
+			"name": "ACME Bank"
 		},
 		{
+			"@key:external": "agent1",
 			"partyId": {
-				"identifier": {
-					"value": "AGENT1"
-				}
+				"identifier": "AGENT1"
 			},
-			"name": {
-				"value": "Agency Services Limited"
-			},
-			"meta": {
-				"globalKey": "x123rt",
-				"externalKey": "agent1"
-			}
+			"name": "Agency Services Limited"
 		}
 	],
 	"partyRole": [
 		{
 			"partyReference": {
-				"globalReference": "pe4h12",
-				"externalReference": "borrower1"
+				"@ref:external": "borrower1"
 			},
 			"role": "Borrower"
 		},
 		{
 			"partyReference": {
-				"globalReference": "x123rt",
-				"externalReference": "agent1"
+				"@ref:external": "agent1"
 			},
 			"role": "AgentLender"
-		}		
+		}
 	],
 	"availableInventoryRecord": [
 		{
@@ -556,7 +531,7 @@ to borrow.
 			},
 			"quantity": {
 				"value": 1800000
-			},
+			}
 		}
 	]
 }
@@ -576,67 +551,43 @@ to borrow for one of the securities, but not for the other.
 	"availableInventoryType": "RequestToBorrow",
 	"party": [
 		{
+			"@key:external": "borrower1",
 			"partyId": {
-				"identifier": {
-					"value": "BORROWER1"
-				}
+				"identifier": "BORROWER1"
 			},
-			"name": {
-				"value": "ACME Bank"
-			},
-			"meta": {
-				"globalKey": "pe4h12",
-				"externalKey": "borrower1"
-			}
+			"name": "ACME Bank"
 		},
 		{
+			"@key:external": "agent1",
 			"partyId": {
-				"identifier": {
-					"value": "AGENT1"
-				}
+				"identifier": "AGENT1"
 			},
-			"name": {
-				"value": "Agency Services Limited"
-			},
-			"meta": {
-				"globalKey": "x123rt",
-				"externalKey": "agent1"
-			}
+			"name": "Agency Services Limited"
 		},
 		{
+			"@key:external": "agent2",
 			"partyId": {
-				"identifier": {
-					"value": "AGENT2"
-				}
+				"identifier": "AGENT2"
 			},
-			"name": {
-				"value": "GTR Custody"
-			},
-			"meta": {
-				"globalKey": "9wq8rg",
-				"externalKey": "agent2"
-			}
+			"name": "GTR Custody"
 		}
 	],
 	"partyRole": [
 		{
 			"partyReference": {
-				"globalReference": "pe4h12",
-				"externalReference": "borrower1"
+				"@ref:external": "borrower1"
 			},
 			"role": "Borrower"
 		},
 		{
 			"partyReference": {
-				"globalReference": "x123rt",
-				"externalReference": "agent1"
+				"@ref:external": "agent1"
 			},
 			"role": "AgentLender"
-		},		
+		},
 		{
 			"partyReference": {
-				"globalReference": "9wq8rg",
-				"externalReference": "agent2"
+				"@ref:external": "agent2"
 			},
 			"role": "AgentLender"
 		}
@@ -655,7 +606,7 @@ to borrow for one of the securities, but not for the other.
 			},
 			"quantity": {
 				"value": 1800000
-			},
+			}
 		},
 		{
 			"identifier": {

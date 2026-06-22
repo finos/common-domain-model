@@ -109,36 +109,28 @@ The external and global key references should include "PurchaseDate" and
 
 ``` Javascript
 "effectiveDate": {
+    "@key:external": "PurchaseDate",
     "adjustableDate": {
         "dateAdjustments": {
             "businessCenters": {
                 "businessCenter": [
-                    {
-                        "value": "GBLO"
-                    }
+                    "GBLO"
                 ]
             },
             "businessDayConvention": "NONE"
         },
         "unadjustedDate": "2023-06-16"
-    },
-    "meta": {
-        "externalKey": "PurchaseDate",
-        "globalKey": "PurchaseDate"
     }
 }
 ```
 
 ``` Javascript
 "terminationDate": {
-     "adjustableDate": {
+    "@key:external": "RepurchaseDate",
+    "adjustableDate": {
         "dateAdjustments": {
-            "businessDayConvention": "NONE",
-                "meta": {
-                    "externalKey": "RepurchaseDate",
-                    "globalKey": "RepurchaseDate"
-                }
-            },
+            "businessDayConvention": "NONE"
+        },
         "unadjustedDate": "2023-06-17"
     }
 }
@@ -150,24 +142,18 @@ purchase price is set on the `priceQuantity` and the `initialPayment`:
 
 ``` Javascript
 "priceQuantity": {
-    "meta": {
-        "externalKey": "PurchasePrice"
-    },
+    "@key:external": "PurchasePrice",
     "quantitySchedule": {
         "value": {
             "unit": {
-                "currency": {
-                    "value": "GBP"
-                }
+                "currency": "GBP"
             },
             "value": 9879046.8
         }
     },
     "resolvedQuantity": {
         "unit": {
-            "currency": {
-                "value": "GBP"
-            }
+            "currency": "GBP"
         },
         "value": 9879046.8
     }
@@ -285,23 +271,18 @@ The repo rate is defined as a price with a `priceTypeEnum` value of
 ``` Javascript
 "price": [
     {
-    "meta": {},
-        "value": {
-            "unit": {
-                "currency": {
-                    "value": "GBP"
-                }
-            },
-            "value": 0.004,
-            "perUnitOf": {
-            "currency": {
-                "value": "GBP"
-            }
+        "unit": {
+            "currency": "GBP"
+        },
+        "value": 0.004,
+        "perUnitOf": {
+            "currency": "GBP"
         },
         "priceExpression": {
             "priceType": "INTEREST_RATE"
         }
-}}]
+    }
+]
 ```
 
 The `priceQuantity` object is also used to define the collateral price
@@ -310,15 +291,12 @@ and value:
 ``` Javascript
 "quantity": [
     {
-        "meta": {},
-        "value": {
-            "unit": {
-                "currency": {
-                    "value": "GBP"
-                }
-            },
-            "value": 9974250
-}}]
+        "unit": {
+            "currency": "GBP"
+        },
+        "value": 9974250
+    }
+]
 ```
 
 Collateral amount is defined in terms of the nominal par amount:
@@ -326,14 +304,12 @@ Collateral amount is defined in terms of the nominal par amount:
 ``` Javascript
 "quantity": [
     {
-        "meta": {},
-        "value": {
-            "unit": {
-                "currency": {
-                    "value": "GBP"
-                }},
-            "value": 10000000
-        }}]
+        "unit": {
+            "currency": "GBP"
+        },
+        "value": 10000000
+    }
+]
 ```
 
 The collateral price can be defined as either Clean or Dirty price:
@@ -341,24 +317,20 @@ The collateral price can be defined as either Clean or Dirty price:
 ``` Javascript
 "price": [
     {
-        "meta": {},
-        "value": {
-            "unit": {
-                "currency": {
-                    "value": "GBP"
-                }
-            },
-            "value": 1.0075,
-            "perUnitOf": {
-            "currency": {
-                "value": "GBP"
-            }
+        "unit": {
+            "currency": "GBP"
+        },
+        "value": 1.0075,
+        "perUnitOf": {
+            "currency": "GBP"
         },
         "priceExpression": {
             "cleanOrDirty": "DIRTY",
-                "priceExpression": "PERCENTAGE_OF_NOTIONAL",
+            "priceExpression": "PERCENTAGE_OF_NOTIONAL",
             "priceType": "ASSET_PRICE"
-        }}}]
+        }
+    }
+]
 ```
 
 Counterparties are defined in the counterparty object and need to define
@@ -367,27 +339,15 @@ counterparty being the buyer or seller.
 
 ``` Javascript
 {"partyReference": {
-    "value": {
-        "meta": {
-            "externalKey": "UkBank",
-            "globalKey": "1ef4886d"
-        },
-        "name": {
-        "value": "UK Bank plc"
-        }
-    }
+    "@key:external": "UkBank",
+    "name": "UK Bank plc"
 },
 "role": "PARTY_2"
 }]
 {"partyReference": {
-    "value": {
-        "meta": {
-           "externalKey": "UkBank",
-        "globalKey": "1ef4886d"
-        },
-        "name": {
-        "value": "UK Bank plc"
-        }}},
+    "@key:external": "UkBank",
+    "name": "UK Bank plc"
+},
 "role": "PARTY_2"
 }]
 ```
@@ -400,15 +360,14 @@ role to the party defined in the party object:
 
 ``` Javascript
 "partyRoles": [{
-"partyReference": {
-        "externalReference": "GlobalBank",
-            "globalReference": "296093b7"
-        },
-    "role": "SELLER"
+    "partyReference": {
+        "@ref:external": "GlobalBank"
     },
-{"partyReference": {
-        "externalReference": "UkBank",
-        "globalReference": "1ef4886d"
+    "role": "SELLER"
+},
+{
+    "partyReference": {
+        "@ref:external": "UkBank"
     },
     "role": "BUYER"
 }]
