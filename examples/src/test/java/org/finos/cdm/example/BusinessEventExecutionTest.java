@@ -42,6 +42,7 @@ import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.MetaFields;
 import jakarta.inject.Inject;
 import org.finos.cdm.example.util.ResourcesUtils;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessEventExecutionTest.class);
 
-    private static final ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+    private static final ObjectMapper mapper = new RuneJsonObjectMapper();
 
     private static final Date event_date = Date.parse("2025-01-10");
     private static final LocalTime event_time = LocalTime.of(9, 0);

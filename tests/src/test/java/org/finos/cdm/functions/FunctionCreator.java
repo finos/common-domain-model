@@ -13,6 +13,7 @@ import com.regnosys.rosetta.common.testing.FunctionRunner;
 import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.process.PostProcessor;
 import org.finos.cdm.CdmRuntimeModule;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.params.provider.Arguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,7 @@ public class FunctionCreator {
         FunctionRunner functionRunner = new FunctionRunner(executionDescriptor,
                 injector::getInstance,
                 this.getClass().getClassLoader(),
-                ROSETTA_OBJECT_MAPPER);
+                new RuneJsonObjectMapper());
         FunctionRunner.FunctionRunnerResult<Object, Object> run = functionRunner.run();
 
         writeTestOutput(executionDescriptor, run);
