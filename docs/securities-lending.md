@@ -64,15 +64,16 @@ security being lent and the payouts for the cash collateral is provided below:
 
 ``` Javascript
 "economicTerms": {
-  "payout": {
-    "AssetPayout": [ {
+  "payout": [
+    {
+      "@type": "cdm.product.template.AssetPayout",
       "underlier": {
-        "Instrument": {
-          "Security": {
-            "identifier": {
-             ...
-	  } } } } } ]
-  },
+        "@type": "cdm.base.staticdata.asset.common.Security",
+        "identifier": {
+          ...
+      } }
+    }
+  ],
   ...
   "collateral": {
     "collateralProvisions": {
@@ -80,18 +81,21 @@ security being lent and the payouts for the cash collateral is provided below:
     },
     "collateralPortfolio": [ {
       "collateralPosition": [ {
-         "Product": {
-           "TransferableProduct": {
-              "Cash": {
+         "product": {
+           "@type": "cdm.product.template.TransferableProduct",
+           "asset": {
+             "@type": "cdm.base.staticdata.asset.common.Cash",
+             ...
+           },
+           "economicTerms": {
+             "payout": [
+               {
+                 "@type": "cdm.product.asset.InterestRatePayout",
+                 "rateSpecification": { ... } ,
+                 "paymentDates": { ... } ,
                  ...
-               } ,
-             "economicTerms": {
-               "payout": {
-	         "InterestRatePayout": {
-                    "rateSpecification": { ... } ,
-                    "paymentDates: { ... } ,
-                    ...
-             } } }
+               }
+             ]
    } } } ] } ] } ,
   ...
 }
@@ -122,33 +126,36 @@ the security being lent is provided below:
 
 ``` Javascript
 "economicTerms": {
-  "payout": {
-    "AssetPayout": [ {
+  "payout": [
+    {
+      "@type": "cdm.product.template.AssetPayout",
       "underlier": {
-        "Instrument": {
-          "Security": {
-            "identifier": {
-             ...
-	  } } } } } ]
-  },
+        "@type": "cdm.base.staticdata.asset.common.Security",
+        "identifier": {
+          ...
+      } }
+    }
+  ],
   ...
   "collateral": {
     "collateralProvisions": {
-      "collateralType": "Cash"
+      "collateralType": "NonCash"
     },
     "collateralPortfolio": [ {
       "collateralPosition": [ {
-         "Product": {
-           "TransferableProduct": {
-             "Instrument": {
-               "Security": {
-                  "identifier": {
-                  ...
-             } } } },
-             "economicTerms": {
-               "payout": {
-	         ...
-             } } }
+         "product": {
+           "@type": "cdm.product.template.TransferableProduct",
+           "asset": {
+             "@type": "cdm.base.staticdata.asset.common.Security",
+             "identifier": {
+               ...
+           } },
+           "economicTerms": {
+             "payout": [
+               {
+                 ...
+               }
+             ]
    } } } ] } ,
   ...
 }
@@ -240,9 +247,7 @@ of which would be as follows:
     "value" : {
       "value" : 25,
       "unit" : {
-        "currency" : {
-         "value" : "GBP"
-        }
+        "currency" : "GBP"
       },
       "perUnitOf" : {
        "financialUnit" : "Share"
@@ -281,9 +286,7 @@ included in the `priceQuantity` too:
   "observable" : {
     "productIdentifier" : [ {
       "value" : {
-        "identifier" : {
-          "value" : "GB00BDR05C01"
-        },
+        "identifier" : "GB00BDR05C01",
         "source" : "ISIN"
       }
     } ]
@@ -312,15 +315,11 @@ of which would be as follows:
     "value" : {
       "value" : 0.01,
       "unit" : {
-        "currency" : {
-         "value" : "GBP"
-        }
+        "currency" : "GBP"
       },
       "perUnitOf" : {
-        "currency" : {
-          "value" : "GBP"
-        }
-      },	  
+        "currency" : "GBP"
+      },
       "priceType" : "InterestRate"
     }
   } ]
@@ -337,10 +336,8 @@ The `quantity` will need to define the value that the rate is applied to in the
   "quantity" : [ {
     "value" : {
       "value" : 10000000,
-	  "unit" : {
-        "currency" : {
-         "value" : "GBP"
-        }
+      "unit" : {
+        "currency" : "GBP"
       }
     }
   } ]
@@ -431,9 +428,7 @@ an example of which is provided below:
   "documentation": [ {
     "legalAgreementIdentification": {
       "agreementName": {
-        "masterAgreementType": {
-          "value": "GMSLA"
-        }
+        "masterAgreementType": "GMSLA"
       },
       "publisher": "ISLA",
       "vintage": 2010

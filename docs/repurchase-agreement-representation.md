@@ -170,9 +170,7 @@ legalAgreementIdentification object:
          {
             "legalAgreementIdentification": {
                 "agreementName": {
-                    "masterAgreementType": {
-                        "value": "GMRA"
-                    }
+                    "masterAgreementType": "GMRA"
                 },
                 "governingLaw": "GBEN",
                 "publisher": "ICMA",
@@ -190,9 +188,7 @@ Collateral is defined in `assetPayout->securityInformation`:
     "security": {
         "identifier": [
             {
-               "identifier": {
-                   "value": "GB00B24FF097"
-               },
+               "identifier": "GB00B24FF097",
                "identifierType": "ISIN"
                 }],
         "securityType": "DEBT"
@@ -394,9 +390,7 @@ would look like:
    {
        "source": "CFI",
        "value": {
-           "name": {
-               "value": "LRSTXD"
-           }
+           "name": "LRSTXD"
        }
    },
    {
