@@ -399,7 +399,7 @@ would look like:
     }
   }
 }, {
-  "source" : "ISDA",
+  "source" : "CFI",
   "productQualifier" : "RepurchaseAgreement"
 } ],
 ```
