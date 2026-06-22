@@ -62,18 +62,17 @@ define this as a cash collateralised loan. These types can be found under the
 An example showing the location of the 
 security being lent and the payouts for the cash collateral is provided below:
 
-``` Javascript
+ ``` json
 "economicTerms": {
-  "payout": [
-    {
-      "@type": "cdm.product.template.AssetPayout",
+  "payout": {
+    "AssetPayout": [ {
       "underlier": {
-        "@type": "cdm.base.staticdata.asset.common.Security",
-        "identifier": {
-          ...
-      } }
-    }
-  ],
+        "Instrument": {
+          "Security": {
+            "identifier": {
+             ...
+	  } } } } } ]
+  },
   ...
   "collateral": {
     "collateralProvisions": {
@@ -81,21 +80,18 @@ security being lent and the payouts for the cash collateral is provided below:
     },
     "collateralPortfolio": [ {
       "collateralPosition": [ {
-         "product": {
-           "@type": "cdm.product.template.TransferableProduct",
-           "asset": {
-             "@type": "cdm.base.staticdata.asset.common.Cash",
-             ...
-           },
-           "economicTerms": {
-             "payout": [
-               {
-                 "@type": "cdm.product.asset.InterestRatePayout",
-                 "rateSpecification": { ... } ,
-                 "paymentDates": { ... } ,
+         "Product": {
+           "TransferableProduct": {
+              "Cash": {
                  ...
-               }
-             ]
+               } ,
+             "economicTerms": {
+               "payout": {
+	         "InterestRatePayout": {
+                    "rateSpecification": { ... } ,
+                    "paymentDates: { ... } ,
+                    ...
+             } } }
    } } } ] } ] } ,
   ...
 }
@@ -124,38 +120,35 @@ under the `economicTerms->collateral` type.
 An example showing the location of the payouts for the non-cash collateral and 
 the security being lent is provided below:
 
-``` Javascript
+ ``` json
 "economicTerms": {
-  "payout": [
-    {
-      "@type": "cdm.product.template.AssetPayout",
+  "payout": {
+    "AssetPayout": [ {
       "underlier": {
-        "@type": "cdm.base.staticdata.asset.common.Security",
-        "identifier": {
-          ...
-      } }
-    }
-  ],
+        "Instrument": {
+          "Security": {
+            "identifier": {
+             ...
+	  } } } } } ]
+  },
   ...
   "collateral": {
     "collateralProvisions": {
-      "collateralType": "NonCash"
+      "collateralType": "Cash"
     },
     "collateralPortfolio": [ {
       "collateralPosition": [ {
-         "product": {
-           "@type": "cdm.product.template.TransferableProduct",
-           "asset": {
-             "@type": "cdm.base.staticdata.asset.common.Security",
-             "identifier": {
-               ...
-           } },
-           "economicTerms": {
-             "payout": [
-               {
-                 ...
-               }
-             ]
+         "Product": {
+           "TransferableProduct": {
+             "Instrument": {
+               "Security": {
+                  "identifier": {
+                  ...
+             } } } },
+             "economicTerms": {
+               "payout": {
+	         ...
+             } } }
    } } } ] } ,
   ...
 }
@@ -240,20 +233,20 @@ The `price` will need to have its `priceType` set to "*AssetPrice*". The
 simplest way to express the price is using the `value` attribute, an example 
 of which would be as follows:
 
-``` Javascript
+ ``` json
 "priceQuantity": [ {
   ...
   "price" : [ {
-    "value" : {
-      "value" : 25,
-      "unit" : {
-        "currency" : "GBP"
-      },
-      "perUnitOf" : {
-       "financialUnit" : "Share"
-      },
-      "priceType" : "AssetPrice"
-    }
+    "value" : 25,
+    "unit" : {
+      "currency" : {
+       "@data" : "GBP"
+      }
+    },
+    "perUnitOf" : {
+      "financialUnit" : "Share"
+    },
+    "priceType" : "AssetPrice"
   } ]
   ...
 } ]
@@ -262,15 +255,13 @@ of which would be as follows:
 The `quantity` will need to define the number of shares in the `value` 
 attribute:
 
-``` Javascript
+ ``` json
 "priceQuantity": [ {
   ...
   "quantity" : [ {
-    "value" : {
-      "value" : 0,
-      "unit" : {
-        "financialUnit" : "Share"
-      }
+    "value" : 0,
+    "unit" : {
+      "financialUnit" : "Share"
     }
   } ]
   ...
@@ -280,16 +271,22 @@ attribute:
 If the security on loan is to be defined here then an `observable` should be 
 included in the `priceQuantity` too:
 
-``` Javascript
+ ``` json
 "priceQuantity": [ {
   ...
   "observable" : {
-    "productIdentifier" : [ {
-      "value" : {
-        "identifier" : "GB00BDR05C01",
-        "source" : "ISIN"
-      }
-    } ]
+    "@data" : {
+      "@type" : "cdm.base.staticdata.asset.common.Security",
+      "identifier" : [ {
+        "identifier" : {
+          "@scheme" : "ISIN",
+          "@data" : "GB00BDR05C01"
+        },
+        "identifierType" : "ISIN"
+      } ],
+      "assetType" : "Security",
+      "securityType" : "Debt"
+    }
   }
   ...
 } ]
@@ -308,20 +305,22 @@ The `price` will need to have its `priceType` set to "*InterestRate*". The
 simplest way to express the rate is using the `value` attribute, an example 
 of which would be as follows:
 
-``` Javascript
+ ``` json
 "priceQuantity": [ {
   ...
   "price" : [ {
-    "value" : {
-      "value" : 0.01,
-      "unit" : {
-        "currency" : "GBP"
-      },
-      "perUnitOf" : {
-        "currency" : "GBP"
-      },
-      "priceType" : "InterestRate"
-    }
+    "value" : 0.01,
+    "unit" : {
+      "currency" : {
+       "@data" : "GBP"
+      }
+    },
+    "perUnitOf" : {
+      "currency" : {
+        "@data" : "GBP"
+      }
+    },	  
+    "priceType" : "InterestRate"
   } ]
   ...
 } ]
@@ -330,14 +329,14 @@ of which would be as follows:
 The `quantity` will need to define the value that the rate is applied to in the 
 `value` attribute:
 
-``` Javascript
+ ``` json
 "priceQuantity": [ {
   ...
   "quantity" : [ {
-    "value" : {
-      "value" : 10000000,
-      "unit" : {
-        "currency" : "GBP"
+    "value" : 10000000,
+    "unit" : {
+      "currency" : {
+       "@data" : "GBP"
       }
     }
   } ]
@@ -423,15 +422,18 @@ preprint version can also be set in the `vintage` attribute.
 These attributes are available under the `legalAgreementIdentification` type,
 an example of which is provided below:
 
-``` Javascript
-"contractDetails": {
-  "documentation": [ {
-    "legalAgreementIdentification": {
-      "agreementName": {
-        "masterAgreementType": "GMSLA"
+ ``` json
+"contractDetails" : {
+  "documentation" : [ {
+    "legalAgreementIdentification" : {
+      "agreementName" : {
+        "agreementType" : "MasterAgreement",
+        "masterAgreementType" : {
+          "@data" : "GMSLA"
+        }
       },
       "publisher": "ISLA",
-      "vintage": 2010
+      "vintage" : 2010
     }
   } ]
 }
@@ -458,7 +460,7 @@ under the product's `economicTerms`.
 An example of a trade that has a 10% haircut and 105% margin would look as 
 follows:
 
-``` Javascript
+ ``` json
 "economicTerms": {
   "collateral": {
     "collateralProvisions": {

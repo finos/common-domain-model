@@ -86,7 +86,7 @@ collateral.
 
 The `InterestRatePayout` object must also define the payer and receiver.
 They payer and receiver are linked to the trade object that defines the
-counterparty and partyrole. In a repo transaction, the seller
+counterparty and partyRole. In a repo transaction, the seller
 (collateral giver - borrower) will be the payer and the buyer(collateral
 taker -- lender) will be receiver. The payer and receiver are extensions
 from the PayoutBase.
@@ -107,32 +107,32 @@ open repo the `terminationDate` is not set until the repo terminates.
 The external and global key references should include "PurchaseDate" and
 "RepurchaseDate":
 
-``` Javascript
-"effectiveDate": {
-    "@key:external": "PurchaseDate",
-    "adjustableDate": {
-        "dateAdjustments": {
-            "businessCenters": {
-                "businessCenter": [
-                    "GBLO"
-                ]
-            },
-            "businessDayConvention": "NONE"
-        },
-        "unadjustedDate": "2023-06-16"
+ ``` json
+"effectiveDate" : {
+  "@key:external" : "PurchaseDate",
+  "adjustableDate" : {
+    "unadjustedDate" : "2023-06-16",
+    "dateAdjustments" : {
+      "businessDayConvention" : "NONE",
+      "businessCenters" : {
+        "businessCenter" : [ {
+          "@data" : "GBLO"
+        } ]
+      }
     }
+  }
 }
 ```
 
-``` Javascript
-"terminationDate": {
-    "@key:external": "RepurchaseDate",
-    "adjustableDate": {
-        "dateAdjustments": {
-            "businessDayConvention": "NONE"
-        },
-        "unadjustedDate": "2023-06-17"
+ ``` json
+"terminationDate" : {
+  "@key:external" : "PurchaseDate",
+  "adjustableDate" : {
+    "unadjustedDate" : "2023-06-17",
+    "dateAdjustments" : {
+      "businessDayConvention" : "NONE"
     }
+  }
 }
 ```
 
@@ -140,23 +140,25 @@ Repurchase transactions should also include tags to identify the
 purchase price and repurchase price. In the `interestRatePayout` and
 purchase price is set on the `priceQuantity` and the `initialPayment`:
 
-``` Javascript
+ ``` json
 "priceQuantity": {
-    "@key:external": "PurchasePrice",
-    "quantitySchedule": {
-        "value": {
-            "unit": {
-                "currency": "GBP"
-            },
-            "value": 9879046.8
+  "@key:external" : "PurchasePrice",
+  "quantitySchedule" : {
+    "value" : 9879046.8,
+      "unit" : {
+        "currency" : {
+          "@data" : "GBP"
         }
+      }
     },
     "resolvedQuantity": {
-        "unit": {
-            "currency": "GBP"
-        },
-        "value": 9879046.8
+      "value": 9879046.8,
+      "unit" : {
+      "currency" : {
+        "@data" : "GBP"
+      }
     }
+  }
 }
 ```
 
@@ -164,36 +166,36 @@ Repurchase transactions should also include the a legal agreement object
 with reference to the GMRA or other private agreement by adding the
 legalAgreementIdentification object:
 
-``` Javascript
-"contractDetails": {
-    "documentation": [
-         {
-            "legalAgreementIdentification": {
-                "agreementName": {
-                    "masterAgreementType": "GMRA"
-                },
-                "governingLaw": "GBEN",
-                "publisher": "ICMA",
-                "vintage": 2011
-            }
+ ``` json
+"contractDetails" : {
+  "documentation" : [ {
+    "legalAgreementIdentification" : {
+      "agreementName" : {
+        "agreementType" : "MasterAgreement",
+        "masterAgreementType" : {
+          "@data" : "GMRA"
         }
-    ]
+      },
+      "governingLaw": "GBEN",
+      "publisher": "ICMA",
+      "vintage": 2011
+    }
+  }
 }
 ```
 
-Collateral is defined in `assetPayout->securityInformation`:
+Collateral is defined in `assetPayout->underlier`:
 
-``` Javascript
-"securityInformation": {
-    "security": {
-        "identifier": [
-            {
-               "identifier": "GB00B24FF097",
-               "identifierType": "ISIN"
-                }],
-        "securityType": "DEBT"
-        }
-    }
+ ``` json
+"underlier" : {
+  "@type" : "cdm.base.staticdata.asset.common.Security",
+  "identifier" : [ {
+    "identifier" : {
+      "@data" : "GB00B24FF097"
+    },
+    "identifierType" : "ISIN"
+  } ],
+  "securityType" : "Debt"
 }
 ```
 
@@ -211,21 +213,15 @@ protection. Haircuts and margin adjustments are set on the
 
 Haircuts in json format appear as:
 
-``` Javascript
-"collateralProvisions": {
-    "eligibleCollateral": [
-        {
-            "criteria": [
-                {
-                    "treatment": {
-                        "valuationTreatment": {
-                            "haircutPercentage": 2
-                            }
-                    }
-                }
-            ]
-        }
-    ]
+ ``` json
+"collateralProvisions" : {
+  "eligibleCollateral" : [ {
+    "treatment" : {
+      "valuationTreatment" : {
+        "haircutPercentage" : 2
+      }
+    }
+  } ]
 }
 ```
 
@@ -261,91 +257,95 @@ A fixed term, fixed rate repo example json structure can be found here:
 The `priceQuantity` object is used to define the collateral value and
 repo rate.
 
-The repo rate is defined as a price with a `priceTypeEnum` value of
-"INTEREST_RATE".
+The repo rate is defined as a price with a `PriceTypeEnum` value of
+"InterestRate".
 
-``` Javascript
-"price": [
-    {
-        "unit": {
-            "currency": "GBP"
-        },
-        "value": 0.004,
-        "perUnitOf": {
-            "currency": "GBP"
-        },
-        "priceExpression": {
-            "priceType": "INTEREST_RATE"
-        }
+ ``` json
+"price" : [ {
+  "value" : 0.004,
+  "unit" : {
+    "currency" : {
+      "@data" : "GBP"
     }
-]
+  },
+  "perUnitOf" : {
+    "currency" : {
+      "@data" : "GBP"
+    }
+  },
+  "priceType" : "InterestRate"
+} ]
 ```
 
 The `priceQuantity` object is also used to define the collateral price
 and value:
 
-``` Javascript
-"quantity": [
-    {
-        "unit": {
-            "currency": "GBP"
-        },
-        "value": 9974250
+ ``` json
+"quantity" : [ {
+  "value" : 9974250,
+  "unit" : {
+    "currency" : {
+      "@data" : "GBP"
     }
-]
+  }
+} ]
 ```
 
 Collateral amount is defined in terms of the nominal par amount:
 
-``` Javascript
-"quantity": [
-    {
-        "unit": {
-            "currency": "GBP"
-        },
-        "value": 10000000
+ ``` json
+"quantity" : [ {
+  "value" : 10000000,
+  "unit" : {
+    "currency" : {
+      "@data" : "GBP"
     }
-]
+  }
+} ]
 ```
 
 The collateral price can be defined as either Clean or Dirty price:
 
-``` Javascript
-"price": [
-    {
-        "unit": {
-            "currency": "GBP"
-        },
-        "value": 1.0075,
-        "perUnitOf": {
-            "currency": "GBP"
-        },
-        "priceExpression": {
-            "cleanOrDirty": "DIRTY",
-            "priceExpression": "PERCENTAGE_OF_NOTIONAL",
-            "priceType": "ASSET_PRICE"
-        }
+ ``` json
+"price" : [ {
+  "value" : 1.0075,
+  "unit" : {
+    "currency" : {
+      "@data" : "GBP"
     }
-]
+  },
+  "perUnitOf" : {
+    "currency" : {
+      "@data" : "GBP"
+    }
+  },
+  "priceExpression" : "PercentageOfNotional",
+  "priceType" : "AssetPrice"
+} ]
 ```
 
 Counterparties are defined in the counterparty object and need to define
-the role attribute as PARTY_1 or PARTY_2 as it relates to the
+the `role` attribute as `Party1` or `Party2` as it relates to the
 counterparty being the buyer or seller.
 
-``` Javascript
-{"partyReference": {
-    "@key:external": "UkBank",
-    "name": "UK Bank plc"
-},
-"role": "PARTY_2"
-}]
-{"partyReference": {
-    "@key:external": "UkBank",
-    "name": "UK Bank plc"
-},
-"role": "PARTY_2"
-}]
+ ``` json
+"counterparty" : [ {
+  "role" : "Party1",
+  "partyReference" : {
+    "@key:external" : "GlobalBank",
+    "name" : {
+      "@data" : "Global Bank Inc"
+    }
+  }
+}, {
+  "role" : "Party2",
+  "partyReference" : {
+    "@key:external" : "UkBank",
+    "name" : {
+      "@data" : "UK Bank plc"
+    }
+  }
+} ]
 ```
 
 ## partyRoles
@@ -354,26 +354,31 @@ PartyRoles are necessary to define the buyer (cash lender) and seller
 (collateral giver). A reference global key is used to link the party
 role to the party defined in the party object:
 
-``` Javascript
-"partyRoles": [{
-    "partyReference": {
-        "@ref:external": "GlobalBank"
-    },
-    "role": "SELLER"
-},
-{
-    "partyReference": {
-        "@ref:external": "UkBank"
-    },
-    "role": "BUYER"
-}]
+ ``` json
+"partyRoles" : [ {
+  "role" : "Seller",
+  "partyReference" : {
+    "@key:external" : "GlobalBank",
+    "name" : {
+      "@data" : "Global Bank Inc"
+    }
+  }
+}, {
+  "role" : "Buyer",
+  "partyReference" : {
+    "@key:external" : "UkBank",
+    "name" : {
+      "@data" : "UK Bank plc"
+    }
+  }
+} ]
 ```
 
 ## Trade Date
 
 Trade Date is a simple date string:
 
-``` Javascript
+ ``` json
 "tradeDate": "2021-03-18"
 ```
 
@@ -385,18 +390,18 @@ Executing events in the CDM is performed by calling
 To represent the repurchase agreement using the CFI taxonomy the json
 would look like:
 
-``` Javascript
-"productTaxonomy": [
-   {
-       "source": "CFI",
-       "value": {
-           "name": "LRSTXD"
-       }
-   },
-   {
-"productQualifier": "Repurchase Agreement",
-   "taxonomySource": "CFI"
-}]
+ ``` json
+"taxonomy" : [ {
+  "source" : "CFI",
+  "value" : {
+    "name" : {
+      "@data" : "LRSTXD"
+    }
+  }
+}, {
+  "source" : "ISDA",
+  "productQualifier" : "RepurchaseAgreement"
+} ],
 ```
 
 # Lifecycle Events

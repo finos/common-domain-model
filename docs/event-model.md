@@ -707,73 +707,67 @@ novation* of a contract, which comprises the following:
 -   a party change primitive applied to the post-split trade whose
     quantity corresponds to the novated quantity.
 
-``` JSON
+``` json
 "primitiveInstruction" : {
-     "split" : {
-       "breakdown" : [ {
-         "partyChange" : {
-           "counterparty" : {
-             "partyReference" : {
-               "value" : {
-                 "name" : {
-                   "value" : "Bank Z"
-                 },
-                 "partyId" : [ {
-                   "identifier" : {
-                     "value" : "LEI3RPT0003"
-                   },
-                   "identifierType" : "LEI",
-                 } ]
-               }
-             },
-             "role" : "PARTY_1"
-           },
-           "tradeId" : [ {
-             "assignedIdentifier" : [ {
+   "split" : {
+     "breakdown" : [ {
+       "partyChange" : {
+         "counterparty" : {
+           "role" : "Party1",
+           "partyReference" : {
+             "partyId" : [ {
                "identifier" : {
-                 "value" : "LEI3RPT0003DDDD"
+                 "@data" : "LEI3RPT0003"
                },
-               "identifierType" : "UNIQUE_TRANSACTION_IDENTIFIER"
+               "identifierType" : "LEI"
              } ],
-             "issuer" : {
-               "value" : "LEI3RPT0003"
-             },
-           } ]
+             "name" : {
+               "@data" : "Bank Z"
+             }
+           }
          },
-         "quantityChange" : {
-           "change" : [ {
-             "quantity" : [ {
-               "value" : {
-                 "amount" : 5000,
-                 "unitOfAmount" : {
-                   "currency" : {
-                     "value" : "USD"
-                   }
-                 }
-               }
-             } ]
+         "tradeId" : [ {
+           "issuer" : {
+             "@data" : "LEI3RPT0003"
+           },
+           "assignedIdentifier" : [ {
+             "identifier" : {
+               "@data" : "LEI3RPT0003DDDD"
+             }
            } ],
-           "direction" : "REPLACE"
-         }
-       }, {
-         "quantityChange" : {
-           "change" : [ {
-             "quantity" : [ {
-               "value" : {
-                 "amount" : 8000,
-                 "unitOfAmount" : {
-                   "currency" : {
-                     "value" : "USD"
-                   }
-                 }
+           "identifierType" : "UniqueTransactionIdentifier"
+         } ]
+       },
+       "quantityChange" : {
+         "change" : [ {
+           "quantity" : [ {
+             "value" : 5000,
+             "unit" : {
+               "currency" : {
+                 "@data" : "USD"
                }
-             } ]
-           } ],
-           "direction" : "REPLACE"
-         }
-       } ]
-     }
+             }
+           } ]
+         } ],
+         "direction" : "Replace"
+       }
+     }, {
+       "quantityChange" : {
+         "change" : [ {
+           "quantity" : [ {
+             "value" : 8000,
+             "unit" : {
+               "currency" : {
+                 "@data" : "USD"
+               }
+             }
+           } ]
+         } ],
+         "direction" : "Replace"
+       }
+     } ]
    }
+ }
 ```
 
 A business event is *atomic*, i.e. its primitive components cannot
@@ -1065,15 +1059,15 @@ The benefits of the CDM generic approach are twofold:
 Below is an instance of a CDM representation ([serialised](https://en.wikipedia.org/wiki/Serialization) into JSON)
 of this approach.
 
-``` JSON
+``` json
 "timestamp": [
  {
     "dateTime": "2007-10-31T18:08:40.335-05:00",
-    "qualification": "EVENT_SUBMITTED"
+    "qualification": "EventSubmitted"
  },
  {
     "dateTime": "2007-10-31T18:08:40.335-05:00",
-    "qualification": "EVENT_CREATED"
+    "qualification": "EventCreated"
  }
 ]
 ```
