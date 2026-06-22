@@ -15,31 +15,36 @@ func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive 
     output:
         time TimeZone (1..1)
 
-func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
+func PriceQuantityTriangulation: <"Checks the relationship between price, multiplier, notional and number of units, and validates the result of their product.">
     inputs:
-        quantity NonNegativeQuantitySchedule (0..*)
         price PriceSchedule (0..*)
+        quantity NonNegativeQuantitySchedule (0..*)
     output:
         success boolean (1..1)
 
-    alias notional:
-        FilterQuantityByCurrencyExists(quantity)
-            extract value
-            then distinct
+    alias filteredPrice:
+        price
+            filter priceType = AssetPrice or priceType = ExchangeRate
             then only-element
+
+    alias assetPrice: filteredPrice -> value
+
+    alias notional:
+        quantity
+            filter unit = filteredPrice -> unit
+            then only-element
+            then value
 
     alias noOfUnits:
-        FilterQuantityByFinancialUnit(quantity, FinancialUnitEnum -> Share)
-            extract value
-            then only-element
-
-    alias cashPrice:
-        price
-            filter priceType = PriceTypeEnum -> AssetPrice
-            then extract value
+        quantity
+            extract
+                if multiplier exists and multiplier -> unit = filteredPrice -> perUnitOf
+                then value * multiplier -> value
+                else if unit = filteredPrice -> perUnitOf
+                then value
             then only-element
 
     set success:
-        if cashPrice exists and noOfUnits exists and notional exists
-        then cashPrice * noOfUnits = notional
+        if assetPrice exists and noOfUnits exists and notional exists
+        then assetPrice * noOfUnits = notional
         else True
