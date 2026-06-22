@@ -7,7 +7,6 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
-import cdm.observable.asset.*
 import cdm.observable.common.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
@@ -135,7 +134,7 @@ func Create_AssetFlowFromSettlementPayout: <"Generates two opposite cashflows th
                     unit: payout -> priceQuantity -> quantitySchedule -> unit,
                     ...
                 },
-            asset: payout -> underlier -> Observable -> Asset,
+            asset: payout -> underlier as Observable as Asset,
             settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
             payerReceiver: payout -> payerReceiver,
             assetFlowType: Principal,
@@ -187,7 +186,7 @@ func Create_AssetFlowFromSettlementPayout: <"Generates two opposite cashflows th
         }
 
     condition Asset: <"Restricts the function's applicability to a single asset for the underlier.">
-        payout -> underlier -> Observable -> Asset exists
+        payout -> underlier as Observable as Asset exists
 
     condition SettlementDate: <"Restricts the function's applicability to the adjustable or relative date for the settlement date.">
         payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
@@ -204,17 +203,17 @@ func UnderlierForOptionOrForwardProduct: <"Extracts the underlier from an option
     output:
         underlierProduct Underlier (1..1)
     set underlierProduct:
-        if product -> economicTerms -> payout -> OptionPayout exists
-        then product -> economicTerms -> payout -> OptionPayout only-element -> underlier
-        else if product -> economicTerms -> payout -> SettlementPayout exists
-        then product -> economicTerms -> payout -> SettlementPayout only-element -> underlier
+        if product -> economicTerms -> payout as OptionPayout exists
+        then product -> economicTerms -> payout as OptionPayout only-element -> underlier
+        else if product -> economicTerms -> payout as SettlementPayout exists
+        then product -> economicTerms -> payout as SettlementPayout only-element -> underlier
 
 func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based on two criteria: the forward payout with the latest value date or the forward payout with the latest settlement date.">
     inputs:
         product NonTransferableProduct (1..1)
     output:
         nearLegPayout SettlementPayout (0..1)
-    alias settlementPayout: product -> economicTerms -> payout -> SettlementPayout
+    alias settlementPayout: product -> economicTerms -> payout as SettlementPayout
     set nearLegPayout:
         // value date
         if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
