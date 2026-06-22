@@ -107,7 +107,7 @@ open repo the `terminationDate` is not set until the repo terminates.
 The external and global key references should include "PurchaseDate" and
 "RepurchaseDate":
 
-``` Javascript
+ ``` json
 "effectiveDate" : {
   "@key:external" : "PurchaseDate",
   "adjustableDate" : {
@@ -124,7 +124,7 @@ The external and global key references should include "PurchaseDate" and
 }
 ```
 
-``` Javascript
+ ``` json
 "terminationDate" : {
   "@key:external" : "PurchaseDate",
   "adjustableDate" : {
@@ -140,7 +140,7 @@ Repurchase transactions should also include tags to identify the
 purchase price and repurchase price. In the `interestRatePayout` and
 purchase price is set on the `priceQuantity` and the `initialPayment`:
 
-``` Javascript
+ ``` json
 "priceQuantity": {
   "@key:external" : "PurchasePrice",
   "quantitySchedule" : {
@@ -166,7 +166,7 @@ Repurchase transactions should also include the a legal agreement object
 with reference to the GMRA or other private agreement by adding the
 legalAgreementIdentification object:
 
-``` Javascript
+ ``` json
 "contractDetails" : {
   "documentation" : [ {
     "legalAgreementIdentification" : {
@@ -186,7 +186,7 @@ legalAgreementIdentification object:
 
 Collateral is defined in `assetPayout->underlier`:
 
-``` Javascript
+ ``` json
 "underlier" : {
   "@type" : "cdm.base.staticdata.asset.common.Security",
   "identifier" : [ {
@@ -213,7 +213,7 @@ protection. Haircuts and margin adjustments are set on the
 
 Haircuts in json format appear as:
 
-``` Javascript
+ ``` json
 "collateralProvisions" : {
   "eligibleCollateral" : [ {
     "treatment" : {
@@ -260,7 +260,7 @@ repo rate.
 The repo rate is defined as a price with a `PriceTypeEnum` value of
 "InterestRate".
 
-``` Javascript
+ ``` json
 "price" : [ {
   "value" : 0.004,
   "unit" : {
@@ -280,7 +280,7 @@ The repo rate is defined as a price with a `PriceTypeEnum` value of
 The `priceQuantity` object is also used to define the collateral price
 and value:
 
-``` Javascript
+ ``` json
 "quantity" : [ {
   "value" : 9974250,
   "unit" : {
@@ -293,7 +293,7 @@ and value:
 
 Collateral amount is defined in terms of the nominal par amount:
 
-``` Javascript
+ ``` json
 "quantity" : [ {
   "value" : 10000000,
   "unit" : {
@@ -306,7 +306,7 @@ Collateral amount is defined in terms of the nominal par amount:
 
 The collateral price can be defined as either Clean or Dirty price:
 
-``` Javascript
+ ``` json
 "price" : [ {
   "value" : 1.0075,
   "unit" : {
@@ -325,34 +325,27 @@ The collateral price can be defined as either Clean or Dirty price:
 ```
 
 Counterparties are defined in the counterparty object and need to define
-the role attribute as PARTY_1 or PARTY_2 as it relates to the
+the `role` attribute as `Party1` or `Party2` as it relates to the
 counterparty being the buyer or seller.
 
-``` Javascript
-{"partyReference": {
-    "value": {
-        "meta": {
-            "externalKey": "UkBank",
-            "globalKey": "1ef4886d"
-        },
-        "name": {
-        "value": "UK Bank plc"
-        }
+ ``` json
+"counterparty" : [ {
+  "role" : "Party1",
+  "partyReference" : {
+    "@key:external" : "GlobalBank",
+    "name" : {
+      "@data" : "Global Bank Inc"
     }
-},
-"role": "PARTY_2"
-}]
-{"partyReference": {
-    "value": {
-        "meta": {
-           "externalKey": "UkBank",
-        "globalKey": "1ef4886d"
-        },
-        "name": {
-        "value": "UK Bank plc"
-        }}},
-"role": "PARTY_2"
-}]
+  }
+}, {
+  "role" : "Party2",
+  "partyReference" : {
+    "@key:external" : "UkBank",
+    "name" : {
+      "@data" : "UK Bank plc"
+    }
+  }
+} ]
 ```
 
 ## partyRoles
@@ -361,27 +354,31 @@ PartyRoles are necessary to define the buyer (cash lender) and seller
 (collateral giver). A reference global key is used to link the party
 role to the party defined in the party object:
 
-``` Javascript
-"partyRoles": [{
-"partyReference": {
-        "externalReference": "GlobalBank",
-            "globalReference": "296093b7"
-        },
-    "role": "SELLER"
-    },
-{"partyReference": {
-        "externalReference": "UkBank",
-        "globalReference": "1ef4886d"
-    },
-    "role": "BUYER"
-}]
+ ``` json
+"partyRoles" : [ {
+  "role" : "Seller",
+  "partyReference" : {
+    "@key:external" : "GlobalBank",
+    "name" : {
+      "@data" : "Global Bank Inc"
+    }
+  }
+}, {
+  "role" : "Buyer",
+  "partyReference" : {
+    "@key:external" : "UkBank",
+    "name" : {
+      "@data" : "UK Bank plc"
+    }
+  }
+} ]
 ```
 
 ## Trade Date
 
 Trade Date is a simple date string:
 
-``` Javascript
+ ``` json
 "tradeDate": "2021-03-18"
 ```
 
@@ -393,7 +390,7 @@ Executing events in the CDM is performed by calling
 To represent the repurchase agreement using the CFI taxonomy the json
 would look like:
 
-``` Javascript
+ ``` json
 "taxonomy" : [ {
   "source" : "CFI",
   "value" : {
@@ -402,7 +399,7 @@ would look like:
     }
   }
 }, {
-  "source" : "CFI",
+  "source" : "ISDA",
   "productQualifier" : "RepurchaseAgreement"
 } ],
 ```
