@@ -2417,12 +2417,12 @@ func Create_AgreementEvent: <"Creates an agreement event from primitive instruct
                         item -> primitiveInstruction -> termsChange,
                         item -> before
                 )
-                else if item -> primitiveInstruction -> partyChange exists then empty
-            //     then Create_AgreementPartyChange (
-            //            item -> primitiveInstruction -> partyChange -> counterparty,
-            //            item - > primitiveInstruction -> partyChange -> partyRole,
-            //            item -> before
-            //    )
+                else if item -> primitiveInstruction - partychange exists
+                then Create_AgreementPartyChange (
+                        item -> primitiveInstruction -> counterparty,
+                        item -> primitiveInstruction -> partyRole
+                        item -> before
+                )
 
 func Create_AgreementTermsChange: <"Creates and applies change in terms to an existing Legal Agreement record based on a before legal agreement and the application of term election changes that are represented by a Legal agreement amendment.">
     inputs:
@@ -2439,7 +2439,7 @@ func Create_AgreementTermsChange: <"Creates and applies change in terms to an ex
         else if termsChange -> legacyCSATermsChange exists
         then Create_LegacyCSATermsChange (termsChange -> legacyCSATermsChange only-element, before)
 
-func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
+func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementevent based on a change in terms due to an amendment agreement.">
     inputs:
         vmCSATermsChange CreditSupportAgreementVariationMarginElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
         before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
@@ -2450,7 +2450,7 @@ func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
 
     set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementVariationMarginElections: vmCSATermsChange
 
-func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
+func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change in terms due to an amendment agreement.">
     inputs:
         imCSATermsChange CreditSupportAgreementInitialMarginElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
         before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
@@ -2461,7 +2461,7 @@ func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
 
     set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementInitialMarginElections: imCSATermsChange
 
-func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change in terms due to an amendment agreement.">
+func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change in terms due to an amendment agreement.">
     inputs:
         legacyCSATermsChange CreditSupportAgreementLegacyElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
         before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
@@ -2472,7 +2472,7 @@ func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraint
 
     set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementLegacyElections: legacyCSATermsChange
 
-func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementState based on a change to the parties.">
+func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change to the parties.">
     inputs:
         counterparty Counterparty (1..1)
         partyRole PartyRole (0..1)
@@ -2489,25 +2489,25 @@ func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraint
 
 func ChangeCounterparty:
     inputs:
-        originalCP Counterparty (2..2)
-        changeCP Counterparty (1..1)
+        originalCounterparty Counterparty (2..2)
+        changeCounterparty Counterparty (1..1)
     output:
-        newCP Counterparty (2..2)
+        newCounterparty Counterparty (2..2)
 
     alias counterparty1:
-        if changeCP -> role = CounterpartyRoleEnum -> Party1
+        if changeCounterparty -> role = CounterpartyRoleEnum -> Party1
         then Counterparty {
-            partyReference: changeCP -> partyReference,
-            role: changeCP -> role
+            partyReference: changeCounterparty -> partyReference,
+            role: changeCounterparty -> role
         }
-        else ExtractCounterpartyByRole(originalCP, CounterpartyRoleEnum -> Party1)
+        else ExtractCounterpartyByRole(originalCounterparty, CounterpartyRoleEnum -> Party1)
     alias counterparty2:
-        if changeCP -> role = CounterpartyRoleEnum -> Party2
+        if changeCounterparty -> role = CounterpartyRoleEnum -> Party2
         then Counterparty {
-            partyReference: changeCP -> partyReference,
-            role: changeCP -> role
+            partyReference: changeCounterparty -> partyReference,
+            role: changeCounterparty -> role
         }
-        else ExtractCounterpartyByRole(originalCP, CounterpartyRoleEnum -> Party2)
+        else ExtractCounterpartyByRole(originalCounterparty, CounterpartyRoleEnum -> Party2)
 
-    set newCP: [counterparty1, counterparty2]
+    set newCounterparty: [counterparty1, counterparty2]
 
