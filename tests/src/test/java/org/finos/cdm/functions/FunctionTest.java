@@ -13,6 +13,7 @@ import com.regnosys.rosetta.common.testing.ExecutionDescriptor;
 import com.regnosys.rosetta.common.testing.FunctionRunner;
 import com.rosetta.model.lib.process.PostProcessor;
 import org.finos.cdm.CdmRuntimeModule;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -70,7 +71,7 @@ class FunctionTest {
         FunctionRunner functionRunner = new FunctionRunner(executionDescriptor,
                 injector::getInstance,
                 this.getClass().getClassLoader(),
-                ROSETTA_OBJECT_MAPPER);
+                new RuneJsonObjectMapper());
         FunctionRunner.FunctionRunnerResult<Object, Object> run = functionRunner.run();
         assertEquals(run.getJsonExpected().replace("\r", ""), run.getJsonActual().replace("\r", ""));
     }
