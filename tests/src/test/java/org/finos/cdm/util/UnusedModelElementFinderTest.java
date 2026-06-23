@@ -15,6 +15,7 @@ import util.UnusedModelElementFinder;
 import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +32,10 @@ public class UnusedModelElementFinderTest {
                 modelLoader.loadRosettaModels(
                         ClassPathUtils.findPathsFromClassPath(ImmutableList.of("model", "rosetta"), ".*\\.rosetta", Optional.empty(), ClassPathUtils.class.getClassLoader())
                                 .stream()
-                                .map(UrlUtils::toUrl));
+                                .map(UrlUtils::toUrl))
+                        .stream()
+                        .filter(m -> !m.getName().startsWith("com.rosetta.model"))  // filtering out basictypes.rosetta from the dsl
+                        .collect(Collectors.toList());
         UnusedModelElementFinder unusedModelElementFinder = new UnusedModelElementFinder(models);
 
         unusedModelElementFinder.run();
