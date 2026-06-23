@@ -268,8 +268,8 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
     alias before: businessEvent -> instruction -> before -> trade
 
     alias floatingRateIndexChanged:
-        before -> tradeLot -> priceQuantity -> observable as Index as InterestRateIndex exists
-            and before -> tradeLot -> priceQuantity -> observable as Index as InterestRateIndex disjoint after -> tradeLot -> priceQuantity -> observable as Index as InterestRateIndex
+        before -> tradeLot -> priceQuantity -> observable as InterestRateIndex exists
+            and before -> tradeLot -> priceQuantity -> observable as InterestRateIndex disjoint after -> tradeLot -> priceQuantity -> observable as InterestRateIndex
 
     alias spread:
         FilterPrice(
@@ -700,7 +700,7 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
                 extract primitiveInstruction -> transfer only exists
                 ) all = True
             and beforeTransfers count + transferInstructions count = afterTransfers count
-            and transferInstructions -> transferState -> transfer ->> asset as Instrument as Security exists
+            and transferInstructions -> transferState -> transfer ->> asset as Security exists
 
 func Qualify_Shaping: <"The qualification of a shaping event from the fact that (i) the only primitive is a split where the original trade is closed, (ii) the parties before and after the split remain the same (by contrast with an allocation, for instance) and (iii) the split trades contain a package component in their execution details. This package ties together the resulting shapes trades' identifiers and must be the same across all shaped trades. Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.">
     [qualification BusinessEvent]

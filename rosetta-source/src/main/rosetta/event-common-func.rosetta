@@ -113,7 +113,7 @@ func FilterSecurityTransfers:
     output:
         securityTransfers Transfer (0..*)
 
-    add securityTransfers: transfers filter item ->> asset as Instrument as Security exists
+    add securityTransfers: transfers filter item ->> asset as Security exists
 
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
     inputs:
@@ -508,8 +508,8 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
         optionPayout -> underlier
 
     alias resultProduct: <"Find or create the the non transferable product that will result from the exercise.">
-        if underlier as Product as NonTransferableProduct exists // It already exists, no need to create
-        then underlier as Product as NonTransferableProduct
+        if underlier as NonTransferableProduct exists // It already exists, no need to create
+        then underlier as NonTransferableProduct
         else Create_NonTransferableProduct(underlier, optionPayout -> payerReceiver)
 
     alias productWithDirection: <"If the option is a Put, then the direction on the result product needs to be flipped from that on the underlier.">
@@ -1190,8 +1190,8 @@ func UpdateIndexTransitionPriceAndRateOption:
 
     set updatedPriceQuantity -> observable -> Index -> InterestRateIndex: <"If instruction exists, update the rate option.">
         if instruction exists
-        then instruction -> observable as Index as InterestRateIndex
-        else priceQuantity -> observable as Index as InterestRateIndex
+        then instruction -> observable as InterestRateIndex
+        else priceQuantity -> observable as InterestRateIndex
 
 func FindMatchingIndexTransitionInstruction:
     inputs:
@@ -1204,9 +1204,9 @@ func FindMatchingIndexTransitionInstruction:
         instructions
             filter
                 // indexTenor period matches
-                observable as Index as InterestRateIndex ->> indexTenor -> period = priceQuantity -> observable as Index as InterestRateIndex ->> indexTenor -> period
+                observable as InterestRateIndex ->> indexTenor -> period = priceQuantity -> observable as InterestRateIndex ->> indexTenor -> period
                         // indexTenor periodMultiplier matches
-                    and observable as Index as InterestRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable as Index as InterestRateIndex ->> indexTenor -> periodMultiplier
+                    and observable as InterestRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable as InterestRateIndex ->> indexTenor -> periodMultiplier
                         // quantity currency or price currency matches
                     and (quantity -> unit -> currency = priceQuantity -> quantity -> unit -> currency
                         or price -> unit -> currency = priceQuantity -> price -> unit -> currency)
@@ -2356,7 +2356,7 @@ func AssetPayoutObligationsFulfilled: <"Determines whether the obligations defin
 
     alias securityTransferredQuantity: <"The total quantity of settled security transfers can be extracted from the transferHistory.">
         transferHistory
-            filter transfer ->> asset as Instrument as Security exists
+            filter transfer ->> asset as Security exists
             then filter transferStatus = Settled
             then transfer ->> quantity -> value sum
 

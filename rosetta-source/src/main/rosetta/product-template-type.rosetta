@@ -175,7 +175,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
         exerciseTerms -> style exists
 
     condition OptionTypePresent: <"This condition ensures that an option type is set when the underlier is not a non-transferable product.">
-        if underlier as Product as NonTransferableProduct is absent
+        if underlier as NonTransferableProduct is absent
         then optionType exists
 
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
@@ -224,24 +224,24 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 
     condition UnderlierOfPortfolioIsBasket: <"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
         if portfolioReturnTerms -> priceReturnTerms exists
-        then underlier as Observable as Basket exists
+        then underlier as Basket exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
 
     condition NoSharePriceDividendAdjustmentIndex: <"If the underlier is an index, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier as Observable as Index exists
+        if underlier as Index exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition NoSharePriceDividendAdjustmentForeignExchange: <"If the underlier is an foreign exchange, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier as Observable as Index as ForeignExchangeRateIndex exists
+        if underlier as ForeignExchangeRateIndex exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition CorrelationUnderlierOnlyBasket: <"Correlation Return Terms can only have a basket as underlier, since it needs to compute the correlation between two or more products.">
         if returnTerms -> correlationReturnTerms exists
-        then underlier as Observable as Basket exists
+        then underlier as Basket exists
 
     condition EquitySpecificAttributes: <"Equity specific attributes cannot be present in non-equity products.">
         if Qualify_UnderlierObservable_Equity(underlier as Observable) = False
@@ -400,20 +400,20 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
     condition Underlier: <"The underlier for a settlement payout cannot be a NonTransferableProduct.">
-        underlier as Product as NonTransferableProduct is absent
+        underlier as NonTransferableProduct is absent
 
     condition Basket: <"If the underlier is a basket, it must contain only transferable assets.">
-        if underlier as Observable as Basket exists
-        then (underlier as Observable as Basket -> basketConstituent
+        if underlier as Basket exists
+        then (underlier as Basket -> basketConstituent
                 extract observable as Asset exists
                 ) all = True
 
     condition Index: <"If the underlier is an Index, then it can only be cash settled.">
-        if underlier as Observable as Index exists
+        if underlier as Index exists
         then settlementTerms -> cashSettlementTerms exists
 
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
-        if underlier as Observable as Asset as Cash exists
+        if underlier as Cash exists
         then settlementTerms exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
