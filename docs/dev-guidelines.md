@@ -20,11 +20,11 @@ The CSL specifies three different contribution roles for each specific [working 
 
 Contributions to the CDM have to comply with the set of [design principles](design-principles.md) that include the following concepts:
 
-* **Normalisation** through abstraction of common components
-* **Composability** where objects are composed and qualified from the bottom up
-* **Mapping** to existing industry messaging formats
-* **Embedded logic** to represent industry processes
-* **Modularisation** into logical layers, using namespace organisation
+* **Normalisation** through abstraction of common components
+* **Composability** where objects are composed and qualified from the bottom up
+* **Mapping** to existing industry messaging formats
+* **Embedded logic** to represent industry processes
+* **Modularisation** into logical layers, using namespace organisation
 
 ## Version Management
 
@@ -87,8 +87,7 @@ reviewing and releasing changes to the CDM contributed by the wider
 industry community including market participants, trade associations and
 technology or service vendors. It describes:
 
--   What a Contributor should do to edit and contribute changes to the
-    CDM
+-   What a Contributor should do to edit and contribute changes to the CDM
 -   What a Maintainer should do to review the changes
 -   How to release a new CDM version once changes have been approved
 
