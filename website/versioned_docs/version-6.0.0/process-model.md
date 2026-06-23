@@ -555,11 +555,10 @@ func EquityCashSettlementAmount:
         equityCashSettlementAmount Transfer (1..1)
 
     alias payout:
-        tradeState -> trade -> product -> economicTerms -> payout 
-            filter PerformancePayout exists 
+        tradeState -> trade -> product -> economicTerms -> payout
+            filter PerformancePayout exists
             then only-element
-    alias equityPerformancePayout:
-        payout -> PerformancePayout
+    alias equityPerformancePayout: payout as PerformancePayout
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -577,20 +576,19 @@ func EquityCashSettlementAmount:
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> quantity -> value:
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value:
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> quantity -> unit -> currency:
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
-    set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
-    set equityCashSettlementAmount -> settlementDate -> adjustedDate:
+    set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin:
-        payout as-key
+    set equityCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
 ```
 
 ``` Haskell
@@ -778,7 +776,7 @@ func ResolvePerformanceObservationIdentifiers:
         else payout -> valuationDates -> finalValuationDate
 
     set identifiers -> observable:
-        payout -> underlier -> Observable 
+        payout -> underlier as Observable
     set identifiers -> observationDate:
         AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
@@ -787,11 +785,11 @@ func ResolvePerformanceObservationIdentifiers:
         ResolvePerformanceValuationTime(
                 valuationDates -> valuationTime,
                 valuationDates -> valuationTimeType,
-                identifiers -> observable -> Asset ->> identifier only-element,
+                identifiers -> observable as Asset ->> identifier only-element,
                 valuationDates -> determinationMethod
             )
     set identifiers -> informationSource:
-        payout -> observationTerms -> informationSource -> primarySource        
+        payout -> observationTerms -> informationSource -> primarySource
     set identifiers -> determinationMethodology -> determinationMethod:
         valuationDates -> determinationMethod
 ```
