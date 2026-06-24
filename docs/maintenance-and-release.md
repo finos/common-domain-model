@@ -14,7 +14,7 @@ through the following review checklist:
 -   Review Pull Request to assert that:
     -   Model changes fulfil the proposed design and use-case
         requirements
-    -   Synonyms have been updated and output (JSON) looks correct
+    -   Test pack sample data and output (JSON) look correct
     -   Contributed model version is not stale and does not conflict
         with any recent changes
     -   Changes are in accordance with the CDM governance guidelines, including the change control guidelines in the [change control guidelines page](change-control-guidelines.md)

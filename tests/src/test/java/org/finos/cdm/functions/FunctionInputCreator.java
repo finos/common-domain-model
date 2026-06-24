@@ -50,7 +50,6 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
@@ -60,6 +59,7 @@ import com.rosetta.model.metafields.MetaFields;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModule;
 import org.finos.cdm.util.ResourcesUtils;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class FunctionInputCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionInputCreator.class);
 
-    static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
+    static final ObjectMapper STRICT_MAPPER = new RuneJsonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
             .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
             .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
@@ -283,8 +283,9 @@ public class FunctionInputCreator {
                     .setTransfer(TransferInstruction.builder().setTransferState(transferState));
         }
 
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder.build());
         return new CreateBusinessEventInput(
-                Lists.newArrayList(Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder.build())),
+                Lists.newArrayList(instructionBuilder.build()),
                 null,
                 eventDate,
                 null);
@@ -687,22 +688,44 @@ public class FunctionInputCreator {
                                                         .setValue("USD"))))));
 
 
-        instructions.add(Instruction.builder()
+        // reKey the "before" trades so their parties carry global keys/references, matching the
+        // explicitly reKey'd execution instruction below.
+        //
+        // Why this is needed with the new (RuneJsonObjectMapper) serialiser but not the old
+        // (RosettaObjectMapper) one:
+        //   - The old serialiser persisted global keys/references (globalKey / globalReference)
+        //     on the ingested workflow-step samples, so every party - including the "before"
+        //     trades read here - already carried a global reference (e.g. personReference had a
+        //     globalReference). All party1 instances were therefore keyed identically and, once
+        //     references were resolved, resolved/inlined identically, hashing to the same global
+        //     key. The ReKey step saw one consistent global key per external key, so it passed.
+        //   - The new serialiser only writes external (and scoped) keys for these ingested
+        //     samples - there are no global @key/@ref on the "before" trades, only @key:external /
+        //     @ref:external. The execution instruction below is still explicitly reKey'd, so it
+        //     does get global keys. On reference resolution only GLOBAL references are resolved and
+        //     inlined into the reference value; external-only references are left unresolved (value
+        //     == null). The execution party1 (global ref -> person inlined) then has different
+        //     hashed content from the "before" party1 (external ref -> nothing inlined), so the
+        //     same external key "party1" maps to two distinct global keys and the ReKey
+        //     post-process step throws "Two distinct rosetta objects have the same external key".
+        // reKey-ing the "before" trades restores the global keys/references the old serialiser used
+        // to persist, making all party1 instances resolve and hash identically again.
+        instructions.add(reKey(Instruction.builder()
                 .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(terminateInstructions))
+                        .setQuantityChange(terminateInstructions)))
                 .build());
 
-        instructions.add(Instruction.builder()
+        instructions.add(reKey(Instruction.builder()
                 .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-2.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(terminateInstructions))
+                        .setQuantityChange(terminateInstructions)))
                 .build());
 
-        instructions.add(Instruction.builder()
+        instructions.add(reKey(Instruction.builder()
                 .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-3.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(terminateInstructions))
+                        .setQuantityChange(terminateInstructions)))
                 .build());
 
         instructions.add(Instruction.builder()
@@ -2056,7 +2079,8 @@ public class FunctionInputCreator {
     ExpectationResult<CreateBusinessEventInput> getSubstitutionEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/repo-substitution-effective-date.json");
-        CollateralPortfolio newCollateralPortfolio = ResourcesUtils.getObject(CollateralPortfolio.class, "functions/repo-and-bond/repo-substitution-collateral.json");
+        Collateral collateral = ResourcesUtils.getObject(Collateral.class, "functions/repo-and-bond/repo-substitution-collateral.json");
+        CollateralPortfolio newCollateralPortfolio = collateral.getCollateralPortfolio().get(0).getValue();
         List<? extends PriceQuantity> priceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "functions/repo-and-bond/repo-substitution-price-quantity.json");
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = createSubstitutionInstruction.evaluate(executionTradeState, effectiveDate, newCollateralPortfolio, priceQuantity).toBuilder();

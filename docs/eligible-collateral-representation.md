@@ -1,4 +1,4 @@
----
+ ---
 title: Eligible Collateral Representation
 ---
 # Eligible Collateral Representation
@@ -955,12 +955,12 @@ maturity of more than one year.  This can be coded into an `EligibilityCollatera
 first parameter of the validation function; here illustrated as JSON:
 
 * `EligibilityCollateralSpecification`
-``` Javascript
+ ``` json
 { "criteria": [ {
       "asset": [ {
             "collateralAssetType": [ {
-              "assetType": "SECURITY"
-              "securityType": "DEBT"
+              "assetType": "Security"
+              "securityType": "Debt"
           } ],
           "maturityRange": {
             "lowerBound": {
@@ -970,7 +970,7 @@ first parameter of the validation function; here illustrated as JSON:
       } } } } ],
       "issuer": [ {
           "issuerType": [ {
-              "issuerType": "SOVEREIGN_CENTRAL_BANK"
+              "issuerType": "SovereignCentralBank"
 } ] } ] } ] }
 ```
 We can then run eligibility tests against this, for example:
@@ -980,7 +980,7 @@ We can then run eligibility tests against this, for example:
 
 Showing this as JSON code, the first `EligibilityQuery` would be:
 
-``` Javascript
+ ``` json
 {   "query": {
 	"collateralAssetType": [ {
 		"assetType": "Cash"
@@ -994,7 +994,7 @@ in the `isEligible` attribute.
 
 For the second example, the query can be constructed as follows:
 
-``` Javascript
+ ``` json
 {   "query": {
 	"maturity": 3,
 	"collateralAssetType": [ {
@@ -1010,7 +1010,7 @@ For the second example, the query can be constructed as follows:
  			"notation": "AA"
 		} ]
 	} ,
-	"issuerType": "SOVEREIGN_CENTRAL_BANK" ,
+	"issuerType": "SovereignCentralBank" ,
 	"issuerName": "Government of Japan"
 }  }
 ```
