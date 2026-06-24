@@ -2443,9 +2443,9 @@ func Create_AgreementTermsChange: <"Creates and applies change in terms to an ex
                     before
                 )
 
-func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementevent based on a change in terms due to an amendment agreement.">
+func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after Legal Agreement based on a change in terms due to an amendment agreement.">
     inputs:
-        vmCSATermsChange CreditSupportAgreementVariationMarginElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
+        vmCSATermsChange CreditSupportAgreementVariationMarginElections (1..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
         before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
@@ -2455,9 +2455,9 @@ func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
     set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementVariationMarginElections:
         vmCSATermsChange
 
-func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change in terms due to an amendment agreement.">
+func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after Legal Agreement based on a change in terms due to an amendment agreement.">
     inputs:
-        imCSATermsChange CreditSupportAgreementInitialMarginElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
+        imCSATermsChange CreditSupportAgreementInitialMarginElections (1..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
         before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
@@ -2467,9 +2467,9 @@ func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints wh
     set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementInitialMarginElections:
         imCSATermsChange
 
-func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change in terms due to an amendment agreement.">
+func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after Legal agreement based on a change in terms due to an amendment agreement.">
     inputs:
-        legacyCSATermsChange CreditSupportAgreementLegacyElections (0..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
+        legacyCSATermsChange CreditSupportAgreementLegacyElections (1..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
         before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
     output:
         after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
@@ -2479,7 +2479,7 @@ func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraint
     set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementLegacyElections:
         legacyCSATermsChange
 
-func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after agreementEvent based on a change to the parties.">
+func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after Legal agreement based on a change to the parties.">
     inputs:
         counterparty Counterparty (1..1)
         partyRole PartyRole (0..1)
@@ -2502,14 +2502,14 @@ func ChangeCounterparty:
         newCounterparty Counterparty (2..2)
 
     alias counterparty1:
-        if changeCounterparty -> role = CounterpartyRoleEnum -> Party1
+        if changeCounterparty -> role = Party1
         then Counterparty {
                 partyReference: changeCounterparty -> partyReference,
                 role: changeCounterparty -> role
             }
         else ExtractCounterpartyByRole(originalCounterparty, CounterpartyRoleEnum -> Party1)
     alias counterparty2:
-        if changeCounterparty -> role = CounterpartyRoleEnum -> Party2
+        if changeCounterparty -> role = Party2
         then Counterparty {
                 partyReference: changeCounterparty -> partyReference,
                 role: changeCounterparty -> role
