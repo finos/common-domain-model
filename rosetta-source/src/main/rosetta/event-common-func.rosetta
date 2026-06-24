@@ -9,7 +9,9 @@ import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.position.*
 import cdm.event.workflow.*
+import cdm.legaldocumentation.*
 import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.transaction.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
@@ -19,8 +21,6 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 import cdm.product.template.*
-import cdm.legaldocumentation.csa.*
-import cdm.legaldocumentation.*
 
 func QuantityIncreased:
     inputs:
@@ -944,7 +944,8 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
     add newTrade -> trade -> partyRole: <"Add party role">
         partyRole
     set newTrade -> trade -> contractDetails -> documentation: <"Add or amend party details.">
-        originalTrade -> trade -> contractDetails -> documentation extract Create_AgreementPartyChange(counterparty, partyRole, item)
+        originalTrade -> trade -> contractDetails -> documentation
+            extract Create_AgreementPartyChange(counterparty, partyRole, item)
     set newTrade -> transferHistory: <"Clear transfer history.">
         EmptyTransferHistory()
 
