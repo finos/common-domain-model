@@ -9,7 +9,9 @@ import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.position.*
 import cdm.event.workflow.*
+import cdm.legaldocumentation.*
 import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.transaction.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
@@ -941,6 +943,9 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
         partyRole -> partyReference
     add newTrade -> trade -> partyRole: <"Add party role">
         partyRole
+    set newTrade -> trade -> contractDetails -> documentation: <"Add or amend party details.">
+        originalTrade -> trade -> contractDetails -> documentation
+            extract Create_AgreementPartyChange(counterparty, partyRole, item)
     set newTrade -> transferHistory: <"Clear transfer history.">
         EmptyTransferHistory()
 
@@ -2387,3 +2392,129 @@ func InterestPayoutObligationsFulfilled: <"Determines whether the obligations de
         if cashTransferredQuantity = payoutQuantitySchedule
         then True
         else False
+
+func Create_AgreementEvent: <"Creates an agreement event from primitive instructions and their associated event date, effective date and intent.">
+    [creation AgreementEvent]
+    inputs:
+        instruction AgreementInstruction (1..*)
+        intent AgreementEventIntentEnum (0..*)
+        eventDate date (1..1)
+        effectiveDate date (1..1)
+    output:
+        agreementEvent AgreementEvent (1..1)
+
+    add agreementEvent -> instruction: instruction
+
+    set agreementEvent -> intent: intent
+
+    set agreementEvent -> eventDate: eventDate
+
+    set agreementEvent -> effectiveDate: effectiveDate
+
+    add agreementEvent -> after:
+        instruction
+            extract
+                if item -> primitiveInstruction -> termsChange exists
+                then Create_AgreementTermsChange(
+                            item -> primitiveInstruction -> termsChange,
+                            item -> before
+                        )
+                else if item -> primitiveInstruction -> partyChange exists
+                then Create_AgreementPartyChange(
+                            item -> primitiveInstruction -> partyChange -> counterparty only-element,
+                            item -> primitiveInstruction -> partyChange -> partyRole only-element,
+                            item -> before
+                        )
+
+func Create_AgreementTermsChange: <"Creates and applies change in terms to an existing Legal Agreement record based on a before legal agreement and the application of term election changes that are represented by a Legal agreement amendment.">
+    inputs:
+        termsChange AgreementTermsChangeInstruction (1..*)
+        before LegalAgreement (1..1)
+    output:
+        after LegalAgreement (1..1)
+
+    set after:
+        if termsChange -> vmCSATermsChange exists
+        then Create_VMCSATermsChange(termsChange -> vmCSATermsChange only-element, before)
+        else if termsChange -> imCSATermsChange exists
+        then Create_IMCSATermsChange(termsChange -> imCSATermsChange only-element, before)
+        else if termsChange -> legacyCSATermsChange exists
+        then Create_LegacyCSATermsChange(
+                    termsChange -> legacyCSATermsChange only-element,
+                    before
+                )
+
+func Create_VMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after Legal Agreement based on a change in terms due to an amendment agreement.">
+    inputs:
+        vmCSATermsChange CreditSupportAgreementVariationMarginElections (1..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
+        before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
+    output:
+        after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
+
+    set after: before
+
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementVariationMarginElections:
+        vmCSATermsChange
+
+func Create_IMCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after Legal Agreement based on a change in terms due to an amendment agreement.">
+    inputs:
+        imCSATermsChange CreditSupportAgreementInitialMarginElections (1..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
+        before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
+    output:
+        after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
+
+    set after: before
+
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementInitialMarginElections:
+        imCSATermsChange
+
+func Create_LegacyCSATermsChange: <"Specifies the inputs, outputs and constraints when calculating the after Legal agreement based on a change in terms due to an amendment agreement.">
+    inputs:
+        legacyCSATermsChange CreditSupportAgreementLegacyElections (1..1) <"Instructions to be used as an input to the function when identifying Agreement Term changes.">
+        before LegalAgreement (1..1) <"States the current Agreement terms to be amended.">
+    output:
+        after LegalAgreement (1..1) <"States the Agreement terms after the AgreementTermsChangInstruction has been completed">
+
+    set after: before
+
+    set after -> agreementTerms -> agreement -> creditSupportAgreementElections -> CreditSupportAgreementLegacyElections:
+        legacyCSATermsChange
+
+func Create_AgreementPartyChange: <"Specifies the inputs, outputs and constraints when calculating the after Legal agreement based on a change to the parties.">
+    inputs:
+        counterparty Counterparty (1..1)
+        partyRole PartyRole (0..1)
+        before LegalAgreement (1..1)
+    output:
+        after LegalAgreement (1..1) <"States the agreement parties after the amendment change has been processed">
+
+    set after: before
+
+    set after -> agreementTerms -> counterparty:
+        ChangeCounterparty(before -> agreementTerms -> counterparty, counterparty)
+
+    set after -> otherParty: partyRole
+
+func ChangeCounterparty:
+    inputs:
+        originalCounterparty Counterparty (2..2)
+        changeCounterparty Counterparty (1..1)
+    output:
+        newCounterparty Counterparty (2..2)
+
+    alias counterparty1:
+        if changeCounterparty -> role = Party1
+        then Counterparty {
+                partyReference: changeCounterparty -> partyReference,
+                role: changeCounterparty -> role
+            }
+        else ExtractCounterpartyByRole(originalCounterparty, CounterpartyRoleEnum -> Party1)
+    alias counterparty2:
+        if changeCounterparty -> role = Party2
+        then Counterparty {
+                partyReference: changeCounterparty -> partyReference,
+                role: changeCounterparty -> role
+            }
+        else ExtractCounterpartyByRole(originalCounterparty, CounterpartyRoleEnum -> Party2)
+
+    set newCounterparty: [counterparty1, counterparty2]

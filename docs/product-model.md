@@ -317,7 +317,7 @@ The terms of the contract are specified at trade inception and
 apply throughout the life of the contract (which can last for decades
 for certain long-dated products) unless amended by mutual agreement.
 Contractual products may be fungible (replaceable by other
-identical or similar contracts) only under specific terms: e.g. the
+identical or similar contracts) only under specific terms: e.g. the
 existence of a close-out netting agreement between the parties.
 
 Given that each contractual product transaction is unique, all of the
@@ -671,7 +671,7 @@ in addition to the price and quantity and can be represented using the
 [`SettlementPayout`](#settlementpayout).
 
 A `TradableProduct` also provides a mechanism to trade indices that
-otherwise cannot be directly transfered. The `Payout` would define how
+otherwise cannot be directly transferred. The `Payout` would define how
 the index is meant to be observed and the resulting cashflows between
 the parties based on that observed value.
 
@@ -976,34 +976,21 @@ Consider the example below for the initial price of the underlying
 equity in a single-name Equity Swap, which is a net price of 37.44 USD
 per Share:
 
-``` Javascript
-"price": [
-  {
-    "value": {
-      "value": 37.44,
-      "unit": {
-        "currency": {
-          "value": "USD"
-          }
-        },
-        "perUnitOf": {
-          "financialUnit": "SHARE"
-        },
-        "priceExpression": {
-          "priceType": "ASSET_PRICE",
-          "grossOrNet": "NET"
-        },
-      },
-      "meta": {
-        "location": [
-          {
-            "scope": "DOCUMENT",
-            "value": "price-1"
-          }
-        ]
-      }
+ ``` json
+"price": [ {
+  "@key:scoped" : "price-1",
+  "value": 37.44,
+  "unit": {
+    "currency": {
+      "@data": "USD"
     }
-  ]
+  },
+  "perUnitOf": {
+    "financialUnit": "Share"
+  },
+  "priceType" : "AssetPrice",
+  "priceExpression" : "AbsoluteTerms"
+} ]
 ```
 
 The full form of this example can be seen by ingesting one of the
@@ -1057,29 +1044,22 @@ of the WTI Crude Oil futures contract on the CME. Each contract
 represents 1,000 barrels, therefore the total quantity of the trade is
 for 200,000 barrels.
 
-``` Javascript
-"quantity": [
-  {
-    "value": {
-      "value": 200,
-      "unit": {
-        "financialUnit": "CONTRACT"
-      },
-      "multiplier": {
-        "value": 1000,
-        "unit": "BBL"
-      }
-    },
-    "meta": {
-      "location": [
-        {
-          "scope": "DOCUMENT",
-          "value": "quantity-1"
-        }
-      ]
+ ``` json
+"quantity" : [ {
+  "@key:scoped" : "quantity-1",
+  "value" : 200,
+  "unit" : {
+    "currency" : {
+      "@data" : "BBL"
+    }
+  },
+  "multiplier" : {
+    "value" : 1000,
+    "unit" : {
+      "financialUnit" : "Contract"
     }
   }
-]
+} ]
 ```
 
 The `frequency` attribute is used in a similar way when a quantity may
