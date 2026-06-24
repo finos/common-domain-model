@@ -24,6 +24,9 @@ type TransferableProduct: <"A TransferableProduct is a type of financial product
     economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
     productPartyRole CounterpartyRoleEnum (1..1) <"Overrides the parties on the trade to identify the party with the obligation to pay dividends or coupons, e.g issuer.">
 
+    condition AssetPartyRoleExists: <"A TransferableProduct must contain an asset and a partyRole.">
+        asset ->> partyRole exists
+
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
     effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
@@ -313,9 +316,6 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
             provision "Parties entering into GMRA, as specified on page 1 of the GMRA and under 1. (a)."]
     ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
     adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
-
-    condition PriceQuantityTriangulation: <"Check PriceQuantity triangulation for each TradeLot.">
-        PriceQuantityTriangulation(tradeLot) = True
 
     condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
         if adjustment exists
