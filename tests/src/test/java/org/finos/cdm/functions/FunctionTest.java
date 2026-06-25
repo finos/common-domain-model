@@ -1,7 +1,6 @@
 package org.finos.cdm.functions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static com.regnosys.rosetta.common.util.ClassPathUtils.loadFromClasspath;
