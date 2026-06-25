@@ -69,11 +69,11 @@ In February 2023, FINOS announced the launch of the Common Domain Model, which a
 
 ### [A discussion of "The Future of the Securities Lending Market: An Agenda for Change"](https://www.finos.org/blog/the-future-of-securities-lending-market)
 
-ISLA published a paper entitled ‘The Future of the Securities Lending Market | An Agenda for Change’ in September 2019, looking at the conjunction of market complexity, technical architecture and regulatory impacts. The conclusion reached was that a transformation was overdue and the solution would be underpinned by common standards.
+ISLA published a paper entitled ‘The Future of the Securities Lending Market | An Agenda for Change’ in September 2019, looking at the conjunction of market complexity, technical architecture and regulatory impacts. The conclusion reached was that a transformation was overdue and the solution would be underpinned by common standards.
 
 ### [CDM Now Available In Python](https://www.finos.org/blog/cdm-now-available-in-python)
 
-A recent contribution to the CDM project makes it available in the Python programming language for the first time, which will allow a new community of developers to use the CDM in their projects.
+A recent contribution to the CDM project makes it available in the Python programming language for the first time, which will allow a new community of developers to use the CDM in their projects.
 
 ### [Common Domain Model into Open Source at FINOS](https://www.finos.org/hubfs/Accepted%20FINOS%20Edits_%20Common%20Domain%20Model%20into%20Open%20Source%20at%20FINOS.docx.pdf)
 
@@ -81,7 +81,7 @@ Read more about CDM's journey into open source, project contribution guidelines,
 
 ### [Barclays demonstration of interest rate swap processing using the Common Domain Model (CDM)](https://www.youtube.com/watch?v=LTWn_AWC4F8)
 
-In this recording, Barclays introduces a prototype for processing interest rate swaps using the common domain model. Starting with how the post-trade industry in capital markets has evolved over time, resulting in procedural inefficiencies that are complex, duplicative, and costly to maintain. The common domain model covers processes, events, and data, and Barclays prototype aims to showcase the potential of this new standard in revolutionizing the post-trade industry. 
+In this recording, Barclays introduces a prototype for processing interest rate swaps using the common domain model. Starting with how the post-trade industry in capital markets has evolved over time, resulting in procedural inefficiencies that are complex, duplicative, and costly to maintain. The common domain model covers processes, events, and data, and Barclays prototype aims to showcase the potential of this new standard in revolutionizing the post-trade industry. 
 
 ### [ISLA, ICMA & ISDA Appoint FINOS for CDM Repository](https://www.islaemea.org/press-releases/isla-icma-isda-appoint-finos-for-cdm-repository/)
 
@@ -89,7 +89,7 @@ On Thursday, September 8th, 2022, three leading organizations in the financial i
 
 ### [2022 Open Source in Finance Forum New York Keynote Panel: Common Domain Model (CDM)](https://resources.finos.org/content/keynote-panel-common-domain-model-cdm/?projects-sigs=common-domain-model-cdm)
 
-At the keynote session of the 2022 Open Source in Finance Forum New York, a panel of industry leaders including Adrian Dale of ISLA, Alan Milligan of ISDA, and Georgina Jarrett, joined moderator Ffion Acland of Goldman Sachs to delve into the exciting topic of trade association collaboration, open sourcing, and the creation of a common domain for the market, built by the market. 
+At the keynote session of the 2022 Open Source in Finance Forum New York, a panel of industry leaders including Adrian Dale of ISLA, Alan Milligan of ISDA, and Georgina Jarrett, joined moderator Ffion Acland of Goldman Sachs to delve into the exciting topic of trade association collaboration, open sourcing, and the creation of a common domain for the market, built by the market. 
 
 ### [Looking Backwards & Forwards at CDM: History of the Common Domain Model…](https://resources.finos.org/content/looking-backwards-forwards-at-cdm-history-of-the-common-domain-model/?projects-sigs=common-domain-model-cdm)
 
