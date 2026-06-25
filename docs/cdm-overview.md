@@ -138,9 +138,8 @@ The FINOS CDM distribution comprises three main sets of components:
 Only the Java executable code distribution is complete: i.e. it
 represents the entire CDM as defined in Rosetta (plus any associated
 default implementation). Other distributions may only capture parts of
-the model: for instance, the Scala and TypeScript distributions include
-the complete data model and function specifications, but not the
-functions' executable code.
+the model: for instance, the TypeScript distribution includes
+the complete data model, but not the functions' executable code.
 
 ---
 

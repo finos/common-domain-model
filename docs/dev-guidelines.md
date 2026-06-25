@@ -324,7 +324,7 @@ once it is approved:
     Maintainer should adjust or include any code snippets by editing the
     *documentation.rst* file on GitHub.
 -   **Code generation**: Model changes may cause code generator failures
-    (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code
+    (e.g., Java, Typescript etc.). In the unlikely event of code
     generation failures, these will need to be addressed by the
     Maintainer.
 
