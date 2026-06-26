@@ -44,7 +44,7 @@ Ways to interact with the CDM community:
 
 
 > &#128161; Tip<br>
-> **Need help?**  Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
+> **Need help?**  Email help@finos.org if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists, or meetings. 
 
 ## Roadmap
 
@@ -60,7 +60,7 @@ Ways to interact with the CDM community:
 ## Contributing
 
 > &#10071; Important<br>
-> If you wish to add a new feature, make a change to the model, or fix a defect, you should start by raising an Issue in GitHub.  To implement changes in the CDM repository resolving an issue, you shoud raise a Pull Request.  
+> If you wish to add a new feature, make a change to the model, or fix a defect, you should start by raising an Issue in GitHub.  To implement changes in the CDM repository resolving an issue, you should raise a Pull Request.  
 
 Please read our [development guidelines](https://cdm.finos.org/docs/dev-guidelines), [contribution guidelines](CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct). See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/.github/CONTRIBUTING.md).  
 
