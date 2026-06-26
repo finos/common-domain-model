@@ -400,7 +400,12 @@ would look like:
   }
 }, {
   "source" : "CFI",
-  "productQualifier" : "RepurchaseAgreement"
+  "value" : {
+    "name" : {
+      "@data" : "RepurchaseAgreement"
+    }
+  },
+  "calculated" : true
 } ],
 ```
 
