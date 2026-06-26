@@ -1292,7 +1292,7 @@ type ProductTaxonomy extends Taxonomy:
   "value" : {
     "name" : {
       "@data" : "IInterestRate_IRSwap_FixedFloat"
-  } ,
-  "calculated" : "true"
+  },
+  "calculated" : true
 } ]
 ```
