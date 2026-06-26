@@ -349,22 +349,22 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
                     then product -> economicTerms -> payout -> OptionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
 
     condition ExerciseNoticeReceiverPartyOptionalEarlyTermination:
-        if product -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver exists
+        if product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
                 and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyOptionalEarlyTermination
-                    then product -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver exists
+                    then product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver exists
 
     condition ExerciseNoticeReceiverPartyCancelableProvision:
-        if product -> economicTerms -> terminationProvision -> cancelableProvision -> exerciseNotice -> exerciseNoticeReceiver exists
+        if product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> cancelableProvision -> exerciseNotice -> exerciseNoticeReceiver exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyCancelableProvision
                 and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyCancelableProvision
-                    then product -> economicTerms -> terminationProvision -> cancelableProvision -> exerciseNotice -> exerciseNoticeReceiver exists
+                    then product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> cancelableProvision -> exerciseNotice -> exerciseNoticeReceiver exists
 
     condition ExerciseNoticeReceiverPartyExtendibleProvision:
-        if product -> economicTerms -> terminationProvision -> extendibleProvision -> exerciseNotice -> exerciseNoticeReceiver exists
+        if product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> extendibleProvision -> exerciseNotice -> exerciseNoticeReceiver exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyExtendibleProvision
                 and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyExtendibleProvision
-                    then product -> economicTerms -> terminationProvision -> extendibleProvision -> exerciseNotice -> exerciseNoticeReceiver exists
+                    then product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> extendibleProvision -> exerciseNotice -> exerciseNoticeReceiver exists
 
     condition CalculationAgentIndependent:
         if product -> economicTerms -> calculationAgent -> calculationAgentParty exists
@@ -373,16 +373,16 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
                     then product -> economicTerms -> calculationAgent -> calculationAgentParty exists
 
     condition CalculationAgentOptionalEarlyTermination:
-        if product -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
+        if product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentOptionalEarlyTermination
                 and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentOptionalEarlyTermination
-                    then product -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
+                    then product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
     condition CalculationAgentMandatoryEarlyTermination:
-        if product -> economicTerms -> terminationProvision -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
+        if product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
                 and if ancillaryParty -> role contains AncillaryRoleEnum -> CalculationAgentMandatoryEarlyTermination
-                    then product -> economicTerms -> terminationProvision -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
+                    then product -> economicTerms -> terminationProvision -> SwapTerminationProvision -> earlyTerminationProvision -> mandatoryEarlyTermination -> calculationAgent -> calculationAgentParty exists
 
 type ConstituentWeight: <"A class describing the weight of each of the underlier constituent within the basket, either in absolute or relative terms.">
 
@@ -651,7 +651,12 @@ type OptionFeature: <"Defines additional optional features that can be included 
     barrier Barrier (0..1) <"Specifies a barrier feature.">
     passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
 
-type TerminationProvision: <"A class for defining option provisions.">
+choice TerminationProvision:
+    SwapTerminationProvision
+    //RepoTerminationProvision
+
+
+type SwapTerminationProvision: <"A class for defining option provisions.">
     cancelableProvision CancelableProvision (0..1) <"A provision that allows the specification of an embedded option within a swap giving the buyer of the option the right to terminate the swap, in whole or in part, on the early termination date.">
     earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
     evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
@@ -660,6 +665,28 @@ type TerminationProvision: <"A class for defining option provisions.">
 
     condition TerminationProvisionChoice:
         required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision, recallProvision
+
+type RepoTerminationProvision:
+    repoTerminationType RepoDurationEnum (1..1) <"Indication of the repo term type as in overnight, term, open, extendible or evergreen.">
+    openTerminationProvision RepoTerminationSpecification (0..1) <"Specification of the conditions and process to close an open repo.">
+    cancellationProvision RepoTerminationSpecification (0..1) <"Specification of the conditions and process to terminate a repo before scheduled maturity date as mutually agreed by the counterparties, and is not the result of a default.">
+    earlyTerminationProvision RepoTerminationSpecification (0..1) <"Specification of the conditions and process to terminate a repo in the event of a default event.">
+    evergreenProvision EvergreenProvision (0..1) <"A stipulation that permits the repo counterparties to automatically roll the maturity date to a new maturity cycle subject to either party invoking the evergreen termination provision.">
+    extendibleProvision ExtendibleProvision (0..1) <"A stipulation that permits the repo counterparties to extend a repo maturity date for a specified period at specific dates or periods during the term.">
+
+
+type RepoTerminationSpecification:
+    terminationEvent RepoTerminationEventEnum (0..1) <"A enumeration that defines the event that triggers a termination">
+    terminatingPartyRole CounterpartyRoleEnum (0..2) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, the right to invoke early termination, if none specified then both parties have the right.">
+    earliestDate AdjustableOrRelativeDate (0..1) <"The first day when early termination is permitted to take effect. A party may give notice prior to this date.">
+    expirationDate AdjustableOrRelativeDate (0..1) <"The last day within the term of the contract that early termination is allowed.">
+    effectiveDate AdjustableOrRelativeDates (0..1) <"The effective date if early termination is invoked otherwise the notice period defines the termination date.">
+    noticePeriod Period (0..1) <"Effective period for cancelation when notice is given. This is the period after notice is given that cancellation becomes effecticve.">
+    earliestTerminationTime BusinessCenterTime (0..1) <"The earliest time in a business day that notice of cancelation can be given.">
+    latestTerminationTime BusinessCenterTime (0..1) <"The latest time at which notice of cancelation can be given.">
+
+    condition EffectiveDate: <"Must select one of predefined termination types of effectiveDate or noticePeriod.">
+        optional choice effectiveDate, noticePeriod
 
 type RecallProvision: <"Defines the additional features that allow securities to be recalled by the lender before the term of the loan. A recall is not the same as an early termination, but may result in the early termination of a loan.">
     isRecallable boolean (1..1) <"Whether the securities on loan can be recalled by the lender.">

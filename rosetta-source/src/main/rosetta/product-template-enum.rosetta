@@ -35,10 +35,19 @@ enum MarginTypeEnum: <"This indicator defines which type of assets (cash or secu
     Cash <"When the margin type is Cash, the margin factor is applied to the cash value of the transaction.">
     Instrument <"When the margin type is Instrument, the margin factor is applied to the instrument value for the transaction. In the 'instrument' case, the haircut would be applied to the securities.">
 
-enum RepoDurationEnum: <"A duration code for a Repo (or Securities Lending) transaction. There are many business and market rules that are derived from the duration of the transaction.">
-    // [deprecated]
+enum RepoDurationEnum: <"A duration code for a Repo (or Securities Lending) transaction.">
     Overnight <"Indicates that a contract is classified as overnight, meaning that there is one business day difference between the start and end date of the contract. Business rule: When the repo is overnight, the number of business days between the spot and forward value dates must be one. Forward leg must be specified.">
     Term <"Indicates that a contract is a regular term contract, with a start date and an end date. Business rule: When the repo is 'Term', both spot and forward legs must be specified.">
+    Open <"Indicates that the repo term is not a fixed date or period and is subject to either party invoking the on-demand termination provision.">
+    Evergreen <"A type of repo where the termination date automatically rolls at the end of a maturity cycle subject to either party invoking the evergreen termination provision.">
+    Extendible <"A type of repo where the termination date automatically rolls at the end of a maturity cycle subject to either party invoking the evergreen termination provision.">
+
+enum RepoTerminationEventEnum:
+    OpenRepoNoticeToClose <"Indicates a counterparty invoke a provision and gave notice to close an open term repo.">
+    FailureToPay <"An event triggered by one of the counterparties failure to make a cash payment.">
+    FailureToDeliver <"An event triggered by one of the counterparties failure to delivery contractual assets.">
+    CrossDefault <"An event triggered by a counterparty's defaulting on other contractual obligations and covered under the cross-default provisions of this trade.">
+    OtherDefaultEvent <"Any other event that triggers a termination event.">
 
 enum AssetPayoutTradeTypeEnum: <"An enumerator to differentiate the different trade types used in securities finance and modelled on an AssetPayout.">
     Repo <"In the case of a repurchase transaction, an immediate and equal income payment (often call a manufactured payment) is made by the buyer to the seller.">
