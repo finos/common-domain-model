@@ -554,41 +554,29 @@ func EquityCashSettlementAmount:
     output:
         equityCashSettlementAmount Transfer (1..1)
 
-    alias payout:
-        tradeState -> trade -> product -> economicTerms -> payout
-            filter PerformancePayout exists
-            then only-element
-    alias equityPerformancePayout: payout as PerformancePayout
+    alias equityPerformancePayout:
+        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout only-element
     alias equityPerformance:
-        EquityPerformance(
-                tradeState -> trade,
-                tradeState -> resetHistory only-element -> resetValue,
-                date
-            )
+        EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
     alias payer:
-        ExtractCounterpartyByRole(
-                tradeState -> trade -> counterparty,
-                equityPerformancePayout -> payerReceiver -> payer
-            ) -> partyReference
+        ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> payer ) -> partyReference
     alias receiver:
-        ExtractCounterpartyByRole(
-                tradeState -> trade -> counterparty,
-                equityPerformancePayout -> payerReceiver -> receiver
-            ) -> partyReference
+        ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> receiver ) -> partyReference
 
-    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value:
+    set equityCashSettlementAmount -> quantity -> value:
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
+    set equityCashSettlementAmount -> quantity -> unit -> currency:
         ResolveEquityInitialPrice(
-                tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
-            ) -> unit -> currency
-    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
+           tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
+        ) -> unit -> currency
+    set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
-    set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
+    set equityCashSettlementAmount -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
+    set equityCashSettlementAmount -> settlementOrigin -> performancePayout:
+        equityPerformancePayout as-key
 ```
 
 ``` Haskell
@@ -767,29 +755,28 @@ func ResolvePerformanceObservationIdentifiers:
         identifiers ObservationIdentifier (1..1)
 
     alias adjustedFinalValuationDate:
-        ResolveAdjustableDate(
-                payout -> valuationDates -> finalValuationDate -> valuationDate
-            )
-    alias valuationDates:
-        if adjustedDate < adjustedFinalValuationDate
-        then payout -> valuationDates -> interimValuationDate
-        else payout -> valuationDates -> finalValuationDate
+        ResolveAdjustableDate( payout -> valuationDates -> valuationDatesFinal -> valuationDate )
 
-    set identifiers -> observable:
-        payout -> underlier as Observable
+    alias valuationDates:
+        if adjustedDate < adjustedFinalValuationDate then
+            payout -> valuationDates -> valuationDatesInterim
+        else
+            payout -> valuationDates -> valuationDatesFinal
+
+    add identifiers -> observable -> productIdentifier:
+        payout -> underlier -> security -> productIdentifier
+
     set identifiers -> observationDate:
-        AdjustedValuationDates(payout -> valuationDates)
+        AdjustedValuationDates( payout -> valuationDates )
             filter item <= adjustedDate
             then last
+
     set identifiers -> observationTime:
-        ResolvePerformanceValuationTime(
-                valuationDates -> valuationTime,
-                valuationDates -> valuationTimeType,
-                identifiers -> observable as Asset ->> identifier only-element,
-                valuationDates -> determinationMethod
-            )
-    set identifiers -> informationSource:
-        payout -> observationTerms -> informationSource -> primarySource
+        ResolvePerformanceValuationTime(valuationDates -> valuationTime,
+            valuationDates -> valuationTimeType,
+            identifiers -> observable -> productIdentifier only-element,
+            valuationDates -> determinationMethod )
+
     set identifiers -> determinationMethodology -> determinationMethod:
         valuationDates -> determinationMethod
 ```
