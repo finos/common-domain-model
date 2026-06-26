@@ -1275,7 +1275,7 @@ type ProductTaxonomy extends Taxonomy:
 
  ``` json
 "taxonomy" : [ {
-  "primaryAssetClass" : {
+    "primaryAssetClass" : {
     "@scheme" : "http://www.fpml.org/coding-scheme/asset-class-simple",
     "@data" : "InterestRate"
   }
@@ -1285,10 +1285,14 @@ type ProductTaxonomy extends Taxonomy:
     "name" : {
       "@scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy",
       "@data" : "InterestRate:IRSwap:FixedFloat"
-    }
+  } 
   }
 }, {
   "source" : "ISDA",
-  "value" : "InterestRate"
+  "value" : {
+    "name" : {
+      "@data" : "IInterestRate_IRSwap_FixedFloat"
+  },
+  "calculated" : true
 } ]
 ```
