@@ -36,12 +36,10 @@ public class FunctionCreator {
 
     private static final ObjectMapper ROSETTA_OBJECT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
 
-    private static final List<String> EXECUTION_DESCRIPTOR_PATHS = List.of(
+    static final List<String> EXECUTION_DESCRIPTOR_PATHS = List.of(
             "functions/execution-descriptor.json",
             "functions/sec-lending-execution-descriptor.json",
             "functions/fpml-processes-execution-descriptor.json",
-            "functions/cme-cleared-confirm-1-17-execution-descriptor.json",
-            "functions/dtcc-11-0-execution-descriptor.json",
             "functions/repo-and-bond-execution-descriptor.json");
 
     private static Injector injector;
