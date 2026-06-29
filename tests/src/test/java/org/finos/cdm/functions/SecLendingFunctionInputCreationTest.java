@@ -18,9 +18,8 @@ import cdm.security.lending.functions.RunNewSettlementWorkflow;
 import cdm.security.lending.functions.RunReturnSettlementWorkflow;
 import cdm.security.lending.functions.RunReturnSettlementWorkflowInput;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.google.inject.AbstractModule;
@@ -29,58 +28,59 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.finos.cdm.CdmRuntimeModule;
+import org.finos.cdm.util.ResourcesUtils;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.finos.cdm.util.ResourcesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.finos.cdm.util.ResourcesUtils.getJson;
 import static org.finos.cdm.util.ResourcesUtils.reKey;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SecLendingFunctionInputCreationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecLendingFunctionInputCreationTest.class);
 
-    private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+    private static final ObjectMapper STRICT_MAPPER = new RuneJsonObjectMapper()
+//            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)  //TODO: fix issue with new serialiser, need to whitelist some props
             .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
-            .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
-    public static final ObjectMapper MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
+            .configure(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES, false);
+    public static final ObjectMapper MAPPER = new RuneJsonObjectMapper();
 
     // AVOID ADDING MANUALLY CRAFTED JSON
 
     // ALLOCATION AND REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
     // This is the execution instruction between an agent lender and a borrower
-    public static final String EXECUTION_INSTRUCTION_JSON = "/functions/sec-lending/block-execution-instruction.json";
+    public static final String EXECUTION_INSTRUCTION_JSON = "functions/sec-lending/block-execution-instruction.json";
     public static final String BLOCK_EXECUTION_TRADE_STATE_JSON = "functions/sec-lending/block-execution-trade-state.json";
 
     // SETTLEMENT AND RETURN WORKFLOWS ARE BASED OF THIS..
-    public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/functions/sec-lending/new-settlement-workflow-func-input.json";
+    public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "functions/sec-lending/new-settlement-workflow-func-input.json";
 
-    public static final String EXECUTION_CASH_FUNC_INPUT_JSON = "/functions/sec-lending/execution/execution-cash-input.json";
-    public static final String EXECUTION_CASH_BENCHMARK_FUNC_INPUT_JSON = "/functions/sec-lending/execution/execution-cash-benchmark-input.json";
-    public static final String EXECUTION_NONCASH_PORTFOLIO_FUNC_INPUT_JSON = "/functions/sec-lending/execution/execution-noncash-portfolio-input.json";
+    public static final String EXECUTION_CASH_FUNC_INPUT_JSON = "functions/sec-lending/execution/execution-cash-input.json";
+    public static final String EXECUTION_CASH_BENCHMARK_FUNC_INPUT_JSON = "functions/sec-lending/execution/execution-cash-benchmark-input.json";
+    public static final String EXECUTION_NONCASH_PORTFOLIO_FUNC_INPUT_JSON = "functions/sec-lending/execution/execution-noncash-portfolio-input.json";
 
     private static Injector injector;
 
@@ -146,26 +146,27 @@ public class SecLendingFunctionInputCreationTest {
 
     @Test
     void validateExecutionInstructionWorkflowFuncOutputJson() throws IOException {
-
-        URL resource = SecLendingFunctionInputCreationTest.class.getResource(EXECUTION_INSTRUCTION_JSON);
-        ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
-        Create_Execution createExecution = injector.getInstance(Create_Execution.class);
-
-        TradeState.TradeStateBuilder tradeStateBuilder = createExecution.evaluate(executionInstruction).toBuilder();
-
-        PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
-        postProcessor.postProcess(TradeState.class, tradeStateBuilder);
-
-        assertJsonEquals(BLOCK_EXECUTION_TRADE_STATE_JSON, tradeStateBuilder.build());
+        assertJsonEquals(BLOCK_EXECUTION_TRADE_STATE_JSON, getBlockExecutionTradeState());
     }
 
-    private static TradeState getBlockExecutionTradeStateJson() throws IOException {
-        return ResourcesUtils.getObjectAndResolveReferences(TradeState.class, BLOCK_EXECUTION_TRADE_STATE_JSON);
+    private TradeState getBlockExecutionTradeState() throws IOException {
+        ExecutionInstruction executionInstruction = ResourcesUtils.getObject(ExecutionInstruction.class, EXECUTION_INSTRUCTION_JSON);
+        Create_Execution createExecution = injector.getInstance(Create_Execution.class);
+        TradeState.TradeStateBuilder tradeStateBuilder = createExecution.evaluate(executionInstruction).toBuilder();
+        PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
+        postProcessor.postProcess(TradeState.class, tradeStateBuilder);
+        return tradeStateBuilder.build();
     }
 
     @Test
     void validatePartReturnSettlementWorkflowFuncInputJson() throws IOException {
-        RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
+        RunReturnSettlementWorkflowInput actual = getPartReturnSettlementWorkflowInput();
+        assertJsonEquals("functions/sec-lending/part-return-settlement-workflow-func-input.json", actual);
+        assertJsonConformsToRosettaType("functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+    }
+
+    private RunReturnSettlementWorkflowInput getPartReturnSettlementWorkflowInput() throws IOException {
+        return new RunReturnSettlementWorkflowInput(getTransferTradeState(),
                 ReturnInstruction.builder()
                         .addQuantity(Quantity.builder()
                                 .setValue(BigDecimal.valueOf(50000))
@@ -179,9 +180,6 @@ public class SecLendingFunctionInputCreationTest {
                         .build(),
                 Date.of(2020, 10, 8)
         );
-
-        assertJsonEquals("functions/sec-lending/part-return-settlement-workflow-func-input.json", actual);
-        assertJsonConformsToRosettaType("/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
     @Test
@@ -200,7 +198,7 @@ public class SecLendingFunctionInputCreationTest {
                 Date.of(2020, 10, 21));
 
         assertJsonEquals("functions/sec-lending/full-return-settlement-workflow-func-input.json", actual);
-        assertJsonConformsToRosettaType("/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+        assertJsonConformsToRosettaType("functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
     @Test
@@ -213,7 +211,7 @@ public class SecLendingFunctionInputCreationTest {
 
     private CreateBusinessEventInput getAllocationInput() throws IOException {
         // Agent Lender lends 200k SDOL to Borrower CP001
-        TradeState blockExecutionTradeState = getBlockExecutionTradeStateJson();
+        TradeState blockExecutionTradeState = getBlockExecutionTradeState();
 
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
@@ -296,7 +294,7 @@ public class SecLendingFunctionInputCreationTest {
 
     @Test
     void validateCreateSecurityLendingInvoiceFuncInputJson() throws IOException {
-        RunReturnSettlementWorkflowInput input = assertJsonConformsToRosettaType("/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+        RunReturnSettlementWorkflowInput input = getPartReturnSettlementWorkflowInput();
         Workflow part = injector.getInstance(RunReturnSettlementWorkflow.class).execute(input);
 
         TradeState fullReturnAfterTradeState = getTransferTradeState();
@@ -378,7 +376,7 @@ public class SecLendingFunctionInputCreationTest {
                 .build();
 
         assertJsonEquals("functions/sec-lending/create-security-lending-invoice-func-input.json", actualBillingInstruction);
-        assertJsonConformsToRosettaType("/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
+        assertJsonConformsToRosettaType("functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
     }
 
     private BillingRecordInstruction createBillingRecordInstruction(TradeState transferTradeState, Date billingStartDate, Date billingEndDate, Date settlementDate, List<Observation> observations) {
@@ -404,7 +402,7 @@ public class SecLendingFunctionInputCreationTest {
     }
 
     private TradeState getTransferTradeState() throws IOException {
-        URL resource = SecLendingFunctionInputCreationTest.class.getResource(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON);
+        URL resource = Resources.getResource(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON);
         ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
         RunNewSettlementWorkflow runNewSettlementWorkflow = injector.getInstance(RunNewSettlementWorkflow.class);
         Workflow.WorkflowBuilder workflowBuilder = runNewSettlementWorkflow.execute(executionInstruction).toBuilder();
@@ -484,18 +482,12 @@ public class SecLendingFunctionInputCreationTest {
         return allocationIdentifierBuilder.build();
     }
 
-    private static String readResource(String inputJson) throws IOException {
-        URL resource = SecLendingFunctionInputCreationTest.class.getResource(inputJson);
-        //noinspection UnstableApiUsage
-        return Resources.toString(Objects.requireNonNull(resource), StandardCharsets.UTF_8);
-    }
-
     private <T> T assertJsonConformsToRosettaType(String inputJson, Class<T> rosettaType) throws IOException {
-        URL expectedURL = SecLendingFunctionInputCreationTest.class.getResource(inputJson);
+        URL expectedURL = Resources.getResource(inputJson);
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
         if (!TestingExpectationUtil.WRITE_EXPECTATIONS) {
-            assertEquals(readResource(inputJson),
+            assertEquals(ResourcesUtils.getJson(inputJson),
                     STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                     "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
         }

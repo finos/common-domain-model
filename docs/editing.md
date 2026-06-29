@@ -62,26 +62,17 @@ please refer to the [Rosetta Auto Compilation Guide](https://docs.rosetta-techno
 
 ### Testing
 
-The CDM has adopted a test-driven development approach that maps model
-components to existing sample data (e.g., FpML documents or other
-existing standards). Mappings are specified in the CDM using `synonym`
-which are collected into a Translation Dictionary, and the sample data
-are collected into a Test Pack. Each new model version is
-regression-tested using those mappings to translate the sample data in
-the Test Pack and then comparing against the expected number of mapped
-data points, validation and qualification results.
+The CDM has adopted a test-driven development approach that exercises
+model components against existing sample data (e.g., FpML documents or
+other existing standards). The sample data are collected into Test
+Packs, and each new model version is regression-tested by validating and
+qualifying the sample data in the Test Pack and comparing against the
+expected validation and qualification results.
 
-When using Rosetta to edit the model, contributors are invited to test
-their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#translate).
-When editing existing model components, the corresponding synonyms
-should be updated to maintain or improve existing mapping levels. When
-adding new model components, new sample data and corresponding synonym
-mappings should also be provided so the new use-case can be added to the
-set of regression tests.
-
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#mapping-component) for details about the synonym
-mapping syntax.
+When editing existing model components, contributors are invited to test
+their changes against the Test Pack. When adding new model components,
+new sample data should also be provided so the new use-case can be added
+to the set of regression tests.
 
 ### Namespace
 

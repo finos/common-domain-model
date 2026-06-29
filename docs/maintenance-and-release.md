@@ -14,7 +14,7 @@ through the following review checklist:
 -   Review Pull Request to assert that:
     -   Model changes fulfil the proposed design and use-case
         requirements
-    -   Synonyms have been updated and output (JSON) looks correct
+    -   Test pack sample data and output (JSON) look correct
     -   Contributed model version is not stale and does not conflict
         with any recent changes
     -   Changes are in accordance with the CDM governance guidelines, including the change control guidelines in the [change control guidelines page](change-control-guidelines.md)
@@ -85,7 +85,7 @@ once it is approved:
     Maintainer should adjust or include any code snippets by editing the
     *documentation.rst* file on GitHub.
 -   **Code generation**: Model changes may cause code generator failures
-    (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code
+    (e.g., Java, Typescript etc.). In the unlikely event of code
     generation failures, these will need to be addressed by the
     Maintainer.
 
