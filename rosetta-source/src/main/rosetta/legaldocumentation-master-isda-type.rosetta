@@ -47,7 +47,7 @@ type AutomaticEarlyTerminationElection: <"A class to specify the party elections
 type CreditEventUponMerger: <"Specification of the Credit Event Upon Merger provision applicable to a Master Agreement.">
     partyElection CreditEventUponMergerElection (0..2) <"The party election specific to the Credit Event Upon Merger clause.">
 
-type CreditEventUponMergerElection: <"Defines whether Credit Event Upon Merger applies to either party, and specifies elections specific to the Credit Even Upon Merger Clause.">
+type CreditEventUponMergerElection: <"Defines whether Credit Event Upon Merger applies to either party, and specifies elections specific to the Credit Event Upon Merger Clause.">
     party CounterpartyRoleEnum (1..1) <"The party for which the provisions are being specified.">
     isApplicable boolean (1..1) <"Defines whether Credit Event Upon Merger are applicable to the respective party (True) or not (False).">
     materiallyWeakerReferencesCreditRating boolean (1..1) <"Defines whether the definition of 'Materially Weaker' references a credit rating.">
@@ -68,7 +68,7 @@ type PartyOptionTerminationCurrency: <"Specifies mechanism for Termination curre
     terminationCurrencyCondition TerminationCurrencyConditionEnum (1..1) <"Specifies the enumerated conditions for selection of the termination currency.">
 
     condition TerminationCurrencyCondition: <"A validation rule to ensure that Termination Currency alternative conditions are specified when required.">
-        if terminationCurrencyCondition = TerminationCurrencyConditionEnum -> Specified
+        if terminationCurrencyCondition = Specified
         then terminationCurrencySpecifiedCondition exists
 
 type PartyTerminationCurrencySelection: <"Specifies the termination currency to be used by a party when it is the Non-Defaulting Party or the Party which is not the Affected Party.">
@@ -87,15 +87,15 @@ type SpecifiedEntity: <"The party specific election of Specified Entities for th
     otherSpecifiedEntityTerms string (0..1) <"The non standard terms for the Event of Default or Termination Event specified.">
 
     condition SpecifiedEntity: <"A validation rule to ensure that a SpecifiedEntity is specified when required.">
-        if specifiedEntityTerms = SpecifiedEntityTermsEnum -> NamedSpecifiedEntity
+        if specifiedEntityTerms = NamedSpecifiedEntity
         then specifiedEntity exists
 
     condition MaterialSubsidiary: <"A validation rule to ensure that Material Subsidiary terms are specified when required.">
-        if specifiedEntityTerms = SpecifiedEntityTermsEnum -> MaterialSubsidiary
+        if specifiedEntityTerms = MaterialSubsidiary
         then materialSubsidiaryTerms exists
 
     condition OtherSpecifiedEntity: <"A validation rule to ensure that non standard Specified Entity terms are provided when required.">
-        if specifiedEntityTerms = SpecifiedEntityTermsEnum -> OtherSpecifiedEntity
+        if specifiedEntityTerms = OtherSpecifiedEntity
         then otherSpecifiedEntityTerms exists
 
 type GoverningLaw: <"A represenation of the governing law of the ISDA master agreement.">
@@ -138,7 +138,7 @@ type IsdaCalculationAgentElection: <"An election to determine who the Calculatio
 
 type SubstituteCalculationAgentElection: <"An election to determine the characteristics around a subsitution Calculation Agent.">
     methodologyForSubstitutionExists boolean (1..1) <"A boolean to represent if the metholodgy exists for appointing a substitute Calculation Agent (True), or not (False).">
-    subtituteCalculationAgentIsIndependent boolean (0..1) <"A boolean to represent that if a substitute Calculation Agent can be appointed, whether they should be independent (True) or not (False).">
+    substituteCalculationAgentIsIndependent boolean (0..1) <"A boolean to represent that if a substitute Calculation Agent can be appointed, whether they should be independent (True) or not (False).">
     substituteCalculationAgentAppointedBy SubstituteCalculationAgentAppointerEnum (0..1) <"A representation of who appoints the substitute Calculation Agent.">
     substituteCalculationAgentAppointedByIfOther string (0..1) <"A representation of who appoints the substitute Calculation Agent if 'Other' or 'Third Party'.">
     costOfSubstituteCalculationAgentIsBoreBy PayeeOfSubstituteCalculationAgentEnum (0..1) <"A representation of who bears the cost of the substitute calculation agent.">
@@ -146,13 +146,13 @@ type SubstituteCalculationAgentElection: <"An election to determine the characte
 
     condition SubstituteCalculationAgentElectionDefined: <"A validation rule to determine that if methodology exists, then the relevant details are included.">
         if methodologyForSubstitutionExists
-        then subtituteCalculationAgentIsIndependent exists
+        then substituteCalculationAgentIsIndependent exists
             and substituteCalculationAgentAppointedBy exists
             and costOfSubstituteCalculationAgentIsBoreBy exists
 
     condition SubstituteCalculationAgentElectionOmitted: <"A validation rule to determine that if methodology does not exists, then the relevant details are omitted.">
         if methodologyForSubstitutionExists = False
-        then subtituteCalculationAgentIsIndependent is absent
+        then substituteCalculationAgentIsIndependent is absent
             and substituteCalculationAgentAppointedBy is absent
             and substituteCalculationAgentAppointedByIfOther is absent
             and costOfSubstituteCalculationAgentIsBoreBy is absent
