@@ -1398,10 +1398,12 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
                 }
 
     alias changePriceQuantity:
-        quantitySchedule extract PriceQuantity {
-            quantity: item,
-            ...
-        }
+        quantitySchedule
+            extract
+                PriceQuantity {
+                    quantity: item,
+                    ...
+                }
 
     add returnEvent -> after: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
         Create_QuantityChange(
@@ -1433,10 +1435,12 @@ func ResolveRepurchaseTransferInstruction: <"Resolves an instruction for settlem
             then distinct
 
     alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
-        changeQuantity extract PriceQuantity {
-            quantity: item,
-            ...
-        }
+        changeQuantity
+            extract
+                PriceQuantity {
+                    quantity: item,
+                    ...
+                }
 
     set repurchaseInstruction -> intent: EventIntentEnum -> Repurchase
 
@@ -2068,7 +2072,7 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
     output:
         instruction PrimitiveInstruction (1..1)
 
-     alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
+    alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
         tradeState -> trade -> tradeLot only-element -> priceQuantity -> quantity
             extract
                 NonNegativeQuantitySchedule {
