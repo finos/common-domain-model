@@ -16,7 +16,6 @@ import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
-
 import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.business.events.* as fpml
@@ -227,11 +226,12 @@ func MapBreakdown:
         then PrimitiveInstruction {
                 quantityChange:
                     QuantityChangeInstruction {
-                        change:
-                            PriceQuantity {
-                                quantity: newTradeAmount,
-                                ...
-                            },
+                        change: newTradeAmount
+                                extract
+                                    PriceQuantity {
+                                        quantity: item,
+                                        ...
+                                    },
                         direction: Replace,
                         ...
                     },
@@ -245,11 +245,12 @@ func MapBreakdown:
         then PrimitiveInstruction {
                 quantityChange:
                     QuantityChangeInstruction {
-                        change:
-                            PriceQuantity {
-                                quantity: oldTradeAmount default newTradeAmount,
-                                ...
-                            },
+                        change: (oldTradeAmount default newTradeAmount)
+                                extract
+                                    PriceQuantity {
+                                        quantity: item,
+                                        ...
+                                    },
                         direction: if oldTradeAmount exists
                                 then Replace
                             else Decrease,
