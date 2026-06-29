@@ -71,14 +71,14 @@ func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the Pric
                 c -> price
                     extract PriceUnitEquals(item, price)
                     then only-element
-            ] 
+            ]
             then first
-      
+
     alias changeEffectiveDate: <"The effective date to use for the price update. Required when updating datedValue.">
         AdjustableDateResolution(changeMatching -> effectiveDate -> adjustableDate)
 
     alias containsEffectiveDate: <"Is there already an entry for the effective date of the new price?">
-        price -> datedValue -> date contains changeEffectiveDate 
+        price -> datedValue -> date contains changeEffectiveDate
 
     alias changedAmount: <"Update the value in the matched PriceSchedule. The value attribute should only be updated if an effective date for the change in price has not been provided.">
         if changeEffectiveDate is absent
@@ -89,20 +89,20 @@ func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the Pric
                 )
 
     alias updatedDatedValues: <"If there is already a datedValue for the effective date then update that, otherwise insert a new datedValue for the effective date with the new price. The list of datedValues should only be updated if an effective date has been passed in. ">
-        if changeEffectiveDate exists then 
-            if containsEffectiveDate then 
-                UpdateDatedValue(
+        if changeEffectiveDate exists
+        then if containsEffectiveDate
+            then UpdateDatedValue(
+                        price -> datedValue,
+                        changeMatching -> price only-element -> value,
+                        direction,
+                        changeEffectiveDate
+                    )
+            else InsertDatedValue(
                     price -> datedValue,
                     changeMatching -> price only-element -> value,
                     direction,
                     changeEffectiveDate
                 )
-            else InsertDatedValue(
-                price -> datedValue,
-                changeMatching -> price only-element -> value,
-                direction,
-                changeEffectiveDate
-            )
 
     set updatedPrice: price
     set updatedPrice -> value: changedAmount default price -> value
