@@ -26,17 +26,19 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
         if partyRole -> role = Exchange then isExchangeListed = True
 
     condition ExchangeListed: <"if isExchangeListed is true then partyRole is Exchange.">
-        if isExchangeListed then partyRole -> role = Exchange
+        if isExchangeListed and partyRole exists
+        then partyRole -> role = Exchange
 
     condition IssuerRole: <"If the asset type is a security then the role must be issuer.">
-        if assetType = Security then partyRole -> role = Issuer
+        if assetType = Security and partyRole exists
+        then partyRole -> role = Issuer
 
     condition ExchangeRole: <"If the asset type is a listed derivative then the role must be exchange.">
-        if assetType = ListedDerivative
+        if assetType = ListedDerivative and partyRole exists
         then partyRole -> role = Exchange
 
     condition LenderBorrowerRole: <"If the asset type is a Loan then the role must be Lender.">
-        if assetType = Loan
+        if assetType = Loan and partyRole exists
         then partyRole -> role = Lender or partyRole -> role = Borrower
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
@@ -69,6 +71,7 @@ type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a mo
 type Taxonomy: <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object).">
     source TaxonomySourceEnum (0..1) <"The source of the taxonomy that defines the rules for classifying the object. The taxonomy source is taken from a enumerated list of taxonomy names. Optional as the taxonomy source may not be provided.">
     value TaxonomyValue (0..1) <"The value according to that taxonomy. Optional as it may not be possible to classify the object in that taxonomy.">
+    calculated boolean (0..1) <"Specifies whether the taxonomy has been derived from the model features using a CDM qualification function that determines the product type based on the model features.">
 
     condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
         if value -> classification count > 1
@@ -89,17 +92,12 @@ type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which i
         [metadata scheme]
     secondaryAssetClass AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
         [metadata scheme]
-    productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
 
     condition TaxonomyType: <"Requires a taxonomy type to be chosen, either from a taxonomy source or using asset classes.">
         required choice source, primaryAssetClass, secondaryAssetClass
 
-    condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomy value or productQualifier">
-        if source exists
-        then (value exists or productQualifier exists)
-
-    condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
-        optional choice value, productQualifier
+    condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomy value.">
+        if source exists then value exists
 
 type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.  The function SetCashCurrency can be used to create (or update) a Cash object and the function GetCashCurrency can be used to retrieve the currency of a Cash object.">
 
@@ -224,7 +222,7 @@ type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either 
 
 type Security extends InstrumentBase: <"Identifies a security by referencing an identifier and by specifying the sector.">
     [docReference ICMA GMRA namingConvention "Purchased Security"
-		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
+        provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
     securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
     debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
     equityType EquityType (0..1) <"Identifies the type of equity.">

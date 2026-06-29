@@ -19,9 +19,13 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 
-type TransferableProduct extends Asset: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+type TransferableProduct: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+    asset Asset (1..1) <"An Asset is defined as something that can be owned and transferred in the financial markets.">
     economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
     productPartyRole CounterpartyRoleEnum (1..1) <"Overrides the parties on the trade to identify the party with the obligation to pay dividends or coupons, e.g issuer.">
+
+    condition AssetPartyRoleExists: <"A TransferableProduct must contain an asset and a partyRole.">
+        asset ->> partyRole exists
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
@@ -270,7 +274,6 @@ type PortfolioReturnTerms extends ReturnTerms: <"Specifies an individual type of
         [metadata address "pointsTo"=PriceQuantity->price]
 
 choice Payout: <"Represents the set of future cashflow methodologies in the form of specific payout data type(s) which result from the financial product.  Examples: a trade in a cash asset will use only a settlement payout; for derivatives, two interest rate payouts can be combined to specify an interest rate swap; one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
-    [metadata key]
 
     AssetPayout <"Defines the assets and movements in a security financing transaction.">
     CommodityPayout <"Defines the payout for the floating leg of a Commodity Swap.">
@@ -313,9 +316,6 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
             provision "Parties entering into GMRA, as specified on page 1 of the GMRA and under 1. (a)."]
     ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
     adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
-
-    condition PriceQuantityTriangulation: <"Check PriceQuantity triangulation for each TradeLot.">
-        PriceQuantityTriangulation(tradeLot) = True
 
     condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
         if adjustment exists
@@ -404,7 +404,7 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     condition Basket: <"If the underlier is a basket, it must contain only transferable assets.">
         if underlier -> Observable -> Basket exists
         then (underlier -> Observable -> Basket -> basketConstituent
-                extract Asset exists
+                extract observable -> Asset exists
                 ) all = True
 
     condition Index: <"If the underlier is an Index, then it can only be cash settled.">
