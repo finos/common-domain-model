@@ -391,7 +391,7 @@ public class FunctionInputCreator {
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(10000))
                                         .setUnit(UnitType.builder()
@@ -413,14 +413,10 @@ public class FunctionInputCreator {
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(760400))
-                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                                .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(28469376))
-                                        .setUnit(UnitType.builder().setCurrencyValue("USD")))));
+                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))));
 
         CreateBusinessEventInput input = getQuantityChangeFuncInputJson(
                 tradeState,
@@ -433,7 +429,7 @@ public class FunctionInputCreator {
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(3000))
                                         .setUnit(UnitType.builder()
@@ -459,14 +455,10 @@ public class FunctionInputCreator {
                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                 .setIdentifierValue("LOT-2")))
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(152080))
-                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                                .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(5693875))
-                                        .setUnit(UnitType.builder().setCurrencyValue("USD")))));
+                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))));
         reKey(quantityChangeInstructionBuilder);
 
         CreateBusinessEventInput input = getQuantityChangeFuncInputJson(
@@ -494,7 +486,7 @@ public class FunctionInputCreator {
                                                                 .setIdentifier(FieldWithMetaString.builder()
                                                                         .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
                                                                         .setValue("SHPGY.O")))))))
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-2"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(250000))
@@ -525,11 +517,6 @@ public class FunctionInputCreator {
                                         )
                                 )
                         )
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                                .setMeta(createKey("quantity-1"))
-                                .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(7500000))
-                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))))
                         .addPrice(FieldWithMetaPriceSchedule.builder()
                                 .setMeta(createKey("price-1"))
                                 .setValue(PriceSchedule.builder()
@@ -563,7 +550,7 @@ public class FunctionInputCreator {
         QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
                 .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-2"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(250000))
@@ -580,7 +567,7 @@ public class FunctionInputCreator {
                                                                 .setIndexTenor(Period.builder()
                                                                         .setPeriod(PeriodEnum.M)
                                                                         .setPeriodMultiplier(1)))))))
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-1"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(7500000))
@@ -652,10 +639,9 @@ public class FunctionInputCreator {
                 .map(TradeLot::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity::getQuantity)
-                .flatMap(Collection::stream)
                 .map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
                 .map(NonNegativeQuantitySchedule::getUnit)
-                .filter(unit -> unit.getCurrency() != null)
+                .filter(unit -> ((UnitType) unit).getCurrency() != null)
                 .findFirst()
                 .orElse(null);
         return TransferInstruction.builder()
@@ -679,7 +665,7 @@ public class FunctionInputCreator {
         QuantityChangeInstruction terminateInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(0.0))
                                         .setUnit(UnitType.builder()
@@ -751,11 +737,11 @@ public class FunctionInputCreator {
         TradeLot.TradeLotBuilder tradeLotBuilder = tradeBuilder.getTradeLot().get(0);
         tradeLotBuilder
                 .getPriceQuantity().get(0)
-                .getQuantity().get(0)
+                .getQuantity()
                 .getValue().setValue(BigDecimal.valueOf(16000.00));
         tradeLotBuilder
                 .getPriceQuantity().get(1)
-                .getQuantity().get(0)
+                .getQuantity()
                 .getValue().setValue(BigDecimal.valueOf(16000.00));
 
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders =
@@ -850,7 +836,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(0.0))
                                                         .setUnit(UnitType.builder()
@@ -900,7 +886,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(5000.0))
                                                         .setUnit(UnitType.builder()
@@ -912,7 +898,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(8000.0))
                                                         .setUnit(UnitType.builder()
@@ -988,7 +974,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(0.0))
                                                         .setUnit(UnitType.builder()
@@ -1038,7 +1024,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(7000.0))
                                                         .setUnit(UnitType.builder()
@@ -1068,7 +1054,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(3000.0))
                                                         .setUnit(UnitType.builder()
@@ -1078,7 +1064,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(0.0))
                                                         .setUnit(UnitType.builder()
@@ -1427,7 +1413,7 @@ public class FunctionInputCreator {
     private QuantityChangeInstruction.QuantityChangeInstructionBuilder createQuantityChangeInstruction(UnitType unitOfAmount, BigDecimal amount) {
         return QuantityChangeInstruction.builder()
                 .addChange(PriceQuantity.builder()
-                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
+                        .setQuantityValue(NonNegativeQuantitySchedule.builder()
                                 .setValue(amount)
                                 .setUnit(unitOfAmount)))
                 .setDirection(QuantityChangeDirectionEnum.REPLACE);
@@ -1487,9 +1473,8 @@ public class FunctionInputCreator {
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
-                .flatMap(Collection::stream)
                 .map(FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder::getValue)
-                .forEach(quantity -> quantity.setValue(new BigDecimal(10000)));
+                .forEach(quantity -> ((NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder) quantity).setValue(new BigDecimal(10000)));
         // trade id
         tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");
         // trade date
@@ -1644,7 +1629,6 @@ public class FunctionInputCreator {
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
-                .flatMap(Collection::stream)
                 .forEach(q -> q.getOrCreateValue().setValue(BigDecimal.valueOf(99_999)));
 
         WorkflowStep newExecutionWorkflowStep =
@@ -1694,7 +1678,6 @@ public class FunctionInputCreator {
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
-                .flatMap(Collection::stream)
                 .forEach(q -> q.getOrCreateValue().setValue(BigDecimal.valueOf(99_999)));
 
         WorkflowStep initialExecutionWorkflowStep =

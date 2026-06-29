@@ -819,7 +819,7 @@ type PriceQuantity:
   [metadata key]
   price PriceSchedule (0..*)
     [metadata location]
-  quantity NonNegativeQuantitySchedule (0..*)
+  quantity NonNegativeQuantitySchedule (0..1)
     [metadata location]
   observable Observable (0..1)
     [metadata location]
@@ -1022,7 +1022,7 @@ type QuantitySchedule extends MeasureSchedule:
 
 ``` Haskell
 type NonNegativeQuantitySchedule extends QuantitySchedule:
-
+    totalQuantity number (0..1)
     condition NonNegativeQuantity_value:
         if value exists
         then value >= 0.0
@@ -1030,6 +1030,9 @@ type NonNegativeQuantitySchedule extends QuantitySchedule:
     condition NonNegativeQuantity_datedValue:
         if datedValue exists
         then datedValue -> value all >= 0.0
+        
+    condition NonNegativeQuantity_totalQuantity:
+        if totalQuantity exists then frequency exists
 ```
 
 The inherited attributes of `value`, `unit` and `datedValue` (in case
