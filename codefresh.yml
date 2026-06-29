@@ -83,18 +83,15 @@ steps:
     commands:
       - exit 1
 
-  BuildParallelTasks:
-      BuildPython:
-        stage: 'build'
-        title: Python build
-        fail_fast: false
-        image: maven:3.9.11-eclipse-temurin-21
-        working_directory: ./
-        shell: bash
-        commands:
-          - apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-pip python3-venv git
-          - python/build-cdm-python.sh ${{RELEASE_NAME}}
-
+  BuildPython:
+    stage: 'build'
+    title: Python build
+    image: maven:3.9.11-eclipse-temurin-21
+    working_directory: ./
+    shell: bash
+    commands:
+      - apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-pip python3-venv git
+      - python/build-cdm-python.sh ${{RELEASE_NAME}}
 
   DeployTypeScript:
     stage: 'build'
@@ -166,9 +163,8 @@ steps:
     when:
       condition:
         any:
-#          pythonBuildFailure: steps.BuildPython.result == 'failure'
           typeScriptDeployFailure: steps.DeployTypeScript.result == 'failure'
-#          pythonDeployFailure: steps.DeployPython.result == 'failure'
+          pythonDeployFailure: steps.DeployPython.result == 'failure'
           excelDeployFailure: steps.DeployExcel.result == 'failure'
           jsonSchemaDeployFailure: steps.DeployJsonSchema.result == 'failure'
     commands:
