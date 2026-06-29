@@ -104,12 +104,10 @@ type GoverningLaw: <"A represenation of the governing law of the ISDA master agr
     includesNonContractualObligations boolean (1..1) <"Specifies if the governing law of the agreement extends to any non-contractual obligations.">
 
     condition GoverningLawDefinedNotOther: <"A validation rule to ensure that if a value from the Governing Law Enum is selected, governingLawIfOther is omitted.">
-        if governingLaw <> OTHER
-        then governingLawIfOther is absent
+        if governingLaw <> OTHER then governingLawIfOther is absent
 
     condition GoverningLawOtherThenProvided: <"A validation rule to ensure that if the value from the Governing Law Enum is 'OTHER', governingLawIfOther exists.">
-        if governingLaw = OTHER
-        then governingLawIfOther exists
+        if governingLaw = OTHER then governingLawIfOther exists
 
 type AdditionalTerminationEventElection: <"A party specific election to determine whether Additional Early Termination Events apply, and if so what they are.">
     party CounterpartyRoleEnum (1..1) <"The elective party.">
@@ -125,16 +123,13 @@ type IsdaCalculationAgentElection: <"An election to determine who the Calculatio
     agentIfOther string (0..1) <"The specified Calculation Agent if identified as other from the enumerated list.">
 
     condition IsdaCalculationAgentElectionDefined: <"A validation rule to determine that if isApplicable is true then an agent is defined.">
-        if isApplicable
-        then agent exists
+        if isApplicable then agent exists
 
     condition IsdaCalculationAgentElectionOtherThenProvided: <"A validation rule to determine if agent is defined as 'Other', then the agentIfOther exists.">
-        if agent = Other
-        then agentIfOther exists
+        if agent = Other then agentIfOther exists
 
     condition IsdaCalculationAgentElectionDefinedNotOther: <"A validation rule to determine if agent is defined and not 'Other', then the agentIfOther is omitted.">
-        if agent <> Other
-        then agentIfOther is absent
+        if agent <> Other then agentIfOther is absent
 
 type SubstituteCalculationAgentElection: <"An election to determine the characteristics around a subsitution Calculation Agent.">
     methodologyForSubstitutionExists boolean (1..1) <"A boolean to represent if the metholodgy exists for appointing a substitute Calculation Agent (True), or not (False).">
@@ -147,16 +142,16 @@ type SubstituteCalculationAgentElection: <"An election to determine the characte
     condition SubstituteCalculationAgentElectionDefined: <"A validation rule to determine that if methodology exists, then the relevant details are included.">
         if methodologyForSubstitutionExists
         then substituteCalculationAgentIsIndependent exists
-            and substituteCalculationAgentAppointedBy exists
-            and costOfSubstituteCalculationAgentIsBoreBy exists
+                and substituteCalculationAgentAppointedBy exists
+                and costOfSubstituteCalculationAgentIsBoreBy exists
 
     condition SubstituteCalculationAgentElectionOmitted: <"A validation rule to determine that if methodology does not exists, then the relevant details are omitted.">
         if methodologyForSubstitutionExists = False
         then substituteCalculationAgentIsIndependent is absent
-            and substituteCalculationAgentAppointedBy is absent
-            and substituteCalculationAgentAppointedByIfOther is absent
-            and costOfSubstituteCalculationAgentIsBoreBy is absent
-            and costOfSubstituteCalculationAgentBoreByIfOther is absent
+                and substituteCalculationAgentAppointedBy is absent
+                and substituteCalculationAgentAppointedByIfOther is absent
+                and costOfSubstituteCalculationAgentIsBoreBy is absent
+                and costOfSubstituteCalculationAgentBoreByIfOther is absent
 
     condition SubstituteCalculationAgentElectionOtherThenProvided: <"A validation rule to determine if appointed by is defined as 'Other' then the substituteCalculationAgentAppointedByIfOther exists.">
         if substituteCalculationAgentAppointedBy = Other
