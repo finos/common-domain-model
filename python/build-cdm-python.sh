@@ -12,7 +12,7 @@ NAMESPACE_PREFIX="finos"
 CDM_VERSION="${1:-0.0.0}"
 
 # Extract and set DSL_VERSION to the rosetta.dsl.version in the parent POM
-DSL_VERSION=$(grep -m1 '<rosetta.dsl.version>' pom.xml | sed 's/.*<rosetta.dsl.version>\(.*\)<\/rosetta.dsl.version>.*/\1/')
+DSL_VERSION=$(mvn -s $(pwd)/settings.xml help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
 GENERATOR_REPO="finos/rune-python-generator"
 echo "***** Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
 echo "***** Fetching tags from GitHub API..."
