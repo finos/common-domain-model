@@ -115,7 +115,7 @@ func FilterSecurityTransfers:
     output:
         securityTransfers Transfer (0..*)
 
-    add securityTransfers: transfers filter item ->> asset -> Instrument -> Security exists
+    add securityTransfers: transfers filter item ->> asset as Security exists
 
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
     inputs:
@@ -125,7 +125,7 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
         identifiers ObservationIdentifier (1..1)
 
     set identifiers -> observable -> Index -> InterestRateIndex:
-        payout -> rateSpecification -> FloatingRateSpecification -> rateOption
+        payout -> rateSpecification as FloatingRateSpecification -> rateOption
     set identifiers -> observationDate: date
 
 // ResolveInterestRateReset is similar to ResolveEquityReset as they both only support the basic use cases for reset. Once support is added for stub periods and thus rate interpolation, the formula to derive the reset value will start to look different between the functions.
@@ -154,17 +154,17 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releva
     output:
         interestCashSettlementAmount Transfer (1..1)
 
-    alias interestRatePayout: payout -> InterestRatePayout
+    alias interestRatePayout: payout as InterestRatePayout
 
     alias performance:
-        if interestRatePayout -> rateSpecification -> FixedRateSpecification exists
+        if interestRatePayout -> rateSpecification as FixedRateSpecification exists
         then FixedAmount(
                     interestRatePayout,
                     interestRatePayout -> priceQuantity -> quantitySchedule -> value,
                     date,
                     empty
                 )
-        else if interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
+        else if interestRatePayout -> rateSpecification as FloatingRateSpecification exists
         then FloatingAmount(
                     interestRatePayout,
                     resets only-element -> resetValue -> value,
@@ -184,7 +184,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releva
             ) -> partyReference
 
     condition IsInterestRatePayout: <"Payout must be an InterestRatePayout.">
-        payout -> InterestRatePayout exists
+        payout as InterestRatePayout exists
 
     set interestCashSettlementAmount -> ScheduledTransfer -> quantity -> value: performance
     set interestCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
@@ -224,7 +224,7 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
         else payout -> valuationDates -> finalValuationDate
 
     set identifiers -> observable: <"Represents the identifer for the equity underlier.">
-        payout -> underlier -> Observable
+        payout -> underlier as Observable
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
         AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
@@ -233,7 +233,7 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
         ResolvePerformanceValuationTime(
                 valuationDates -> valuationTime,
                 valuationDates -> valuationTimeType,
-                identifiers -> observable -> Asset ->> identifier only-element,
+                identifiers -> observable as Asset ->> identifier only-element,
                 valuationDates -> determinationMethod
             )
     set identifiers -> informationSource:
@@ -296,7 +296,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
         tradeState -> trade -> product -> economicTerms -> payout
             filter PerformancePayout exists
             then only-element
-    alias equityPerformancePayout: payout -> PerformancePayout
+    alias equityPerformancePayout: payout as PerformancePayout
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -337,7 +337,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
         equityPerformance number (1..1)
 
     alias performancePayout:
-        trade -> product -> economicTerms -> payout -> PerformancePayout only-element
+        trade -> product -> economicTerms -> payout as PerformancePayout only-element
     alias periodStartPrice: <"Only works in the case of a single trade lot.">
         ResolvePerformancePeriodStartPrice(
                 performancePayout,
@@ -352,7 +352,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
     alias notionalAmount: EquityNotionalAmount(numberOfSecurities, periodEndPrice)
 
     condition PriceReturnTermsExists:
-        trade -> product -> economicTerms -> payout -> PerformancePayout -> returnTerms -> priceReturnTerms exists
+        trade -> product -> economicTerms -> payout as PerformancePayout -> returnTerms -> priceReturnTerms exists
 
     set equityPerformance: rateOfReturn * notionalAmount
 
@@ -503,15 +503,15 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
 
     alias optionPayout: <"Extracts the option payout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
-        then exerciseInstruction -> exerciseOption -> OptionPayout
-        else originalTrade -> trade -> product -> economicTerms -> payout only-element -> OptionPayout
+        then exerciseInstruction -> exerciseOption as OptionPayout
+        else originalTrade -> trade -> product -> economicTerms -> payout only-element as OptionPayout
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
         optionPayout -> underlier
 
     alias resultProduct: <"Find or create the the non transferable product that will result from the exercise.">
-        if underlier -> Product -> NonTransferableProduct exists // It already exists, no need to create
-        then underlier -> Product -> NonTransferableProduct
+        if underlier as NonTransferableProduct exists // It already exists, no need to create
+        then underlier as NonTransferableProduct
         else Create_NonTransferableProduct(underlier, optionPayout -> payerReceiver)
 
     alias productWithDirection: <"If the option is a Put, then the direction on the result product needs to be flipped from that on the underlier.">
@@ -588,14 +588,14 @@ func CalculateReset: <"Function specification to calculate a reset.">
         else instruction -> resetDate
 
     alias observationIdentifiers: <"Resolves the ObservationIdentifier to be used to derive the single observation to be used in the reset calculation. Resolving the ObservationIdentifier is dependent on the type of payout in use.">
-        if payout -> PerformancePayout count = 1
+        if payout as PerformancePayout count = 1
         then ResolvePerformanceObservationIdentifiers(
-                    payout -> PerformancePayout only-element,
+                    payout as PerformancePayout only-element,
                     instruction -> resetDate
                 )
-        else if payout -> InterestRatePayout exists
+        else if payout as InterestRatePayout exists
         then ResolveInterestRateObservationIdentifiers(
-                    payout -> InterestRatePayout only-element,
+                    payout as InterestRatePayout only-element,
                     observationDate
                 )
 
@@ -603,15 +603,15 @@ func CalculateReset: <"Function specification to calculate a reset.">
         ResolveObservation([observationIdentifiers], empty)
 
     add reset: <"Calculates and appends the reset value for the contract by resolving the specific performance or interest rate reset logic based on the underlying payout type.">
-        if payout -> PerformancePayout count = 1
+        if payout as PerformancePayout count = 1
         then ResolvePerformanceReset(
-                    payout -> PerformancePayout only-element,
+                    payout as PerformancePayout only-element,
                     observation,
                     instruction -> resetDate
                 )
-        else if payout -> InterestRatePayout exists
+        else if payout as InterestRatePayout exists
         then ResolveInterestRateReset(
-                    payout -> InterestRatePayout,
+                    payout as InterestRatePayout,
                     observation,
                     instruction -> resetDate,
                     instruction -> rateRecordDate
@@ -636,13 +636,13 @@ func CalculateTransfer: <"Function specification to calculate a transfer, e.g. f
         transfer Transfer (0..*)
 
     add transfer: <"Assigns the result of the Create_Transfer function to the transferHistory attribute.">
-        if instruction -> payout -> InterestRatePayout exists
-                or instruction -> payout -> PerformancePayout exists
-                or instruction -> payout -> AssetPayout exists
+        if instruction -> payout as InterestRatePayout exists
+                or instruction -> payout as PerformancePayout exists
+                or instruction -> payout as AssetPayout exists
         then Create_CashTransfer(instruction)
 
     add transfer: <"Assigns the result of the Create_AssetTransfer function to the transferHistory attribute.">
-        if instruction -> payout -> AssetPayout exists
+        if instruction -> payout as AssetPayout exists
         then Create_AssetTransfer(instruction)
 
 func Create_Transfer: <"Defines how a transfer should be constructed, when representing the exchange of cash between parties.">
@@ -688,7 +688,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
             filter AssetPayout exists
             then only-element
 
-    alias assetPayout: payout -> AssetPayout
+    alias assetPayout: payout as AssetPayout
 
     alias tradeQuantity: <"Security quantity obtained by filtering on the trade quantity">
         FilterQuantityByFinancialUnit(
@@ -763,17 +763,17 @@ func ResolveTransfer: <"Defines how to calculate the amount due to be transferre
         transfer Transfer (1..1)
     alias payout: instruction -> payout
     set transfer:
-        if payout -> AssetPayout exists
+        if payout as AssetPayout exists
         then SecurityFinanceCashSettlementAmount(
                     instruction -> tradeState,
                     instruction -> date,
                     instruction -> quantity,
                     instruction -> payerReceiver
                 )
-        else if payout -> PerformancePayout exists
+        else if payout as PerformancePayout exists
         then EquityCashSettlementAmount(instruction -> tradeState, instruction -> date)
-        else if payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification exists
-                or payout -> InterestRatePayout -> rateSpecification -> FixedRateSpecification exists
+        else if payout as InterestRatePayout -> rateSpecification as FloatingRateSpecification exists
+                or payout as InterestRatePayout -> rateSpecification as FixedRateSpecification exists
         then InterestCashSettlementAmount(
                     instruction -> tradeState,
                     payout,
@@ -807,7 +807,7 @@ func SecurityFinanceCashSettlementAmount:
             filter AssetPayout exists
             then only-element
 
-    alias assetPayout: payout -> AssetPayout
+    alias assetPayout: payout as AssetPayout
 
     alias collateral: tradeState -> trade -> product -> economicTerms -> collateral
 
@@ -840,7 +840,7 @@ func SecurityFinanceCashSettlementAmount:
         then quantity -> unit -> financialUnit = FinancialUnitEnum -> Share
 
     condition IdentifiersMatch:
-        tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Asset ->> identifier
+        tradeState -> trade -> tradeLot -> priceQuantity -> observable as Asset ->> identifier
             = assetPayout -> underlier ->> identifier
 
     set cashSettlementAmount -> ScheduledTransfer -> quantity -> value:
@@ -1195,8 +1195,8 @@ func UpdateIndexTransitionPriceAndRateOption:
 
     set updatedPriceQuantity -> observable -> Index -> InterestRateIndex: <"If instruction exists, update the rate option.">
         if instruction exists
-        then instruction -> observable -> Index -> InterestRateIndex
-        else priceQuantity -> observable -> Index -> InterestRateIndex
+        then instruction -> observable as InterestRateIndex
+        else priceQuantity -> observable as InterestRateIndex
 
 func FindMatchingIndexTransitionInstruction:
     inputs:
@@ -1209,9 +1209,9 @@ func FindMatchingIndexTransitionInstruction:
         instructions
             filter
                 // indexTenor period matches
-                observable -> Index -> InterestRateIndex ->> indexTenor -> period = priceQuantity -> observable -> Index -> InterestRateIndex ->> indexTenor -> period
+                observable as InterestRateIndex ->> indexTenor -> period = priceQuantity -> observable as InterestRateIndex ->> indexTenor -> period
                         // indexTenor periodMultiplier matches
-                    and observable -> Index -> InterestRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable -> Index -> InterestRateIndex ->> indexTenor -> periodMultiplier
+                    and observable as InterestRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable as InterestRateIndex ->> indexTenor -> periodMultiplier
                         // quantity currency or price currency matches
                     and (quantity -> unit -> currency = priceQuantity -> quantity -> unit -> currency
                         or price -> unit -> currency = priceQuantity -> price -> unit -> currency)
@@ -1288,10 +1288,10 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
             only-element
 
     alias interestRatePayout: <"The interest payout that represents the lending fee.">
-        tradeState -> trade -> product -> economicTerms -> payout -> InterestRatePayout only-element
+        tradeState -> trade -> product -> economicTerms -> payout as InterestRatePayout only-element
 
     alias assetPayout: <"The security finance payout that represents the securities lent.">
-        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout only-element
+        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout as AssetPayout only-element
 
     alias collateral: tradeState -> trade -> product -> economicTerms -> collateral
 
@@ -1314,14 +1314,14 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         CalculationPeriodRange(recordStartDate, recordEndDate, empty)
 
     alias performance:
-        if interestRatePayout -> rateSpecification -> FixedRateSpecification exists
+        if interestRatePayout -> rateSpecification as FixedRateSpecification exists
         then FixedAmount(
                     interestRatePayout,
                     billingQuantity,
                     recordEndDate,
                     calculationPeriodRange
                 )
-        else if interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
+        else if interestRatePayout -> rateSpecification as FloatingRateSpecification exists
         then FloatingAmount(
                     interestRatePayout,
                     reset -> resetValue -> value,
@@ -1984,7 +1984,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
         instruction PrimitiveInstruction (1..1) <"Result is a Transfer Instruction.">
 
     alias interestRatePayout:
-        tradeState -> trade -> product -> economicTerms -> payout -> InterestRatePayout only-element
+        tradeState -> trade -> product -> economicTerms -> payout as InterestRatePayout only-element
 
     alias payerReceiver:
         PartyReferencePayerReceiver {
@@ -2330,7 +2330,7 @@ func PayoutObligationFulfillmentFromTrade: <"Determines the payouts and collater
 
     alias collateralPayoutList: <"The list of collateral payouts on the trade when the collateral type is cash.">
         if tradeState -> trade -> product -> economicTerms -> collateral -> collateralProvisions -> collateralType = Cash
-        then tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> TransferableProduct -> economicTerms -> payout
+        then tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product as TransferableProduct -> economicTerms -> payout
 
     set result: <"The list of all payouts on the trade are checked to see if the obligations have been fulfilled. All obligations must be fufilled in order for the function to return true.">
         ([payoutList, collateralPayoutList]
@@ -2361,7 +2361,7 @@ func AssetPayoutObligationsFulfilled: <"Determines whether the obligations defin
 
     alias securityTransferredQuantity: <"The total quantity of settled security transfers can be extracted from the transferHistory.">
         transferHistory
-            filter transfer ->> asset -> Instrument -> Security exists
+            filter transfer ->> asset as Security exists
             then filter transferStatus = Settled
             then transfer ->> quantity -> value sum
 
@@ -2384,7 +2384,7 @@ func InterestPayoutObligationsFulfilled: <"Determines whether the obligations de
 
     alias cashTransferredQuantity: <"The total quantity of settled cash transfers can be extracted from the transferHistory.">
         transferHistory
-            filter transfer ->> asset -> Cash exists
+            filter transfer ->> asset as Cash exists
             then filter transferStatus = Settled
             then transfer ->> quantity -> value sum
 
