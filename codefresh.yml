@@ -35,7 +35,6 @@ steps:
       - cf_export MVN_DEPLOY_FLAGS="${{MVN_CLI_OPT}} -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}" --mask
       - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import" --mask
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
-      - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/create-deploy-pom.py"
       - cf_export MVN_DEPLOY_FILE_COMMAND="mvn ${{MVN_CLI_OPT}} deploy -Prelease -Dcheckstyle.skip=true -Dmaven.deploy.skip=true"
 
   ReleaseProperties:
@@ -84,20 +83,15 @@ steps:
     commands:
       - exit 1
 
-#  BuildParallelTasks:
-#    stage: 'build'
-#    type: parallel
-#    steps:
-#      BuildPython:
-#        stage: 'build'
-#        title: Python build
-#        fail_fast: false
-        #image: maven:3.9.9-eclipse-temurin-21-alpine
-#        working_directory: ./
-#        shell: bash
-#        commands:
-          # - apk add --no-cache python3 py3-pip wget curl bash
-          #- rosetta-source/src/main/resources/build-resources/python/build-cdm-python.sh
+  BuildPython:
+    stage: 'build'
+    title: Python build
+    image: maven:3.9.11-eclipse-temurin-21
+    working_directory: ./
+    shell: bash
+    commands:
+      - apt-get update -qq && apt-get install -y --no-install-recommends python3 python3-pip python3-venv git
+      - python/build-cdm-python.sh ${{RELEASE_NAME}}
 
   DeployTypeScript:
     stage: 'build'
@@ -114,20 +108,22 @@ steps:
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-typescript ${{RELEASE_NAME}} zip
       - ${{MVN_DEPLOY_FILE_COMMAND}}
 
-#  DeployPython:
-#    stage: 'build'
-#   title: Python deploy
-#   fail_fast: false
-#   image: maven:3.9.11-eclipse-temurin-21-alpine
-#   working_directory: ./rosetta-source/
-#   shell: bash
-#   commands:
-#      - apk add --no-cache python3
-#      - bash -c "${{GPG_IMPORT_COMMAND}}"
-#      - cd src/generated/python
-#      - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl rune_runtime-*-py3-none-any.whl
-#      - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
-#      - ${{MVN_DEPLOY_FILE_COMMAND}}
+  DeployPython:
+    stage: 'build'
+    title: Python deploy to PyPI
+    fail_fast: false
+    image: python:3.12-slim
+    working_directory: ./rosetta-source/src/generated/python
+    when:
+      condition:
+        all:
+          isRelease: "${{IS_RELEASE}} == true"
+          pythonBuildSuccess: steps.BuildPython.result == 'success'
+    environment:
+      - TWINE_PASSWORD=${{PYPI_TOKEN}}
+    commands:
+      - pip install twine
+      - twine upload --verbose --non-interactive --skip-existing --username __token__ --password $TWINE_PASSWORD *.whl
 
   DeployExcel:
     stage: 'build'
@@ -167,9 +163,8 @@ steps:
     when:
       condition:
         any:
-#          pythonBuildFailure: steps.BuildPython.result == 'failure'
           typeScriptDeployFailure: steps.DeployTypeScript.result == 'failure'
-#          pythonDeployFailure: steps.DeployPython.result == 'failure'
+          pythonDeployFailure: steps.DeployPython.result == 'failure'
           excelDeployFailure: steps.DeployExcel.result == 'failure'
           jsonSchemaDeployFailure: steps.DeployJsonSchema.result == 'failure'
     commands:
