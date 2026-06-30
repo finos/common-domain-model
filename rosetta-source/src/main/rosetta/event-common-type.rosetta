@@ -305,11 +305,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
     partyRole PartyRole (0..*) <"Represents the role each specified party takes in the trade. further to the principal roles, payer and receiver.">
     executionDetails ExecutionDetails (0..1) <"Represents information specific to trades that arose from executions.">
     contractDetails ContractDetails (0..1) <"Represents information specific to trades involving contractual products.">
-    clearedDate date (0..1) <"Specifies the date on which a trade is cleared (novated) through a central counterparty clearing service.">
-        [deprecated]
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
-    account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
-        [deprecated]
 
     condition SettlementPayout: <"When the product uses a settlement payout, both buyer and seller party roles, and a price, must exist.">
         if SettlementPayoutOnlyExists(product -> economicTerms -> payout)
@@ -411,9 +407,6 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         if partyRole -> role contains PartyRoleEnum -> BarrierDeterminationAgent
         then FilterPartyRole(partyRole, PartyRoleEnum -> BarrierDeterminationAgent) count <= 1
 
-    condition ClearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
-        if clearedDate exists then clearedDate >= tradeDate
-
     condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
         if product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
         then tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate or tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
@@ -483,10 +476,6 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
                 and product -> economicTerms -> payout -> InterestRatePayout -> priceQuantity exists
                 and tradeLot -> priceQuantity -> quantity -> value exists
         then product -> economicTerms -> payout -> InterestRatePayout -> dayCountFraction exists
-
-    condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
-        if product -> economicTerms -> payout -> InterestRatePayout exists
-        then FpmlIrd8(item, account) = True
 
     condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout or an equity option payout.">
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
@@ -632,16 +621,6 @@ type ClearingInstruction: <"All information required to perform the clear life c
     clearerParty1 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
     clearerParty2 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
     isOpenOffer boolean (0..1) <"Open Offer">
-
-type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
-    [deprecated]
-    [metadata key]
-
-    adjustedExerciseDate date (1..1) <"The date on which the option exercise takes place. This date should already be adjusted for any applicable business day convention.">
-    adjustedRelevantSwapEffectiveDate date (1..1) <"The effective date of the underlying swap associated with a given exercise date. This date should already be adjusted for any applicable business day convention.">
-    adjustedCashSettlementValuationDate date (0..1) <"The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.">
-    adjustedCashSettlementPaymentDate date (0..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business day convention.">
-    adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
 
 type ReturnInstruction: <"Specifies the information required to create the return of a Security Finance Transaction.">
     quantity Quantity (1..*) <"Specifies the quantity of shares and cash to be returned in a partial return event.">

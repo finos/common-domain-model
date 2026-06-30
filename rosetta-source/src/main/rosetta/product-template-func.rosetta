@@ -91,13 +91,25 @@ func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the g
             then extract [ CompareNumbers(item -> value, op, amount) ]
                 all = True
 
-func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
-    [codeImplementation]
+func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation can be helpful validation between Prices and Quantities.">
     inputs:
-        trade Trade (1..1)
-        accounts Account (0..*)
+        tradeLots TradeLot (0..*)
     output:
-        success boolean (1..1) <"Validation result">
+        success boolean (1..1)
+
+    set success:
+        if tradeLots count > 0
+        then tradeLots
+                extract [
+                    if priceQuantity -> price -> priceType contains AssetPrice
+                            or priceQuantity -> price -> priceType contains ExchangeRate
+                    then CashPriceQuantityNoOfUnitsTriangulation(
+                                priceQuantity -> quantity,
+                                priceQuantity -> price
+                            )
+                    else True
+                ] all = True
+        else True
 
 func Create_AssetFlowFromSettlementPayout: <"Generates two opposite cashflows that correspond to a settlement payout. One leg is the asset leg, that settles the asset according to the quantity, direction and date defined in the settlement payout. The other is the price leg, that settles the price as a currency amount going in the opposite direction. The function's applicability is limited on purpose to a single asset with a single price and quantity specified.">
     inputs:

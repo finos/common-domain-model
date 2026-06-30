@@ -142,24 +142,3 @@ func MapFxSingleLegPriceQuantityList:
                 fpmlFxSingleLeg -> exchangedCurrency2,
                 empty
             )
-
-func MapFxSingleLegAccountPartyReference:
-    inputs:
-        fpmlFxSingleLeg fpml.FxSingleLeg (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        [fpmlFxSingleLeg -> exchangedCurrency1, fpmlFxSingleLeg -> exchangedCurrency2]
-            extract
-                MapPayerReceiverToAccountPartyReference(
-                        fpmlAccount,
-                        payerAccountReference,
-                        receiverAccountReference,
-                        payerPartyReference,
-                        receiverPartyReference
-                    )
-            then filter reference exists
-            then first
