@@ -21,6 +21,9 @@ type Measure extends MeasureBase: <"Defines a concrete measure as a single numbe
     override value number (1..1) <"The value attribute must be present in a concrete measure.">
     override datedValue DatedValue (0..0) <"The schedule of step date and value pairs must be absent.">
 
+    condition DatedValueIsAbsent: <"Work around to ensure datedValue is absent.">
+        datedValue is absent
+
 type NonNegativeMeasure extends Measure: <"Defines a concrete measure as a number associated to a unit. It extends MeasureBase by requiring the value attribute to be present. A measure may be unit-less so the unit attribute is still optional.">
     override value NonNegativeNumber (1..1) <"The value attribute must be present in a concrete measure.">
 
@@ -39,7 +42,9 @@ type QuantitySchedule extends MeasureBase: <"Specifies a quantity schedule to be
 type Quantity extends QuantitySchedule: <"Specifies a quantity as a single value to be associated to a financial product, for example a transfer amount resulting from a trade. This data type extends QuantitySchedule and requires that only the single value exists.">
     override value number (1..1) <"Requires the single rate or amount, as the case may be, to be present. An initial rate of 5% would be represented as 0.05.">
     override datedValue DatedValue (0..0) <"The schedule must be absent.">
-
+    
+    condition DatedValueIsAbsent: <"Work around to ensure datedValue is absent.">
+        datedValue is absent
 type NonNegativeQuantity extends Quantity: <"Specifies a quantity as a non-negative number, which condition is enforced through a data rule that only applies to the extending class.">
     override value NonNegativeNumber (1..1) <"For a non-negative quantity, the value attribute must be positive.">
 
