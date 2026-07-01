@@ -1293,27 +1293,27 @@ type ProductTaxonomy extends Taxonomy:
 ```
 
 ``` Javascript
-"productTaxonomy": [
+"taxonomy" : [ 
   {
-    "primaryAssetClass": {
-      "meta": {
-        "scheme": "http://www.fpml.org/coding-scheme/asset-class-simple"
-      },
-      "value": "INTEREST_RATE"
-    },
-  },
-  {
-    "taxonomyValue": {
-      "meta": {
-        "scheme": "http://www.fpml.org/coding-scheme/product-taxonomy"
-      },
-      "value": "InterestRate:IRSwap:FixedFloat"
+    "primaryAssetClass" : {
+      "value" : "InterestRate",
+      "meta" : {
+        "scheme" : "http://www.fpml.org/coding-scheme/asset-class-simple"
+      }
     }
-    "taxonomySource": "ISDA"
-  },
-  {
-    "productQualifier": "InterestRate_IRSwap_FixedFloat",
-    "taxonomySource": "ISDA"
-  }
+  }, {
+    "source" : "ISDA",
+    "value" : {
+      "name" : {
+        "value" : "InterestRate:IRSwap:FixedFloat",
+        "meta" : {
+          "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
+        }
+      }
+    }
+  }, {
+    "productQualifier" : "InterestRate_IRSwap_FixedFloat",
+    "source" : "ISDA"
+  } 
 ]
 ```

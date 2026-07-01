@@ -73,7 +73,11 @@ func MapWorkflowStep:
                     ...
                 },
             timestamp: MapEventTimestamp(creationTimestamp, fpmlTrade),
-            eventIdentifier: MapEventIdentifier(fpmlMessageId, fpmlTradingEvents, fpmlTrade -> tradeHeader -> partyTradeIdentifier),
+            eventIdentifier: MapEventIdentifier(
+                        fpmlMessageId,
+                        fpmlTradingEvents,
+                        fpmlTrade -> tradeHeader -> partyTradeIdentifier
+                    ),
             messageInformation: MapMessageInformation(
                         fpmlMessageId,
                         fpmlSentBy,
@@ -113,9 +117,7 @@ func MapEventIdentifier:
         eventIdentifier Identifier (0..*)
 
     alias linkIdSchemes:
-        ["http://www.fpml.org/coding-scheme/external/esma-ptrr-compression",
-         "http://www.fpml.org/coding-scheme/external/esma-ptrr-portfolio-rebalancing", 
-         "http://www.fpml.org/coding-scheme/external/esma-ptrr-margin-management"]
+        ["http://www.fpml.org/coding-scheme/external/esma-ptrr-compression", "http://www.fpml.org/coding-scheme/external/esma-ptrr-portfolio-rebalancing", "http://www.fpml.org/coding-scheme/external/esma-ptrr-margin-management"]
 
     add eventIdentifier:
         Identifier {
@@ -141,16 +143,20 @@ func MapEventIdentifier:
                 }
 
     add eventIdentifier:
-        fpmlPartyTradeIdentifier extract
-            Identifier {
-                assignedIdentifier:
-                    linkId extract AssignedIdentifier {
-                        identifier: if linkIdSchemes any = linkIdScheme
-                            then value with-meta {scheme: linkIdScheme},
-                        ...
-                    },
-                ...
-            }                
+        fpmlPartyTradeIdentifier
+            extract
+                Identifier {
+                    assignedIdentifier: linkId
+                            extract
+                                AssignedIdentifier {
+                                    identifier: if linkIdSchemes any = linkIdScheme
+                                            then value with-meta {
+                                            scheme: linkIdScheme
+                                        },
+                                    ...
+                                },
+                    ...
+                }
 
 func MapPrimitiveInstruction:
     inputs:

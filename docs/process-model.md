@@ -548,7 +548,7 @@ a new template that is not yet in use across the industry).
 Some of those calculations are presented below:
 
 ``` Haskell
-func EquityCashSettlementAmount: 
+func EquityCashSettlementAmount:
     inputs:
         tradeState TradeState (1..1)
         date date (1..1)
@@ -559,7 +559,7 @@ func EquityCashSettlementAmount:
         tradeState -> trade -> product -> economicTerms -> payout
             filter PerformancePayout exists
             then only-element
-    alias equityPerformancePayout: payout -> PerformancePayout
+    alias equityPerformancePayout: payout as PerformancePayout
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -577,9 +577,9 @@ func EquityCashSettlementAmount:
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value: 
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value:
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency: 
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
@@ -724,7 +724,7 @@ func CalculateReset:
         instruction CalculateResetInstruction (1..1)
     output:
         reset Reset (0..*)
-    
+
     alias payout:
         instruction -> payout
 
@@ -734,14 +734,14 @@ func CalculateReset:
         else instruction -> resetDate
 
     alias observationIdentifiers:
-        if payout -> PerformancePayout count = 1
+        if payout as PerformancePayout count = 1
         then ResolvePerformanceObservationIdentifiers(
-                    payout -> PerformancePayout only-element,
+                    payout as PerformancePayout only-element,
                     instruction -> resetDate
                 )
-        else if payout -> InterestRatePayout exists
+        else if payout as InterestRatePayout exists
         then ResolveInterestRateObservationIdentifiers(
-                    payout -> InterestRatePayout only-element,
+                    payout as InterestRatePayout only-element,
                     observationDate
                 )
 
@@ -749,15 +749,15 @@ func CalculateReset:
         ResolveObservation([observationIdentifiers], empty)
 
     add reset:
-        if payout -> PerformancePayout count = 1
+        if payout as PerformancePayout count = 1
         then ResolvePerformanceReset(
-                    payout -> PerformancePayout only-element,
+                    payout as PerformancePayout only-element,
                     observation,
                     instruction -> resetDate
                 )
-        else if payout -> InterestRatePayout exists
+        else if payout as InterestRatePayout exists
         then ResolveInterestRateReset(
-                    payout -> InterestRatePayout,
+                    payout as InterestRatePayout,
                     observation,
                     instruction -> resetDate,
                     instruction -> rateRecordDate
@@ -792,7 +792,7 @@ func ResolvePerformanceObservationIdentifiers:
         else payout -> valuationDates -> finalValuationDate
 
     set identifiers -> observable:
-        payout -> underlier -> Observable 
+        payout -> underlier as Observable
     set identifiers -> observationDate:
         AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
@@ -801,11 +801,11 @@ func ResolvePerformanceObservationIdentifiers:
         ResolvePerformanceValuationTime(
                 valuationDates -> valuationTime,
                 valuationDates -> valuationTimeType,
-                identifiers -> observable -> Asset ->> identifier only-element,
+                identifiers -> observable as Asset ->> identifier only-element,
                 valuationDates -> determinationMethod
             )
     set identifiers -> informationSource:
-        payout -> observationTerms -> informationSource -> primarySource        
+        payout -> observationTerms -> informationSource -> primarySource
     set identifiers -> determinationMethodology -> determinationMethod:
         valuationDates -> determinationMethod
 ```
