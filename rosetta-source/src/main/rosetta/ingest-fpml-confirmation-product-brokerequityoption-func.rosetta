@@ -143,13 +143,23 @@ func MapBrokerEquityOptionPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
-        PriceQuantity {
-            quantity: MapEquityDerivativeBaseQuantityListWithLocation(
+        PriceQuantity {price:
+                PriceSchedule {
+                    priceType: empty,
+                    monetaryQuantity: MapEquityDerivativeBaseQuantityListWithLocation(
                         fpmlBrokerEquityOption,
+                        empty,
+                        empty,
+                        empty
+                    ) then only-element,
+                    ...
+                },
+            quantity: MapEquityDerivativeBaseQuantityListWithLocation(
+                        empty,
                         fpmlBrokerEquityOption -> numberOfOptions,
                         empty,
                         empty
-                    ),
+                    ) then only-element,
             observable: MapUnderlyerToObservableWithLocation(
                         fpmlBrokerEquityOption -> underlyer
                     ),

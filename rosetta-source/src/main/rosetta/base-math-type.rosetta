@@ -61,13 +61,16 @@ type NonNegativeStep: <"A class defining a step date and non-negative step value
         stepValue >= 0.0
 
 type NonNegativeQuantitySchedule extends QuantitySchedule:
-
+    totalQuantity number (0..1)
     condition NonNegativeQuantity_value: <"For a non-negative quantity, all amount attribute must be positive.">
         if value exists then value >= 0.0
 
     condition NonNegativeQuantity_datedValue: <"For a non-negative quantity, all amount attribute must be positive.">
         if datedValue exists then datedValue -> value all >= 0.0
 
+    condition NonNegativeQuantity_totalQuantity:
+        if totalQuantity exists then frequency exists
+        
 type Rounding: <"Defines rounding rules and precision to be used in the rounding of a number.">
 
     roundingDirection RoundingDirectionEnum (1..1) <"Specifies the rounding rounding rule as up, down, or nearest.">
