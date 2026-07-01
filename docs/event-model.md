@@ -139,11 +139,7 @@ type Trade extends TradableProduct:
   partyRole PartyRole (0..*)
   executionDetails ExecutionDetails (0..1)
   contractDetails ContractDetails (0..1)
-  clearedDate date (0..1)
-    [deprecated]
   collateral Collateral (0..1)
-  account Account (0..*)
-    [deprecated]
 ```
 
 ---
@@ -941,8 +937,6 @@ type WorkflowStep:
   action ActionEnum (0..1)
   party Party (0..*)
   account Account (0..*)
-  lineage Lineage (0..1)
-    [deprecated]
   creditLimitInformation CreditLimitInformation (0..1)
   workflowState WorkflowState (0..1)
 ```
