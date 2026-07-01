@@ -37,15 +37,15 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
         required choice schedule, calculationPeriodDates
 
     condition CommodityUnderlier: <"The underlier for a CommodityPayout should be a commodity.">
-        if underlier -> Observable exists
-        then ObservableIsCommodity(underlier -> Observable)
-        else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout exists
+        if underlier as Observable exists
+        then ObservableIsCommodity(underlier as Observable)
+        else if underlier as TransferableProduct -> economicTerms -> payout only-element as OptionPayout exists
         then ObservableIsCommodity(
-                    underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout -> underlier -> Observable
+                    underlier as TransferableProduct -> economicTerms -> payout only-element as OptionPayout -> underlier as Observable
                 ) // Commodity Option
-        else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout exists
+        else if underlier as TransferableProduct -> economicTerms -> payout only-element as SettlementPayout exists
         then ObservableIsCommodity(
-                    underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout -> underlier -> Observable
+                    underlier as TransferableProduct -> economicTerms -> payout only-element as SettlementPayout -> underlier as Observable
                 ) // Commodity Future
         else False
 
@@ -167,7 +167,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
         optional choice paymentDates, paymentDate
 
     condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
-        if rateSpecification -> FixedRateSpecification is absent
+        if rateSpecification as FixedRateSpecification is absent
         then priceQuantity -> futureValueNotional is absent
 
     condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
@@ -222,7 +222,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
     condition FpML_ird_29: <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
         if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None
-        then rateSpecification -> FixedRateSpecification is absent
+        then rateSpecification as FixedRateSpecification is absent
 
     condition CalculationPeriodDatesFirstCompoundingPeriodEndDate: <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
         if compoundingMethod is absent or compoundingMethod = CompoundingMethodEnum -> None
@@ -507,7 +507,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
 
     condition UnderlierMustBeListedDerivative: <"If an exchange traded contract nearest is specified, it must have a listed derivative as underlier.">
         if exchangeTradedContractNearest exists
-        then exchangeTradedContractNearest -> Asset -> Instrument -> ListedDerivative exists
+        then exchangeTradedContractNearest as ListedDerivative exists
 
     condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
         if valuationTerms -> futuresPriceValuation = True
@@ -665,7 +665,7 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
     finalPrincipalExchangeCalculation FinalPrincipalExchangeCalculationEnum (0..1) <"To be specified only for products that embed a redemption payment.">
 
     condition InflationIndex:
-        rateOption -> InflationIndex exists
+        rateOption as InflationIndex exists
 
 type FloatingRateBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
     [metadata key]
