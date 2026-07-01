@@ -61,7 +61,7 @@
 | fpml-5-10-products-variance-swaps | varianceSwapTransactionSupplement | 3 | 98% |
 | fpml-5-10-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 99% |
 | fpml-5-12-incomplete-products-equity | returnSwap | 1 | 100% |
-| fpml-5-12-processes | creditDefaultSwap | 2 | 99% |
+| fpml-5-12-processes | creditDefaultSwap | 2 | 100% |
 | fpml-5-12-products-commodity | commodityOption | 2 | 70% |
 | fpml-5-12-products-commodity | commoditySwap | 2 | 104% |
 | fpml-5-12-products-commodity | commoditySwaption | 1 | 94% |

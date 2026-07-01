@@ -11,6 +11,7 @@
 | fpml-5-13-incomplete-products-variance-swaps | 2 | 103% |
 | fpml-5-12-incomplete-products-equity | 1 | 100% |
 | fpml-5-10-incomplete-products-securities | 2 | 100% |
+| fpml-5-12-processes | 2 | 100% |
 | fpml-5-12-products-equity | 19 | 100% |
 | fpml-5-10-products-equity | 12 | 100% |
 | fpml-5-13-incomplete-products-fx-derivatives | 16 | 100% |
@@ -20,7 +21,6 @@
 | fpml-5-13-incomplete-products-equity-options | 20 | 99% |
 | fpml-5-13-products-bond-options | 4 | 99% |
 | fpml-5-10-products-commodity | 14 | 99% |
-| fpml-5-12-processes | 2 | 99% |
 | fpml-5-13-products-variance-swaps | 5 | 99% |
 | fpml-5-10-incomplete-products-fx-derivatives | 20 | 99% |
 | fpml-5-13-products-commodity-derivatives | 18 | 99% |
