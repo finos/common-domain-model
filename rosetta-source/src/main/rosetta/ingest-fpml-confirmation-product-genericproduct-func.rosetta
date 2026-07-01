@@ -11,7 +11,6 @@ import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
-
 import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.doc.* as fpml
@@ -144,38 +143,34 @@ func MapGenericProductPriceQuantityList:
             then only-element
 
     add priceQuantityList:
-        PriceQuantity {
-            price:
-                PriceSchedule {
-                    value: quotationModelValue,
-                    unit:
-                        UnitType {
-                            currency: if unitFromQuotation exists
-                                    then unitFromQuotation
-                                else unitFromNotional,
+        fpmlGenericProduct -> notional
+            extract MapNotionalAmountToQuantityWithLocation(amount, empty, currency, empty)
+            then extract
+                PriceQuantity {
+                    price:
+                        PriceSchedule {
+                            value: quotationModelValue,
+                            unit:
+                                UnitType {
+                                    currency: if unitFromQuotation exists
+                                            then unitFromQuotation
+                                        else unitFromNotional,
+                                    ...
+                                },
+                            perUnitOf:
+                                UnitType {
+                                    currency: unitFromNotional,
+                                    ...
+                                },
+                            priceType: AssetPrice,
                             ...
                         },
-                    perUnitOf:
-                        UnitType {
-                            currency: unitFromNotional,
-                            ...
-                        },
-                    priceType: AssetPrice,
+                    quantity: item,
+                    observable: fpmlGenericProduct -> underlyer -> underlyingAsset
+                            first
+                            then extract MapAssetToObservableWithLocation,
                     ...
-                },
-            quantity: fpmlGenericProduct -> notional
-                    then extract
-                        MapNotionalAmountToQuantityWithLocation(
-                                amount,
-                                empty,
-                                currency,
-                                empty
-                            ),
-            observable: fpmlGenericProduct -> underlyer -> underlyingAsset
-                    first
-                    then extract MapAssetToObservableWithLocation,
-            ...
-        }
+                }
 
 func MapGenericProductAccountPartyReference:
     inputs:

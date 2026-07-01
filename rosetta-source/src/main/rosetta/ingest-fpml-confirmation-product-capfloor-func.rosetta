@@ -86,20 +86,20 @@ func MapCapfloorPriceQuantity:
     inputs:
         fpmlCapFloorStream fpml.InterestRateStream (0..1)
     output:
-        priceQuantity PriceQuantity (0..1)
+        priceQuantity PriceQuantity (0..*)
 
     alias calculationPeriodAmount: fpmlCapFloorStream -> calculationPeriodAmount
 
     set priceQuantity:
-        PriceQuantity {
+        swap.MapCalculationPeriodAmountToQuantityList(
+                        calculationPeriodAmount,
+                        fpmlCapFloorStream
+                    ) extract PriceQuantity {
             price: MapCapfloorCalculationPeriodAmountToPriceList(
                         calculationPeriodAmount,
                         fpmlCapFloorStream
                     ),
-            quantity: swap.MapCalculationPeriodAmountToQuantityList(
-                        calculationPeriodAmount,
-                        fpmlCapFloorStream
-                    ),
+            quantity: item,
             observable: MapRateOptionToObservableWithLocation(
                         calculationPeriodAmount -> calculation -> rateCalculation,
                         fpmlCapFloorStream

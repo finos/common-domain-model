@@ -561,39 +561,41 @@ func MapEquityDerivativeBaseQuantityListWithAddress:
 
 func MapFxCoreDetailsModelQuantityListWithLocation:
     inputs:
+        fpmlExchangeRate fpml.ExchangeRate (0..1)
         fpmlExchangedCurrency1 fpml.Payment (1..1)
         fpmlExchangedCurrency2 fpml.Payment (1..1)
         fpmlLeg fpml.Leg (0..1)
     output:
-        quantityList NonNegativeQuantitySchedule (0..*)
+        quantity NonNegativeQuantitySchedule (0..1)
             [metadata location]
 
-    alias quantity1: fpmlExchangedCurrency1 -> paymentAmount
-    alias quantity2: fpmlExchangedCurrency2 -> paymentAmount
+    alias quotedCurrencyPair: fpmlExchangeRate -> quotedCurrencyPair
 
-    add quantityList:
-        if quantity1 exists
-        then CreateQuantityWithLocation(
-                    MapCurrencyAmountToQuantity(
-                            quantity1 -> amount,
-                            empty,
-                            quantity1 -> currency,
-                            empty
-                        ),
-                    CreateQuantityKey(quantity1 -> currency -> value, fpmlLeg)
-                )
+    alias fpmlCurrency:
+        if fpmlExchangeRate -> quotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+        then fpmlExchangeRate -> quotedCurrencyPair -> currency1
+        else fpmlExchangeRate -> quotedCurrencyPair -> currency2
 
-    add quantityList:
-        if quantity2 exists
-        then CreateQuantityWithLocation(
-                    MapCurrencyAmountToQuantity(
-                            quantity2 -> amount,
-                            empty,
-                            quantity2 -> currency,
-                            empty
-                        ),
-                    CreateQuantityKey(quantity2 -> currency -> value, fpmlLeg)
-                )
+    alias fpmlPerCurrency:
+        if fpmlExchangeRate -> quotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+        then fpmlExchangeRate -> quotedCurrencyPair -> currency2
+        else fpmlExchangeRate -> quotedCurrencyPair -> currency1
+
+    alias primaryQuantity:
+        if fpmlExchangedCurrency1 -> paymentAmount -> currency = fpmlPerCurrency
+        then fpmlExchangedCurrency1 -> paymentAmount
+        else fpmlExchangedCurrency2 -> paymentAmount
+        
+    set quantity:
+        CreateQuantityWithLocation(
+                MapCurrencyAmountToQuantity(
+                        primaryQuantity -> amount,
+                        empty,
+                        primaryQuantity -> currency,
+                        empty
+                    ),
+                CreateQuantityKey(primaryQuantity -> currency -> value, fpmlLeg)
+            )
 
 func MapFxCoreDetailsModelQuantityWithAddress:
     inputs:
@@ -1273,8 +1275,14 @@ func MapFxCoreDetailsModelPriceQuantityList:
 
     add priceQuantityList:
         PriceQuantity {
-            price: MapFxCoreDetailsModelPriceListWithLocation(fpmlExchangeRate, fpmlLeg),
+            price: MapFxCoreDetailsModelPriceListWithLocation(
+                        fpmlExchangeRate,
+                        fpmlLeg,
+                        fpmlExchangedCurrency1,
+                        fpmlExchangedCurrency2
+                    ),
             quantity: MapFxCoreDetailsModelQuantityListWithLocation(
+                        fpmlExchangeRate,
                         fpmlExchangedCurrency1,
                         fpmlExchangedCurrency2,
                         fpmlLeg
@@ -1290,6 +1298,8 @@ func MapFxCoreDetailsModelPriceListWithLocation:
     inputs:
         fpmlExchangeRate fpml.ExchangeRate (0..1)
         fpmlLeg fpml.Leg (0..1)
+        fpmlExchangedCurrency1 fpml.Payment (0..1)
+        fpmlExchangedCurrency2 fpml.Payment (0..1)
     output:
         priceList PriceSchedule (0..*)
             [metadata location]
@@ -1297,7 +1307,12 @@ func MapFxCoreDetailsModelPriceListWithLocation:
     add priceList:
         if fpmlExchangeRate exists
         then CreatePriceWithLocation(
-                    MapExchangeRateToPrice(fpmlExchangeRate),
+                    MapExchangeRateToPrice(
+                            fpmlExchangeRate,
+                            fpmlExchangedCurrency1,
+                            fpmlExchangedCurrency2,
+                            fpmlLeg
+                        ),
                     CreatePriceKey("exchangeRate", fpmlLeg)
                 )
 
@@ -1316,6 +1331,9 @@ func MapFxCoreDetailsModelPriceWithAddress:
 func MapExchangeRateToPrice:
     inputs:
         fpmlExchangeRate fpml.ExchangeRate (0..1)
+        fpmlExchangedCurrency1 fpml.Payment (0..1)
+        fpmlExchangedCurrency2 fpml.Payment (0..1)
+        fpmlLeg fpml.Leg (0..1)
     output:
         price PriceSchedule (0..1)
 
@@ -1333,6 +1351,11 @@ func MapExchangeRateToPrice:
         if fpmlExchangeRate -> quotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
         then fpmlExchangeRate -> quotedCurrencyPair -> currency2
         else fpmlExchangeRate -> quotedCurrencyPair -> currency1
+
+    alias secondaryQuantity:
+        if fpmlExchangedCurrency1 -> paymentAmount -> currency = fpmlCurrency
+        then fpmlExchangedCurrency1 -> paymentAmount
+        else fpmlExchangedCurrency2 -> paymentAmount
 
     set price:
         if rate exists
@@ -1356,6 +1379,18 @@ func MapExchangeRateToPrice:
                             arithmeticOperator: Add,
                             operandType: ForwardPoint,
                         },
+                monetaryQuantity: CreateQuantityWithLocation(
+                            MapCurrencyAmountToQuantity(
+                                    secondaryQuantity -> amount,
+                                    empty,
+                                    secondaryQuantity -> currency,
+                                    empty
+                                ),
+                            CreateQuantityKey(
+                                    secondaryQuantity -> currency -> value,
+                                    fpmlLeg
+                                )
+                        ),
                 ...
             }
 

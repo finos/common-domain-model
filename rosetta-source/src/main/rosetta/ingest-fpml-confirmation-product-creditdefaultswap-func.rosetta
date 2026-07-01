@@ -620,21 +620,21 @@ func MapFeeLegToPriceQuantity:
         fpmlFeeLeg fpml.FeeLeg (0..1)
         fpmlProtectionTermsList fpml.ProtectionTerms (0..*)
     output:
-        priceQuantity PriceQuantity (0..1)
+        priceQuantity PriceQuantity (0..*)
 
     set priceQuantity:
-        PriceQuantity {
+        MapFixedOrFloatingCalculationAmountToQuantityListWithLocation(
+                        fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount,
+                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> calculationAmount,
+                        fpmlFeeLeg
+                    ) extract PriceQuantity {
             price: MapFixedOrFloatingAmountCalculationToPriceListWithLocation(
                         fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation,
                         fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation,
                         fpmlProtectionTermsList -> calculationAmount -> currency first,
                         fpmlFeeLeg
                     ),
-            quantity: MapFixedOrFloatingCalculationAmountToQuantityListWithLocation(
-                        fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount,
-                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> calculationAmount,
-                        fpmlFeeLeg
-                    ),
+            quantity: item,
             observable: MapRateOptionToObservableWithLocation(
                         fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate,
                         fpmlFeeLeg
@@ -671,18 +671,18 @@ func MapProtectionTermsToPriceQuantity:
     inputs:
         fpmlProtectionTermsList fpml.ProtectionTerms (0..*)
     output:
-        priceQuantity PriceQuantity (0..1)
-
-    set priceQuantity:
-        PriceQuantity {
-            quantity: fpmlProtectionTermsList
+        priceQuantity PriceQuantity (0..*)
+    alias quantity: fpmlProtectionTermsList
                     extract
                         MapNotionalAmountToQuantityWithLocation(
                                 calculationAmount -> amount,
                                 empty,
                                 calculationAmount -> currency,
                                 empty
-                            ),
+                            )
+    set priceQuantity:
+       quantity extract  PriceQuantity {
+            quantity:item ,
             ...
         }
 

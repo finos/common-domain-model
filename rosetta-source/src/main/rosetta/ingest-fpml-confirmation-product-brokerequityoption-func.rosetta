@@ -10,7 +10,6 @@ import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
-
 import fpml.consolidated.* as fpml
 import fpml.consolidated.eqd.* as fpml
 import fpml.consolidated.shared.* as fpml
@@ -143,18 +142,20 @@ func MapBrokerEquityOptionPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
-        PriceQuantity {
-            quantity: MapEquityDerivativeBaseQuantityListWithLocation(
-                        fpmlBrokerEquityOption,
-                        fpmlBrokerEquityOption -> numberOfOptions,
-                        empty,
-                        empty
-                    ),
-            observable: MapUnderlyerToObservableWithLocation(
-                        fpmlBrokerEquityOption -> underlyer
-                    ),
-            ...
-        }
+        MapEquityDerivativeBaseQuantityListWithLocation(
+                fpmlBrokerEquityOption,
+                fpmlBrokerEquityOption -> numberOfOptions,
+                empty,
+                empty
+            )
+            extract
+                PriceQuantity {
+                    quantity: item,
+                    observable: MapUnderlyerToObservableWithLocation(
+                                fpmlBrokerEquityOption -> underlyer
+                            ),
+                    ...
+                }
 
 func MapBrokerEquityOptionAccountPartyReference:
     inputs:
