@@ -39,13 +39,23 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     condition CommodityUnderlier: <"The underlier for a CommodityPayout should be a commodity.">
         if underlier as Observable exists
         then ObservableIsCommodity(underlier as Observable)
-        else if underlier as TransferableProduct -> economicTerms -> payout only-element as OptionPayout exists
+        else if underlier as TransferableProduct -> economicTerms -> payout
+            only-element
+            as OptionPayout
+            exists
         then ObservableIsCommodity(
-                    underlier as TransferableProduct -> economicTerms -> payout only-element as OptionPayout -> underlier as Observable
+                    underlier as TransferableProduct -> economicTerms -> payout
+                        only-element
+                        as OptionPayout -> underlier as Observable
                 ) // Commodity Option
-        else if underlier as TransferableProduct -> economicTerms -> payout only-element as SettlementPayout exists
+        else if underlier as TransferableProduct -> economicTerms -> payout
+            only-element
+            as SettlementPayout
+            exists
         then ObservableIsCommodity(
-                    underlier as TransferableProduct -> economicTerms -> payout only-element as SettlementPayout -> underlier as Observable
+                    underlier as TransferableProduct -> economicTerms -> payout
+                        only-element
+                        as SettlementPayout -> underlier as Observable
                 ) // Commodity Future
         else False
 

@@ -49,6 +49,17 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
                         versionedTradeId -> version
                     )
 
+    alias identifiersForLinkId:
+        fpmlPartyTradeIdentifierList -> linkId
+            extract
+                if linkIdScheme = "http://www.fpml.org/coding-scheme/external/esma-report-tracking-number"
+                then AssignedIdentifier {
+                        identifier: value with-meta {
+                                scheme: linkIdScheme
+                            },
+                        ...
+                    }
+
     alias identifierTypeForIssuer:
         MapTradeIdToIdentifierType(fpmlPartyTradeIdentifierList -> tradeId)
 
@@ -64,7 +75,10 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
         TradeIdentifier {
             issuer: issuer,
             issuerReference: issuerReference,
-            assignedIdentifier: identifierForTrade default identifierForIssuer,
+            assignedIdentifier: [
+                    identifierForTrade default identifierForIssuer,
+                    identifiersForLinkId
+                ],
             identifierType: identifierTypeForTrade default identifierTypeForIssuer
         }
 

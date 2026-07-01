@@ -75,7 +75,9 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         if payout as OptionPayout exists
         then payout as OptionPayout -> priceQuantity exists
-                or payout as OptionPayout -> underlier as Product ->> economicTerms -> payout as InterestRatePayout count = 2
+                or payout as OptionPayout -> underlier as Product ->> economicTerms -> payout
+                    as InterestRatePayout
+                    count = 2
 
     condition DayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
         if payout as InterestRatePayout count = 2
@@ -142,8 +144,12 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
-                and underlier as Product ->> economicTerms -> payout as InterestRatePayout exists
-                and underlier as Product ->> economicTerms -> payout as InterestRatePayout count = 2
+                and underlier as Product ->> economicTerms -> payout
+                    as InterestRatePayout
+                    exists
+                and underlier as Product ->> economicTerms -> payout
+                    as InterestRatePayout
+                    count = 2
         then settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
@@ -412,8 +418,7 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
         then settlementTerms -> cashSettlementTerms exists
 
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
-        if underlier as Cash exists
-        then settlementTerms exists
+        if underlier as Cash exists then settlementTerms exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists
