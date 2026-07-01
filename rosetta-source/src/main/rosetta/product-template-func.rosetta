@@ -91,14 +91,6 @@ func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the g
             then extract [ CompareNumbers(item -> value, op, amount) ]
                 all = True
 
-func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
-    [codeImplementation]
-    inputs:
-        trade Trade (1..1)
-        accounts Account (0..*)
-    output:
-        success boolean (1..1) <"Validation result">
-
 func Create_AssetFlowFromSettlementPayout: <"Generates two opposite cashflows that correspond to a settlement payout. One leg is the asset leg, that settles the asset according to the quantity, direction and date defined in the settlement payout. The other is the price leg, that settles the price as a currency amount going in the opposite direction. The function's applicability is limited on purpose to a single asset with a single price and quantity specified.">
     inputs:
         payout SettlementPayout (1..1) <"The settlement payout from which the cashflows are generated.">
@@ -113,7 +105,7 @@ func Create_AssetFlowFromSettlementPayout: <"Generates two opposite cashflows th
                     unit: payout -> priceQuantity -> quantitySchedule -> unit,
                     ...
                 },
-            asset: payout -> underlier -> Observable -> Asset,
+            asset: payout -> underlier as Asset,
             settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
             payerReceiver: payout -> payerReceiver,
             assetFlowType: Principal,
@@ -165,7 +157,7 @@ func Create_AssetFlowFromSettlementPayout: <"Generates two opposite cashflows th
         }
 
     condition Asset: <"Restricts the function's applicability to a single asset for the underlier.">
-        payout -> underlier -> Observable -> Asset exists
+        payout -> underlier as Asset exists
 
     condition SettlementDate: <"Restricts the function's applicability to the adjustable or relative date for the settlement date.">
         payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
@@ -182,17 +174,17 @@ func UnderlierForOptionOrForwardProduct: <"Extracts the underlier from an option
     output:
         underlierProduct Underlier (1..1)
     set underlierProduct:
-        if product -> economicTerms -> payout -> OptionPayout exists
-        then product -> economicTerms -> payout -> OptionPayout only-element -> underlier
-        else if product -> economicTerms -> payout -> SettlementPayout exists
-        then product -> economicTerms -> payout -> SettlementPayout only-element -> underlier
+        if product -> economicTerms -> payout as OptionPayout exists
+        then product -> economicTerms -> payout as OptionPayout only-element -> underlier
+        else if product -> economicTerms -> payout as SettlementPayout exists
+        then product -> economicTerms -> payout as SettlementPayout only-element -> underlier
 
 func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based on two criteria: the forward payout with the latest value date or the forward payout with the latest settlement date.">
     inputs:
         product NonTransferableProduct (1..1)
     output:
         nearLegPayout SettlementPayout (0..1)
-    alias settlementPayout: product -> economicTerms -> payout -> SettlementPayout
+    alias settlementPayout: product -> economicTerms -> payout as SettlementPayout
     set nearLegPayout:
         // value date
         if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))

@@ -782,39 +782,17 @@ func MapCalculationPeriodAmountToQuantityList:
         fpmlCalculationPeriodAmount fpml.CalculationPeriodAmount (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
-        nonNegativeQuantitySchedules NonNegativeQuantitySchedule (0..1)
+        nonNegativeQuantitySchedules NonNegativeQuantitySchedule (0..*)
             [metadata location]
 
-    set nonNegativeQuantitySchedules:
-        fpmlCalculationPeriodAmount -> calculation
-            then if notionalSchedule exists
-                then MapNotionalStepScheduleToQuantityWithLocation(
-                            notionalSchedule -> notionalStepSchedule,
-                            fpmlLeg
-                        )
-                else if fxLinkedNotionalSchedule exists
-                then MapFxLinkedNotionalScheduleToQuantityWithLocation(
-                            fxLinkedNotionalSchedule,
-                            fpmlLeg
-                        )
+    add nonNegativeQuantitySchedules:
+        MapNotionalStepScheduleToQuantityWithLocation(
+                fpmlCalculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule,
+                fpmlLeg
+            )
 
-func MapSwapAccountPartyReference:
-    inputs:
-        fpmlSwap fpml.Swap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        fpmlSwap -> swapStream
-            extract
-                MapPayerReceiverToAccountPartyReference(
-                        fpmlAccount,
-                        payerAccountReference,
-                        receiverAccountReference,
-                        payerPartyReference,
-                        receiverPartyReference
-                    )
-            then filter reference exists
-            then first
+    add nonNegativeQuantitySchedules:
+        MapFxLinkedNotionalScheduleToQuantityWithLocation(
+                fpmlCalculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule,
+                fpmlLeg
+            )

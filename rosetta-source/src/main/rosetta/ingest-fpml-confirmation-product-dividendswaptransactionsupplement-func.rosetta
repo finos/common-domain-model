@@ -17,7 +17,6 @@ import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.dividend.swaps.* as fpml
 import fpml.consolidated.fpmlenum.* as fpml
-import fpml.consolidated.option.shared.* as fpml
 import fpml.consolidated.shared.* as fpml
 
 func MapDividendSwapTransactionSupplementCounterpartyList:
@@ -334,22 +333,3 @@ func MapSingleUnderlyerToNonNegativeQuantityScheduleWithLocation:
                     },
                     CreateQuantityKey("openUnits", empty)
                 )
-
-func MapDividendSwapTransactionSupplementAccountPartyReference:
-    inputs:
-        fpmlDividendSwapTransactionSupplement fpml.DividendSwapTransactionSupplement (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        fpmlDividendSwapTransactionSupplement -> dividendLeg
-            extract
-                MapPayerReceiverToAccountPartyReference(
-                        fpmlAccount,
-                        payerAccountReference,
-                        receiverAccountReference,
-                        payerPartyReference,
-                        receiverPartyReference
-                    )
