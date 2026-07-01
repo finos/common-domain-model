@@ -893,16 +893,17 @@ for instance, a `Measure` requires the `value` attribute to be present
 (but `unit` is still optional because a measure could be unit-less).
 
 ``` Haskell
-type MeasureBase:
-  value number (0..1)
+type MeasureBase extends Schedule:
   unit UnitType (0..1)
 ```
 
 ``` Haskell
 type Measure extends MeasureBase:
-
-  condition ValueExists:
-    value exists
+  override value number (1..1)
+  override datedValue DatedValue (0..0)
+  
+  condition DatedValueIsAbsent:
+     datedValue is absent
 ```
 
 The `UnitType` data type used to defined the `unit` attribute requires
@@ -924,33 +925,20 @@ A measure can vary over time. One often used case is a series of
 measures indexed by date. Such measures are all homogeneous, so the unit
 only needs to be represented once.
 
-To represent this, the `MeasureSchedule` type extends `MeasureBase` with
-a set of date and value pair attributes represented by the `DatedValue`
-type. In that structure, the existing `value` attribute can still be
-omitted but, when present, represents the schedule's initial value.
-
-``` Haskell
-type MeasureSchedule extends MeasureBase:
-  datedValue DatedValue (0..*)
-
-  condition ValueExists:
-    value exists or datedValue exists
-```
-
 The price and quantity concepts for financial instruments are both
-modelled as extensions of the `MeasureSchedule` data type, as detailed
+modelled as extensions of the `MeasureBase` data type, as detailed
 below. This means that by default, price and quantity are considered as
 schedules although they can also represent a single value when the
 `datedValue` attribute is omitted.
 
 ### Price
 
-The `PriceSchedule` data type extends the `MeasureSchedule` data type
+The `PriceSchedule` data type extends the `MeasureBase` data type
 with the addition of the `priceExpression` and `perUnitOf` attributes,
 which together further qualify the price.
 
 ``` Haskell
-type PriceSchedule extends MeasureSchedule:
+type PriceSchedule extends MeasureBase:
   perUnitOf UnitType (0..1)
   priceType PriceTypeEnum (1..1)
   priceSubType PriceSubTypeEnum (0..1)
@@ -958,6 +946,7 @@ type PriceSchedule extends MeasureSchedule:
   composite PriceComposite (0..1)
   arithmeticOperator ArithmeticOperationEnum (0..1)
   premiumType PremiumTypeEnum (0..1)
+  derivedQuantity NonNegativeQuantitySchedule (0..*)
 ```
 
 Note that the conditions for this data type are excluded from the
@@ -1003,36 +992,27 @@ the `spreadType` would be a Spread.
 
 ### Quantity
 
-The `QuantitySchedule` data type also extends the `MeasureSchedule` data
+The `QuantitySchedule` data type also extends the `MeasureBase` data
 type with the addition of an optional `multiplier` attributes. It also
 requires the `unit` attribute to exist, i.e. a quantity cannot be
 unit-less. The `NonNegativeQuantitySchedule` data type further
 constrains it by requiring that all the values are non-negative.
 
 ``` Haskell
-type QuantitySchedule extends MeasureSchedule:
-  multiplier Measure (0..1)
+type QuantitySchedule extends MeasureBase:
+  override unit UnitType (1..1)
+  multiplier NonNegativeMeasure (0..1)
   frequency Frequency (0..1)
-
-  condition Quantity_multiplier:
-      if multiplier exists then multiplier -> value >= 0.0
-  condition UnitOfAmountExists:
-      unit exists
+  total Schedule (0..1)
+  condition TotalQuantity:
+     if total exists then frequency exists
 ```
 
 ``` Haskell
 type NonNegativeQuantitySchedule extends QuantitySchedule:
-    totalQuantity number (0..1)
-    condition NonNegativeQuantity_value:
-        if value exists
-        then value >= 0.0
-
-    condition NonNegativeQuantity_datedValue:
-        if datedValue exists
-        then datedValue -> value all >= 0.0
-        
-    condition NonNegativeQuantity_totalQuantity:
-        if totalQuantity exists then frequency exists
+    override value NonNegativeNumber (0..1) 
+    override datedValue NonNegativeDatedValue (0..*)
+    override total NonNegativeSchedule (0..1)
 ```
 
 The inherited attributes of `value`, `unit` and `datedValue` (in case

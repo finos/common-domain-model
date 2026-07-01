@@ -31,7 +31,7 @@ typeAlias NonNegativeNumber: <"Defined as a number with a minimum value of 0.">
     number(min: 0)
 
 type QuantitySchedule extends MeasureBase: <"Specifies a quantity schedule to be associated to a financial product to represent a trade amount. This data type extends MeasureBase with several unit or multiplier attributes that are used to define financial quantities. This data type is generically based on a schedule and can also be used to represent a quantity as a single value.">
-    override unit UnitType (1..1)  <"Requires that a unit of amount must be specified for any quantity.">
+    override unit UnitType (1..1) <"Requires that a unit of amount must be specified for any quantity.">
     multiplier NonNegativeMeasure (0..1) <"Defines an optional measure that the quantity should be multiplied by to derive a total quantity. Requires that the multiplier must be positive. This number is associated to an optional unit. For example in the case of the Coal (API2) CIF ARA (ARGUS-McCloskey) Futures Contract on the CME, where the unit would be contracts, the multiplier value would 1,000 and the mulitiplier unit would be 1,000 MT (Metric Tons).">
     frequency Frequency (0..1) <"Defines the frequency to be used when defining a quantity. For example a quantity may be specified as a number of barrels of oil per day, which needs multiplying by the number of days in the relevant period to get the total quantity as a number of barrels.">
     total Schedule (0..1) <"Specifies the total quantity when the quantity itself is specified with a frequency.">
@@ -42,9 +42,10 @@ type QuantitySchedule extends MeasureBase: <"Specifies a quantity schedule to be
 type Quantity extends QuantitySchedule: <"Specifies a quantity as a single value to be associated to a financial product, for example a transfer amount resulting from a trade. This data type extends QuantitySchedule and requires that only the single value exists.">
     override value number (1..1) <"Requires the single rate or amount, as the case may be, to be present. An initial rate of 5% would be represented as 0.05.">
     override datedValue DatedValue (0..0) <"The schedule must be absent.">
-    
+
     condition DatedValueIsAbsent: <"Work around to ensure datedValue is absent.">
         datedValue is absent
+
 type NonNegativeQuantity extends Quantity: <"Specifies a quantity as a non-negative number, which condition is enforced through a data rule that only applies to the extending class.">
     override value NonNegativeNumber (1..1) <"For a non-negative quantity, the value attribute must be positive.">
 
@@ -52,7 +53,7 @@ type NonNegativeQuantitySchedule extends QuantitySchedule: <"Specifies a quantit
     override value NonNegativeNumber (0..1) <"For a non-negative quantity schedule, all amount attribute must be positive.">
     override datedValue NonNegativeDatedValue (0..*) <"For a non-negative quantity schedule, all amount attribute must be positive.">
     override total NonNegativeSchedule (0..1) <"For a non-negative quantity schedule, all amount attribute must be positive.">
-        
+
 type Rounding: <"Defines rounding rules and precision to be used in the rounding of a number.">
 
     roundingDirection RoundingDirectionEnum (1..1) <"Specifies the rounding rounding rule as up, down, or nearest.">

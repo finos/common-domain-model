@@ -149,25 +149,30 @@ func MapEquityOptionTransactionSupplementPriceQuantityList:
 
     add priceQuantityList:
         PriceQuantity {
-            price:PriceSchedule{priceType:empty,derivedQuantity:MapEquityDerivativeBaseQuantityListWithLocation(
-                        fpmlEquityOptionTransactionSupplement,
-                        fpmlEquityOptionTransactionSupplement -> numberOfOptions,
-                        fpmlEquityOptionTransactionSupplement -> optionEntitlement,
-                        empty
-                    ),...},
-            quantity: if fpmlEquityOptionTransactionSupplement -> numberOfOptions exists or 
-                        fpmlEquityOptionTransactionSupplement -> optionEntitlement exists
-        then CreateQuantityWithLocation(
-                    MapNumberOfOptionsAndOptionEntitlementToQuantity(
-                            fpmlEquityOptionTransactionSupplement -> numberOfOptions,
-                            GetMultiplierUnitTypeUnderlyingAsset(
-                                    fpmlEquityOptionTransactionSupplement -> underlyer -> singleUnderlyer -> underlyingAsset
-                                ) -> financialUnit,
-                            fpmlEquityOptionTransactionSupplement -> optionEntitlement,
-                            fpmlEquityOptionTransactionSupplement -> notional -> currency
+            price:
+                PriceSchedule {
+                    priceType: empty,
+                    derivedQuantity: MapEquityDerivativeBaseQuantityListWithLocation(
+                                fpmlEquityOptionTransactionSupplement,
+                                fpmlEquityOptionTransactionSupplement -> numberOfOptions,
+                                fpmlEquityOptionTransactionSupplement -> optionEntitlement,
+                                empty
+                            ),
+                    ...
+                },
+            quantity: if fpmlEquityOptionTransactionSupplement -> numberOfOptions exists
+                        or fpmlEquityOptionTransactionSupplement -> optionEntitlement exists
+                    then CreateQuantityWithLocation(
+                            MapNumberOfOptionsAndOptionEntitlementToQuantity(
+                                    fpmlEquityOptionTransactionSupplement -> numberOfOptions,
+                                    GetMultiplierUnitTypeUnderlyingAsset(
+                                            fpmlEquityOptionTransactionSupplement -> underlyer -> singleUnderlyer -> underlyingAsset
+                                        ) -> financialUnit,
+                                    fpmlEquityOptionTransactionSupplement -> optionEntitlement,
+                                    fpmlEquityOptionTransactionSupplement -> notional -> currency
+                                ),
+                            CreateQuantityKey("numberOfOptions", empty)
                         ),
-                    CreateQuantityKey("numberOfOptions", empty)
-                ),
             observable: MapUnderlyerToObservableWithLocation(
                         fpmlEquityOptionTransactionSupplement -> underlyer
                     ),
