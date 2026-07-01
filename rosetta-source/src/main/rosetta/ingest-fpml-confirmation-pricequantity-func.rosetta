@@ -13,18 +13,17 @@ import cdm.ingest.fpml.confirmation.party.*
 import cdm.observable.asset.*
 import cdm.product.asset.*
 import cdm.product.template.*
-
 import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.bond.option.* as fpml
 import fpml.consolidated.cd.* as fpml
 import fpml.consolidated.com.* as fpml
-import fpml.consolidated.eq.shared.* as fpml
 import fpml.consolidated.eqd.* as fpml
 import fpml.consolidated.fx.* as fpml
 import fpml.consolidated.ird.* as fpml
 import fpml.consolidated.option.shared.* as fpml
 import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
 
 func CreateKey:
     [codeImplementation]
@@ -83,6 +82,7 @@ func CreateQuantityWithAddress:
 
     set quantityWithAddress:
         NonNegativeQuantitySchedule {
+            unit: empty,
             value: empty,
             ...
         } with-meta {
@@ -271,7 +271,7 @@ func MapNumberOfOptionsAndOptionEntitlementToQuantity:
                         ...
                     },
                 multiplier:
-                    Measure {
+                    NonNegativeMeasure {
                         value: fpmlOptionEntitlement,
                         unit:
                             UnitType {
@@ -280,7 +280,9 @@ func MapNumberOfOptionsAndOptionEntitlementToQuantity:
                                 financialUnit: if fpmlFinancialUnit exists
                                         then fpmlFinancialUnit,
                                 ...
-                }},
+                            },
+                        ...
+                    },
                 ...
             }
 
@@ -386,12 +388,12 @@ func MapNonNegativeStepListToDatedValueList:
     inputs:
         fpmlStepList fpml.NonNegativeStep (0..*)
     output:
-        datedValueList DatedValue (0..*)
+        datedValueList NonNegativeDatedValue (0..*)
 
     add datedValueList:
         fpmlStepList
             extract
-                DatedValue {
+                NonNegativeDatedValue {
                     date: stepDate -> date,
                     value: stepValue
                 } with-meta {
@@ -402,12 +404,12 @@ func MapScheduleToDatedValueList:
     inputs:
         fpmlStepList fpml.Step (0..*)
     output:
-        datedValueList DatedValue (0..*)
+        datedValueList NonNegativeDatedValue (0..*)
 
     add datedValueList:
         fpmlStepList
             extract
-                DatedValue {
+                NonNegativeDatedValue {
                     date: stepDate -> date,
                     value: stepValue
                 } with-meta {
@@ -827,7 +829,11 @@ func MapQuantityUnitAmountToQuantity:
                                     fpmlFrequency -> value
                                 )
                     },
-                totalQuantity: fpmlTotalNotionalAmount,
+                total:
+                    NonNegativeSchedule {
+                        value: fpmlTotalNotionalAmount,
+                        ...
+                    },
                 ...
             }
 
@@ -835,12 +841,12 @@ func MapQuantityStepListToDatedValueList:
     inputs:
         fpmlQuantityStepList fpml.CommodityNotionalQuantity (0..*)
     output:
-        datedValueList DatedValue (0..*)
+        datedValueList NonNegativeDatedValue (0..*)
 
     add datedValueList:
         fpmlQuantityStepList
             extract
-                DatedValue {
+                NonNegativeDatedValue {
                     date: empty,
                     value: quantity
                 } with-meta {
@@ -1238,7 +1244,7 @@ func MapNetPriceToPriceListWithLocation:
                             },
                         priceExpression: fpmlPrice -> netPrice -> priceExpression to-enum PriceExpressionEnum,
                         priceType: AssetPrice,
-                        monetaryQuantity: MapNotionalAmountToQuantityWithLocation(
+                        derivedQuantity: MapNotionalAmountToQuantityWithLocation(
                                     fpmlReturnLeg -> notional -> notionalAmount -> amount,
                                     empty,
                                     fpmlReturnLeg -> notional -> notionalAmount -> currency,
@@ -1250,7 +1256,7 @@ func MapNetPriceToPriceListWithLocation:
                 )
         else PriceSchedule {
             priceType: empty,
-            monetaryQuantity: MapNotionalAmountToQuantityWithLocation(
+            derivedQuantity: MapNotionalAmountToQuantityWithLocation(
                         fpmlReturnLeg -> notional -> notionalAmount -> amount,
                         empty,
                         fpmlReturnLeg -> notional -> notionalAmount -> currency,
@@ -1382,7 +1388,7 @@ func MapExchangeRateToPrice:
                             arithmeticOperator: Add,
                             operandType: ForwardPoint,
                         },
-                monetaryQuantity: CreateQuantityWithLocation(
+                derivedQuantity: CreateQuantityWithLocation(
                             MapCurrencyAmountToQuantity(
                                     monetaryQuantity -> amount,
                                     empty,

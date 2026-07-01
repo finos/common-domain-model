@@ -215,30 +215,25 @@ func MapEquityOptionPriceQuantityList:
 
     add priceQuantityList:
         PriceQuantity {
-            price:
-                PriceSchedule {
-                    priceType: empty,
-                    monetaryQuantity: MapEquityDerivativeBaseQuantityListWithLocation(
-                                fpmlEquityOption,
-                                fpmlEquityOption -> numberOfOptions,
-                                fpmlEquityOption -> optionEntitlement,
-                                empty
-                            ),
-                    ...
-                },
-            quantity: if fpmlEquityOption -> numberOfOptions exists
-                        or fpmlEquityOption -> optionEntitlement exists
-                    then CreateQuantityWithLocation(
-                            MapNumberOfOptionsAndOptionEntitlementToQuantity(
-                                    fpmlEquityOption -> numberOfOptions,
-                                    GetMultiplierUnitTypeUnderlyingAsset(
-                                            fpmlEquityOption -> underlyer -> singleUnderlyer -> underlyingAsset
-                                        ) -> financialUnit,
-                                    fpmlEquityOption -> optionEntitlement,
-                                    fpmlEquityOption -> notional -> currency
-                                ),
-                            CreateQuantityKey("numberOfOptions", empty)
+            price:PriceSchedule{priceType:empty,derivedQuantity:MapEquityDerivativeBaseQuantityListWithLocation(
+                        fpmlEquityOption,
+                        fpmlEquityOption -> numberOfOptions,
+                        fpmlEquityOption -> optionEntitlement,
+                        empty
+                    ),...},
+            quantity:  if fpmlEquityOption -> numberOfOptions exists or 
+                        fpmlEquityOption -> optionEntitlement exists
+        then CreateQuantityWithLocation(
+                    MapNumberOfOptionsAndOptionEntitlementToQuantity(
+                            fpmlEquityOption -> numberOfOptions,
+                            GetMultiplierUnitTypeUnderlyingAsset(
+                                    fpmlEquityOption -> underlyer -> singleUnderlyer -> underlyingAsset
+                                ) -> financialUnit,
+                            fpmlEquityOption -> optionEntitlement,
+                            fpmlEquityOption -> notional -> currency
                         ),
+                    CreateQuantityKey("numberOfOptions", empty)
+                ),
             observable: MapUnderlyerToObservableWithLocation(fpmlEquityOption -> underlyer),
             ...
         }
