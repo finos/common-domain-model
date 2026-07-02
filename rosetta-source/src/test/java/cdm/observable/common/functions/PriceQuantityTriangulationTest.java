@@ -36,7 +36,6 @@ public class PriceQuantityTriangulationTest extends AbstractFunctionTest {
 		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
 				.map(PriceQuantity::getQuantity)
 				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
 				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
@@ -61,7 +60,6 @@ public class PriceQuantityTriangulationTest extends AbstractFunctionTest {
 		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
 				.map(PriceQuantity::getQuantity)
 				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
 				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());

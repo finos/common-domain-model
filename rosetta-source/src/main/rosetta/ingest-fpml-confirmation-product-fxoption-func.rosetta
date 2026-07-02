@@ -257,8 +257,58 @@ func MapFxOptionPriceQuantityList:
     alias exchangeCurrency: GetExchangedCurrencyAmount(fpmlFxOption) -> currency
 
     add priceQuantityList:
-        PriceQuantity {
-            quantity: MapFxOptionToQuantityListWithLocation(fpmlFxOption),
+        if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+        then PriceQuantity {
+                price:
+                    PriceSchedule {
+                        priceType: empty,
+                        derivedQuantity: CreateQuantityWithLocation(
+                                    MapCurrencyAmountToQuantity(
+                                            fpmlFxOption -> callCurrencyAmount -> amount,
+                                            empty,
+                                            fpmlFxOption -> callCurrencyAmount -> currency,
+                                            empty
+                                        ),
+                                    CreateQuantityKey("callCurrencyAmount", empty)
+                                ),
+                        ...
+                    },
+                quantity: CreateQuantityWithLocation(
+                            MapCurrencyAmountToQuantity(
+                                    fpmlFxOption -> putCurrencyAmount -> amount,
+                                    empty,
+                                    fpmlFxOption -> putCurrencyAmount -> currency,
+                                    empty
+                                ),
+                            CreateQuantityKey("putCurrencyAmount", empty)
+                        ),
+                observable: MapCurrencyToObservableCashWithLocation(exchangeCurrency, empty),
+                ...
+            }
+        else PriceQuantity {
+            price:
+                PriceSchedule {
+                    priceType: empty,
+                    derivedQuantity: CreateQuantityWithLocation(
+                                MapCurrencyAmountToQuantity(
+                                        fpmlFxOption -> putCurrencyAmount -> amount,
+                                        empty,
+                                        fpmlFxOption -> putCurrencyAmount -> currency,
+                                        empty
+                                    ),
+                                CreateQuantityKey("putCurrencyAmount", empty)
+                            ),
+                    ...
+                },
+            quantity: CreateQuantityWithLocation(
+                        MapCurrencyAmountToQuantity(
+                                fpmlFxOption -> callCurrencyAmount -> amount,
+                                empty,
+                                fpmlFxOption -> callCurrencyAmount -> currency,
+                                empty
+                            ),
+                        CreateQuantityKey("callCurrencyAmount", empty)
+                    ),
             observable: MapCurrencyToObservableCashWithLocation(exchangeCurrency, empty),
             ...
         }
