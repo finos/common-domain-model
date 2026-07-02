@@ -74,13 +74,14 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                                         .setSettlementPayout(SettlementPayout.builder()))))
                 .addTradeLot(TradeLot.builder()
                         .addPriceQuantity(PriceQuantity.builder()
-                                .addQuantityValue(quantity1)
-                                .addQuantityValue(quantity2)
+                                .setQuantityValue(quantity1)
                                 .addPriceValue(Price.builder()
                                         .setValue(BigDecimal.valueOf(1.234))
                                         .setUnit(UnitType.builder().setCurrencyValue(curr1))
                                         .setPerUnitOf(UnitType.builder().setCurrencyValue(curr2))
-                                        .setPriceType(PriceTypeEnum.EXCHANGE_RATE))))
+                                        .setPriceType(PriceTypeEnum.EXCHANGE_RATE)))
+                        .addPriceQuantity(PriceQuantity.builder()
+                                .setQuantityValue(quantity2)))
                 .build();
     }
 

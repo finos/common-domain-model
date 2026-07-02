@@ -231,11 +231,11 @@ public class SecLendingFunctionInputCreationTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
+                                        .setQuantityValue(NonNegativeQuantitySchedule.builder()
                                                 .setValue(BigDecimal.valueOf(0.0))
                                                 .setUnit(UnitType.builder()
                                                         .setCurrencyValue("USD")))
-                                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
+                                        .setQuantityValue(NonNegativeQuantitySchedule.builder()
                                                 .setValue(BigDecimal.valueOf(0.0))
                                                 .setUnit(UnitType.builder()
                                                         .setFinancialUnit(FinancialUnitEnum.SHARE))))));
@@ -424,7 +424,7 @@ public class SecLendingFunctionInputCreationTest {
     private PrimitiveInstruction createAllocationInstruction(TradeState tradeState, String externalKey, String partyId, CounterpartyRoleEnum role, double percent) {
         Party agentLenderParty = getParty(tradeState, role);
         TradeIdentifier allocationIdentifier = createAllocationIdentifier(tradeState.build().toBuilder(), "allocation-" + externalKey);
-        List<NonNegativeQuantitySchedule> allocatedQuantities = scaleQuantities(tradeState, percent);
+        NonNegativeQuantitySchedule allocatedQuantities = scaleQuantities(tradeState, percent);
 
         PartyChangeInstruction.PartyChangeInstructionBuilder partyChangeInstruction = PartyChangeInstruction.builder()
                 .setCounterparty(Counterparty.builder()
@@ -460,18 +460,18 @@ public class SecLendingFunctionInputCreationTest {
     }
 
 
-    private static List<NonNegativeQuantitySchedule> scaleQuantities(TradeState tradeState, double percent) {
+    private static NonNegativeQuantitySchedule scaleQuantities(TradeState tradeState, double percent) {
         return tradeState.build().toBuilder().getTrade()
                 .getTradeLot().stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity::getQuantity)
-                .flatMap(Collection::stream)
                 .map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
                 .map(NonNegativeQuantitySchedule::toBuilder)
                 .map(q -> q.setValue(q.getValue().multiply(BigDecimal.valueOf(percent))))
                 .map(NonNegativeQuantitySchedule::build)
-                .collect(Collectors.toList());
+                .findFirst().orElseThrow(RuntimeException::new);
+
     }
 
     private static TradeIdentifier createAllocationIdentifier(TradeState tradeState, String allocationName) {

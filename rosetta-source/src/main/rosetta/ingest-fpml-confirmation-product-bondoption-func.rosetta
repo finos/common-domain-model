@@ -165,7 +165,18 @@ func MapBondOptionPriceQuantityList:
 
     add priceQuantityList:
         PriceQuantity {
-            quantity: MapOptionBaseExtendedQuantityListWithLocation(fpmlBondOption),
+            price:
+                PriceSchedule {
+                    priceType: empty,
+                    derivedQuantity: MapOptionBaseExtendedQuantityListWithLocation(
+                                fpmlBondOption
+                            )
+                            filter unit -> currency exists,
+                    ...
+                },
+            quantity: MapOptionBaseExtendedQuantityListWithLocation(fpmlBondOption)
+                    filter unit -> financialUnit exists
+                    then only-element,
             observable: MapAssetToObservableWithLocation(fpmlUnderlyingAsset),
             ...
         }
