@@ -1,0 +1,167 @@
+{
+  "@model" : "cdm",
+  "@type" : "cdm.event.common.TradeState",
+  "@version" : "0.0.0.master-SNAPSHOT",
+  "@key" : "81e1401d",
+  "trade" : {
+    "product" : {
+      "economicTerms" : {
+        "effectiveDate" : {
+          "adjustableDate" : {
+            "unadjustedDate" : "2009-08-01",
+            "dateAdjustments" : {
+              "businessDayConvention" : "NotApplicable"
+            }
+          }
+        },
+        "terminationDate" : {
+          "adjustableDate" : {
+            "unadjustedDate" : "2009-08-31",
+            "dateAdjustments" : {
+              "businessDayConvention" : "NotApplicable"
+            }
+          }
+        },
+        "payout" : [ {
+          "@type" : "cdm.product.asset.CommodityPayout",
+          "payerReceiver" : {
+            "payer" : "Party2",
+            "receiver" : "Party1"
+          },
+          "settlementTerms" : {
+            "settlementType" : "Cash",
+            "settlementCurrency" : {
+              "@data" : "USD"
+            }
+          },
+          "commodityPriceReturnTerms" : {
+            "spread" : {
+              "price" : {
+                "@ref:scoped" : "price-1"
+              }
+            }
+          },
+          "pricingDates" : {
+            "parametricDates" : {
+              "dayType" : "Business",
+              "dayDistribution" : "All",
+              "businessCenters" : {
+                "commodityBusinessCalendar" : [ {
+                  "@data" : "ICE/10X-DAILY"
+                } ]
+              }
+            }
+          },
+          "calculationPeriodDates" : {
+            "calculationPeriodFrequency" : {
+              "@key:external" : "floatingLegCalculationPeriods",
+              "periodMultiplier" : 1,
+              "period" : "M",
+              "balanceOfFirstPeriod" : false
+            }
+          },
+          "underlier" : {
+            "@type" : "cdm.observable.asset.Observable",
+            "@ref:scoped" : "observable-1"
+          }
+        }, {
+          "@type" : "cdm.product.template.SettlementPayout",
+          "payerReceiver" : {
+            "payer" : "Party1",
+            "receiver" : "Party2"
+          }
+        } ]
+      }
+    },
+    "tradeLot" : [ {
+      "priceQuantity" : [ {
+        "price" : [ {
+          "@key:scoped" : "price-1",
+          "value" : 3.0,
+          "unit" : {
+            "currency" : {
+              "@data" : "USD"
+            }
+          },
+          "priceType" : "AssetPrice",
+          "arithmeticOperator" : "Add"
+        } ],
+        "observable" : {
+          "@key:scoped" : "observable-1",
+          "@data" : {
+            "@type" : "cdm.base.staticdata.asset.common.Commodity",
+            "identifier" : [ {
+              "identifier" : {
+                "@scheme" : "http://www.fpml.org/coding-scheme/commodity-reference-price-1-0",
+                "@data" : "ELECTRICITY-ERCOT-NORTH PEAK-ICE/10X DAILY-POWER"
+              },
+              "identifierType" : "ISDACRP"
+            } ],
+            "assetType" : "Commodity",
+            "priceQuoteType" : "MeanOfHighAndLow"
+          }
+        }
+      } ]
+    } ],
+    "counterparty" : [ {
+      "role" : "Party1",
+      "partyReference" : {
+        "@ref:external" : "partyA"
+      }
+    }, {
+      "role" : "Party2",
+      "partyReference" : {
+        "@ref:external" : "partyB"
+      }
+    } ],
+    "tradeIdentifier" : [ {
+      "issuerReference" : {
+        "@ref:external" : "partyA"
+      },
+      "assignedIdentifier" : [ {
+        "identifier" : {
+          "@scheme" : "http://www.PartyA.com/com-trade-id",
+          "@data" : "1234"
+        }
+      } ]
+    }, {
+      "issuerReference" : {
+        "@ref:external" : "partyB"
+      },
+      "assignedIdentifier" : [ {
+        "identifier" : {
+          "@scheme" : "http://www.PartyB.com/com-trade-id",
+          "@data" : "2345"
+        }
+      } ]
+    } ],
+    "tradeDate" : {
+      "@data" : "2009-01-28"
+    },
+    "party" : [ {
+      "@key:external" : "partyA",
+      "partyId" : [ {
+        "identifier" : {
+          "@scheme" : "http://www.fpml.org/coding-scheme/external/iso17442",
+          "@data" : "549300KFSLY4U7N3LL12"
+        },
+        "identifierType" : "LEI"
+      } ],
+      "name" : {
+        "@data" : "Bank"
+      }
+    }, {
+      "@key:external" : "partyB",
+      "partyId" : [ {
+        "identifier" : {
+          "@scheme" : "http://www.fpml.org/coding-scheme/external/iso17442",
+          "@data" : "549300AJRHKBLY9GM262"
+        },
+        "identifierType" : "LEI"
+      } ],
+      "name" : {
+        "@data" : "Energy Co."
+      }
+    } ]
+  }
+}
