@@ -174,20 +174,23 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
         if assetClass = StandardizedScheduleAssetClassEnum -> InterestRates
         then (if productClass = StandardizedScheduleProductClassEnum -> Swap
                     or productClass = StandardizedScheduleProductClassEnum -> SwapWithCallableBermudanRightToEnterExitSwaps
-            then (economicTerms -> payout as InterestRatePayout
+            then (economicTerms -> payout
+                as InterestRatePayout
                 filter (priceQuantity -> quantitySchedule exists)
                 then first
                 then priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> CrossCurrencySwap
-            then (economicTerms -> payout as InterestRatePayout
+            then (economicTerms -> payout
+                as InterestRatePayout
                 filter (True /*how do we identify the receiver party?*/ )
                 then first
                 then priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
                     or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle
-            then (UnderlierForOptionOrForwardProduct(product) as Product ->> economicTerms -> payout as InterestRatePayout
+            then (UnderlierForOptionOrForwardProduct(product) as Product ->> economicTerms -> payout
+                as InterestRatePayout
                 filter (priceQuantity -> quantitySchedule exists)
                 then first
                 then priceQuantity
@@ -197,7 +200,8 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             then (economicTerms -> payout as InterestRatePayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> ForwardRateAgreement
-            then (economicTerms -> payout as InterestRatePayout
+            then (economicTerms -> payout
+                as InterestRatePayout
                 filter rateSpecification as FixedRateSpecification exists
                 then only-element
                 then priceQuantity
@@ -210,7 +214,9 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             then (economicTerms -> payout as CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForOptionOrForwardProduct(product) as Product ->> economicTerms -> payout as CreditDefaultPayout only-element -> priceQuantity
+            then (UnderlierForOptionOrForwardProduct(product) as Product ->> economicTerms -> payout
+                as CreditDefaultPayout
+                only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ) // Credit Total return swap on a bond not supported
             )
         else if assetClass = StandardizedScheduleAssetClassEnum -> ForeignExchange
@@ -231,7 +237,9 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             then (economicTerms -> payout as OptionPayout only-element -> priceQuantity -> quantitySchedule -> value)
             else if productClass = StandardizedScheduleProductClassEnum -> VarianceSwap
             then (
-                        StandardizedScheduleFXVarianceNotionalAmount(economicTerms -> payout as PerformancePayout only-element
+                        StandardizedScheduleFXVarianceNotionalAmount(economicTerms -> payout
+                            as PerformancePayout
+                            only-element
                     ))
             else if productClass = StandardizedScheduleProductClassEnum -> VolatilitySwap
             then 0.0 // Vega notional amount not mapped in the product
@@ -241,17 +249,23 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
         else if assetClass = StandardizedScheduleAssetClassEnum -> Equity
         then (if productClass = StandardizedScheduleProductClassEnum -> Option
             then (
-                        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout as OptionPayout only-element
+                        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout
+                            as OptionPayout
+                            only-element
                     ))
             else if productClass = StandardizedScheduleProductClassEnum -> Forward
             then (
-                        StandardizedScheduleEquityForwardNotionalAmount(economicTerms -> payout as SettlementPayout only-element
+                        StandardizedScheduleEquityForwardNotionalAmount(economicTerms -> payout
+                            as SettlementPayout
+                            only-element
                     ))
             else if productClass = StandardizedScheduleProductClassEnum -> DividendSwap
             then 0.0 // All dividend swaps are defined with a monetary payment, no strike price or number of shares
             else if productClass = StandardizedScheduleProductClassEnum -> VarianceSwap
             then (
-                        StandardizedScheduleVarianceSwapNotionalAmount(economicTerms -> payout as PerformancePayout only-element
+                        StandardizedScheduleVarianceSwapNotionalAmount(economicTerms -> payout
+                            as PerformancePayout
+                            only-element
                     ))
             else if productClass = StandardizedScheduleProductClassEnum -> VolatilitySwap
             then 0.0 // Is volatility amount = vega notional amount?
@@ -267,7 +281,9 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
                     )
             else if productClass = StandardizedScheduleProductClassEnum -> Option
             then (
-                        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout as OptionPayout only-element
+                        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout
+                            as OptionPayout
+                            only-element
                     ))
             else if productClass = StandardizedScheduleProductClassEnum -> FixedFloatSwap
             then (StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(economicTerms))
@@ -277,7 +293,8 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             then (
                         StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(UnderlierForOptionOrForwardProduct(
                                 product
-                            ) as Product ->> economicTerms
+                            )
+                            as Product ->> economicTerms
                     )) // CO Contract for Difference (CFD) not supported
             )
 
@@ -297,20 +314,23 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
         if assetClass = StandardizedScheduleAssetClassEnum -> InterestRates
         then (if productClass = StandardizedScheduleProductClassEnum -> Swap
                     or productClass = StandardizedScheduleProductClassEnum -> SwapWithCallableBermudanRightToEnterExitSwaps
-            then (economicTerms -> payout as InterestRatePayout
+            then (economicTerms -> payout
+                as InterestRatePayout
                 filter (priceQuantity -> quantitySchedule exists)
                 then first
                 then priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> CrossCurrencySwap
-            then (economicTerms -> payout as InterestRatePayout
+            then (economicTerms -> payout
+                as InterestRatePayout
                 filter (True /*how do we identify the receiver party?*/ )
                 then first
                 then priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
                     or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle
-            then (UnderlierForOptionOrForwardProduct(product) as Product ->> economicTerms -> payout as InterestRatePayout
+            then (UnderlierForOptionOrForwardProduct(product) as Product ->> economicTerms -> payout
+                as InterestRatePayout
                 filter (priceQuantity -> quantitySchedule exists)
                 then first
                 then priceQuantity
@@ -320,7 +340,8 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             then (economicTerms -> payout as InterestRatePayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> ForwardRateAgreement
-            then (economicTerms -> payout as InterestRatePayout
+            then (economicTerms -> payout
+                as InterestRatePayout
                 filter rateSpecification as FixedRateSpecification exists
                 then only-element
                 then priceQuantity
@@ -333,7 +354,9 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             then (economicTerms -> payout as CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForOptionOrForwardProduct(product) as Product ->> economicTerms -> payout as CreditDefaultPayout only-element -> priceQuantity
+            then (UnderlierForOptionOrForwardProduct(product) as Product ->> economicTerms -> payout
+                as CreditDefaultPayout
+                only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ) // Credit Total return swap on a bond not supported
             )
         else if assetClass = StandardizedScheduleAssetClassEnum -> ForeignExchange
