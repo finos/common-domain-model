@@ -504,7 +504,9 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     alias optionPayout: <"Extracts the option payout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
         then exerciseInstruction -> exerciseOption as OptionPayout
-        else originalTrade -> trade -> product -> economicTerms -> payout only-element as OptionPayout
+        else originalTrade -> trade -> product -> economicTerms -> payout
+            only-element
+            as OptionPayout
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
         optionPayout -> underlier
@@ -772,8 +774,12 @@ func ResolveTransfer: <"Defines how to calculate the amount due to be transferre
                 )
         else if payout as PerformancePayout exists
         then EquityCashSettlementAmount(instruction -> tradeState, instruction -> date)
-        else if payout as InterestRatePayout -> rateSpecification as FloatingRateSpecification exists
-                or payout as InterestRatePayout -> rateSpecification as FixedRateSpecification exists
+        else if payout as InterestRatePayout -> rateSpecification
+                as FloatingRateSpecification
+                exists
+                or payout as InterestRatePayout -> rateSpecification
+                    as FixedRateSpecification
+                    exists
         then InterestCashSettlementAmount(
                     instruction -> tradeState,
                     payout,
@@ -1288,10 +1294,14 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
             only-element
 
     alias interestRatePayout: <"The interest payout that represents the lending fee.">
-        tradeState -> trade -> product -> economicTerms -> payout as InterestRatePayout only-element
+        tradeState -> trade -> product -> economicTerms -> payout
+            as InterestRatePayout
+            only-element
 
     alias assetPayout: <"The security finance payout that represents the securities lent.">
-        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout as AssetPayout only-element
+        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout
+            as AssetPayout
+            only-element
 
     alias collateral: tradeState -> trade -> product -> economicTerms -> collateral
 
@@ -1984,7 +1994,9 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
         instruction PrimitiveInstruction (1..1) <"Result is a Transfer Instruction.">
 
     alias interestRatePayout:
-        tradeState -> trade -> product -> economicTerms -> payout as InterestRatePayout only-element
+        tradeState -> trade -> product -> economicTerms -> payout
+            as InterestRatePayout
+            only-element
 
     alias payerReceiver:
         PartyReferencePayerReceiver {
