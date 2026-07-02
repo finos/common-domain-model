@@ -796,24 +796,3 @@ func MapCalculationPeriodAmountToQuantityList:
                 fpmlCalculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule,
                 fpmlLeg
             )
-
-func MapSwapAccountPartyReference:
-    inputs:
-        fpmlSwap fpml.Swap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        fpmlSwap -> swapStream
-            extract
-                MapPayerReceiverToAccountPartyReference(
-                        fpmlAccount,
-                        payerAccountReference,
-                        receiverAccountReference,
-                        payerPartyReference,
-                        receiverPartyReference
-                    )
-            then filter reference exists
-            then first

@@ -17,7 +17,6 @@ import cdm.product.template.*
 import fpml.consolidated.* as fpml
 import fpml.consolidated.eqd.* as fpml
 import fpml.consolidated.option.shared.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapEquityOptionCounterpartyList:
     inputs:
@@ -224,18 +223,3 @@ func MapEquityOptionPriceQuantityList:
             observable: MapUnderlyerToObservableWithLocation(fpmlEquityOption -> underlyer),
             ...
         }
-
-func MapEquityOptionAccountPartyReference:
-    inputs:
-        fpmlEquityOption fpml.EquityOption (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlEquityOption -> buyerAccountReference,
-                fpmlEquityOption -> sellerAccountReference
-            )

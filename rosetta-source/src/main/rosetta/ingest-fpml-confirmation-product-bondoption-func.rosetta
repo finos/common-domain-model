@@ -13,7 +13,6 @@ import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.bond.option.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapBondOptionCounterpartyList:
     inputs:
@@ -170,18 +169,3 @@ func MapBondOptionPriceQuantityList:
             observable: MapAssetToObservableWithLocation(fpmlUnderlyingAsset),
             ...
         }
-
-func MapBondOptionAccountPartyReference:
-    inputs:
-        fpmlBondOption fpml.BondOption (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlBondOption -> buyerAccountReference,
-                fpmlBondOption -> sellerAccountReference
-            )
