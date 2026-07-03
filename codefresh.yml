@@ -69,7 +69,6 @@ steps:
     shell: bash
     environment:
       - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
-      - COURSIER_CREDENTIALS=europe-west1-maven.pkg.dev _json_key_base64:${{ARTIFACT_REGISTRY_SA_KEY}}
     commands:
       - mkdir -p ~/.sbt
       - 'echo "realm=Artifact Registry" > ~/.sbt/.credentials'
@@ -77,6 +76,11 @@ steps:
       - 'echo "user=_json_key_base64" >> ~/.sbt/.credentials'
       - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
       - cat ~/.sbt/.credentials
+      - mkdir -p ~/.config/coursier
+      - 'echo "credentials:" > ~/.config/coursier/credentials.properties'
+      - 'echo "  europe-west1-maven.pkg.dev.username=_json_key_base64" >> ~/.config/coursier/credentials.properties'
+      - 'echo "  europe-west1-maven.pkg.dev.password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.config/coursier/credentials.properties'
+      - cat ~/.config/coursier/credentials.properties
       - cat rosetta-source/src/main/resources/build-resources/scala/repositories
       - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
       - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
@@ -128,13 +132,16 @@ steps:
         shell: bash
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
-          - COURSIER_CREDENTIALS=europe-west1-maven.pkg.dev _json_key_base64:${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
           - mkdir -p ~/.sbt
           - 'echo "realm=Artifact Registry" > ~/.sbt/.credentials'
           - 'echo "host=europe-west1-maven.pkg.dev" >> ~/.sbt/.credentials'
           - 'echo "user=_json_key_base64" >> ~/.sbt/.credentials'
           - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
+          - mkdir -p ~/.config/coursier
+          - 'echo "credentials:" > ~/.config/coursier/credentials.properties'
+          - 'echo "  europe-west1-maven.pkg.dev.username=_json_key_base64" >> ~/.config/coursier/credentials.properties'
+          - 'echo "  europe-west1-maven.pkg.dev.password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.config/coursier/credentials.properties'
           - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
