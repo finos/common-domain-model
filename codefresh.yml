@@ -76,11 +76,13 @@ steps:
       - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
       - cat ~/.sbt/.credentials
       - 'echo "[repositories]" > ~/.sbt/repositories'
-      - 'echo "  maven-central-proxy: https://europe-west1-maven.pkg.dev/production-208613/maven-central/" >> ~/.sbt/repositories'
       - 'echo "  local" >> ~/.sbt/repositories'
+      - 'echo "  maven-central-proxy: https://europe-west1-maven.pkg.dev/production-208613/maven-central/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]" >> ~/.sbt/repositories'
       - cat ~/.sbt/repositories
       - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
       - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
+      - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
+      - cat build.sbt
       - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=~/.sbt/repositories about
 
   Build:
