@@ -6,6 +6,17 @@ stages:
   - finalise
 steps:
 
+  TestMavenProxy:
+    stage: 'setup'
+    title: Test Maven Central proxy connectivity
+    image: curlimages/curl:8.11.1
+    commands:
+      - >-
+        curl --fail --silent --show-error --location
+        -u "_json_key_base64:${{ARTIFACT_REGISTRY_SA_KEY}}"
+        -o /dev/null -w "Maven proxy responded with HTTP %{http_code} in %{time_total}s\n"
+        "https://europe-west1-maven.pkg.dev/production-208613/maven-central/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.10.0/jackson-datatype-jsr310-2.10.0.pom"
+
   main_clone:
     title: Cloning main repository...
     stage: 'setup'
@@ -105,8 +116,9 @@ steps:
         shell: bash
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
+          - COURSIER_CREDENTIALS=europe-west1-maven.pkg.dev _json_key_base64:${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          - sbt -d compile package doc packageDoc packageSrc
+          - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=./repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
