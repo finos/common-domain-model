@@ -107,6 +107,9 @@ steps:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
           - COURSIER_CREDENTIALS=europe-west1-maven.pkg.dev _json_key_base64:${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
+          - mkdir -p ~/.sbt/1.0/plugins
+          - printf 'realm=Artifact Registry\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n' "${{ARTIFACT_REGISTRY_SA_KEY}}" > ~/.sbt/.credentials
+          - printf 'credentials += Credentials(Path.userHome / ".sbt" / ".credentials")\n' > ~/.sbt/1.0/plugins/credentials.sbt
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=./repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
