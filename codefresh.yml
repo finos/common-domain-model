@@ -106,13 +106,11 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          - |
-            cat > ~/.sbt/.credentials << EOF
-            realm=Artifact Registry
-            host=europe-west1-maven.pkg.dev
-            user=_json_key_base64
-            password=$ARTIFACT_REGISTRY_SA_KEY
-            EOF
+          - mkdir -p ~/.sbt
+          - echo "realm=Artifact Registry" > ~/.sbt/.credentials
+          - echo "host=europe-west1-maven.pkg.dev" >> ~/.sbt/.credentials
+          - echo "user=_json_key_base64" >> ~/.sbt/.credentials
+          - echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/sbt-repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
