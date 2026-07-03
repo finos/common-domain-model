@@ -65,6 +65,7 @@ steps:
     stage: 'setup'
     title: Test Scala Maven proxy configuration
     image: 'mozilla/sbt:8u292_1.5.7'
+    working_directory: ./
     shell: bash
     environment:
       - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
@@ -75,15 +76,12 @@ steps:
       - 'echo "user=_json_key_base64" >> ~/.sbt/.credentials'
       - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
       - cat ~/.sbt/.credentials
-      - 'echo "[repositories]" > ~/.sbt/repositories'
-      - 'echo "  local" >> ~/.sbt/repositories'
-      - 'echo "  maven-central-proxy: https://europe-west1-maven.pkg.dev/production-208613/maven-central/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]" >> ~/.sbt/repositories'
-      - cat ~/.sbt/repositories
+      - cat rosetta-source/src/main/resources/build-resources/scala/repositories
       - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
       - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
       - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
       - cat build.sbt
-      - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=~/.sbt/repositories about
+      - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories about
 
   Build:
     stage: 'build'
@@ -131,11 +129,12 @@ steps:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
           - mkdir -p ~/.sbt
-          - echo "realm=Artifact Registry" > ~/.sbt/.credentials
-          - echo "host=europe-west1-maven.pkg.dev" >> ~/.sbt/.credentials
-          - echo "user=_json_key_base64" >> ~/.sbt/.credentials
-          - echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials
-          - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/sbt-repositories -d compile package doc packageDoc packageSrc
+          - 'echo "realm=Artifact Registry" > ~/.sbt/.credentials'
+          - 'echo "host=europe-west1-maven.pkg.dev" >> ~/.sbt/.credentials'
+          - 'echo "user=_json_key_base64" >> ~/.sbt/.credentials'
+          - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
+          - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
+          - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
