@@ -71,12 +71,10 @@ steps:
       - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
       - COURSIER_CACHE=/tmp/coursier-cache
     commands:
-      - cat rosetta-source/src/main/resources/build-resources/scala/repositories
       - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
       - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
-      - echo 'sys.props += "coursier.credentials" -> "europe-west1-maven.pkg.dev _json_key_base64:%s".format(sys.env.getOrElse("ARTIFACT_REGISTRY_SA_KEY", ""))' >> build.sbt
       - cat build.sbt
-      - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories about
+      - sbt -Dcoursier.credentials="europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY" about
 
   Build:
     stage: 'build'
@@ -124,8 +122,7 @@ steps:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
           - COURSIER_CACHE=${{CF_VOLUME_PATH}}/coursier-cache
         commands:
-          - echo 'sys.props += "coursier.credentials" -> "europe-west1-maven.pkg.dev _json_key_base64:%s".format(sys.env.getOrElse("ARTIFACT_REGISTRY_SA_KEY", ""))' >> build.sbt
-          - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
+          - sbt -Dcoursier.credentials="europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY" -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
