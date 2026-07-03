@@ -81,9 +81,10 @@ steps:
       - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
       - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
       - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
+      - 'echo ''import coursier.core.Authentication'' >> build.sbt'
+      - 'echo ''updateSbtClassifiers / csrConfiguration ~= { _.addRepositoryAuthentication("europe-west1-maven.pkg.dev", Authentication("_json_key_base64", sys.env("ARTIFACT_REGISTRY_SA_KEY"))) }'' >> build.sbt'
+      - 'echo ''update / csrConfiguration ~= { _.addRepositoryAuthentication("europe-west1-maven.pkg.dev", Authentication("_json_key_base64", sys.env("ARTIFACT_REGISTRY_SA_KEY"))) }'' >> build.sbt'
       - cat build.sbt
-      - export SBT_OPTS="-Dcoursier.credentials=\"europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY\""
-      - echo "SBT_OPTS=$SBT_OPTS"
       - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories about
 
   Build:
@@ -138,7 +139,9 @@ steps:
           - 'echo "user=_json_key_base64" >> ~/.sbt/.credentials'
           - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
           - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
-          - export SBT_OPTS="-Dcoursier.credentials=\"europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY\""
+          - 'echo ''import coursier.core.Authentication'' >> build.sbt'
+          - 'echo ''updateSbtClassifiers / csrConfiguration ~= { _.addRepositoryAuthentication("europe-west1-maven.pkg.dev", Authentication("_json_key_base64", sys.env("ARTIFACT_REGISTRY_SA_KEY"))) }'' >> build.sbt'
+          - 'echo ''update / csrConfiguration ~= { _.addRepositoryAuthentication("europe-west1-maven.pkg.dev", Authentication("_json_key_base64", sys.env("ARTIFACT_REGISTRY_SA_KEY"))) }'' >> build.sbt'
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
