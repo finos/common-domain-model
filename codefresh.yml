@@ -61,6 +61,28 @@ steps:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
 
+  TestScalaProxy:
+    stage: 'setup'
+    title: Test Scala Maven proxy configuration
+    image: mozilla/sbt:8u292_1.5.7
+    shell: bash
+    environment:
+      - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
+    commands:
+      - mkdir -p ~/.sbt
+      - echo "realm=Artifact Registry" > ~/.sbt/.credentials
+      - echo "host=europe-west1-maven.pkg.dev" >> ~/.sbt/.credentials
+      - echo "user=_json_key_base64" >> ~/.sbt/.credentials
+      - echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials
+      - cat ~/.sbt/.credentials
+      - echo "[repositories]" > ~/.sbt/repositories
+      - echo "  maven-central-proxy: https://europe-west1-maven.pkg.dev/production-208613/maven-central/" >> ~/.sbt/repositories
+      - echo "  local" >> ~/.sbt/repositories
+      - cat ~/.sbt/repositories
+      - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
+      - echo 'scalaVersion := "2.12.15"' > build.sbt
+      - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=~/.sbt/repositories about
+
   Build:
     stage: 'build'
     title: Maven build
