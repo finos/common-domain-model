@@ -72,7 +72,13 @@ steps:
       - COURSIER_CACHE=/tmp/coursier-cache
     commands:
       - mkdir -p ~/.sbt
-      - printf "realm=Artifact Registry\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n" "$ARTIFACT_REGISTRY_SA_KEY" > ~/.sbt/.credentials
+      - |
+        cat > ~/.sbt/.credentials <<EOF
+        realm=Artifact Registry
+        host=europe-west1-maven.pkg.dev
+        user=_json_key_base64
+        password=$ARTIFACT_REGISTRY_SA_KEY
+        EOF
       - cat ~/.sbt/.credentials
       - cat rosetta-source/src/main/resources/build-resources/scala/repositories
       - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
@@ -128,7 +134,13 @@ steps:
           - COURSIER_CACHE=${{CF_VOLUME_PATH}}/coursier-cache
         commands:
           - mkdir -p ~/.sbt
-          - printf "realm=Artifact Registry\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n" "$ARTIFACT_REGISTRY_SA_KEY" > ~/.sbt/.credentials
+          - |
+            cat > ~/.sbt/.credentials <<EOF
+            realm=Artifact Registry
+            host=europe-west1-maven.pkg.dev
+            user=_json_key_base64
+            password=$ARTIFACT_REGISTRY_SA_KEY
+            EOF
           - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
