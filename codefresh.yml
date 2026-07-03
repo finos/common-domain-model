@@ -82,7 +82,7 @@ steps:
       - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
       - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
       - cat build.sbt
-      - export SBT_OPTS="-Dcoursier.credentials=europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY"
+      - 'export SBT_OPTS=''-Dcoursier.credentials="europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY"'''
       - echo "SBT_OPTS=$SBT_OPTS"
       - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories about
 
@@ -138,7 +138,7 @@ steps:
           - 'echo "user=_json_key_base64" >> ~/.sbt/.credentials'
           - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
           - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
-          - export SBT_OPTS="-Dcoursier.credentials=europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY"
+          - 'export SBT_OPTS=''-Dcoursier.credentials="europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY"'''
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
