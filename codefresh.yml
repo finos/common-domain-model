@@ -64,7 +64,7 @@ steps:
   TestScalaProxy:
     stage: 'setup'
     title: Test Scala Maven proxy configuration
-    image: 'mozilla/sbt:8u292_1.5.7'
+    image: 'mozilla/sbt:8u292_1.10.6'
     working_directory: ./
     shell: bash
     environment:
@@ -77,18 +77,11 @@ steps:
       - 'echo "user=_json_key_base64" >> ~/.sbt/.credentials'
       - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
       - cat ~/.sbt/.credentials
-      - 'echo "[repositories]" > ~/.sbt/repositories'
-      - 'echo "  local" >> ~/.sbt/repositories'
-      - 'echo "  maven-central-proxy: https://europe-west1-maven.pkg.dev/production-208613/maven-central/" >> ~/.sbt/repositories'
-      - cat ~/.sbt/repositories
       - cat rosetta-source/src/main/resources/build-resources/scala/repositories
       - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
-      - mkdir -p project
-      - echo "sbt.version=1.10.6" > project/build.properties
       - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
       - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
       - cat build.sbt
-      - cat project/build.properties
       - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories about
 
   Build:
@@ -130,7 +123,7 @@ steps:
         stage: 'build'
         title: Scala build
         fail_fast: false
-        image: mozilla/sbt:8u292_1.5.7
+        image: mozilla/sbt:8u292_1.10.6
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         environment:
@@ -142,9 +135,6 @@ steps:
           - 'echo "host=europe-west1-maven.pkg.dev" >> ~/.sbt/.credentials'
           - 'echo "user=_json_key_base64" >> ~/.sbt/.credentials'
           - 'echo "password=$ARTIFACT_REGISTRY_SA_KEY" >> ~/.sbt/.credentials'
-          - 'echo "[repositories]" > ~/.sbt/repositories'
-          - 'echo "  local" >> ~/.sbt/repositories'
-          - 'echo "  maven-central-proxy: https://europe-west1-maven.pkg.dev/production-208613/maven-central/" >> ~/.sbt/repositories'
           - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
       BuildCSharp8:
