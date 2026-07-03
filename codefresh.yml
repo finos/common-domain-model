@@ -79,9 +79,12 @@ steps:
       - cat ~/.sbt/.credentials
       - cat rosetta-source/src/main/resources/build-resources/scala/repositories
       - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
+      - mkdir -p project
+      - echo "sbt.version=1.10.6" > project/build.properties
       - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
       - 'echo ''credentials += Credentials(Path.userHome / ".sbt" / ".credentials")'' >> build.sbt'
       - cat build.sbt
+      - cat project/build.properties
       - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories about
 
   Build:
