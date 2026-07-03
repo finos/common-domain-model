@@ -61,21 +61,6 @@ steps:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
 
-  TestScalaProxy:
-    stage: 'setup'
-    title: Test Scala Maven proxy configuration
-    image: 'sbtscala/scala-sbt:amazoncorretto-al2023-17.0.13_1.10.6_3.6.2'
-    working_directory: ./
-    shell: bash
-    environment:
-      - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
-      - COURSIER_CACHE=/tmp/coursier-cache
-    commands:
-      - mkdir -p /tmp/sbt-test && cd /tmp/sbt-test
-      - 'echo ''scalaVersion := "2.12.15"'' > build.sbt'
-      - cat build.sbt
-      - sbt -Dcoursier.credentials="europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY" about
-
   Build:
     stage: 'build'
     title: Maven build
@@ -120,9 +105,8 @@ steps:
         shell: bash
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
-          - COURSIER_CACHE=${{CF_VOLUME_PATH}}/coursier-cache
         commands:
-          - sbt -Dcoursier.credentials="europe-west1-maven.pkg.dev _json_key_base64:$ARTIFACT_REGISTRY_SA_KEY" -Dsbt.override.build.repos=true -Dsbt.repository.config=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/scala/repositories -d compile package doc packageDoc packageSrc
+          - sbt -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
