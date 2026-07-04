@@ -19,7 +19,11 @@ ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
 ThisBuild / externalResolvers := resolvers.value
 
 val versions = new {
-  val jackson = "2.10.0"
+  // jackson-module-scala only gained Scala 3 support starting with Jackson 2.13.0 (experimental)
+  // and full support in later releases. 2.10.0 predates Scala 3 support entirely, which is why
+  // "jackson-module-scala_3:2.10.0" could not be found on the proxy. Aligned with the main
+  // pom.xml's <jackson.version> (2.17.1), which is Scala 3 compatible.
+  val jackson = "2.17.1"
 }
 
 lazy val root = (project in file("."))
