@@ -106,16 +106,7 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
-          - >-
-            export AR_REALM="$(curl --silent --show-error --location -D - -o /dev/null
-            "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/2.12.20/scala-library-2.12.20.pom"
-            | grep -i '^www-authenticate:' | sed -E 's/.*realm="([^"]*)".*/\1/i' | tr -d '\r\n')"
-          - mkdir -p ~/.sbt ~/.config/coursier
-          - export SA_KEY_FLAT="$(printf '%s' "${{ARTIFACT_REGISTRY_SA_KEY}}" | tr -d '\n\r')"
-          - printf 'realm=%s\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n' "$AR_REALM" "$SA_KEY_FLAT" > ~/.sbt/.credentials
-          - printf 'artifactregistry.username=_json_key_base64\nartifactregistry.password=%s\nartifactregistry.host=europe-west1-maven.pkg.dev\nartifactregistry.realm=%s\n' "$SA_KEY_FLAT" "$AR_REALM" > ~/.config/coursier/credentials.properties
-          - export COURSIER_CREDENTIALS="europe-west1-maven.pkg.dev(${AR_REALM}) _json_key_base64:$SA_KEY_FLAT"
-          - export SBT_CREDENTIALS="$HOME/.sbt/.credentials"
+          - source ./setup-sbt-credentials.sh
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=./repositories -Dsbt.boot.credentials=$HOME/.sbt/.credentials compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
