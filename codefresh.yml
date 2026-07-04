@@ -23,6 +23,18 @@ steps:
     environment:
       - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
     commands:
+      - echo "--- Build resources in use (same files BuildScala uses, copied verbatim by Maven into target/classes/cdm/scala) ---"
+      - pwd
+      - ls -la .
+      - ls -la ./project
+      - echo "--- repositories ---"
+      - cat ./repositories
+      - echo "--- build.sbt ---"
+      - cat ./build.sbt
+      - echo "--- project/plugins.sbt ---"
+      - cat ./project/plugins.sbt
+      - echo "--- project/build.properties ---"
+      - cat ./project/build.properties
       - echo "--- Checking WWW-Authenticate realm returned by Artifact Registry (unauthenticated request) ---"
       - curl --silent --show-error --location -D - -o /dev/null "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/2.12.20/scala-library-2.12.20.pom" | grep -i -E 'HTTP/|WWW-Authenticate' || true
       - mkdir -p ~/.sbt ~/.config/coursier
