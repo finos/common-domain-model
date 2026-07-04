@@ -14,6 +14,33 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
+  DebugScalaAuth:
+    stage: 'setup'
+    title: Debug Scala sbt/Coursier proxy authentication
+    image: 'sbtscala/scala-sbt:amazoncorretto-al2023-17.0.13_1.10.6_3.6.2'
+    working_directory: ./rosetta-source/src/main/resources/build-resources/scala
+    shell: bash
+    environment:
+      - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
+    commands:
+      - echo "--- Checking WWW-Authenticate realm returned by Artifact Registry (unauthenticated request) ---"
+      - curl --silent --show-error --location -D - -o /dev/null "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/2.12.20/scala-library-2.12.20.pom" | grep -i -E 'HTTP/|WWW-Authenticate' || true
+      - mkdir -p ~/.sbt/1.0/plugins ~/.config/coursier
+      - export SA_KEY_FLAT="$(printf '%s' "${{ARTIFACT_REGISTRY_SA_KEY}}" | tr -d '\n\r')"
+      - echo "ARTIFACT_REGISTRY_SA_KEY length original=${#ARTIFACT_REGISTRY_SA_KEY} flattened=${#SA_KEY_FLAT}"
+      - printf 'realm=Artifact Registry\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n' "$SA_KEY_FLAT" > ~/.sbt/.credentials
+      - printf 'credentials += Credentials(Path.userHome / ".sbt" / ".credentials")\n' > ~/.sbt/1.0/plugins/credentials.sbt
+      - printf 'artifactregistry.username=_json_key_base64\nartifactregistry.password=%s\nartifactregistry.host=europe-west1-maven.pkg.dev\nartifactregistry.realm=Artifact Registry\n' "$SA_KEY_FLAT" > ~/.config/coursier/credentials.properties
+      - export COURSIER_CREDENTIALS="europe-west1-maven.pkg.dev _json_key_base64:$SA_KEY_FLAT"
+      - echo "--- Confirming curl Basic Auth still succeeds against the exact failing artifact URL ---"
+      - >-
+        curl --fail --silent --show-error --location
+        -u "_json_key_base64:$SA_KEY_FLAT"
+        -o /dev/null -w "curl auth check: HTTP %{http_code}\n"
+        "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/2.12.20/scala-library-2.12.20.pom"
+      - echo "--- Reproducing the sbt/Coursier boot resolution failure quickly (no compile, no Maven build wait) ---"
+      - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=./repositories -Dsbt.boot.credentials=$HOME/.sbt/.credentials -d about
+
   CheckRelease:
     stage: 'setup'
     image: alpine
