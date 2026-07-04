@@ -39,13 +39,18 @@ steps:
       - echo "--- project/project/credentials.sbt (meta-build's own resolver/credentials, needed to authenticate addSbtPlugin resolution) ---"
       - cat ./project/project/credentials.sbt
       - echo "--- Checking WWW-Authenticate realm returned by Artifact Registry (unauthenticated request) ---"
-      - curl --silent --show-error --location -D - -o /dev/null "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/3.8.4/scala-library-3.8.4.pom" | grep -i -E 'HTTP/|WWW-Authenticate' || true
+      - >-
+        export AR_REALM="$(curl --silent --show-error --location -D - -o /dev/null
+        "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/3.8.4/scala-library-3.8.4.pom"
+        | grep -i '^www-authenticate:' | sed -E 's/.*realm="([^"]*)".*/\1/i' | tr -d '\r\n')"
+      - echo "AR_REALM='$AR_REALM'"
       - mkdir -p ~/.sbt ~/.config/coursier
       - export SA_KEY_FLAT="$(printf '%s' "${{ARTIFACT_REGISTRY_SA_KEY}}" | tr -d '\n\r')"
       - echo "ARTIFACT_REGISTRY_SA_KEY length original=${#ARTIFACT_REGISTRY_SA_KEY} flattened=${#SA_KEY_FLAT}"
-      - printf 'realm=Artifact Registry\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n' "$SA_KEY_FLAT" > ~/.sbt/.credentials
-      - printf 'artifactregistry.username=_json_key_base64\nartifactregistry.password=%s\nartifactregistry.host=europe-west1-maven.pkg.dev\nartifactregistry.realm=Artifact Registry\n' "$SA_KEY_FLAT" > ~/.config/coursier/credentials.properties
-      - export COURSIER_CREDENTIALS="europe-west1-maven.pkg.dev _json_key_base64:$SA_KEY_FLAT"
+      - echo "--- NOTE - the realm below MUST exactly match the server's WWW-Authenticate realm above, otherwise Coursier/sbt silently refuse to send credentials, even though curl (which ignores realm) succeeds ---"
+      - printf 'realm=%s\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n' "$AR_REALM" "$SA_KEY_FLAT" > ~/.sbt/.credentials
+      - printf 'artifactregistry.username=_json_key_base64\nartifactregistry.password=%s\nartifactregistry.host=europe-west1-maven.pkg.dev\nartifactregistry.realm=%s\n' "$SA_KEY_FLAT" "$AR_REALM" > ~/.config/coursier/credentials.properties
+      - export COURSIER_CREDENTIALS="europe-west1-maven.pkg.dev(${AR_REALM}) _json_key_base64:$SA_KEY_FLAT"
       - export SBT_CREDENTIALS="$HOME/.sbt/.credentials"
       - echo "--- Confirming curl Basic Auth still succeeds against the exact failing artifact URL ---"
       - >-
@@ -53,13 +58,6 @@ steps:
         -u "_json_key_base64:$SA_KEY_FLAT"
         -o /dev/null -w "curl auth check: HTTP %{http_code}\n"
         "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/3.8.4/scala-library-3.8.4.pom"
-      - echo "--- NOTE - sbt's build definition is recursively nested (project/, project/project/, ...); no fixed number of credentials.sbt files at increasing depths reliably covers every level, so we embed credentials directly in the repository URL instead, which Coursier/sbt use for EVERY resolution regardless of nesting depth ---"
-      - export SA_KEY_URLENC="$(printf '%s' "$SA_KEY_FLAT" | sed -e 's/%/%25/g' -e 's/+/%2B/g' -e 's/\//%2F/g' -e 's/=/%3D/g')"
-      - >-
-        printf '[repositories]\n  local\n  maven-central-proxy: https://_json_key_base64:%s@europe-west1-maven.pkg.dev/production-208613/maven-central/\n'
-        "$SA_KEY_URLENC" > ./repositories
-      - echo "--- repositories (regenerated with credentials embedded in the URL; password redacted below) ---"
-      - sed -E 's#(_json_key_base64:)[^@]+(@)#\1***REDACTED***\2#' ./repositories
       - echo "--- Reproducing the sbt/Coursier boot resolution failure quickly (no compile, no Maven build wait) ---"
       - 'echo "--- NOTE - not creating ~/.sbt/1.0/plugins, its mere presence breaks boot credential resolution, see sbt/sbt#6718 ---"'
       - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=./repositories -Dsbt.boot.credentials=$HOME/.sbt/.credentials -d about
@@ -156,17 +154,17 @@ steps:
         environment:
           - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
         commands:
+          - >-
+            export AR_REALM="$(curl --silent --show-error --location -D - -o /dev/null
+            "https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/2.12.20/scala-library-2.12.20.pom"
+            | grep -i '^www-authenticate:' | sed -E 's/.*realm="([^"]*)".*/\1/i' | tr -d '\r\n')"
           - mkdir -p ~/.sbt ~/.config/coursier
           - export SA_KEY_FLAT="$(printf '%s' "${{ARTIFACT_REGISTRY_SA_KEY}}" | tr -d '\n\r')"
           - echo "ARTIFACT_REGISTRY_SA_KEY length original=${#ARTIFACT_REGISTRY_SA_KEY} flattened=${#SA_KEY_FLAT}"
-          - printf 'realm=Artifact Registry\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n' "$SA_KEY_FLAT" > ~/.sbt/.credentials
-          - printf 'artifactregistry.username=_json_key_base64\nartifactregistry.password=%s\nartifactregistry.host=europe-west1-maven.pkg.dev\nartifactregistry.realm=Artifact Registry\n' "$SA_KEY_FLAT" > ~/.config/coursier/credentials.properties
-          - export COURSIER_CREDENTIALS="europe-west1-maven.pkg.dev _json_key_base64:$SA_KEY_FLAT"
+          - printf 'realm=%s\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n' "$AR_REALM" "$SA_KEY_FLAT" > ~/.sbt/.credentials
+          - printf 'artifactregistry.username=_json_key_base64\nartifactregistry.password=%s\nartifactregistry.host=europe-west1-maven.pkg.dev\nartifactregistry.realm=%s\n' "$SA_KEY_FLAT" "$AR_REALM" > ~/.config/coursier/credentials.properties
+          - export COURSIER_CREDENTIALS="europe-west1-maven.pkg.dev(${AR_REALM}) _json_key_base64:$SA_KEY_FLAT"
           - export SBT_CREDENTIALS="$HOME/.sbt/.credentials"
-          - export SA_KEY_URLENC="$(printf '%s' "$SA_KEY_FLAT" | sed -e 's/%/%25/g' -e 's/+/%2B/g' -e 's/\//%2F/g' -e 's/=/%3D/g')"
-          - >-
-            printf '[repositories]\n  local\n  maven-central-proxy: https://_json_key_base64:%s@europe-west1-maven.pkg.dev/production-208613/maven-central/\n'
-            "$SA_KEY_URLENC" > ./repositories
           - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=./repositories -Dsbt.boot.credentials=$HOME/.sbt/.credentials -d compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
