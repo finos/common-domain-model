@@ -12,8 +12,7 @@
 # realm matches EXACTLY. `curl` ignores realm entirely, which is why a `curl` auth check
 # can succeed while sbt/Coursier still fail with "unauthorized" if the realm is wrong.
 
-# Uses the scala-lang metadata file rather than a specific scala-library version/pom, so this
-# probe doesn't need to be kept in sync with whatever Scala version build.sbt currently targets.
+# Version-agnostic URL used solely to trigger a 401 response and read its WWW-Authenticate header.
 PROBE_URL="https://europe-west1-maven.pkg.dev/production-208613/maven-central/org/scala-lang/scala-library/maven-metadata.xml"
 
 AR_REALM="$(curl --silent --show-error --location -D - -o /dev/null "$PROBE_URL" \
