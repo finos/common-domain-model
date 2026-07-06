@@ -70,7 +70,7 @@ steps:
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - mvn ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
-      - MAVEN_OPTS="-Xmx5g -XX:+UseG1GC" mvn ${{MVN_DEPLOY_FLAGS}} -U clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P "${{MAVEN_BUILD_PROFILES}}"
+      - MAVEN_OPTS="-Xmx5g -XX:+UseG1GC" mvn ${{MVN_DEPLOY_FLAGS}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P "${{MAVEN_BUILD_PROFILES}}"
 
   FailBuildPipeline:
     stage: 'build'
@@ -164,10 +164,10 @@ steps:
     shell: bash
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd target/classes/cdm/scala/target/scala-2.12
-      - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
-      - mv cdm-scala_2.12-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
-      - mv cdm-scala_2.12-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
+      - cd target/classes/cdm/scala/target/scala-3.8.4
+      - mv cdm-scala_3-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
+      - mv cdm-scala_3-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
+      - mv cdm-scala_3-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-scala ${{RELEASE_NAME}} jar
       - ${{MVN_DEPLOY_FILE_COMMAND}}
 
