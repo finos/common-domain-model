@@ -12,6 +12,9 @@ type DetermineUnadjustedCalculationPeriodInstruction: <"Instruction that contain
     unadjustedCalculationPeriod CalculationPeriodBase (1..1)
     unadjustedResetDate date (1..1)
 
+type AdjustPeriodInstruction: <"Instruction that holds the adjusted period.">
+    adjustedPeriod CalculationPeriodBase (1..1)
+
 type ResetInstructionState: <"The definitive state object for the Reset process. It acts as a cumulative 'Golden Record,' storing every data point captured from Step 1 (Index Collection) through Step 7 (Final Calculation) to ensure deterministic processing.">
 
     // Step 1 - CollectFloatingRateOptionInstruction
@@ -20,6 +23,8 @@ type ResetInstructionState: <"The definitive state object for the Reset process.
     // Step 2 - DetermineUnadjustedCalculationPeriodInstruction
     unadjustedCalculationPeriod CalculationPeriodBase (0..1) <"The raw start and end dates of the period before any business day adjustments are applied.">
     unadjustedResetDate date (0..1) <"The theoretical reset date before applying business day conventions.">
+    // Step 3 - AdjustPeriodInstruction
+    adjustedCalculationPeriod CalculationPeriodBase (0..1) <"The calculation period after adjusting for non-business days and relevant financial calendars.">
 
 type ResetInstructionSteps: <"A wrapper that encapsulates the specific ResetInstructionCompositionStepsEnum, allowing the engine to identify the exact phase of the Reset lifecycle currently being processed.">
     resetInstructionCompositionSteps ResetInstructionCompositionStepsEnum (1..1)
