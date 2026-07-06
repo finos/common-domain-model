@@ -59,7 +59,7 @@ steps:
           releaseNameNotDefined: "${{IS_RELEASE}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,release,excel,json-schema"
 
   Build:
     stage: 'build'
@@ -100,11 +100,12 @@ steps:
         stage: 'build'
         title: Scala build
         fail_fast: false
-        image: mozilla/sbt:8u292_1.5.7
+        image: 'sbtscala/scala-sbt:eclipse-temurin-17.0.19_10_1.12.13_3.8.4'
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         commands:
-          - sbt -v compile package doc packageDoc packageSrc
+          - source ./setup-sbt-credentials.sh
+          - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=./repositories -Dsbt.boot.credentials=$HOME/.sbt/.credentials compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
@@ -161,10 +162,10 @@ steps:
     shell: bash
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd target/classes/cdm/scala/target/scala-2.12
-      - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
-      - mv cdm-scala_2.12-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
-      - mv cdm-scala_2.12-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
+      - cd target/classes/cdm/scala/target/scala-3.8.4
+      - mv cdm-scala_3-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
+      - mv cdm-scala_3-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
+      - mv cdm-scala_3-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-scala ${{RELEASE_NAME}} jar
       - ${{MVN_DEPLOY_FILE_COMMAND}}
 
