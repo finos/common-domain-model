@@ -865,6 +865,7 @@ enum EventIntentEnum:
    CreditEvent
    Decrease
    EarlyTerminationProvision
+   Execution
    Increase
    IndexTransition
    NotionalReset

@@ -341,7 +341,7 @@ func MapExecutionNotificationToWorkflowStep:
 
     alias action: MapMessageAction(fpmlExecutionNotification -> isCorrection, empty)
 
-    alias intent:
+    alias rawIntent:
         MapIntent(
                 fpmlTrade,
                 fpmlExecutionNotification -> originatingEvent,
@@ -351,6 +351,11 @@ func MapExecutionNotificationToWorkflowStep:
                 empty,
                 fpmlExecutionNotification -> optionExercise
             )
+
+    alias intent:
+        if rawIntent = ContractFormation or rawIntent is absent
+        then EventIntentEnum -> Execution
+        else rawIntent
 
     alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
     alias effectiveDate: GetEffectiveDate(empty, empty, empty)
