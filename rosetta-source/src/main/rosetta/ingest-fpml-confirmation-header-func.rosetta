@@ -40,7 +40,7 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
     alias identifierForIssuer:
         MapTradeIdToVersionedIdentifier(
                 fpmlPartyTradeIdentifierList -> tradeId,
-                fpmlPartyTradeIdentifierList -> tradeId count default empty
+                if fpmlPartyTradeIdentifierList -> tradeId exists then fpmlPartyTradeIdentifierList -> tradeId count
             )
 
     alias identifierForTrade:
@@ -82,7 +82,7 @@ func MapTradeIdentifierSequenceToTradeIdentifier:
 
     add cdmTradeIdentifier -> versionedIdentifier:
         fpmlTradeIdentifierChoice
-            extract MapTradeIdToVersionedIdentifier(tradeId, tradeId count default empty)
+            extract MapTradeIdToVersionedIdentifier(tradeId, if tradeId exists then tradeId count)
 
     add cdmTradeIdentifier -> versionedIdentifier:
         fpmlTradeIdentifierChoice
@@ -109,7 +109,7 @@ func MapIssuerTradeIdModelToIdentifier:
             issuer: MapStringWithScheme(fpmlIssuer -> value, fpmlIssuer -> issuerIdScheme),
             versionedIdentifier: MapTradeIdToVersionedIdentifier(
                         fpmlTradeId,
-                        fpmlTradeId count default empty
+                        if fpmlTradeId exists then fpmlTradeId count
                     ),
             identifierType: MapTradeIdToIdentifierType(fpmlTradeId),
             ...
