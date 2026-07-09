@@ -5,11 +5,11 @@ import cdm.base.*
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 
-type AssignedIdentifier: <"A class to specify the identifier value and its associated version.">
+type VersionedIdentifier: <"A class to specify the identifier value and its associated version.">
 
     identifier string (1..1) <"The identifier value.">
         [metadata scheme]
-    version int (0..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change. This version is made option to support the use case where the identifier is referenced without the version. The constraint that a contract and a lifecycle event need to have an associated version is enforced through data rules.">
+    version int (1..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change. This version is made option to support the use case where the identifier is referenced without the version. The constraint that a contract and a lifecycle event need to have an associated version is enforced through data rules.">
 
 type Identifier: <"A class to specify a generic identifier, applicable to CDM artefacts such as executions, contracts, lifecycle events and legal documents. An issuer can be associated with the actual identifier value as a way to properly qualify it.">
     [metadata key]
@@ -20,7 +20,7 @@ type Identifier: <"A class to specify a generic identifier, applicable to CDM ar
         [metadata reference]
     issuer string (0..1) <"The identifier issuer, when specified explicitly alongside the identifier value (instead of being specified by reference to a party).">
         [metadata scheme]
-    assignedIdentifier AssignedIdentifier (1..*) <"The identifier value. This level of indirection between the issuer and the identifier and its version provides the ability to associate multiple identifiers to one issuer, consistently with the FpML PartyTradeIdentifier.">
+    versionedIdentifier VersionedIdentifier (1..*) <"The identifier value. This level of indirection between the issuer and the identifier and its version provides the ability to associate multiple identifiers to one issuer, consistently with the FpML PartyTradeIdentifier.">
 
     condition IssuerChoice: <"The identifier issuer is specified either explicitly or by reference to one of the parties.">
         required choice issuerReference, issuer
@@ -38,4 +38,4 @@ type LocationIdentifier extends Identifier: <"Specifies a location identifier. A
 
     condition IdentifierType: <"The element specifying the nature of a location identifier can only be applied to a single identifier.">
         if locationIdentifierType exists
-        then assignedIdentifier count = 1
+        then versionedIdentifier count = 1

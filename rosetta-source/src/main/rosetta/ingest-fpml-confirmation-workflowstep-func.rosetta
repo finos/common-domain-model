@@ -16,7 +16,6 @@ import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
-
 import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.business.events.* as fpml
@@ -113,10 +112,11 @@ func MapEventIdentifier:
 
     add eventIdentifier:
         Identifier {
-            assignedIdentifier:
-                AssignedIdentifier {
+            versionedIdentifier:
+                VersionedIdentifier {
                     identifier: fpmlMessageId -> value,
-                    ...
+                    version: if fpmlMessageId -> value exists
+                            then fpmlMessageId -> value count,
                 },
             ...
         }
@@ -125,10 +125,11 @@ func MapEventIdentifier:
         fpmlTradeEvent -> eventIdentifier
             extract
                 Identifier {
-                    assignedIdentifier:
-                        AssignedIdentifier {
+                    versionedIdentifier:
+                        VersionedIdentifier {
                             identifier: eventId -> value,
-                            ...
+                            version: if eventId -> value exists
+                                    then eventId -> value count,
                         },
                     issuerReference: MapPartyReference(partyReference -> href),
                     ...
