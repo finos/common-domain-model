@@ -40,8 +40,7 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
     alias identifierForIssuer:
         MapTradeIdToVersionedIdentifier(
                 fpmlPartyTradeIdentifierList -> tradeId,
-                if fpmlPartyTradeIdentifierList -> tradeId exists
-                then fpmlPartyTradeIdentifierList -> tradeId count
+                fpmlPartyTradeIdentifierList -> tradeId count default empty
             )
 
     alias identifierForTrade:
@@ -49,10 +48,8 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
             extract
                 MapTradeIdToVersionedIdentifier(
                         tradeId default versionedTradeId -> tradeId,
-                        if tradeId exists
-                        then tradeId count
-                        else versionedTradeId -> version 
-                    ) // ECHere
+                        tradeId count default versionedTradeId -> version
+                    )
     alias identifierTypeForIssuer:
         MapTradeIdToIdentifierType(fpmlPartyTradeIdentifierList -> tradeId)
 
@@ -85,11 +82,7 @@ func MapTradeIdentifierSequenceToTradeIdentifier:
 
     add cdmTradeIdentifier -> versionedIdentifier:
         fpmlTradeIdentifierChoice
-            extract
-                MapTradeIdToVersionedIdentifier(
-                        tradeId,
-                        if tradeId exists then tradeId count
-                    )
+            extract MapTradeIdToVersionedIdentifier(tradeId, tradeId count default empty)
 
     add cdmTradeIdentifier -> versionedIdentifier:
         fpmlTradeIdentifierChoice
@@ -116,7 +109,7 @@ func MapIssuerTradeIdModelToIdentifier:
             issuer: MapStringWithScheme(fpmlIssuer -> value, fpmlIssuer -> issuerIdScheme),
             versionedIdentifier: MapTradeIdToVersionedIdentifier(
                         fpmlTradeId,
-                        if fpmlTradeId exists then fpmlTradeId count
+                        fpmlTradeId count default empty
                     ),
             identifierType: MapTradeIdToIdentifierType(fpmlTradeId),
             ...
