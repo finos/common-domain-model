@@ -730,7 +730,7 @@ func MapSwapPriceQuantity:
                         calculationPeriodAmount,
                         fpmlSwapStream
                     ),
-            quantity: MapCalculationPeriodAmountToQuantityList(
+            quantity: MapCalculationPeriodAmountToQuantity(
                         calculationPeriodAmount,
                         fpmlSwapStream
                     ),
@@ -777,22 +777,23 @@ func GetInterestRatePriceCurrency:
     set fpmlCurrency:
         fpmlCalculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule -> currency default fpmlCalculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
 
-func MapCalculationPeriodAmountToQuantityList:
+func MapCalculationPeriodAmountToQuantity:
     inputs:
         fpmlCalculationPeriodAmount fpml.CalculationPeriodAmount (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
-        nonNegativeQuantitySchedules NonNegativeQuantitySchedule (0..*)
+        nonNegativeQuantitySchedules NonNegativeQuantitySchedule (0..1)
             [metadata location]
 
-    add nonNegativeQuantitySchedules:
-        MapNotionalStepScheduleToQuantityWithLocation(
-                fpmlCalculationPeriodAmount -> calculation -> notionalSchedule -> notionalStepSchedule,
-                fpmlLeg
-            )
-
-    add nonNegativeQuantitySchedules:
-        MapFxLinkedNotionalScheduleToQuantityWithLocation(
-                fpmlCalculationPeriodAmount -> calculation -> fxLinkedNotionalSchedule,
-                fpmlLeg
-            )
+    set nonNegativeQuantitySchedules:
+        fpmlCalculationPeriodAmount -> calculation
+            then if notionalSchedule exists
+                then MapNotionalStepScheduleToQuantityWithLocation(
+                            notionalSchedule -> notionalStepSchedule,
+                            fpmlLeg
+                        )
+                else if fxLinkedNotionalSchedule exists
+                then MapFxLinkedNotionalScheduleToQuantityWithLocation(
+                            fxLinkedNotionalSchedule,
+                            fpmlLeg
+                        )

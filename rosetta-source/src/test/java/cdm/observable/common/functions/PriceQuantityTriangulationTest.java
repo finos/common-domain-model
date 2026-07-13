@@ -23,7 +23,7 @@ import static org.finos.cdm.util.ResourcesUtils.getObject;
 public class PriceQuantityTriangulationTest extends AbstractFunctionTest {
 
 	private static final String EQUITY_DIR = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/";
-	
+
 	@Inject
 	private PriceQuantityTriangulation func;
 
@@ -33,13 +33,11 @@ public class PriceQuantityTriangulationTest extends AbstractFunctionTest {
 		TradableProduct tradableProduct = tradeState.getTrade();
 
 		List<? extends PriceQuantity> priceQuantity = tradableProduct.getTradeLot().get(0).getPriceQuantity();
-		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
+		NonNegativeQuantitySchedule quantity = priceQuantity.stream()
 				.map(PriceQuantity::getQuantity)
 				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
-				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue).collect(Collectors.toList()).get(0);
+
 		List<? extends PriceSchedule> price = priceQuantity.stream()
 				.map(PriceQuantity::getPrice)
 				.filter(Objects::nonNull)
@@ -58,13 +56,12 @@ public class PriceQuantityTriangulationTest extends AbstractFunctionTest {
 		TradableProduct tradableProduct = tradeState.getTrade();
 
 		List<? extends PriceQuantity> priceQuantity = tradableProduct.getTradeLot().get(0).getPriceQuantity();
-		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
+		NonNegativeQuantitySchedule quantity = priceQuantity.stream()
 				.map(PriceQuantity::getQuantity)
 				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
 				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
 				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+				.findFirst().orElse(null);
 		List<? extends PriceSchedule> price = priceQuantity.stream()
 				.map(PriceQuantity::getPrice)
 				.filter(Objects::nonNull)

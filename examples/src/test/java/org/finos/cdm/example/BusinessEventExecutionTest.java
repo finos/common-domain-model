@@ -192,7 +192,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setPartyReference(ReferenceWithMetaParty.builder().setValue(party3).build()).setRole(CounterpartyRoleEnum.PARTY_1).build());
 
         // Creation of the quantityChange instruction that will be applied to the second after trade
-        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.ZERO).build())).build(), QuantityChangeDirectionEnum.INCREASE);
+        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.ZERO).build()).build(), QuantityChangeDirectionEnum.INCREASE);
 
         // Creation of the novation instruction through a split instruction
         SplitInstruction splitInstruction = buildNovationPrimitiveInstruction(PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction).build());
@@ -205,7 +205,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0), "The counterparty with role party1 should be different than the one on the before tradeState.");
         assertEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(1), beforeTradeState.getTrade().getCounterparty().get(1), "The counterparty with role party2 should be the same as the one on the before tradeState.");
-        assertEquals(BigDecimal.ZERO, ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), "The quantity of the trade with the same counterparties as the original must be 0.");
+        assertEquals(BigDecimal.ZERO, ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().getValue().getValue(), "The quantity of the trade with the same counterparties as the original must be 0.");
 
         //TODO: ClosedState not modeled. Expected ClosedStateEnum.NOVATED
     }
@@ -229,9 +229,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setPartyReference(ReferenceWithMetaParty.builder().setValue(party3).build()).setRole(CounterpartyRoleEnum.PARTY_1).build());
 
         // Creation of the quantityChange instruction that will be applied to the first after trade
-        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().addQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().subtract(BigDecimal.valueOf(4000000))).build())).build(), QuantityChangeDirectionEnum.INCREASE);
+        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue().subtract(BigDecimal.valueOf(4000000))).build()).build(), QuantityChangeDirectionEnum.INCREASE);
         // Creation of the quantityChange instruction that will be applied to the second after trade
-        QuantityChangeInstruction quantityChangeInstruction2 = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().addQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(1).getQuantity().get(0).getValue().getValue().subtract(BigDecimal.valueOf(6000000))).build())).build(), QuantityChangeDirectionEnum.INCREASE);
+        QuantityChangeInstruction quantityChangeInstruction2 = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(1).getQuantity().getValue().getValue().subtract(BigDecimal.valueOf(6000000))).build()).build(), QuantityChangeDirectionEnum.INCREASE);
 
         // Creation of the novation instruction through a split instruction
         SplitInstruction splitInstruction = buildNovationPrimitiveInstruction(PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).setQuantityChange(quantityChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction2).build());
@@ -244,7 +244,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0), "The counterparty with role party1 should be different than the one on the before tradeState.");
         assertEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(1), beforeTradeState.getTrade().getCounterparty().get(1), "The counterparty with role party2 should be the same as the one on the before tradeState.");
-        assertEquals(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().add(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()), "The priceQuantity of the original trade must be equivalent to the sum of the quantities of the new trades.");
+        assertEquals(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue(), ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().getValue().getValue().add(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().getValue().getValue()), "The priceQuantity of the original trade must be equivalent to the sum of the quantities of the new trades.");
 
         //TODO: ClosedState not modeled. Expected ClosedStateEnum.NOVATED
     }
@@ -263,7 +263,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().add(BigDecimal.valueOf(1000000))).build()).build();
+        PriceQuantity change = PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue().add(BigDecimal.valueOf(1000000))).build()).build();
 
         // Direction must be set to "INCREASE" in order to increase the quantity
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.INCREASE;
@@ -281,7 +281,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "The workflow step instruction contains only one instruction");
         assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getQuantityChange(), "The workflow step instruction contains a quantity change");
         assertTrue(beforeTradeState.getTrade().getTradeLot().size() < ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().size(), "The before trade has less tradeLot than the after trade");
-        assertTrue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().compareTo(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()) < 0, "The quantity of the before tradeState must be less than the quantity of the after tradeState.");
+        assertTrue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue().compareTo(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().getValue().getValue()) < 0, "The quantity of the before tradeState must be less than the quantity of the after tradeState.");
     }
 
     /**
@@ -296,7 +296,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(4000000L)).build()).build();
+        PriceQuantity change = PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(4000000L)).build()).build();
 
         // Direction must be set to "DECREASE" in order to decrease the quantity
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.DECREASE;
@@ -329,7 +329,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(0)).build()).build();
+        PriceQuantity change = PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(0)).build()).build();
 
         // Direction must be set to "REPLACE" in order to replace the quantity with the new one
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.REPLACE;
@@ -518,7 +518,14 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         Trade beforeTrade = beforeTradeState.getTrade();
         Trade afterTrade = ws.getBusinessEvent().getAfter().get(0).getTrade();
 
-        assertEquals(beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(1).getValue().getValue(), afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(1).getValue().getValue(), "The before and the after trade must have the same quantity in te price quantity of the trade");
+        BigDecimal beforeShares = beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue();
+        BigDecimal afterShares = afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue();
+        assertEquals(0, beforeShares.multiply(adjustmentRatio).compareTo(afterShares), "The after trade must have the number of shares adjusted by the stock split ratio");
+
+        BigDecimal beforeNotional = beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getDerivedQuantity().getValue();
+        BigDecimal afterNotional = afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getDerivedQuantity().getValue();
+        assertEquals(0, beforeNotional.compareTo(afterNotional), "The before and the after trade must have the same notional (derived quantity) in the price quantity of the trade");
+
         assertNotEquals(beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getValue(), afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getValue(), "The before and the after trade must have a different price in the price quantity of the trade");
 
         FinancialUnitEnum beforeFinancialUnit = beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getPerUnitOf().getFinancialUnit();

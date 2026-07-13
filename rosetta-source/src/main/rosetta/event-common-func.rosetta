@@ -416,7 +416,8 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
             composite: preSplitPrice -> composite,
             arithmeticOperator: preSplitPrice -> arithmeticOperator,
             premiumType: preSplitPrice -> premiumType,
-            datedValue: empty
+            datedValue: empty,
+            ...
         }
     alias postSplitPriceQuantity:
         PriceQuantity {
@@ -1407,10 +1408,12 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
                 }
 
     alias changePriceQuantity:
-        PriceQuantity {
-            quantity: quantitySchedule,
-            ...
-        }
+        quantitySchedule
+            extract
+                PriceQuantity {
+                    quantity: item,
+                    ...
+                }
 
     add returnEvent -> after: <"Creates a new contract within the quantity change primitive's after state equivalent to the new notional on the partially returned original contract, assuming there's a single security finance transaction in the original financial contract that is part returned.">
         Create_QuantityChange(
@@ -1442,10 +1445,12 @@ func ResolveRepurchaseTransferInstruction: <"Resolves an instruction for settlem
             then distinct
 
     alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
-        PriceQuantity {
-            quantity: changeQuantity,
-            ...
-        }
+        changeQuantity
+            extract
+                PriceQuantity {
+                    quantity: item,
+                    ...
+                }
 
     set repurchaseInstruction -> intent: EventIntentEnum -> Repurchase
 
@@ -1578,7 +1583,8 @@ func Create_OnDemandRateChangePriceChangeInstruction: <"Creates a price change i
             composite: currentRatePrice -> composite,
             arithmeticOperator: currentRatePrice -> arithmeticOperator,
             premiumType: currentRatePrice -> premiumType,
-            datedValue: empty
+            datedValue: empty,
+            ...
         }
     alias newPriceQuantity: <"Create the new price quantity object.">
         PriceQuantity {
@@ -1789,25 +1795,29 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
             composite: currentAssetPrice -> composite,
             arithmeticOperator: currentAssetPrice -> arithmeticOperator,
             premiumType: currentAssetPrice -> premiumType,
-            datedValue: empty
+            datedValue: empty,
+            ...
         }
 
     alias changeCashQuantity: <"Create distinct list of Quantity with value set to newAssetQuantity">
-        tradeState -> trade -> tradeLot only-element -> priceQuantity -> quantity
-            extract
+        tradeState -> trade -> tradeLot only-element -> priceQuantity
+            filter price -> priceType any = InterestRate
+            then extract
                 NonNegativeQuantitySchedule {
                     value: newCashValue,
-                    unit: unit,
+                    unit: quantity -> unit,
                     ...
                 }
             then distinct
 
     alias newPriceQuantity: <"Create the new price quantity object.">
-        PriceQuantity {
-            price: [newPrice],
-            quantity: changeCashQuantity,
-            ...
-        }
+        changeCashQuantity
+            extract
+                PriceQuantity {
+                    price: [newPrice],
+                    quantity: item,
+                    ...
+                }
 
     set instruction -> split -> breakdown:
         [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
@@ -1859,7 +1869,8 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
             composite: currentAssetPrice -> composite,
             arithmeticOperator: currentAssetPrice -> arithmeticOperator,
             premiumType: currentAssetPrice -> premiumType,
-            datedValue: empty
+            datedValue: empty,
+            ...
         }
 
     alias changeQuantity: <"Create distinct list of Quantity with value set to newAssetQuantity">
@@ -1873,11 +1884,13 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
             then distinct
 
     alias newPriceQuantity: <"Create the new price quantity object.">
-        PriceQuantity {
-            price: [newPrice],
-            quantity: changeQuantity,
-            ...
-        }
+        changeQuantity
+            extract
+                PriceQuantity {
+                    price: [newPrice],
+                    quantity: item,
+                    ...
+                }
 
     condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
         tradeState -> trade -> tradeLot count = 1
@@ -2071,7 +2084,7 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
     output:
         instruction PrimitiveInstruction (1..1)
 
-    alias changeQuantity: <"Create distinct list of Quantity with value set to zero.">
+    alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
         tradeState -> trade -> tradeLot only-element -> priceQuantity -> quantity
             extract
                 NonNegativeQuantitySchedule {
@@ -2080,13 +2093,12 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
                     ...
                 }
             then distinct
-
-    alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
-        PriceQuantity {
-            quantity: changeQuantity,
-            effectiveDate: effectiveDate,
-            ...
-        }
+            then extract
+                PriceQuantity {
+                    quantity: item,
+                    effectiveDate: effectiveDate,
+                    ...
+                }
 
     set instruction -> quantityChange: <"Set primitive instruction to be only a quantity change instruction (with values set to zero).">
         QuantityChangeInstruction {
@@ -2280,7 +2292,6 @@ func ExtractTradePurchasePrice:
     set value:
         tradableProduct -> tradeLot only-element -> priceQuantity
             extract item -> quantity
-            then flatten
             then extract item -> value
 
 func ExtractTradeCollateralQuantity:
@@ -2292,7 +2303,6 @@ func ExtractTradeCollateralQuantity:
     set value:
         tradableProduct -> tradeLot only-element -> priceQuantity
             extract item -> quantity
-            then flatten
             then extract item -> value
 
 func ExtractTradeCollateralPrice:

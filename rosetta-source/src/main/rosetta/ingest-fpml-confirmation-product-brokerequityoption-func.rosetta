@@ -12,6 +12,7 @@ import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.eqd.* as fpml
 
 func MapBrokerEquityOptionCounterpartyList:
@@ -91,7 +92,7 @@ func MapBrokerEquityOptionPayout:
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
-                            quantitySchedule: MapEquityDerivativeBaseQuantityListWithAddress(
+                            quantitySchedule: MapEquityDerivativeBaseQuantityWithAddress(
                                         fpmlBrokerEquityOption,
                                         fpmlBrokerEquityOption -> numberOfOptions
                                     ),
@@ -141,14 +142,38 @@ func MapBrokerEquityOptionPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
+    alias observableFromUnderlyer:
+        MapUnderlyerToObservableWithLocation(fpmlBrokerEquityOption -> underlyer)
+    alias financialUnit:
+        if (MapUnderlyerToObservableWithLocation(fpmlBrokerEquityOption -> underlyer)
+                as Security
+                exists
+                and fpmlBrokerEquityOption -> underlyer -> singleUnderlyer -> underlyingAsset
+                    as fpml.Equity
+                    exists)
+        then FinancialUnitEnum -> Share
+        else if MapUnderlyerToObservableWithLocation(fpmlBrokerEquityOption -> underlyer)
+            as Index
+            exists
+        then IndexUnit
     add priceQuantityList:
         PriceQuantity {
-            quantity: MapEquityDerivativeBaseQuantityListWithLocation(
-                        fpmlBrokerEquityOption,
-                        fpmlBrokerEquityOption -> numberOfOptions,
-                        empty,
-                        empty
-                    ),
+            price:
+                PriceSchedule {
+                    priceType: empty,
+                    derivedQuantity: MapEquityDerivativeBaseNotionalQuantityLocation(
+                                fpmlBrokerEquityOption
+                            ),
+                    ...
+                },
+            quantity: if financialUnit exists or observableFromUnderlyer as Basket exists
+                    then MapEquityDerivativeBaseQuantityWithLocation(
+                            fpmlBrokerEquityOption,
+                            fpmlBrokerEquityOption -> numberOfOptions,
+                            empty,
+                            empty,
+                            financialUnit
+                        ),
             observable: MapUnderlyerToObservableWithLocation(
                         fpmlBrokerEquityOption -> underlyer
                     ),

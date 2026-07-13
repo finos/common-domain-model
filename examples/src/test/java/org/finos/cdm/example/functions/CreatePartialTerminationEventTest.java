@@ -80,7 +80,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                 QuantityChangeInstruction.builder()
                         .setDirection(QuantityChangeDirectionEnum.DECREASE)
                         .addChange(PriceQuantity.builder()
-                                .addQuantityValue(NonNegativeQuantitySchedule.builder()
+                                .setQuantityValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(7000000))
                                         .setUnit(UnitType.builder()
                                                 .setCurrency(FieldWithMetaString.builder()
@@ -163,7 +163,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         NonNegativeQuantitySchedule quantity = afterTradeState.getTrade()
                 .getTradeLot().get(0)
                 .getPriceQuantity().get(0)
-                .getQuantity().get(0).getValue();
+                .getQuantity().getValue();
         assertEquals(new BigDecimal("3000000.00"), quantity.getValue());
 
         // Only one transferHistory expected - i.e. the partial termination fee

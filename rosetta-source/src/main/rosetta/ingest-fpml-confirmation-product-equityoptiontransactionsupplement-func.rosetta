@@ -12,6 +12,7 @@ import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.eqd.* as fpml
 
 func MapEquityOptionTransactionSupplementCounterpartyList:
@@ -96,7 +97,7 @@ func MapEquityOptionTransactionSupplementPayout:
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
-                            quantitySchedule: MapEquityDerivativeBaseQuantityListWithAddress(
+                            quantitySchedule: MapEquityDerivativeBaseQuantityWithAddress(
                                         fpmlEquityOptionTransactionSupplement,
                                         fpmlEquityOptionTransactionSupplement -> numberOfOptions
                                     ),
@@ -145,15 +146,45 @@ func MapEquityOptionTransactionSupplementPriceQuantityList:
         fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
+    alias financialUnit:
+        if (MapUnderlyerToObservableWithLocation(
+                    fpmlEquityOptionTransactionSupplement -> underlyer
+                )
+                as Security
+                exists
+                and fpmlEquityOptionTransactionSupplement -> underlyer -> singleUnderlyer -> underlyingAsset
+                    as fpml.Equity
+                    exists)
+        then FinancialUnitEnum -> Share
+        else if MapUnderlyerToObservableWithLocation(
+                fpmlEquityOptionTransactionSupplement -> underlyer
+            )
+            as Index
+            exists
+        then IndexUnit
+    alias observableFromUnderlyer:
+        MapUnderlyerToObservableWithLocation(
+                fpmlEquityOptionTransactionSupplement -> underlyer
+            )
 
     add priceQuantityList:
         PriceQuantity {
-            quantity: MapEquityDerivativeBaseQuantityListWithLocation(
-                        fpmlEquityOptionTransactionSupplement,
-                        fpmlEquityOptionTransactionSupplement -> numberOfOptions,
-                        fpmlEquityOptionTransactionSupplement -> optionEntitlement,
-                        empty
-                    ),
+            price:
+                PriceSchedule {
+                    priceType: empty,
+                    derivedQuantity: MapEquityDerivativeBaseNotionalQuantityLocation(
+                                fpmlEquityOptionTransactionSupplement
+                            ),
+                    ...
+                },
+            quantity: if financialUnit exists or observableFromUnderlyer as Basket exists
+                    then MapEquityDerivativeBaseQuantityWithLocation(
+                            fpmlEquityOptionTransactionSupplement,
+                            fpmlEquityOptionTransactionSupplement -> numberOfOptions,
+                            fpmlEquityOptionTransactionSupplement -> optionEntitlement,
+                            fpmlEquityOptionTransactionSupplement -> underlyer -> singleUnderlyer -> openUnits,
+                            financialUnit
+                        ),
             observable: MapUnderlyerToObservableWithLocation(
                         fpmlEquityOptionTransactionSupplement -> underlyer
                     ),

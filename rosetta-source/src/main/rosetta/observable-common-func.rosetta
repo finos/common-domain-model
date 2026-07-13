@@ -18,33 +18,21 @@ func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive 
 func PriceQuantityTriangulation: <"Checks the relationship between price, multiplier, notional and number of units, and validates the result of their product.">
     inputs:
         price PriceSchedule (0..*)
-        quantity NonNegativeQuantitySchedule (0..*)
+        quantity NonNegativeQuantitySchedule (0..1)
     output:
         success boolean (1..1)
-
-    alias filteredPrice:
-        price
-            filter priceType = AssetPrice or priceType = ExchangeRate
-            then only-element
-
-    alias assetPrice: filteredPrice -> value
-
-    alias notional:
-        quantity
-            filter unit = filteredPrice -> unit
-            then only-element
-            then value
 
     alias noOfUnits:
         quantity
             extract
-                if multiplier exists and multiplier -> unit = filteredPrice -> perUnitOf
+                if multiplier exists
                 then value * multiplier -> value
-                else if unit = filteredPrice -> perUnitOf
-                then value
-            then only-element
+                else value
 
     set success:
-        if assetPrice exists and noOfUnits exists and notional exists
-        then assetPrice * noOfUnits = notional
-        else True
+        price
+            filter priceType = AssetPrice or priceType = ExchangeRate
+            then extract
+                if value exists and noOfUnits exists and derivedQuantity -> value exists
+                then value * noOfUnits = derivedQuantity -> value
+            then if any = False then False else True

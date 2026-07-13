@@ -187,6 +187,11 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
         if underlier as NonTransferableProduct is absent
         then optionType exists
 
+    condition SettlementCentreRequired: <"SettlementCentre required where underlier is a security.">
+        if underlier as Security exists
+        then (settlementTerms -> securitySettlementCentre exists
+                and settlementTerms -> cashSettlementCentre exists)
+
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
     priceReturnTerms PriceReturnTerms (0..1) <"Return terms based upon the underlier's observed price.">
@@ -419,6 +424,11 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
 
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
         if underlier as Cash exists then settlementTerms exists
+
+    condition SettlementCentreRequired: <"SettlementCentre required where underlier is a security.">
+        if underlier as Security exists
+        then (settlementTerms -> securitySettlementCentre exists
+                and settlementTerms -> cashSettlementCentre exists)
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists
@@ -779,8 +789,8 @@ type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or sch
 
     notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">
         [metadata reference]
-    feeAmountSchedule AmountSchedule (0..1) <"The exercise fee amount schedule. The fees are expressed as currency amounts. The currency of the fee is assumed to be that of the notional schedule referenced.">
-    feeRateSchedule Schedule (0..1) <"The exercise free rate schedule. The fees are expressed as percentage rates of the notional being exercised. The currency of the fee is assumed to be that of the notional schedule referenced.">
+    feeAmountSchedule AmountScheduleWithInitialValue (0..1) <"The exercise fee amount schedule. The fees are expressed as currency amounts. The currency of the fee is assumed to be that of the notional schedule referenced.">
+    feeRateSchedule ScheduleWithInitialValue (0..1) <"The exercise free rate schedule. The fees are expressed as percentage rates of the notional being exercised. The currency of the fee is assumed to be that of the notional schedule referenced.">
     feePaymentDate RelativeDateOffset (1..1) <"The date on which exercise fee(s) will be paid. It is specified as a relative date.">
 
     condition ExerciseFeeScheduleChoice: <"Choice rule to represent an FpML choice construct.">
@@ -865,6 +875,11 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
 
     condition UnderlierNotCash: <"The purchased asset in an assetPayout should not be cash.">
         underlier as Cash is absent
+
+    condition SettlementCentreRequired: <"SettlementCentre required where underlier is a security.">
+        if underlier as Security exists
+        then (settlementTerms -> securitySettlementCentre exists
+                and settlementTerms -> cashSettlementCentre exists)
 
 type DividendTerms: <"Information related to dividends and payments.">
     manufacturedIncomeRequirement DividendPayoutRatio (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">
