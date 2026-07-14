@@ -54,6 +54,43 @@ For example, `Trade`'s `tradeDate` attribute, which is annotated with `[metadata
     }
 ```
 
+## Backward compatibility and format conversion
+
+**Both the new Rune JSON format and the Legacy JSON format (used in CDM v6 and earlier) are supported.** Implementors can choose to continue using the Legacy JSON format or adopt the new Rune JSON format based on their requirements.
+
+It is possible to convert between the two formats without any loss of data. The CDM provides two object mappers:
+
+- **`RuneJsonObjectMapper`** — for the new Rune JSON format (default in CDM v7 onwards)
+- **`RosettaObjectMapper`** — for the Legacy JSON format (default in CDM v6 and earlier)
+
+### Converting between formats
+
+To convert from Rune JSON to Legacy JSON:
+
+```java
+// Deserialize from Rune JSON
+RuneJsonObjectMapper runeMapper = new RuneJsonObjectMapper();
+TradeState tradeState = runeMapper.readValue(runeJsonString, TradeState.class);
+
+// Serialize to Legacy JSON
+ObjectMapper legacyMapper = RosettaObjectMapper.getNewMinimalRosettaObjectMapper();
+String legacyJson = legacyMapper.writeValueAsString(tradeState);
+```
+
+To convert from Legacy JSON to Rune JSON:
+
+```java
+// Deserialize from Legacy JSON
+ObjectMapper legacyMapper = RosettaObjectMapper.getNewMinimalRosettaObjectMapper();
+TradeState tradeState = legacyMapper.readValue(legacyJsonString, TradeState.class);
+
+// Serialize to Rune JSON
+RuneJsonObjectMapper runeMapper = new RuneJsonObjectMapper();
+String runeJson = runeMapper.writeValueAsString(tradeState);
+```
+
+A complete working example demonstrating bidirectional conversion between formats can be found in the [SerialisationTest.java](../examples/src/test/java/org/finos/cdm/example/SerialisationTest.java) test case (see the `shouldConvertSampleBetweenJsonFormats` test method).
+
 ## Full specification
 
 The serialization standard is defined by the Rune DSL and applies to all Rune-based models, including the CDM. The full specification — covering the design principles, the complete set of special attributes, generation, ingestion and validation behaviour, and worked examples — is documented on the Rune DSL website:
