@@ -67,7 +67,7 @@ It is possible to convert between the two formats without any loss of data. The 
 
 To convert from Rune JSON to Legacy JSON:
 
-```java
+``` Java
 // Deserialize from Rune JSON
 RuneJsonObjectMapper runeMapper = new RuneJsonObjectMapper();
 TradeState tradeState = runeMapper.readValue(runeJsonString, TradeState.class);
@@ -79,7 +79,7 @@ String legacyJson = legacyMapper.writeValueAsString(tradeState);
 
 To convert from Legacy JSON to Rune JSON:
 
-```java
+``` Java
 // Deserialize from Legacy JSON
 ObjectMapper legacyMapper = RosettaObjectMapper.getNewMinimalRosettaObjectMapper();
 TradeState tradeState = legacyMapper.readValue(legacyJsonString, TradeState.class);
