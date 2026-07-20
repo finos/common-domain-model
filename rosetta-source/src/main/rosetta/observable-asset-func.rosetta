@@ -33,7 +33,7 @@ func InterestRateObservableCondition: <"Implementation for PriceQuantity.Interes
         valid boolean (0..1)
 
     set valid:
-        if pq -> observable -> Index -> InterestRateIndex exists and pq -> price exists
+        if pq -> observable as InterestRateIndex exists and pq -> price exists
         then pq -> price
                 extract [
                     priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists
@@ -46,11 +46,12 @@ func ObservableIsCommodity: <"Validates whether all of the constituents of an Ob
         valid boolean (1..1)
 
     set valid:
-        if observable -> Asset exists
-        then observable -> Asset -> Commodity exists
-        else if observable -> Basket exists
-        then observable -> Basket -> basketConstituent extract [ Asset -> Commodity exists ]
+        if observable as Commodity exists
+        then True
+        else if observable as Basket exists
+        then observable as Basket -> basketConstituent
+                extract [ observable as Commodity exists ]
             all = True
-        else if observable -> Index exists
-        then observable -> Index ->> assetClass = Commodity
+        else if observable as Index exists
+        then observable as Index ->> assetClass = Commodity
         else False

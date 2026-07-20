@@ -34,6 +34,7 @@ module.exports = {
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
         {to: 'docs/cdm-resources', label: 'CDM Resources', position: 'right'},
+        {to: 'schemas', label: 'Schemas', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
         {
           href: 'https://github.com/finos/common-domain-model',

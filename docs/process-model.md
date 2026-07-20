@@ -556,11 +556,10 @@ func EquityCashSettlementAmount:
         equityCashSettlementAmount Transfer (1..1)
 
     alias payout:
-        tradeState -> trade -> product -> economicTerms -> payout 
-            filter PerformancePayout exists 
+        tradeState -> trade -> product -> economicTerms -> payout
+            filter PerformancePayout exists
             then only-element
-    alias equityPerformancePayout:
-        payout -> PerformancePayout
+    alias equityPerformancePayout: payout as PerformancePayout
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -578,20 +577,19 @@ func EquityCashSettlementAmount:
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> quantity -> value:
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value:
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> quantity -> unit -> currency:
+    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
-    set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
-    set equityCashSettlementAmount -> settlementDate -> adjustedDate:
+    set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin:
-        payout as-key
+    set equityCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
 ```
 
 ``` Haskell
@@ -721,34 +719,49 @@ These above steps are codified in the `Create_Reset` function, which
 defines how the `Reset` instance should be constructed.
 
 ``` Haskell
-func Create_Reset:
+func CalculateReset:
     inputs:
-        instruction ResetInstruction (1..1)
-        tradeState TradeState (1..1)
+        instruction CalculateResetInstruction (1..1)
     output:
-        reset TradeState (1..1)
+        reset Reset (0..*)
 
     alias payout:
-       instruction -> payout
+        instruction -> payout
 
-   alias observationDate:
-       if instruction -> rateRecordDate exists
-       then instruction -> rateRecordDate
-       else instruction -> resetDate
+    alias observationDate:
+        if instruction -> rateRecordDate exists
+        then instruction -> rateRecordDate
+        else instruction -> resetDate
 
-   alias observationIdentifiers:
-       if payout -> PerformancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> PerformancePayout only-element, instruction -> resetDate)
-       else if payout -> InterestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> InterestRatePayout only-element, observationDate)
+    alias observationIdentifiers:
+        if payout as PerformancePayout count = 1
+        then ResolvePerformanceObservationIdentifiers(
+                    payout as PerformancePayout only-element,
+                    instruction -> resetDate
+                )
+        else if payout as InterestRatePayout exists
+        then ResolveInterestRateObservationIdentifiers(
+                    payout as InterestRatePayout only-element,
+                    observationDate
+                )
 
-   alias observation:
-       ResolveObservation([observationIdentifiers], empty)
+    alias observation:
+        ResolveObservation([observationIdentifiers], empty)
 
-   set reset:
-       tradeState
-
-   add reset -> resetHistory:
-       if payout -> PerformancePayout count = 1 then ResolvePerformanceReset(payout -> PerformancePayout only-element, observation, instruction -> resetDate)
-       else if payout -> InterestRatePayout exists then ResolveInterestRateReset(payout -> InterestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
+    add reset:
+        if payout as PerformancePayout count = 1
+        then ResolvePerformanceReset(
+                    payout as PerformancePayout only-element,
+                    observation,
+                    instruction -> resetDate
+                )
+        else if payout as InterestRatePayout exists
+        then ResolveInterestRateReset(
+                    payout as InterestRatePayout,
+                    observation,
+                    instruction -> resetDate,
+                    instruction -> rateRecordDate
+                )
 ```
 
 First, `ResolvePerformanceObservationIdentifiers` defines the specific
@@ -779,7 +792,7 @@ func ResolvePerformanceObservationIdentifiers:
         else payout -> valuationDates -> finalValuationDate
 
     set identifiers -> observable:
-        payout -> underlier -> Observable 
+        payout -> underlier as Observable
     set identifiers -> observationDate:
         AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
@@ -788,11 +801,11 @@ func ResolvePerformanceObservationIdentifiers:
         ResolvePerformanceValuationTime(
                 valuationDates -> valuationTime,
                 valuationDates -> valuationTimeType,
-                identifiers -> observable -> Asset ->> identifier only-element,
+                identifiers -> observable as Asset ->> identifier only-element,
                 valuationDates -> determinationMethod
             )
     set identifiers -> informationSource:
-        payout -> observationTerms -> informationSource -> primarySource        
+        payout -> observationTerms -> informationSource -> primarySource
     set identifiers -> determinationMethodology -> determinationMethod:
         valuationDates -> determinationMethod
 ```

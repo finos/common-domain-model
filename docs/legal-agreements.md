@@ -177,20 +177,16 @@ The legal agreement model in the CDM comprises the following features:
     referencing mechanism.
 
 -   **Mapping to ISDA Create derivative documentation negotiation
-    platform** : Synonyms identified as belonging to `ISDA_Create_1_0`
-    have been defined to establish mappings that support automated
+    platform** : mappings have been defined to support automated
     transformation of ISDA Create documents into objects that are
     compliant with the CDM.
 
-    -   The mapping between the two models through the use of Synonyms
-        validated that all the necessary permutations of elections and
-        data associated with the supported agreements have been
-        replicated in the CDM
+    -   The mapping between the two models validated that all the
+        necessary permutations of elections and data associated with the
+        supported agreements have been replicated in the CDM
     -   Ingestion of JSON sample files generated from ISDA Create for
         samples of executed documents has been implemented to demonstrate this 
 		capability between ISDA Create and the CDM.
-    -   More details on Synonyms are provided in the Mapping (Synonym)
-        section of this document.
 
 ---
 **Note:**
