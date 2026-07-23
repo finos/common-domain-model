@@ -431,7 +431,7 @@ To represent the repurchase agreement using the CFI taxonomy the json
 would look like:
 
 ``` Javascript
-"productTaxonomy": [
+"taxonomy": [
    {
        "source": "CFI",
        "value": {
@@ -441,9 +441,10 @@ would look like:
        }
    },
    {
-"productQualifier": "Repurchase Agreement",
-   "taxonomySource": "CFI"
-}]
+       "productQualifier": "RepurchaseAgreement",
+       "source": "ISDA"
+   }
+]
 ```
 
 # Lifecycle Events

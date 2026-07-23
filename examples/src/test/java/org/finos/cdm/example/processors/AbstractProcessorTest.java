@@ -12,7 +12,9 @@ import com.regnosys.rosetta.common.validation.ValidationReport;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import org.finos.cdm.example.AbstractExampleTest;
-import org.isda.cdm.processor.CdmReferenceConfig;
+import org.finos.cdm.reference.CdmReferenceConfig;
+
+import java.util.Optional;
 
 /**
  * Abstract base class for tests that involve validation, qualification, and processing
@@ -72,7 +74,7 @@ public abstract class AbstractProcessorTest extends AbstractExampleTest {
      */
     protected <T extends RosettaModelObjectBuilder> QualificationReport qualify(T input) {
         // Run qualification on the input builder using its type.
-        return qualifyProcessor.runProcessStep(input.getClass(), input);
+        return qualifyProcessor.runProcessStep(Optional.ofNullable(input).map(RosettaModelObjectBuilder::getType).orElse(null), input);
     }
 
     /**

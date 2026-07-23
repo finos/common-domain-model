@@ -1,6 +1,6 @@
 package cdm.base.datetime.functions;
 
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;

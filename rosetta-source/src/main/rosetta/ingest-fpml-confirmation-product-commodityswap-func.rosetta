@@ -25,34 +25,49 @@ func MapCommoditySwapCounterpartyList:
     output:
         counterpartyList Counterparty (0..2)
 
-    alias payerReceiver:
-        fpmlCommoditySwap -> commoditySwapDetailsModel -> commoditySwapLeg
-            extract GetFpmlPayerReceiver
+    alias payer:
+        fpmlCommoditySwap -> commoditySwapLeg
+            extract GetFpmlPayer
             then first
 
-    add counterpartyList: MapPayerReceiverModelToCounterpartyList(payerReceiver)
+    alias receiver:
+        fpmlCommoditySwap -> commoditySwapLeg
+            extract GetFpmlReceiver
+            then first
 
-func GetFpmlPayerReceiver:
+    add counterpartyList: MapPayerReceiverModelToCounterpartyList(payer, receiver)
+
+func GetFpmlPayer:
     inputs:
         fpmlCommodityLeg fpml.CommodityLeg (0..1)
     output:
-        fpmlPayerReceiverModel fpml.PayerReceiverModel (0..1)
+        fpmlPayerPartyReference fpml.PartyReference (0..1)
 
-    set fpmlPayerReceiverModel:
+    set fpmlPayerPartyReference:
         fpmlCommodityLeg switch
-            fpml.FloatingLeg then payerReceiverModel,
-            fpml.GasPhysicalLeg then payerReceiverModel,
-            fpml.OilPhysicalLeg then payerReceiverModel,
-            fpml.ElectricityPhysicalLeg then payerReceiverModel,
-            fpml.EnvironmentalPhysicalLeg then payerReceiverModel,
-            fpml.CoalPhysicalLeg then payerReceiverModel,
+            fpml.FloatingLeg then payerPartyReference,
+            fpml.GasPhysicalLeg then payerPartyReference,
+            fpml.OilPhysicalLeg then payerPartyReference,
+            fpml.ElectricityPhysicalLeg then payerPartyReference,
+            fpml.EnvironmentalPhysicalLeg then payerPartyReference,
+            fpml.CoalPhysicalLeg then payerPartyReference,
             default empty
 
-func MapCommoditySwapAncillaryPartyList:
+func GetFpmlReceiver:
     inputs:
-        fpmlCommoditySwap fpml.CommoditySwap (0..1)
+        fpmlCommodityLeg fpml.CommodityLeg (0..1)
     output:
-        ancillaryPartyList AncillaryParty (0..*)
+        fpmlReceiverPartyReference fpml.PartyReference (0..1)
+
+    set fpmlReceiverPartyReference:
+        fpmlCommodityLeg switch
+            fpml.FloatingLeg then receiverPartyReference,
+            fpml.GasPhysicalLeg then receiverPartyReference,
+            fpml.OilPhysicalLeg then receiverPartyReference,
+            fpml.ElectricityPhysicalLeg then receiverPartyReference,
+            fpml.EnvironmentalPhysicalLeg then receiverPartyReference,
+            fpml.CoalPhysicalLeg then receiverPartyReference,
+            default empty
 
 func MapCommoditySwapNonTransferableProduct:
     inputs:
@@ -63,31 +78,38 @@ func MapCommoditySwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlCommoditySwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlCommoditySwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlCommoditySwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCommoditySwap -> primaryAssetClass,
+                        fpmlCommoditySwap -> secondaryAssetClass,
+                        fpmlCommoditySwap -> productType
+                    ),
             economicTerms: MapCommoditySwapEconomicTerms(
-                        fpmlCommoditySwap -> commoditySwapDetailsModel,
+                        fpmlCommoditySwap -> commoditySwapLeg,
+                        fpmlCommoditySwap -> settlementCurrency,
+                        fpmlCommoditySwap -> effectiveDate,
+                        fpmlCommoditySwap -> terminationDate,
                         cdmCounterpartyList
                     )
         }
 
 func MapCommoditySwapEconomicTerms:
     inputs:
-        fpmlCommoditySwapDetailsModel fpml.CommoditySwapDetailsModel (1..1)
+        fpmlCommoditySwapLegList fpml.CommodityLeg (0..*)
+        fpmlSettlementCurrency fpml.IdentifiedCurrency (0..1)
+        fpmlEffectiveDate fpml.AdjustableOrRelativeDate (0..1)
+        fpmlTerminationDate fpml.AdjustableOrRelativeDate (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         economicTerms EconomicTerms (0..1)
 
     set economicTerms:
         EconomicTerms {
-            effectiveDate: MapAdjustableOrRelativeDate(
-                        fpmlCommoditySwapDetailsModel -> effectiveDate
-                    ),
-            terminationDate: MapAdjustableOrRelativeDate(
-                        fpmlCommoditySwapDetailsModel -> terminationDate
-                    ),
+            effectiveDate: MapAdjustableOrRelativeDate(fpmlEffectiveDate),
+            terminationDate: MapAdjustableOrRelativeDate(fpmlTerminationDate),
             payout: MapCommoditySwapLegListToPayoutList(
-                        fpmlCommoditySwapDetailsModel,
+                        fpmlCommoditySwapLegList,
+                        fpmlSettlementCurrency,
                         cdmCounterpartyList
                     ),
             ...
@@ -95,12 +117,11 @@ func MapCommoditySwapEconomicTerms:
 
 func MapCommoditySwapLegListToPayoutList:
     inputs:
-        fpmlCommoditySwapDetailsModel fpml.CommoditySwapDetailsModel (1..1)
+        fpmlCommoditySwapLegList fpml.CommodityLeg (0..*)
+        fpmlSettlementCurrency fpml.IdentifiedCurrency (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         payoutList Payout (0..*)
-
-    alias fpmlCommoditySwapLegList: fpmlCommoditySwapDetailsModel -> commoditySwapLeg
 
     add payoutList:
         fpmlCommoditySwapLegList
@@ -108,7 +129,7 @@ func MapCommoditySwapLegListToPayoutList:
                 item switch
                     fpml.FloatingLeg then
                         MapFloatingLegToCommodityPayout(
-                                fpmlCommoditySwapDetailsModel,
+                                fpmlSettlementCurrency,
                                 item,
                                 cdmCounterpartyList
                             ),
@@ -170,7 +191,7 @@ func MapCommoditySwapLegListToPayoutList:
 
 func MapFloatingLegToCommodityPayout:
     inputs:
-        fpmlCommoditySwapDetailsModel fpml.CommoditySwapDetailsModel (1..1)
+        fpmlSettlementCurrency fpml.IdentifiedCurrency (0..1)
         fpmlFloatingLeg fpml.FloatingLeg (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
@@ -181,19 +202,20 @@ func MapFloatingLegToCommodityPayout:
             CommodityPayout:
                 CommodityPayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlFloatingLeg -> payerReceiverModel,
+                                fpmlFloatingLeg -> payerPartyReference,
+                                fpmlFloatingLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
                             quantitySchedule: MapCommodityNotionalQuantityToQuantityWithAddress(
-                                        fpmlFloatingLeg -> commodityNotionalQuantityModel,
+                                        fpmlFloatingLeg -> totalNotionalQuantity,
                                         fpmlFloatingLeg
                                     ),
                             ...
                         },
                     settlementTerms: MapCommoditySettlementModelToSettlementTerms(
-                                fpmlCommoditySwapDetailsModel
+                                fpmlSettlementCurrency
                             ),
                     averagingFeature: MapAveragingCalculation(
                                 fpmlFloatingLeg -> calculation -> averagingMethod
@@ -202,11 +224,16 @@ func MapFloatingLegToCommodityPayout:
                                 fpmlFloatingLeg -> calculation -> pricingDates
                             ),
                     calculationPeriodDates: MapCommodityCalculationPeriods(
-                                fpmlFloatingLeg -> commodityCalculationPeriodsModel
+                                fpmlFloatingLeg -> calculationPeriodsSchedule
                             ),
-                    paymentDates: MapCommodityRelativePaymentDates(
-                                fpmlFloatingLeg -> commodityPaymentDatesModel
-                            ),
+                    paymentDates: if fpmlFloatingLeg -> relativePaymentDates exists
+                            then MapCommodityRelativePaymentDates(
+                                    fpmlFloatingLeg -> relativePaymentDates
+                                )
+                        else if fpmlFloatingLeg -> paymentDates exists
+                        then MapCommoditySwapNonPeriodicPaymentDates(
+                                    fpmlFloatingLeg -> paymentDates
+                                ),
                     underlier:
                         Underlier {
                             Observable: MapAssetToObservableWithAddress(
@@ -229,7 +256,7 @@ func MapFloatingLegToCommodityPayout:
                         },
                     ...
                 } with-meta {
-                    id: fpmlFloatingLeg -> id
+                    key: fpmlFloatingLeg -> id
                 },
             ...
         }
@@ -267,7 +294,8 @@ func MapGasPhysicalLegToSettlementPayout:
             SettlementPayout:
                 SettlementPayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlGasPhysicalLeg -> payerReceiverModel,
+                                fpmlGasPhysicalLeg -> payerPartyReference,
+                                fpmlGasPhysicalLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -295,7 +323,8 @@ func MapOilPhysicalLegToSettlementPayout:
             SettlementPayout:
                 SettlementPayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlOilPhysicalLeg -> payerReceiverModel,
+                                fpmlOilPhysicalLeg -> payerPartyReference,
+                                fpmlOilPhysicalLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -323,7 +352,8 @@ func MapElectricityPhysicalLegToSettlementPayout:
             SettlementPayout:
                 SettlementPayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlElectricityPhysicalLeg -> payerReceiverModel,
+                                fpmlElectricityPhysicalLeg -> payerPartyReference,
+                                fpmlElectricityPhysicalLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -351,7 +381,8 @@ func MapEnvironmentalPhysicalLegToSettlementPayout:
             SettlementPayout:
                 SettlementPayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlEnvironmentalPhysicalLeg -> payerReceiverModel,
+                                fpmlEnvironmentalPhysicalLeg -> payerPartyReference,
+                                fpmlEnvironmentalPhysicalLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -379,7 +410,8 @@ func MapCoalPhysicalLegToSettlementPayout:
             SettlementPayout:
                 SettlementPayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlCoalPhysicalLeg -> payerReceiverModel,
+                                fpmlCoalPhysicalLeg -> payerPartyReference,
+                                fpmlCoalPhysicalLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -407,24 +439,26 @@ func MapFixedLegToFixedPricePayout:
             FixedPricePayout:
                 FixedPricePayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlFixedLeg -> payerReceiverModel,
+                                fpmlFixedLeg -> payerPartyReference,
+                                fpmlFixedLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
                             quantitySchedule: MapCommodityNotionalQuantityToQuantityWithAddress(
-                                        fpmlFixedLeg -> commodityNotionalQuantityModel,
+                                        fpmlFixedLeg -> totalNotionalQuantity,
                                         fpmlFixedLeg
                                     ),
                             ...
                         },
                     paymentDates: MapCommodityRelativePaymentDates(
-                                fpmlFixedLeg -> commodityPaymentDatesModel
+                                fpmlFixedLeg -> relativePaymentDates
                             ),
                     fixedPrice:
                         FixedPrice {
                             price: MapCommodityFixedLegToPriceWithAddress(
-                                        fpmlFixedLeg -> commodityFixedPriceModel,
+                                        fpmlFixedLeg -> fixedPrice,
+                                        fpmlFixedLeg -> fixedPriceSchedule,
                                         fpmlFixedLeg
                                     )
                         },
@@ -439,8 +473,7 @@ func MapCommoditySwapPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    alias fpmlCommoditySwapLegList:
-        fpmlCommoditySwap -> commoditySwapDetailsModel -> commoditySwapLeg
+    alias fpmlCommoditySwapLegList: fpmlCommoditySwap -> commoditySwapLeg
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
@@ -500,11 +533,14 @@ func MapFixedLegToPriceQuantity:
     set priceQuantity:
         PriceQuantity {
             quantity: MapCommodityNotionalQuantityToQuantityListWithLocation(
-                        fpmlFixedLeg -> commodityNotionalQuantityModel,
+                        fpmlFixedLeg -> notionalQuantity,
+                        fpmlFixedLeg -> totalNotionalQuantity,
+                        fpmlFixedLeg -> notionalQuantitySchedule,
                         fpmlFixedLeg
                     ),
             price: MapCommodityFixedLegToPriceWithLocation(
-                        fpmlFixedLeg -> commodityFixedPriceModel,
+                        fpmlFixedLeg -> fixedPrice,
+                        fpmlFixedLeg -> fixedPriceSchedule,
                         fpmlFixedLeg
                     ),
             ...
@@ -517,14 +553,15 @@ func MapFloatingLegToPriceQuantity:
         priceQuantity PriceQuantity (0..1)
 
     alias priceCapacityUnit:
-        MapCapacityUnitEnum(
-                fpmlFloatingLeg -> commodityNotionalQuantityModel -> commodityNotionalQuantityModelSequence -> notionalQuantity -> quantityUnit -> value
-            )
+        // if fpmlFloatingLeg exists then
+        MapCapacityUnitEnum(fpmlFloatingLeg -> notionalQuantity -> quantityUnit -> value)
 
     set priceQuantity:
         PriceQuantity {
             quantity: MapCommodityNotionalQuantityToQuantityListWithLocation(
-                        fpmlFloatingLeg -> commodityNotionalQuantityModel,
+                        fpmlFloatingLeg -> notionalQuantity,
+                        fpmlFloatingLeg -> totalNotionalQuantity,
+                        fpmlFloatingLeg -> notionalQuantitySchedule,
                         fpmlFloatingLeg
                     ),
             observable: MapAssetToObservableWithLocation(fpmlFloatingLeg -> commodity),
