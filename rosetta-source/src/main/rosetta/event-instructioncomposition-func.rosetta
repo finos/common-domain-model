@@ -1,0 +1,116 @@
+namespace cdm.event.instructioncomposition
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.event.common.*
+import cdm.event.instructioncomposition.reset.*
+
+func Create_InstructionComposition: <"Creates a new InstructionComposition instance by appending a CompositionStep derived from the provided instruction, updating any previous compositionState, and producing the Instruction Composition Output if at the end of the Instruction Composition process.">
+    inputs:
+        previousInstructionComposition InstructionComposition (0..1) <"The existing Instruction Composition state before this execution step. If absent, this indicates the start of a new Instruction Composition lifecycle.">
+        instructionCompositionIdentifier string (0..1) <"Unique identifier for the Instruction Composition. Must be provided for the first step; in subsequent steps, it should be inherited from the previous Instruction Composition.">
+        tradeId TradeIdentifier (0..1) <"Identifier of the underlying trade associated with this Instruction Composition. If present, should be provided for the first step; in subsequent steps, it should be inherited from the previous Instruction Composition.">
+        instructionCompositionType InstructionCompositionTypeEnum (1..1) <"The type of Instruction Composition being executed (e.g., ResetInstruction). This type must be consistent across all steps. Must be provided for the first step; in subsequent steps, it should be inherited from the previous Instruction Composition.">
+        stepIdentifier string (1..1) <"Identifier of the Instruction Composition Step, used for traceability, debugging, or audit purposes.">
+        compositionStepInstruction CompositionStepInstruction (1..1) <"The Instruction describing the atomic action to be executed in this step. Exactly one instruction must be populated.">
+    output:
+        executedInstructionComposition InstructionComposition (1..1) <"The resulting Instruction Composition after executing the new step, including the updated history, appended step history, and any generated outputs.">
+
+    alias previousCompositionState: previousInstructionComposition -> compositionState
+
+    alias previousCompositionSteps: previousInstructionComposition -> compositionStep
+
+    alias newCompositionState: <"The updated Instruction Composition History produced by overlaying the current instruction on top of the previous history.">
+        AddStepToCompositionState(previousCompositionState, compositionStepInstruction)
+
+    alias newCompositionStep: <"The new Instruction Composition Step representing the execution of the provided instruction at the current point in time.">
+        CompositionStep {
+            identifier: stepIdentifier,
+            timestamp: Now(),
+            compositionStepInstruction: compositionStepInstruction
+        }
+
+    alias instructionCompositionOutput:
+        InstructionCompositionOutput {
+            resetInstruction: empty
+        }
+
+    condition FirstInstructionComposition: <"Validation rule ensuring that for the initial execution (where no previous state exists), both the composition identifier and the composition type must be explicitly defined.">
+        if previousInstructionComposition is absent
+        then instructionCompositionIdentifier exists and instructionCompositionType exists
+
+    set executedInstructionComposition: <"Constructs the final Instruction Composition instance by combining identifiers, updated history, execution history, and outputs.">
+        InstructionComposition {
+            identifier: if previousInstructionComposition is absent
+                    then instructionCompositionIdentifier
+                else previousInstructionComposition -> identifier,
+            tradeId: if previousInstructionComposition is absent
+                    then tradeId
+                else previousInstructionComposition -> tradeId,
+            instructionCompositionType: if previousInstructionComposition is absent
+                    then instructionCompositionType
+                else previousInstructionComposition -> instructionCompositionType,
+            compositionState: newCompositionState,
+            compositionStep: [previousCompositionSteps, newCompositionStep],
+            instructionCompositionOutput: instructionCompositionOutput
+        }
+
+func AddStepToCompositionState: <"Directs the incoming instruction to the appropriate history update logic based on the specific type of Instruction Composition process, ensuring the cumulative state is incrementally updated.">
+    inputs:
+        currentCompositionState CompositionState (0..1)
+        nextStepToAdd CompositionStepInstruction (1..1)
+    output:
+        finalCompositionState CompositionState (1..1)
+
+    set finalCompositionState -> ResetInstructionState:
+        if nextStepToAdd -> instructionCompositionType = ResetInstruction
+        then UpdateResetCompositionState(
+                    (currentCompositionState switch
+                        ResetInstructionState then item),
+                    nextStepToAdd -> compositionStepInstructions
+                )
+
+func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
+    inputs:
+        currentResetCompositionState ResetInstructionState (0..1)
+        nextStepToAdd CompositionStepInstructions (1..1)
+    output:
+        updatedResetCompositionState ResetInstructionState (1..1)
+
+    // Step 1: Floating Rate Index & Trade Date
+    set updatedResetCompositionState -> floatingRateIndex:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption -> floatingRateIndex
+        else currentResetCompositionState -> floatingRateIndex
+    set updatedResetCompositionState -> tradeDate:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption -> tradeDate
+        else currentResetCompositionState -> tradeDate
+
+func NextCompositionStepToExecute: <"Determines the next logical execution step for a given Instruction Composition by evaluating its current execution history and process type.">
+    inputs:
+        currentInstructionComposition InstructionComposition (1..1)
+    output:
+        nextCompositionStep InstructionCompositionSteps (0..1)
+
+    // Reset Instruction Composition
+    alias resetInstructionNextStep:
+        InstructionCompositionSteps {
+            ResetInstructionSteps: ResetInstructionNextStep(
+                        (currentInstructionComposition -> compositionState switch
+                            ResetInstructionState then item),
+                        currentInstructionComposition -> instructionCompositionOutput
+                    )
+        }
+
+    set nextCompositionStep:
+        if currentInstructionComposition -> instructionCompositionType = ResetInstruction
+        then resetInstructionNextStep
+        else empty
+
+func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
+    inputs:
+        resetInstructionState ResetInstructionState (0..1)
+        instructionCompositionOutput InstructionCompositionOutput (0..1)
+    output:
+        resetInstructionNextStep ResetInstructionSteps (0..1)

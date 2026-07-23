@@ -13,6 +13,7 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
+import cdm.event.common.functions.CalculateReset;
 import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
@@ -32,7 +33,6 @@ import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.OptionPayout;
 import cdm.product.template.Payout;
 import cdm.product.template.TradeLot;
-import cdm.product.template.metafields.ReferenceWithMetaOptionPayout;
 import cdm.product.template.metafields.ReferenceWithMetaPayout;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +42,7 @@ import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.MetaFields;
 import jakarta.inject.Inject;
 import org.finos.cdm.example.util.ResourcesUtils;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,13 +77,16 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessEventExecutionTest.class);
 
-    private static final ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+    private static final ObjectMapper mapper = new RuneJsonObjectMapper();
 
     private static final Date event_date = Date.parse("2025-01-10");
     private static final LocalTime event_time = LocalTime.of(9, 0);
 
     @Inject
     Create_AcceptedWorkflowStepFromInstruction createWorkflowStepFunc;
+
+    @Inject
+    CalculateReset calculateResetFunc;
 
     /**
      * Contract Formation
@@ -187,7 +192,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setPartyReference(ReferenceWithMetaParty.builder().setValue(party3).build()).setRole(CounterpartyRoleEnum.PARTY_1).build());
 
         // Creation of the quantityChange instruction that will be applied to the second after trade
-        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.ZERO).build())).build(), QuantityChangeDirectionEnum.INCREASE);
+        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.ZERO).build()).build(), QuantityChangeDirectionEnum.INCREASE);
 
         // Creation of the novation instruction through a split instruction
         SplitInstruction splitInstruction = buildNovationPrimitiveInstruction(PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction).build());
@@ -200,7 +205,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0), "The counterparty with role party1 should be different than the one on the before tradeState.");
         assertEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(1), beforeTradeState.getTrade().getCounterparty().get(1), "The counterparty with role party2 should be the same as the one on the before tradeState.");
-        assertEquals(BigDecimal.ZERO, ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), "The quantity of the trade with the same counterparties as the original must be 0.");
+        assertEquals(BigDecimal.ZERO, ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().getValue().getValue(), "The quantity of the trade with the same counterparties as the original must be 0.");
 
         //TODO: ClosedState not modeled. Expected ClosedStateEnum.NOVATED
     }
@@ -224,9 +229,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setPartyReference(ReferenceWithMetaParty.builder().setValue(party3).build()).setRole(CounterpartyRoleEnum.PARTY_1).build());
 
         // Creation of the quantityChange instruction that will be applied to the first after trade
-        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().addQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().subtract(BigDecimal.valueOf(4000000))).build())).build(), QuantityChangeDirectionEnum.INCREASE);
+        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue().subtract(BigDecimal.valueOf(4000000))).build()).build(), QuantityChangeDirectionEnum.INCREASE);
         // Creation of the quantityChange instruction that will be applied to the second after trade
-        QuantityChangeInstruction quantityChangeInstruction2 = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().addQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(1).getQuantity().get(0).getValue().getValue().subtract(BigDecimal.valueOf(6000000))).build())).build(), QuantityChangeDirectionEnum.INCREASE);
+        QuantityChangeInstruction quantityChangeInstruction2 = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(1).getQuantity().getValue().getValue().subtract(BigDecimal.valueOf(6000000))).build()).build(), QuantityChangeDirectionEnum.INCREASE);
 
         // Creation of the novation instruction through a split instruction
         SplitInstruction splitInstruction = buildNovationPrimitiveInstruction(PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).setQuantityChange(quantityChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction2).build());
@@ -239,7 +244,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0), "The counterparty with role party1 should be different than the one on the before tradeState.");
         assertEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(1), beforeTradeState.getTrade().getCounterparty().get(1), "The counterparty with role party2 should be the same as the one on the before tradeState.");
-        assertEquals(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().add(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()), "The priceQuantity of the original trade must be equivalent to the sum of the quantities of the new trades.");
+        assertEquals(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue(), ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().getValue().getValue().add(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().getValue().getValue()), "The priceQuantity of the original trade must be equivalent to the sum of the quantities of the new trades.");
 
         //TODO: ClosedState not modeled. Expected ClosedStateEnum.NOVATED
     }
@@ -258,7 +263,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().add(BigDecimal.valueOf(1000000))).build()).build();
+        PriceQuantity change = PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue().add(BigDecimal.valueOf(1000000))).build()).build();
 
         // Direction must be set to "INCREASE" in order to increase the quantity
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.INCREASE;
@@ -276,7 +281,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "The workflow step instruction contains only one instruction");
         assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getQuantityChange(), "The workflow step instruction contains a quantity change");
         assertTrue(beforeTradeState.getTrade().getTradeLot().size() < ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().size(), "The before trade has less tradeLot than the after trade");
-        assertTrue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().compareTo(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()) < 0, "The quantity of the before tradeState must be less than the quantity of the after tradeState.");
+        assertTrue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue().compareTo(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().getValue().getValue()) < 0, "The quantity of the before tradeState must be less than the quantity of the after tradeState.");
     }
 
     /**
@@ -291,7 +296,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(4000000L)).build()).build();
+        PriceQuantity change = PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(4000000L)).build()).build();
 
         // Direction must be set to "DECREASE" in order to decrease the quantity
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.DECREASE;
@@ -324,7 +329,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(0)).build()).build();
+        PriceQuantity change = PriceQuantity.builder().setQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(0)).build()).build();
 
         // Direction must be set to "REPLACE" in order to replace the quantity with the new one
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.REPLACE;
@@ -513,7 +518,14 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         Trade beforeTrade = beforeTradeState.getTrade();
         Trade afterTrade = ws.getBusinessEvent().getAfter().get(0).getTrade();
 
-        assertEquals(beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(1).getValue().getValue(), afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(1).getValue().getValue(), "The before and the after trade must have the same quantity in te price quantity of the trade");
+        BigDecimal beforeShares = beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue();
+        BigDecimal afterShares = afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().getValue().getValue();
+        assertEquals(0, beforeShares.multiply(adjustmentRatio).compareTo(afterShares), "The after trade must have the number of shares adjusted by the stock split ratio");
+
+        BigDecimal beforeNotional = beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getDerivedQuantity().getValue();
+        BigDecimal afterNotional = afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getDerivedQuantity().getValue();
+        assertEquals(0, beforeNotional.compareTo(afterNotional), "The before and the after trade must have the same notional (derived quantity) in the price quantity of the trade");
+
         assertNotEquals(beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getValue(), afterTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getValue(), "The before and the after trade must have a different price in the price quantity of the trade");
 
         FinancialUnitEnum beforeFinancialUnit = beforeTrade.getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getPerUnitOf().getFinancialUnit();
@@ -1002,16 +1014,29 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      */
     public static ExerciseInstruction buildExercisePrimitiveInstruction(TradeState tradeState, AdjustableOrAdjustedDate eventDate) {
 
+        Payout exerciseOptionPayout = Payout.builder().build();
+
+        if (exerciseOptionPayout.getOptionPayout() == null) {
+            OptionPayout fromTrade = tradeState.getTrade().getProduct().getEconomicTerms().getPayout().stream()
+                    .map(Payout::getOptionPayout)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElseThrow();
+            exerciseOptionPayout = Payout.builder()
+                    .setOptionPayout(fromTrade)
+                    .build();
+        }
+
         // Create a reference to the option payout as part of the exercise process.
-        ReferenceWithMetaOptionPayout option = ReferenceWithMetaOptionPayout.builder()
-                .setValue(OptionPayout.builder().build()) // Build a basic OptionPayout structure.
+        ReferenceWithMetaPayout option = ReferenceWithMetaPayout.builder()
+                .setValue(exerciseOptionPayout)  // Build a basic OptionPayout structure.
                 .build();
 
         // Initialize and build the ExerciseInstruction.
         return ExerciseInstruction.builder()
                 .setExerciseDate(eventDate)                                                 // Set the date on which the option is exercised.
                 .setExerciseTime(BusinessCenterTime.builder().build())                      // Set a placeholder exercise time, typically defined as business center time.
-                .setExerciseOptionValue(OptionPayout.builder().build())                     // Define the value of the exercised option.
+                .setExerciseOptionValue(exerciseOptionPayout)                     // Define the value of the exercised option.
                 .setExerciseQuantity(PrimitiveInstruction.builder().build())                // Set the quantity to be exercised, typically linked to a primitive instruction.
                 .setExerciseOption(option)                                                  // Associate the exercise with the referenced option.
                 .addReplacementTradeIdentifier(tradeState.getTrade().getTradeIdentifier())  // Add a replacement trade identifier from the trade state for tracking purposes.
@@ -1026,15 +1051,18 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @param date    The date of the reset and the rate record, applicable to this instruction.
      * @return A ResetInstruction object containing the provided reset and payout details.
      */
-    public static ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
+    public ResetInstruction buildResetPrimitiveInstruction(ReferenceWithMetaPayout payout, Payout payout1, Date date) {
 
-        //TODO Review if payout1 is used
+        List<? extends Reset> resets = calculateResetFunc.evaluate(CalculateResetInstruction.builder()
+                .setPayout(List.of(payout))
+                .setResetDate(date)
+                .setRateRecordDate(date)
+                .build());
+
+//TODO Review if payout1 is used
         // Initialize and build the ResetInstruction.
         return ResetInstruction.builder()
-                .setResetDate(date)         // The date on which the reset occurs.
-                .setRateRecordDate(date)    // The date for recording the rate associated with the reset.
-                .setPayout(List.of(payout))          // Associates the reset instruction with a referenced payout.
-                //.setPayoutValue(payout1)    // Sets the specific payout value for the reset.
+                .setReset(resets)
                 .build();                   // Builds and returns the finalized ResetInstruction.
     }
 

@@ -24,7 +24,13 @@ This document provides the governance policy for specifications and other docume
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
-* 1.1. [Maintainer](maintainers.md). “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.  More information about the appointment of a CDM Maintainer can be found [here](docs/maintainers.md).
+* 1.1. [Maintainer](maintainers.md). CDM Maintainers are responsible for the overall stewardship of the Common Domain Model, including guiding its development, maintenance, and evolution in accordance with agreed design principles, scope, and community objectives.
+
+   Maintainers approve contributions from participants and working groups, facilitate discussion and consensus building, and review, approve, and merge proposed changes to ensure technical soundness, internal consistency, and architectural integrity of the model.
+
+   Maintainers also provide technical oversight to preserve the quality, stability, and coherence of the CDM as an executable standard, and oversee the preparation and publication of releases so that approved changes are correctly incorporated and made available to the community.
+
+   More information about the appointment of a CDM Maintainer can be found here. More information about the appointment of a CDM Maintainer can be found [here](docs/maintainers.md).
 
 * 1.2. Editor. “Editors” help to alleviate the workload of maintainers, key contributors are granted Editor status. As Editors, they have the authority to label Pull Requests and issues. Presently, individuals from TradeHeader, Fragmos Chain, and FT Advisory hold Editor status. If you are affiliated with these organizations and are not yet designated as an Editor, please reach out to the [CDM maintainers via email](https://lists.finos.org/g/cdm-maintainers). If you belong to a different organization and wish to become a contributor, you can submit a proposal to the maintainers outlining your request for Editor status. Upon review, further steps will be communicated to facilitate your inclusion as an Editor.
   
