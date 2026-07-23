@@ -7,6 +7,7 @@ import com.regnosys.rosetta.common.hashing.ReferenceResolverProcessStep;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.RosettaModelObject;
 import org.finos.cdm.reference.CdmReferenceConfig;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -16,8 +17,7 @@ import java.nio.charset.StandardCharsets;
 public class ResourcesUtils {
 
 	private static final ObjectWriter OBJECT_WRITER =
-			RosettaObjectMapper
-					.getNewMinimalRosettaObjectMapper()
+			new RuneJsonObjectMapper()
 					.writerWithDefaultPrettyPrinter();
 	
 	public static String getJson(String resourceName) {
@@ -32,7 +32,7 @@ public class ResourcesUtils {
 	public static <T extends RosettaModelObject> T getObject(Class<T> clazz, String resourceName) {
 		try {
 			String json = getJson(resourceName);
-            return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
+            return new RuneJsonObjectMapper().readValue(json, clazz);
         } catch (JsonProcessingException e) {
             throw new UncheckedIOException(e);
         }

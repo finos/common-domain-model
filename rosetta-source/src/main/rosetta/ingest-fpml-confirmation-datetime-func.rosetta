@@ -19,7 +19,6 @@ import fpml.consolidated.doc.* as fpml
 import fpml.consolidated.eq.shared.* as fpml
 import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.ird.* as fpml
-import fpml.consolidated.msg.* as fpml
 import fpml.consolidated.shared.* as fpml
 
 func MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate:
@@ -30,9 +29,9 @@ func MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate:
 
     set adjustableOrAdjustedOrRelativeDate:
         AdjustableOrAdjustedOrRelativeDate {
-            unadjustedDate: fpmlAdjustableOrAdjustedDate -> adjustableDateModel -> unadjustedDate -> value -> date,
+            unadjustedDate: fpmlAdjustableOrAdjustedDate -> unadjustedDate -> value -> date,
             dateAdjustments: MapBusinessDayAdjustments(
-                        fpmlAdjustableOrAdjustedDate -> adjustableDateModel -> dateAdjustments
+                        fpmlAdjustableOrAdjustedDate -> dateAdjustments
                     ),
             adjustedDate: fpmlAdjustableOrAdjustedDate -> adjustedDate -> value -> date,
             relativeDate: empty
@@ -426,11 +425,9 @@ func MapRelativeDateSequenceToAdjustedRelativeDateOffset:
             period: firstDateOffset -> period to-enum PeriodEnum,
             dayType: firstDateOffset -> dayType to-enum DayTypeEnum,
             businessDayConvention: firstDateOffset -> businessDayConvention to-enum BusinessDayConventionEnum,
-            businessCenters: MapBusinessCenters(
-                        fpmlRelativeDateSequence -> businessCentersOrReferenceModel -> businessCenters
-                    ),
+            businessCenters: MapBusinessCenters(fpmlRelativeDateSequence -> businessCenters),
             businessCentersReference: MapBusinessCenterReference(
-                        fpmlRelativeDateSequence -> businessCentersOrReferenceModel -> businessCentersReference
+                        fpmlRelativeDateSequence -> businessCentersReference
                     ),
             dateRelativeTo: MapDateReference(fpmlRelativeDateSequence -> dateRelativeTo),
             ...
@@ -448,11 +445,9 @@ func MapRelativeDateOffsetToAdjustedRelativeDateOffset:
             period: fpmlRelativeDateOffset -> period to-enum PeriodEnum,
             dayType: fpmlRelativeDateOffset -> dayType to-enum DayTypeEnum,
             businessDayConvention: fpmlRelativeDateOffset -> businessDayConvention to-enum BusinessDayConventionEnum,
-            businessCenters: MapBusinessCenters(
-                        fpmlRelativeDateOffset -> businessCentersOrReferenceModel -> businessCenters
-                    ),
+            businessCenters: MapBusinessCenters(fpmlRelativeDateOffset -> businessCenters),
             businessCentersReference: MapBusinessCenterReference(
-                        fpmlRelativeDateOffset -> businessCentersOrReferenceModel -> businessCentersReference
+                        fpmlRelativeDateOffset -> businessCentersReference
                     ),
             dateRelativeTo: MapDateReference(fpmlRelativeDateOffset -> dateRelativeTo),
             adjustedDate: fpmlRelativeDateOffset -> adjustedDate -> value -> date,
@@ -471,11 +466,9 @@ func MapRelativeDateOffset:
             period: fpmlRelativeDateOffset -> period to-enum PeriodEnum,
             dayType: fpmlRelativeDateOffset -> dayType to-enum DayTypeEnum,
             businessDayConvention: fpmlRelativeDateOffset -> businessDayConvention to-enum BusinessDayConventionEnum,
-            businessCenters: MapBusinessCenters(
-                        fpmlRelativeDateOffset -> businessCentersOrReferenceModel -> businessCenters
-                    ),
+            businessCenters: MapBusinessCenters(fpmlRelativeDateOffset -> businessCenters),
             businessCentersReference: MapBusinessCenterReference(
-                        fpmlRelativeDateOffset -> businessCentersOrReferenceModel -> businessCentersReference
+                        fpmlRelativeDateOffset -> businessCentersReference
                     ),
             dateRelativeTo: MapDateReference(fpmlRelativeDateOffset -> dateRelativeTo),
             adjustedDate: fpmlRelativeDateOffset -> adjustedDate -> value -> date
@@ -508,11 +501,9 @@ func MapRelativeDates:
             period: fpmlRelativeDates -> period to-enum PeriodEnum,
             dayType: fpmlRelativeDates -> dayType to-enum DayTypeEnum,
             businessDayConvention: fpmlRelativeDates -> businessDayConvention to-enum BusinessDayConventionEnum,
-            businessCenters: MapBusinessCenters(
-                        fpmlRelativeDates -> businessCentersOrReferenceModel -> businessCenters
-                    ),
+            businessCenters: MapBusinessCenters(fpmlRelativeDates -> businessCenters),
             businessCentersReference: MapBusinessCenterReference(
-                        fpmlRelativeDates -> businessCentersOrReferenceModel -> businessCentersReference
+                        fpmlRelativeDates -> businessCentersReference
                     ),
             dateRelativeTo: MapDateReference(fpmlRelativeDates -> dateRelativeTo),
             adjustedDate: fpmlRelativeDates -> adjustedDate -> value -> date,
@@ -533,11 +524,9 @@ func MapRelativeDateSequenceToRelativeDates:
             period: firstDateOffset -> period to-enum PeriodEnum,
             dayType: firstDateOffset -> dayType to-enum DayTypeEnum,
             businessDayConvention: firstDateOffset -> businessDayConvention to-enum BusinessDayConventionEnum,
-            businessCenters: MapBusinessCenters(
-                        fpmlRelativeDateSequence -> businessCentersOrReferenceModel -> businessCenters
-                    ),
+            businessCenters: MapBusinessCenters(fpmlRelativeDateSequence -> businessCenters),
             businessCentersReference: MapBusinessCenterReference(
-                        fpmlRelativeDateSequence -> businessCentersOrReferenceModel -> businessCentersReference
+                        fpmlRelativeDateSequence -> businessCentersReference
                     ),
             dateRelativeTo: MapDateReference(fpmlRelativeDateSequence -> dateRelativeTo),
             ...
@@ -583,7 +572,7 @@ func MapCalculationPeriodFrequency:
 func MapFxFixingDate:
     inputs:
         fpmlFxFixingDate fpml.FxFixingDate (0..1)
-        paymentDates fpml.PaymentDates (0..1)
+        fpmlPaymentDates fpml.PaymentDates (0..1)
     output:
         fxFixingDate FxFixingDate (0..1)
 
@@ -593,15 +582,13 @@ func MapFxFixingDate:
             periodMultiplier: fpmlFxFixingDate -> periodMultiplier,
             dayType: fpmlFxFixingDate -> dayType to-enum DayTypeEnum,
             businessDayConvention: fpmlFxFixingDate -> businessDayConvention to-enum BusinessDayConventionEnum,
-            businessCenters: MapBusinessCenters(
-                        fpmlFxFixingDate -> businessCentersOrReferenceModel -> businessCenters
-                    ),
+            businessCenters: MapBusinessCenters(fpmlFxFixingDate -> businessCenters),
             businessCentersReference: MapBusinessCenterReference(
-                        fpmlFxFixingDate -> businessCentersOrReferenceModel -> businessCentersReference
+                        fpmlFxFixingDate -> businessCentersReference
                     ),
             dateRelativeToPaymentDates:
                 DateRelativeToPaymentDates {
-                    paymentDatesReference: MapPaymentDatesReference(paymentDates)
+                    paymentDatesReference: MapPaymentDatesReference(fpmlPaymentDates)
                 },
             ...
         }
@@ -653,7 +640,8 @@ func MapBusinessDayAdjustments:
                         fpmlBusinessDateAdjustments -> businessDayConvention to-string
                     ),
             businessCenters: MapBusinessCenterOrBusinessCenterReference(
-                        fpmlBusinessDateAdjustments -> businessCentersOrReferenceModel
+                        fpmlBusinessDateAdjustments -> businessCenters,
+                        fpmlBusinessDateAdjustments -> businessCentersReference
             ),
         }
 
@@ -690,25 +678,25 @@ func MapBusinessCenter:
             [metadata scheme]
 
     set businessCenter:
-        MapBusinessCenterEnum(fpmlBusinessCenter -> value) with-meta {
+        empty with-meta {
             scheme: fpmlBusinessCenter -> businessCenterScheme
         }
 
 func MapBusinessCenterOrBusinessCenterReference:
     inputs:
-        fpmlBusinessCentersOrReferenceModel fpml.BusinessCentersOrReferenceModel (0..1)
+        fpmlBusinessCenters fpml.BusinessCenters (0..1)
+        fpmlBusinessCentersReference fpml.BusinessCentersReference (0..1)
     output:
         businessCenters BusinessCenters (0..1)
     set businessCenters:
         BusinessCenters {
-            businessCenter: fpmlBusinessCentersOrReferenceModel -> businessCenters -> businessCenter
-                    extract MapBusinessCenter,
+            businessCenter: fpmlBusinessCenters -> businessCenter extract MapBusinessCenter,
             businessCentersReference: MapBusinessCenterReference(
-                        fpmlBusinessCentersOrReferenceModel -> businessCentersReference
+                        fpmlBusinessCentersReference
                     ),
             ...
         } with-meta {
-            key: fpmlBusinessCentersOrReferenceModel -> businessCenters -> id
+            key: fpmlBusinessCenters -> id
         }
 
 func MapBusinessCenterReference:
@@ -771,9 +759,9 @@ func MapDividendPaymentDate:
         DividendPaymentDate {
             dividendDateReference:
                 DividendDateReference {
-                    dateReference: fpmlDividendPaymentDate -> dividendPaymentDateSequence -> dividendDateReference to-enum DividendDateReferenceEnum,
+                    dateReference: fpmlDividendPaymentDate -> dividendDateReference to-enum DividendDateReferenceEnum,
                     paymentDateOffset: MapOffset(
-                                fpmlDividendPaymentDate -> dividendPaymentDateSequence -> paymentDateOffset
+                                fpmlDividendPaymentDate -> paymentDateOffset
                             )
                 },
             dividendDate: MapAdjustableDateOrAdjustedRelativeDate(
@@ -855,8 +843,7 @@ func MapCommodityDeliveryDates:
     output:
         offset Offset (0..1)
 
-    alias deliveryDates:
-        fpmlCommodity -> commodityProductModel -> commodityProductModelSequence -> commodityProductModelSequenceChoice -> deliveryDates
+    alias deliveryDates: fpmlCommodity -> deliveryDates
 
     set offset:
         Offset {
@@ -889,25 +876,23 @@ func MapDeliveryDatesToPeriodMultiplier:
 
 func MapCommodityRelativePaymentDates:
     inputs:
-        commodityPaymentDatesModel fpml.CommodityPaymentDatesModel (0..1)
+        fpmlRelativePaymentDates fpml.CommodityRelativePaymentDates (0..1)
     output:
         paymentDates PaymentDates (0..1)
-
-    alias relativePaymentDates: commodityPaymentDatesModel -> relativePaymentDates
 
     set paymentDates:
         PaymentDates {
             payRelativeTo: MapPayRelativeToEnum(
-                        relativePaymentDates -> payRelativeTo to-string
+                        fpmlRelativePaymentDates -> payRelativeTo to-string
                     ),
-            paymentDaysOffset: MapOffset(relativePaymentDates -> paymentDaysOffset),
+            paymentDaysOffset: MapOffset(fpmlRelativePaymentDates -> paymentDaysOffset),
             paymentDatesAdjustments:
                 BusinessDayAdjustments {
                     businessDayConvention: MapBusinessDayConventionEnum(
-                                relativePaymentDates -> paymentDaysOffset -> businessDayConvention to-string
+                                fpmlRelativePaymentDates -> paymentDaysOffset -> businessDayConvention to-string
                             ),
                     businessCenters: MapBusinessCenters(
-                                relativePaymentDates -> businessCentersOrReferenceModel -> businessCenters
+                                fpmlRelativePaymentDates -> businessCenters
                     ),
                 },
             ...
@@ -915,29 +900,25 @@ func MapCommodityRelativePaymentDates:
 
 func MapCommoditySwapNonPeriodicPaymentDates:
     inputs:
-        commodityPaymentDatesModel fpml.CommodityPaymentDatesModel (0..1)
+        fpmlPaymentDates fpml.AdjustableDatesOrRelativeDateOffset (0..1)
     output:
         paymentDates PaymentDates (0..1)
 
     set paymentDates:
         PaymentDates {
-            paymentDateSchedule: MapCommoditySwapPaymentDateSchedule(
-                        commodityPaymentDatesModel
-                    ),
+            paymentDateSchedule: MapCommoditySwapPaymentDateSchedule(fpmlPaymentDates),
             ...
         }
 
 func MapCommoditySwapPaymentDateSchedule:
     inputs:
-        fpmlCommodityPaymentDatesModel fpml.CommodityPaymentDatesModel (0..1)
+        fpmlPaymentDates fpml.AdjustableDatesOrRelativeDateOffset (0..1)
     output:
         paymentDateSchedule PaymentDateSchedule (0..1)
 
     set paymentDateSchedule:
         PaymentDateSchedule {
-            interimPaymentDates: MapAdjustableDatesOrRelativeDateOffset(
-                        fpmlCommodityPaymentDatesModel -> commodityNonPeriodicPaymentDatesModel -> paymentDates
-                    ),
+            interimPaymentDates: MapAdjustableDatesOrRelativeDateOffset(fpmlPaymentDates),
             ...
         }
 
@@ -973,22 +954,18 @@ func MapParametricDates:
     output:
         parametricDates ParametricDates (0..1)
 
-    alias commodityPricingDates:
-        fpmlCommodityPricingDates -> commodityPricingDatesSequence -> commodityPricingDatesSequenceSequence
-    alias daysModel: commodityPricingDates -> daysModel
-
     set parametricDates:
         ParametricDates {
-            dayType: MapDayTypeEnum(daysModel -> dayType to-string),
+            dayType: MapDayTypeEnum(fpmlCommodityPricingDates -> dayType to-string),
             dayDistribution: MapDayDistributionEnumWithScheme(
-                        daysModel -> daysModelSequence0 -> dayDistribution -> value,
-                        daysModel -> daysModelSequence0 -> dayDistribution -> commodityFrequencyTypeScheme
+                        fpmlCommodityPricingDates -> dayDistribution -> value,
+                        fpmlCommodityPricingDates -> dayDistribution -> commodityFrequencyTypeScheme
                     ),
-            dayOfWeek: daysModel -> daysModelSequence1 -> dayOfWeek
+            dayOfWeek: fpmlCommodityPricingDates -> dayOfWeek
                     extract MapDayOfWeekEnum(item to-string),
-            dayFrequency: daysModel -> daysModelSequence1 -> dayNumber,
+            dayFrequency: fpmlCommodityPricingDates -> dayNumber,
             businessCenters: MapCommodityBusinessCalendarToBusinessCenters(
-                        commodityPricingDates -> businessCalendar
+                        fpmlCommodityPricingDates -> businessCalendar
                     ),
             ...
         }
@@ -1034,38 +1011,37 @@ func MapCommodityBusinessCalendarEnumWithScheme:
 
 func MapCommodityCalculationPeriods:
     inputs:
-        fpmlCommodityCalculationPeriods fpml.CommodityCalculationPeriodsModel (0..1)
+        fpmlCommodityCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
     output:
         calculationPeriodDates CalculationPeriodDates (0..1)
 
     set calculationPeriodDates:
         CalculationPeriodDates {
             calculationPeriodFrequency: MapCommodityCalculationPeriodFrequency(
-                        fpmlCommodityCalculationPeriods
+                        fpmlCommodityCalculationPeriodsSchedule
                     ),
             ...
         }
 
 func MapCommodityCalculationPeriodFrequency:
     inputs:
-        fpmlCommodityCalculationPeriodsModel fpml.CommodityCalculationPeriodsModel (1..1)
+        fpmlCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
     output:
         calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 
-    alias calculationPeriod:
-        fpmlCommodityCalculationPeriodsModel -> calculationPeriodsSchedule
-
     set calculationPeriodFrequency:
         CalculationPeriodFrequency {
-            period: MapPeriodExtendedEnum(calculationPeriod -> period to-string),
-            periodMultiplier: calculationPeriod -> periodMultiplier,
+            period: MapPeriodExtendedEnum(
+                        fpmlCalculationPeriodsSchedule -> period to-string
+                    ),
+            periodMultiplier: fpmlCalculationPeriodsSchedule -> periodMultiplier,
             rollConvention: empty,
-            balanceOfFirstPeriod: calculationPeriod -> balanceOfFirstPeriod
+            balanceOfFirstPeriod: fpmlCalculationPeriodsSchedule -> balanceOfFirstPeriod
         } with-meta {
-            key: calculationPeriod -> id
+            key: fpmlCalculationPeriodsSchedule -> id
         }
 
-func MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequncy:
+func MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequency:
     inputs:
         fpmlCommodityCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
     output:
@@ -1116,7 +1092,7 @@ func MapFpmlDateTimeListToDateTimeList: <"Creates a ZonedDateTime from the provi
 
 func MapEventTimestamp:
     inputs:
-        messageHeaderModel fpml.MessageHeaderModel (0..1)
+        creationTimestamp zonedDateTime (0..1)
         fpmlTrade fpml.Trade (0..1)
     output:
         eventTimestamp EventTimestamp (0..*)
@@ -1124,9 +1100,9 @@ func MapEventTimestamp:
     alias partyTradeInformation: fpmlTrade -> tradeHeader -> partyTradeInformation
 
     add eventTimestamp:
-        if messageHeaderModel -> creationTimestamp exists
+        if creationTimestamp exists
         then EventTimestamp {
-                dateTime: messageHeaderModel -> creationTimestamp,
+                dateTime: creationTimestamp,
                 qualification: eventCreationDateTime
             }
     add eventTimestamp:

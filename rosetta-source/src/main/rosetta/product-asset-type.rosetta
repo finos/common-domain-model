@@ -37,15 +37,25 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
         required choice schedule, calculationPeriodDates
 
     condition CommodityUnderlier: <"The underlier for a CommodityPayout should be a commodity.">
-        if underlier -> Observable exists
-        then ObservableIsCommodity(underlier -> Observable)
-        else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout exists
+        if underlier as Observable exists
+        then ObservableIsCommodity(underlier as Observable)
+        else if underlier as TransferableProduct -> economicTerms -> payout
+            only-element
+            as OptionPayout
+            exists
         then ObservableIsCommodity(
-                    underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout -> underlier -> Observable
+                    underlier as TransferableProduct -> economicTerms -> payout
+                        only-element
+                        as OptionPayout -> underlier as Observable
                 ) // Commodity Option
-        else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout exists
+        else if underlier as TransferableProduct -> economicTerms -> payout
+            only-element
+            as SettlementPayout
+            exists
         then ObservableIsCommodity(
-                    underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout -> underlier -> Observable
+                    underlier as TransferableProduct -> economicTerms -> payout
+                        only-element
+                        as SettlementPayout -> underlier as Observable
                 ) // Commodity Future
         else False
 
@@ -167,7 +177,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
         optional choice paymentDates, paymentDate
 
     condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
-        if rateSpecification -> FixedRateSpecification is absent
+        if rateSpecification as FixedRateSpecification is absent
         then priceQuantity -> futureValueNotional is absent
 
     condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
@@ -222,7 +232,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
     condition FpML_ird_29: <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
         if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None
-        then rateSpecification -> FixedRateSpecification is absent
+        then rateSpecification as FixedRateSpecification is absent
 
     condition CalculationPeriodDatesFirstCompoundingPeriodEndDate: <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
         if compoundingMethod is absent or compoundingMethod = CompoundingMethodEnum -> None
@@ -319,7 +329,7 @@ type ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
     securedList boolean (0..1) <"With respect to any day, the list of Syndicated Secured Obligations of the Designated Priority of the Reference Entity published by Markit Group Limited or any successor thereto appointed by the Specified Dealers (the 'Secured List Publisher') on or most recently before such day, which list is currently available at [http://www.markit.com]. ISDA 2003 Term: Relevant Secured List.">
 
     condition ReferenceInformationChoice: <"Choice rule to represent an FpML choice construct.">
-        required choice referenceObligation, noReferenceObligation , unknownReferenceObligation
+        required choice referenceObligation, noReferenceObligation, unknownReferenceObligation
 
 type ReferenceObligation: <"A class to specify the reference obligation that is associated with a credit derivative instrument.">
     security Security (0..1) <"Identifies the underlying asset when it is a security, such as a bond or convertible bond. The security data type requires one or more productIdentifiers, specificaiton of the security type (e.g. debt), and includes optional attributes to specify a debt class, such as asset-backed, as well as seniority.">
@@ -507,7 +517,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
 
     condition UnderlierMustBeListedDerivative: <"If an exchange traded contract nearest is specified, it must have a listed derivative as underlier.">
         if exchangeTradedContractNearest exists
-        then exchangeTradedContractNearest -> Asset -> Instrument -> ListedDerivative exists
+        then exchangeTradedContractNearest as ListedDerivative exists
 
     condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
         if valuationTerms -> futuresPriceValuation = True
@@ -665,7 +675,7 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
     finalPrincipalExchangeCalculation FinalPrincipalExchangeCalculationEnum (0..1) <"To be specified only for products that embed a redemption payment.">
 
     condition InflationIndex:
-        rateOption -> InflationIndex exists
+        rateOption as InflationIndex exists
 
 type FloatingRateBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
     [metadata key]
@@ -713,7 +723,7 @@ type StubFloatingRate: <"A class defining a floating rate.">
 
     floatingRateIndex FloatingRateIndexEnum (1..1) <"The floating rate index.">
     indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate.">
-    floatingRateMultiplierSchedule Schedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
+    floatingRateMultiplierSchedule ScheduleWithInitialValue (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
     spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
     rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
     capRateSchedule StrikeSchedule (0..*) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">

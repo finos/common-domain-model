@@ -271,13 +271,11 @@ It can be used as the underlier of a basic Payout that describes the buying and 
 :::
 
 ``` Haskell
-type TransferableProduct extends Asset:
+type TransferableProduct:
+    asset Asset (1..1)
     economicTerms EconomicTerms (1..1)
+    productPartyRole CounterpartyRoleEnum (1..1)
 ```
-
-Because `TransferableProduct` extends `Asset`, it inherits its `identifier` and `taxonomy` attributes from it.
-In that case, those attributes are of type, respectively, `AssetIdentifier` and `Taxonomy`.
-
 #### NonTransferableProduct
 
 By contrast with a transferable product, which can be held by a single party who can in turn transfer it to another,
@@ -319,7 +317,7 @@ The terms of the contract are specified at trade inception and
 apply throughout the life of the contract (which can last for decades
 for certain long-dated products) unless amended by mutual agreement.
 Contractual products may be fungible (replaceable by other
-identical or similar contracts) only under specific terms: e.g. the
+identical or similar contracts) only under specific terms: e.g. the
 existence of a close-out netting agreement between the parties.
 
 Given that each contractual product transaction is unique, all of the
@@ -409,7 +407,6 @@ combines an interest rate payout and a performance payout; etc.
 
 ``` Haskell
 choice Payout:
-  [metadata key]
   AssetPayout
   CommodityPayout
   CreditDefaultPayout
@@ -428,6 +425,7 @@ are expected to be common across many payouts.
 
 ``` Haskell
 type PayoutBase:
+  [metadata key]
   payerReceiver PayerReceiver (1..1)
   priceQuantity ResolvablePriceQuantity (0..1)
   principalPayment PrincipalPayments (0..1)
@@ -673,7 +671,7 @@ in addition to the price and quantity and can be represented using the
 [`SettlementPayout`](#settlementpayout).
 
 A `TradableProduct` also provides a mechanism to trade indices that
-otherwise cannot be directly transfered. The `Payout` would define how
+otherwise cannot be directly transferred. The `Payout` would define how
 the index is meant to be observed and the resulting cashflows between
 the parties based on that observed value.
 
@@ -821,7 +819,7 @@ type PriceQuantity:
   [metadata key]
   price PriceSchedule (0..*)
     [metadata location]
-  quantity NonNegativeQuantitySchedule (0..*)
+  quantity NonNegativeQuantitySchedule (0..1)
     [metadata location]
   observable Observable (0..1)
     [metadata location]
@@ -895,16 +893,16 @@ for instance, a `Measure` requires the `value` attribute to be present
 (but `unit` is still optional because a measure could be unit-less).
 
 ``` Haskell
-type MeasureBase:
-  value number (0..1)
+type MeasureBase extends Schedule:
   unit UnitType (0..1)
 ```
 
 ``` Haskell
 type Measure extends MeasureBase:
-
-  condition ValueExists:
-    value exists
+  override value number (1..1)
+  override datedValue DatedValue (0..0)
+  condition DatedValueIsAbsent:
+    datedValue is absent
 ```
 
 The `UnitType` data type used to defined the `unit` attribute requires
@@ -922,37 +920,14 @@ type UnitType:
      one-of
 ```
 
-A measure can vary over time. One often used case is a series of
-measures indexed by date. Such measures are all homogeneous, so the unit
-only needs to be represented once.
-
-To represent this, the `MeasureSchedule` type extends `MeasureBase` with
-a set of date and value pair attributes represented by the `DatedValue`
-type. In that structure, the existing `value` attribute can still be
-omitted but, when present, represents the schedule's initial value.
-
-``` Haskell
-type MeasureSchedule extends MeasureBase:
-  datedValue DatedValue (0..*)
-
-  condition ValueExists:
-    value exists or datedValue exists
-```
-
-The price and quantity concepts for financial instruments are both
-modelled as extensions of the `MeasureSchedule` data type, as detailed
-below. This means that by default, price and quantity are considered as
-schedules although they can also represent a single value when the
-`datedValue` attribute is omitted.
-
 ### Price
 
-The `PriceSchedule` data type extends the `MeasureSchedule` data type
+The `PriceSchedule` data type extends the `MeasureBase` data type
 with the addition of the `priceExpression` and `perUnitOf` attributes,
 which together further qualify the price.
 
 ``` Haskell
-type PriceSchedule extends MeasureSchedule:
+type PriceSchedule extends MeasureBase:
   perUnitOf UnitType (0..1)
   priceType PriceTypeEnum (1..1)
   priceSubType PriceSubTypeEnum (0..1)
@@ -960,6 +935,7 @@ type PriceSchedule extends MeasureSchedule:
   composite PriceComposite (0..1)
   arithmeticOperator ArithmeticOperationEnum (0..1)
   premiumType PremiumTypeEnum (0..1)
+  derivedQuantity NonNegativeQuantitySchedule (0..1)
 ```
 
 Note that the conditions for this data type are excluded from the
@@ -978,34 +954,21 @@ Consider the example below for the initial price of the underlying
 equity in a single-name Equity Swap, which is a net price of 37.44 USD
 per Share:
 
-``` Javascript
-"price": [
-  {
-    "value": {
-      "value": 37.44,
-      "unit": {
-        "currency": {
-          "value": "USD"
-          }
-        },
-        "perUnitOf": {
-          "financialUnit": "SHARE"
-        },
-        "priceExpression": {
-          "priceType": "ASSET_PRICE",
-          "grossOrNet": "NET"
-        },
-      },
-      "meta": {
-        "location": [
-          {
-            "scope": "DOCUMENT",
-            "value": "price-1"
-          }
-        ]
-      }
+ ``` json
+"price": [ {
+  "@key:scoped" : "price-1",
+  "value": 37.44,
+  "unit": {
+    "currency": {
+      "@data": "USD"
     }
-  ]
+  },
+  "perUnitOf": {
+    "financialUnit": "Share"
+  },
+  "priceType" : "AssetPrice",
+  "priceExpression" : "AbsoluteTerms"
+} ]
 ```
 
 The full form of this example can be seen by ingesting one of the
@@ -1018,33 +981,28 @@ the `spreadType` would be a Spread.
 
 ### Quantity
 
-The `QuantitySchedule` data type also extends the `MeasureSchedule` data
+The `QuantitySchedule` data type also extends the `MeasureBase` data
 type with the addition of an optional `multiplier` attributes. It also
 requires the `unit` attribute to exist, i.e. a quantity cannot be
 unit-less. The `NonNegativeQuantitySchedule` data type further
 constrains it by requiring that all the values are non-negative.
 
 ``` Haskell
-type QuantitySchedule extends MeasureSchedule:
-  multiplier Measure (0..1)
+type QuantitySchedule extends MeasureBase:
+  override unit UnitType (1..1)
+  multiplier NonNegativeMeasure (0..1)
   frequency Frequency (0..1)
+    total Schedule (0..1)
 
-  condition Quantity_multiplier:
-      if multiplier exists then multiplier -> value >= 0.0
-  condition UnitOfAmountExists:
-      unit exists
+  condition TotalQuantity:
+      if total exists then frequency exists
 ```
 
 ``` Haskell
 type NonNegativeQuantitySchedule extends QuantitySchedule:
-
-    condition NonNegativeQuantity_value:
-        if value exists
-        then value >= 0.0
-
-    condition NonNegativeQuantity_datedValue:
-        if datedValue exists
-        then datedValue -> value all >= 0.0
+    override value NonNegativeNumber (0..1)
+    override datedValue NonNegativeDatedValue(0..*)
+    override total NonNegativeSchedule
 ```
 
 The inherited attributes of `value`, `unit` and `datedValue` (in case
@@ -1059,29 +1017,22 @@ of the WTI Crude Oil futures contract on the CME. Each contract
 represents 1,000 barrels, therefore the total quantity of the trade is
 for 200,000 barrels.
 
-``` Javascript
-"quantity": [
-  {
-    "value": {
-      "value": 200,
-      "unit": {
-        "financialUnit": "CONTRACT"
-      },
-      "multiplier": {
-        "value": 1000,
-        "unit": "BBL"
-      }
-    },
-    "meta": {
-      "location": [
-        {
-          "scope": "DOCUMENT",
-          "value": "quantity-1"
-        }
-      ]
+ ``` json
+"quantity" : [ {
+  "@key:scoped" : "quantity-1",
+  "value" : 200,
+  "unit" : {
+    "currency" : {
+      "@data" : "BBL"
+    }
+  },
+  "multiplier" : {
+    "value" : 1000,
+    "unit" : {
+      "financialUnit" : "Contract"
     }
   }
-]
+} ]
 ```
 
 The `frequency` attribute is used in a similar way when a quantity may
@@ -1144,8 +1095,11 @@ type SettlementBase:
     [metadata scheme]
   settlementDate SettlementDate (0..1)
   settlementCentre SettlementCentreEnum (0..1)
+    [deprecated]
   settlementProvision SettlementProvision (0..1)
   standardSettlementStyle StandardSettlementStyleEnum (0..1)
+  securitySettlementCentre AssetAncillaryPartyRoleEnum (0..1)
+  cashSettlementCentre AssetAncillaryPartyRoleEnum (0..1)
 ```
 
 ### BuyerSeller
@@ -1190,10 +1144,7 @@ the word `Qualify` followed by an underscore `_` and then the product
 type from the applicable taxonomy (also separated by underscores).
 
 The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual
-products, foreign exchange, and repurchase agreements. Given the
-prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent
-name from that taxonomy is also systematically indicated in the CDM,
-using a `synonym` annotation displayed under the function output. An
+products, foreign exchange, and repurchase agreements. An
 example is provided below for the qualification of a Zero-Coupon
 Fixed-Float Inflation Swap:
 
@@ -1237,7 +1188,7 @@ features, whose possible values are not publicly available and hence not
 positioned as a CDM enumeration.
 
 The output of the qualification function is used to populate the
-`productQualifier` attribute of the `ProductTaxonomy` object, which is
+`value` attribute of the `ProductTaxonomy` object, which is
 created when a `NonTransferableProduct` object is created. The product
 taxonomy includes both the product qualification generated by the CDM
 and any additional product taxonomy information which may come from the
@@ -1290,40 +1241,34 @@ type ProductTaxonomy extends Taxonomy:
         [metadata scheme]
     secondaryAssetClass AssetClassEnum (0..*)
         [metadata scheme]
-    productQualifier string (0..1)
 
     condition TaxonomyType:
         required choice source, primaryAssetClass, secondaryAssetClass
 
     condition TaxonomySource:
-        if source exists then ( value exists or productQualifier exists )
-
-    condition TaxonomyValue:
-        optional choice value, productQualifier
+        if source exists then value exists
 ```
 
-``` Javascript
-"productTaxonomy": [
-  {
-    "primaryAssetClass": {
-      "meta": {
-        "scheme": "http://www.fpml.org/coding-scheme/asset-class-simple"
-      },
-      "value": "INTEREST_RATE"
-    },
-  },
-  {
-    "taxonomyValue": {
-      "meta": {
-        "scheme": "http://www.fpml.org/coding-scheme/product-taxonomy"
-      },
-      "value": "InterestRate:IRSwap:FixedFloat"
-    }
-    "taxonomySource": "ISDA"
-  },
-  {
-    "productQualifier": "InterestRate_IRSwap_FixedFloat",
-    "taxonomySource": "ISDA"
+ ``` json
+"taxonomy" : [ {
+    "primaryAssetClass" : {
+    "@scheme" : "http://www.fpml.org/coding-scheme/asset-class-simple",
+    "@data" : "InterestRate"
   }
-]
+}, {
+  "source" : "ISDA",
+  "value" : {
+    "name" : {
+      "@scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy",
+      "@data" : "InterestRate:IRSwap:FixedFloat"
+  } 
+  }
+}, {
+  "source" : "ISDA",
+  "value" : {
+    "name" : {
+      "@data" : "IInterestRate_IRSwap_FixedFloat"
+  },
+  "calculated" : true
+} ]
 ```

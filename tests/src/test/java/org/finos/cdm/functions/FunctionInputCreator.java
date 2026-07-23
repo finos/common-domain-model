@@ -1,6 +1,9 @@
 package org.finos.cdm.functions;
 
-import cdm.base.datetime.*;
+import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
+import cdm.base.datetime.AdjustableOrRelativeDate;
+import cdm.base.datetime.Period;
+import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.*;
@@ -30,7 +33,6 @@ import cdm.product.asset.ReferenceInformation;
 import cdm.product.collateral.Collateral;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.ContingentTransferEnum;
-import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
 import cdm.product.common.settlement.UnscheduledTransferEnum;
 import cdm.product.template.NonTransferableProduct;
@@ -48,7 +50,6 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
@@ -58,6 +59,7 @@ import com.rosetta.model.metafields.MetaFields;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModule;
 import org.finos.cdm.util.ResourcesUtils;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,10 +78,9 @@ import static org.finos.cdm.util.ResourcesUtils.*;
 
 public class FunctionInputCreator {
 
-    private Optional<Path> WRITE_BASE_PATH;
     private static final Logger LOGGER = LoggerFactory.getLogger(FunctionInputCreator.class);
 
-    private static final ObjectMapper STRICT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper()
+    static final ObjectMapper STRICT_MAPPER = new RuneJsonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
             .configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true)
             .setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
@@ -123,7 +124,7 @@ public class FunctionInputCreator {
         }
     }
 
-    public void run(Optional<Path> writeBasePath) throws Exception {
+    public void run(Optional<Path> writeBasePathOptional) throws Exception {
         Module module = Modules.override(new CdmRuntimeModule())
                 .with(new AbstractModule() {
                     @Override
@@ -134,135 +135,133 @@ public class FunctionInputCreator {
         Injector injector = Guice.createInjector(module);
         injector.injectMembers(this);
 
-        this.WRITE_BASE_PATH = writeBasePath;
-        updateContractFormationIrSwapFuncInputJson();
-        updateExecutionIrSwapFuncInputJson();
-        updateExecutionIrSwapWithInitialFeeFuncInputJson();
-        updateExecutionIrSwapWithOtherPartyPaymentFuncInputJson();
-        updateExecutionFraFuncInputJson();
-        updateExecutionBasisSwapFuncInputJson();
-        updateExecutionOisSwapFuncInputJson();
-        updateExecutionCreditDefaultSwapFuncInputJson();
-        updateExecutionFxForwardFuncInputJson();
-        updateExecutionSwaptionFuncInputJson();
-        updateContractFormationIrSwapWithLegalAgreementFuncInputJson();
-        updateContractFormationFraFuncInputJson();
-        updateContractFormationBasisSwapFuncInputJson();
-        updateContractFormationOisSwapFuncInputJson();
-        updateContractFormationSwaptionFuncInputJson();
-        updateContractFormationCreditDefaultSwapFuncInputJson();
-        updateContractFormationFxForwardFuncInputJson();
-        updateFullTerminationVanillaSwapFuncInputJson();
-        updateFullTerminationEquitySwapFuncInputJson();
-        updatePartialTerminationVanillaSwapFuncInputJson();
-        updatePartialTerminationEquitySwapFuncInputJson();
-        updateIncreaseEquitySwapFuncInputJson();
-        updateIncreaseEquitySwapExistingTradeLotFuncInputJson();
-        updateCompressionFuncInputJson();
-        updateFullNovationFuncInputJson();
-        updatePartialNovationFuncInputJson();
-        updateClearingFuncInputJson();
-        updateAllocationFuncInputJson();
-        updateCreditEventFuncInputJson();
-        updateCreditEventWithObservationFuncInputJson();
-        updateCorporateActionFuncInputJson();
-        updateCorporateActionWithObservationFuncInputJson();
-        updateExerciseSwaptionFullPhysicalInputJson();
-        updateExerciseCashSettledInputJson();
-        updateExercisePartialExerciseInputJson();
-        updateExerciseCancellableOptionInputJson();
-        updateIndexTransitionVanillaSwapFuncInputJson();
-        updateIndexTransitionXccySwapFuncInputJson();
-        updateStockSplitFuncInputJson();
-        updateCorrectionWorkflowFuncInputJson();
-        updateCancellationWorkflowFuncInputJson();
-        updateBondExecutionInput();
-        updateRepoExecutionInput();
-        updateRollInput();
-        updateOnDemandRateChangeInput();
-        updatePairOffInput();
-        updateCancellationInput();
-        updateOnDemandInterestPaymentEventInput();
-        updateShapingPrimitiveInstructionTradeLots();
-        updateShapingEventInput();
-        updatePartialDeliveryDeliveredPriceQuantity();
-        updatePartialDeliveryEventInput();
-        updateRepriceEventInput();
-        updateAdjustmentEventInput();
-        updateRepoSubstitutionCollateral();
-        updateRepoSubstitutionPriceQuantity();
-        updateSubstitutionEventInput();
+        Path writeBasePath = writeBasePathOptional.get();
+        writeExpectation(writeBasePath, getContractFormationIrSwapFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionIrSwapFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionIrSwapWithInitialFeeFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionIrSwapWithOtherPartyPaymentFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionFraFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionBasisSwapFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionOisSwapFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionCreditDefaultSwapFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionFxForwardFuncInputJson());
+        writeExpectation(writeBasePath, getExecutionSwaptionFuncInputJson());
+        writeExpectation(writeBasePath, getContractFormationIrSwapWithLegalAgreementFuncInputJson());
+        writeExpectation(writeBasePath, getContractFormationFraFuncInputJson());
+        writeExpectation(writeBasePath, getContractFormationBasisSwapFuncInputJson());
+        writeExpectation(writeBasePath, getContractFormationOisSwapFuncInputJson());
+        writeExpectation(writeBasePath, getContractFormationSwaptionFuncInputJson());
+        writeExpectation(writeBasePath, getContractFormationCreditDefaultSwapFuncInputJson());
+        writeExpectation(writeBasePath, getContractFormationFxForwardFuncInputJson());
+        writeExpectation(writeBasePath, getFullTerminationVanillaSwapFuncInputJson());
+        writeExpectation(writeBasePath, getFullTerminationEquitySwapFuncInputJson());
+        writeExpectation(writeBasePath, getPartialTerminationVanillaSwapFuncInputJson());
+        writeExpectation(writeBasePath, getPartialTerminationEquitySwapFuncInputJson());
+        writeExpectation(writeBasePath, getIncreaseEquitySwapFuncInputJson());
+        writeExpectation(writeBasePath, getIncreaseEquitySwapExistingTradeLotFuncInputJson());
+        writeExpectation(writeBasePath, getCompressionFuncInputJson());
+        writeExpectation(writeBasePath, getFullNovationFuncInputJson());
+        writeExpectation(writeBasePath, getPartialNovationFuncInputJson());
+        writeExpectation(writeBasePath, getClearingFuncInputJson());
+        writeExpectation(writeBasePath, getAllocationFuncInputJson());
+        writeExpectation(writeBasePath, getCreditEventFuncInputJson());
+        writeExpectation(writeBasePath, getCreditEventWithObservationFuncInputJson());
+        writeExpectation(writeBasePath, getCorporateActionFuncInputJson());
+        writeExpectation(writeBasePath, getCorporateActionWithObservationFuncInputJson());
+        writeExpectation(writeBasePath, getExerciseSwaptionFullPhysicalInputJson());
+        writeExpectation(writeBasePath, getExerciseCashSettledInputJson());
+        writeExpectation(writeBasePath, getExercisePartialExerciseInputJson());
+        writeExpectation(writeBasePath, getExerciseCancellableOptionInputJson());
+        writeExpectation(writeBasePath, getIndexTransitionVanillaSwapFuncInputJson());
+        writeExpectation(writeBasePath, getIndexTransitionXccySwapFuncInputJson());
+        writeExpectation(writeBasePath, getStockSplitFuncInputJson());
+        writeExpectation(writeBasePath, getCorrectionWorkflowFuncInputJson());
+        writeExpectation(writeBasePath, getCancellationWorkflowFuncInputJson());
+        writeExpectation(writeBasePath, getBondExecutionInput());
+        writeExpectation(writeBasePath, getRepoExecutionInput());
+        writeExpectation(writeBasePath, getRollInput());
+        writeExpectation(writeBasePath, getOnDemandRateChangeInput());
+        writeExpectation(writeBasePath, getPairOffInput());
+        writeExpectation(writeBasePath, getCancellationInput());
+        writeExpectation(writeBasePath, getOnDemandInterestPaymentEventInput());
+        writeExpectation(writeBasePath, getShapingPrimitiveInstructionTradeLots());
+        writeExpectation(writeBasePath, getShapingEventInput());
+        writeExpectation(writeBasePath, getPartialDeliveryDeliveredPriceQuantity());
+        writeExpectation(writeBasePath, getPartialDeliveryEventInput());
+        writeExpectation(writeBasePath, getRepriceEventInput());
+        writeExpectation(writeBasePath, getAdjustmentEventInput());
+        writeExpectation(writeBasePath, getRepoSubstitutionCollateral());
+        writeExpectation(writeBasePath, getRepoSubstitutionPriceQuantity());
+        writeExpectation(writeBasePath, getSubstitutionEventInput());
     }
 
-    private void updateExecutionIrSwapFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionIrSwapFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json",
-                Date.parse("1994-12-12"),
-                "functions/business-event/execution/execution-ir-swap-func-input.json");
+                Date.parse("1994-12-12"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-ir-swap-func-input.json", input);
     }
 
-    private void updateExecutionIrSwapWithInitialFeeFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionIrSwapWithInitialFeeFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-initial-fee.json",
-                Date.parse("2018-02-20"),
-                "functions/business-event/execution/execution-ir-swap-with-fee-func-input.json");
+                Date.parse("2018-02-20"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-ir-swap-with-fee-func-input.json", input);
     }
 
-    private void updateExecutionIrSwapWithOtherPartyPaymentFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionIrSwapWithOtherPartyPaymentFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/swap-with-other-party-payment.json",
-                Date.parse("1994-12-12"),
-                "functions/business-event/execution/execution-ir-swap-with-other-party-payment-func-input.json");
+                Date.parse("1994-12-12"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-ir-swap-with-other-party-payment-func-input.json", input);
     }
 
-    private void updateExecutionFraFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionFraFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex08-fra.json",
-                Date.parse("1991-05-14"),
-                "functions/business-event/execution/execution-fra-func-input.json");
+                Date.parse("1991-05-14"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-fra-func-input.json", input);
     }
 
-    private void updateExecutionBasisSwapFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionBasisSwapFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/CAD-Long-Initial-Stub-versioned.json",
-                Date.parse("2017-12-18"),
-                "functions/business-event/execution/execution-basis-swap-func-input.json");
+                Date.parse("2017-12-18"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-basis-swap-func-input.json", input);
     }
 
-    private void updateExecutionOisSwapFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionOisSwapFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex07-ois-swap-uti.json",
-                Date.parse("2001-01-25"),
-                "functions/business-event/execution/execution-ois-swap-func-input.json");
+                Date.parse("2001-01-25"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-ois-swap-func-input.json", input);
     }
 
-    private void updateExecutionCreditDefaultSwapFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionCreditDefaultSwapFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
-                Date.parse("2002-12-04"),
-                "functions/business-event/execution/execution-credit-default-swap-func-input.json");
+                Date.parse("2002-12-04"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-credit-default-swap-func-input.json", input);
     }
 
-    private void updateExecutionFxForwardFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionFxForwardFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-fx/fx-ex03-fx-fwd.json",
-                Date.parse("2001-11-19"),
-                "functions/business-event/execution/execution-fx-forward-func-input.json");
+                Date.parse("2001-11-19"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-fx-forward-func-input.json", input);
     }
 
-    private void updateExecutionSwaptionFuncInputJson() throws IOException {
-        updateExecutionFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getExecutionSwaptionFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getExecutionFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex09-euro-swaption-explicit-versioned.json",
-                Date.parse("2000-08-30"),
-                "functions/business-event/execution/execution-swaption-func-input.json");
+                Date.parse("2000-08-30"));
+        return new ExpectationResult<>("functions/business-event/execution/execution-swaption-func-input.json", input);
     }
 
-    private void updateExecutionFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath) throws IOException {
+    private CreateBusinessEventInput getExecutionFuncInputJson(String tradeStatePath, Date eventDate) throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
-        CreateBusinessEventInput actual = getExecutionFuncInputJson(tradeState, eventDate);
-
-        writeExpectation(expectedJsonPath, actual);
+        return getExecutionFuncInputJson(tradeState, eventDate);
     }
 
 
@@ -284,22 +283,23 @@ public class FunctionInputCreator {
                     .setTransfer(TransferInstruction.builder().setTransferState(transferState));
         }
 
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder.build());
         return new CreateBusinessEventInput(
-                Lists.newArrayList(Instruction.builder().setPrimitiveInstruction(primitiveInstructionBuilder.build())),
+                Lists.newArrayList(instructionBuilder.build()),
                 null,
                 eventDate,
                 null);
     }
 
-    private void updateContractFormationIrSwapFuncInputJson() throws IOException {
-        updateContractFormationFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getContractFormationIrSwapFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getContractFormationFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json",
                 Date.parse("1994-12-12"),
-                "functions/business-event/contract-formation/contract-formation-ir-swap-func-input.json",
                 null);
+        return new ExpectationResult<>("functions/business-event/contract-formation/contract-formation-ir-swap-func-input.json", input);
     }
 
-    private void updateContractFormationIrSwapWithLegalAgreementFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getContractFormationIrSwapWithLegalAgreementFuncInputJson() throws IOException {
         String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
         Date date = Date.parse("1994-12-12");
@@ -315,62 +315,62 @@ public class FunctionInputCreator {
                         .setPublisher(LegalAgreementPublisherEnum.ISDA)
                         .build());
 
-        updateContractFormationFuncInputJson(
+        CreateBusinessEventInput input = getContractFormationFuncInputJson(
                 tradeStatePath,
                 date,
-                "functions/business-event/contract-formation/contract-formation-ir-swap-with-legal-agreement-func-input.json",
                 legalAgreement);
+        return new ExpectationResult<>("functions/business-event/contract-formation/contract-formation-ir-swap-with-legal-agreement-func-input.json", input);
     }
 
-    private void updateContractFormationFraFuncInputJson() throws IOException {
-        updateContractFormationFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getContractFormationFraFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getContractFormationFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex08-fra.json",
                 Date.parse("1991-05-14"),
-                "functions/business-event/contract-formation/contract-formation-fra-func-input.json",
                 null);
+        return new ExpectationResult<>("functions/business-event/contract-formation/contract-formation-fra-func-input.json", input);
     }
 
-    private void updateContractFormationBasisSwapFuncInputJson() throws IOException {
-        updateContractFormationFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getContractFormationBasisSwapFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getContractFormationFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/CAD-Long-Initial-Stub-versioned.json",
                 Date.parse("2017-12-18"),
-                "functions/business-event/contract-formation/contract-formation-basis-swap-func-input.json",
                 null);
+        return new ExpectationResult<>("functions/business-event/contract-formation/contract-formation-basis-swap-func-input.json", input);
     }
 
-    private void updateContractFormationOisSwapFuncInputJson() throws IOException {
-        updateContractFormationFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getContractFormationOisSwapFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getContractFormationFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex07-ois-swap-uti.json",
                 Date.parse("2001-01-25"),
-                "functions/business-event/contract-formation/contract-formation-ois-swap-func-input.json",
                 null);
+        return new ExpectationResult<>("functions/business-event/contract-formation/contract-formation-ois-swap-func-input.json", input);
     }
 
-    private void updateContractFormationSwaptionFuncInputJson() throws IOException {
-        updateContractFormationFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getContractFormationSwaptionFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getContractFormationFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex09-euro-swaption-explicit-versioned.json",
                 Date.parse("2000-08-30"),
-                "functions/business-event/contract-formation/contract-formation-swaption-func-input.json",
                 null);
+        return new ExpectationResult<>("functions/business-event/contract-formation/contract-formation-swaption-func-input.json", input);
     }
 
-    private void updateContractFormationCreditDefaultSwapFuncInputJson() throws IOException {
-        updateContractFormationFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getContractFormationCreditDefaultSwapFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getContractFormationFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cd-ex01-long-asia-corp-fixreg-versioned.json",
                 Date.parse("2002-12-04"),
-                "functions/business-event/contract-formation/contract-formation-credit-default-swap-func-input.json",
                 null);
+        return new ExpectationResult<>("functions/business-event/contract-formation/contract-formation-credit-default-swap-func-input.json", input);
     }
 
-    private void updateContractFormationFxForwardFuncInputJson() throws IOException {
-        updateContractFormationFuncInputJson(
+    ExpectationResult<CreateBusinessEventInput> getContractFormationFxForwardFuncInputJson() throws IOException {
+        CreateBusinessEventInput input = getContractFormationFuncInputJson(
                 "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
-                "functions/business-event/contract-formation/contract-formation-fx-forward-func-input.json",
                 null);
+        return new ExpectationResult<>("functions/business-event/contract-formation/contract-formation-fx-forward-func-input.json", input);
     }
 
-    private void updateContractFormationFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath, LegalAgreement legalAgreement) throws IOException {
+    private CreateBusinessEventInput getContractFormationFuncInputJson(String tradeStatePath, Date eventDate, LegalAgreement legalAgreement) throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
         Instruction instructionBuilder = Instruction.builder()
@@ -380,20 +380,18 @@ public class FunctionInputCreator {
                                 .addLegalAgreement(legalAgreement)))
                 .prune();
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+        return new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 EventIntentEnum.CONTRACT_FORMATION,
                 eventDate,
                 null);
-
-        writeExpectation(expectedJsonPath, actual);
     }
 
-    private void updateFullTerminationVanillaSwapFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getFullTerminationVanillaSwapFuncInputJson() throws IOException {
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(10000))
                                         .setUnit(UnitType.builder()
@@ -402,40 +400,36 @@ public class FunctionInputCreator {
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso4217")))))));
 
-        updateQuantityChangeFuncInputJson(
+        CreateBusinessEventInput input = getQuantityChangeFuncInputJson(
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
-                "functions/business-event/quantity-change/full-termination-vanilla-swap-func-input.json",
                 quantityChangeInstruction, UnscheduledTransferEnum.TERMINATION);
+        return new ExpectationResult<>("functions/business-event/quantity-change/full-termination-vanilla-swap-func-input.json", input);
     }
 
-    private void updateFullTerminationEquitySwapFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getFullTerminationEquitySwapFuncInputJson() throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json");
 
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(760400))
-                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                                .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(28469376))
-                                        .setUnit(UnitType.builder().setCurrencyValue("USD")))));
+                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))));
 
-        updateQuantityChangeFuncInputJson(
+        CreateBusinessEventInput input = getQuantityChangeFuncInputJson(
                 tradeState,
                 Date.of(2021, 11, 11),
-                "functions/business-event/quantity-change/full-termination-equity-swap-func-input.json",
                 quantityChangeInstruction, UnscheduledTransferEnum.TERMINATION);
+        return new ExpectationResult<>("functions/business-event/quantity-change/full-termination-equity-swap-func-input.json", input);
     }
 
-    private void updatePartialTerminationVanillaSwapFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getPartialTerminationVanillaSwapFuncInputJson() throws IOException {
         QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(3000))
                                         .setUnit(UnitType.builder()
@@ -444,14 +438,14 @@ public class FunctionInputCreator {
                                                         .setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso4217")))))));
 
-        updateQuantityChangeFuncInputJson(
+        CreateBusinessEventInput input = getQuantityChangeFuncInputJson(
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
-                "functions/business-event/quantity-change/partial-termination-vanilla-swap-func-input.json",
                 quantityChangeInstruction, UnscheduledTransferEnum.PARTIAL_TERMINATION);
+        return new ExpectationResult<>("functions/business-event/quantity-change/partial-termination-vanilla-swap-func-input.json", input);
     }
 
-    private void updatePartialTerminationEquitySwapFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getPartialTerminationEquitySwapFuncInputJson() throws IOException {
         // Quantity change to terminate tradeLot LOT-2.  Quantity in tradeLot LOT-1 remains unchanged.
         // 20 percentage decrease. Output quantity should be 152,080 shares and 5,693,875 USD
         final QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
@@ -461,112 +455,20 @@ public class FunctionInputCreator {
                         .addAssignedIdentifier(AssignedIdentifier.builder()
                                 .setIdentifierValue("LOT-2")))
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(152080))
-                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                                .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(5693875))
-                                        .setUnit(UnitType.builder().setCurrencyValue("USD")))));
+                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))));
         reKey(quantityChangeInstructionBuilder);
 
-        updateQuantityChangeFuncInputJson(
+        CreateBusinessEventInput input = getQuantityChangeFuncInputJson(
                 getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots(),
                 Date.of(2021, 11, 11),
-                "functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json",
                 quantityChangeInstruction, UnscheduledTransferEnum.PARTIAL_TERMINATION);
+        return new ExpectationResult<>("functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json", input);
     }
 
-    private void updateIncreaseEquitySwapFuncInputJson() throws IOException {
-        CreateBusinessEventInput actual = getIncreaseEquitySwapFuncInputJson();
-        writeExpectation("functions/business-event/quantity-change/increase-equity-swap-func-input.json", actual);
-    }
-
-    private void updateIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
-        CreateBusinessEventInput actual = getIncreaseEquitySwapExistingTradeLotFuncInputJson();
-        writeExpectation("functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json", actual);
-    }
-
-    private CreateBusinessEventInput getIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
-        final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-2"));
-        QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
-                .setDirection(QuantityChangeDirectionEnum.INCREASE)
-                .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                                .setMeta(createKey("quantity-2"))
-                                .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(250000))
-                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))))
-                // interest rate payout PQ
-                .addChange(PriceQuantity.builder()
-                        .setObservableValue(Observable.builder()
-                                .setIndex(Index.builder()
-                                        .setInterestRateIndex(FieldWithMetaInterestRateIndex.builder()
-                                                .setMeta(createKey("rateOption-1"))
-                                                .setValue(InterestRateIndex.builder()
-                                                        .setFloatingRateIndex(FloatingRateIndex.builder()
-                                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
-                                                                .setIndexTenor(Period.builder()
-                                                                        .setPeriod(PeriodEnum.M)
-                                                                        .setPeriodMultiplier(1)))))))
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                                .setMeta(createKey("quantity-1"))
-                                .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(7500000))
-                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))))
-                        .addPrice(FieldWithMetaPriceSchedule.builder()
-                                .setMeta(createKey("price-1"))
-                                .setValue(PriceSchedule.builder()
-                                        .setValue(BigDecimal.valueOf(0.0020))
-                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))
-                                        .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
-                                        .setArithmeticOperator(ArithmeticOperationEnum.ADD)
-                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))));
-
-        TradeState tradeState = getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots();
-
-        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
-                .setBeforeValue(tradeState)
-                .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstructions));
-
-        reKey(instructionBuilder);
-
-        return new CreateBusinessEventInput(
-                Lists.newArrayList(instructionBuilder.build()),
-                null,
-                Date.of(2021, 11, 11),
-                null);
-    }
-
-    private TradeState getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots() throws IOException {
-        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
-        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeStateBuilder.getTrade();
-        TradeLot.TradeLotBuilder tradeLot1Builder = tradableProductBuilder.getTradeLot().get(0);
-
-        //Take a copy of the trade lot
-        TradeLot.TradeLotBuilder tradeLot2Builder = tradeLot1Builder.build().toBuilder();
-
-        tradeLot1Builder.addLotIdentifier(Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-1")));
-        tradeLot2Builder.addLotIdentifier(Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-2")));
-        tradableProductBuilder.addTradeLot(tradeLot2Builder);
-        reKey(tradableProductBuilder);
-        return tradeStateBuilder.build();
-    }
-
-    /**
-     * This is in a separate method because it is used by validateIncreaseEquitySwapFuncInputJson (to validate input),
-     * and validatePartialTerminationEquitySwapFuncInputJson (as the input uses the output of the increase func).
-     */
-
-    private CreateBusinessEventInput getIncreaseEquitySwapFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getIncreaseEquitySwapFuncInputJson() throws IOException {
         QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
                 .addLotIdentifier(Identifier.builder()
@@ -584,7 +486,7 @@ public class FunctionInputCreator {
                                                                 .setIdentifier(FieldWithMetaString.builder()
                                                                         .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
                                                                         .setValue("SHPGY.O")))))))
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-2"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(250000))
@@ -615,7 +517,7 @@ public class FunctionInputCreator {
                                         )
                                 )
                         )
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-1"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(7500000))
@@ -637,27 +539,101 @@ public class FunctionInputCreator {
                         .setQuantityChange(quantityChangeInstructions)
                         .setTransfer(getTransferInstruction(tradeState, UnscheduledTransferEnum.INCREASE)));
         reKey(instructionBuilder);
-        return new CreateBusinessEventInput(
+        
+        CreateBusinessEventInput actual =  new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
                 Date.of(2021, 11, 11),
                 null);
+        return new ExpectationResult<>("functions/business-event/quantity-change/increase-equity-swap-func-input.json", actual);
     }
 
-    private void updateQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, String expectedJsonPath, QuantityChangeInstruction quantityChangeInstruction, UnscheduledTransferEnum feeType) throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
+        final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-2"));
+        QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
+                .setDirection(QuantityChangeDirectionEnum.INCREASE)
+                .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setMeta(createKey("quantity-2"))
+                                .setValue(NonNegativeQuantitySchedule.builder()
+                                        .setValue(BigDecimal.valueOf(250000))
+                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))))
+                // interest rate payout PQ
+                .addChange(PriceQuantity.builder()
+                        .setObservableValue(Observable.builder()
+                                .setIndex(Index.builder()
+                                        .setInterestRateIndex(FieldWithMetaInterestRateIndex.builder()
+                                                .setMeta(createKey("rateOption-1"))
+                                                .setValue(InterestRateIndex.builder()
+                                                        .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                                .setIndexTenor(Period.builder()
+                                                                        .setPeriod(PeriodEnum.M)
+                                                                        .setPeriodMultiplier(1)))))))
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setMeta(createKey("quantity-1"))
+                                .setValue(NonNegativeQuantitySchedule.builder()
+                                        .setValue(BigDecimal.valueOf(7500000))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))))
+                        .addPrice(FieldWithMetaPriceSchedule.builder()
+                                .setMeta(createKey("price-1"))
+                                .setValue(PriceSchedule.builder()
+                                        .setValue(BigDecimal.valueOf(0.0020))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                                        .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
+                                        .setArithmeticOperator(ArithmeticOperationEnum.ADD)
+                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))));
+
+        TradeState tradeState = getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots();
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructions));
+
+        reKey(instructionBuilder);
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                null,
+                Date.of(2021, 11, 11),
+                null);
+        return new ExpectationResult<>("functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json", actual);
+    }
+
+    private TradeState getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots() throws IOException {
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
+        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeStateBuilder.getTrade();
+        TradeLot.TradeLotBuilder tradeLot1Builder = tradableProductBuilder.getTradeLot().get(0);
+
+        //Take a copy of the trade lot
+        TradeLot.TradeLotBuilder tradeLot2Builder = tradeLot1Builder.build().toBuilder();
+
+        tradeLot1Builder.addLotIdentifier(Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-1")));
+        tradeLot2Builder.addLotIdentifier(Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-2")));
+        tradableProductBuilder.addTradeLot(tradeLot2Builder);
+        reKey(tradableProductBuilder);
+        return tradeStateBuilder.build();
+    }
+
+    private CreateBusinessEventInput getQuantityChangeFuncInputJson(TradeState tradeState, Date eventDate, QuantityChangeInstruction quantityChangeInstruction, UnscheduledTransferEnum feeType) throws IOException {
         Instruction instructionBuilder = Instruction.builder()
                 .setBeforeValue(tradeState)
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstruction)
                         .setTransfer(getTransferInstruction(tradeState, feeType)));
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(
+        return new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
                 eventDate,
                 null);
-
-        writeExpectation(expectedJsonPath, actual);
     }
 
 
@@ -668,12 +644,27 @@ public class FunctionInputCreator {
                 .map(TradeLot::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity::getQuantity)
-                .flatMap(Collection::stream)
+                .filter(Objects::nonNull)
                 .map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
                 .map(NonNegativeQuantitySchedule::getUnit)
                 .filter(unit -> unit.getCurrency() != null)
                 .findFirst()
-                .orElse(null);
+                // Fall back to the price's derived quantity for the currency unit: after the
+                // PriceQuantity.quantity (0..1) change, an equity swap's notional currency lives on
+                // price -> derivedQuantity rather than on quantity (whose unit is a financial unit).
+                .orElseGet(() -> trade.getTradeLot().stream()
+                        .map(TradeLot::getPriceQuantity)
+                        .flatMap(Collection::stream)
+                        .map(PriceQuantity::getPrice)
+                        .filter(Objects::nonNull)
+                        .flatMap(Collection::stream)
+                        .map(FieldWithMetaPriceSchedule::getValue)
+                        .map(PriceSchedule::getDerivedQuantity)
+                        .filter(Objects::nonNull)
+                        .map(NonNegativeQuantitySchedule::getUnit)
+                        .filter(unit -> unit.getCurrency() != null)
+                        .findFirst()
+                        .orElse(null));
         return TransferInstruction.builder()
                 .addTransferState(TransferState.builder()
                         .setTransfer(Transfer.builder()
@@ -690,12 +681,12 @@ public class FunctionInputCreator {
                         ));
     }
 
-    private void updateCompressionFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getCompressionFuncInputJson() throws IOException {
         List<Instruction> instructions = new ArrayList<>();
         QuantityChangeInstruction terminateInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                 .addChange(PriceQuantity.builder()
-                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
                                         .setValue(BigDecimal.valueOf(0.0))
                                         .setUnit(UnitType.builder()
@@ -704,22 +695,44 @@ public class FunctionInputCreator {
                                                         .setValue("USD"))))));
 
 
-        instructions.add(Instruction.builder()
+        // reKey the "before" trades so their parties carry global keys/references, matching the
+        // explicitly reKey'd execution instruction below.
+        //
+        // Why this is needed with the new (RuneJsonObjectMapper) serialiser but not the old
+        // (RosettaObjectMapper) one:
+        //   - The old serialiser persisted global keys/references (globalKey / globalReference)
+        //     on the ingested workflow-step samples, so every party - including the "before"
+        //     trades read here - already carried a global reference (e.g. personReference had a
+        //     globalReference). All party1 instances were therefore keyed identically and, once
+        //     references were resolved, resolved/inlined identically, hashing to the same global
+        //     key. The ReKey step saw one consistent global key per external key, so it passed.
+        //   - The new serialiser only writes external (and scoped) keys for these ingested
+        //     samples - there are no global @key/@ref on the "before" trades, only @key:external /
+        //     @ref:external. The execution instruction below is still explicitly reKey'd, so it
+        //     does get global keys. On reference resolution only GLOBAL references are resolved and
+        //     inlined into the reference value; external-only references are left unresolved (value
+        //     == null). The execution party1 (global ref -> person inlined) then has different
+        //     hashed content from the "before" party1 (external ref -> nothing inlined), so the
+        //     same external key "party1" maps to two distinct global keys and the ReKey
+        //     post-process step throws "Two distinct rosetta objects have the same external key".
+        // reKey-ing the "before" trades restores the global keys/references the old serialiser used
+        // to persist, making all party1 instances resolve and hash identically again.
+        instructions.add(reKey(Instruction.builder()
                 .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-1.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(terminateInstructions))
+                        .setQuantityChange(terminateInstructions)))
                 .build());
 
-        instructions.add(Instruction.builder()
+        instructions.add(reKey(Instruction.builder()
                 .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-2.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(terminateInstructions))
+                        .setQuantityChange(terminateInstructions)))
                 .build());
 
-        instructions.add(Instruction.builder()
+        instructions.add(reKey(Instruction.builder()
                 .setBeforeValue(getProposedEventInstructionBefore("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-07-Submission-3.json"))
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(terminateInstructions))
+                        .setQuantityChange(terminateInstructions)))
                 .build());
 
         instructions.add(Instruction.builder()
@@ -733,7 +746,7 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 3),
                 null);
 
-        writeExpectation("functions/business-event/compression/compression-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/compression/compression-func-input.json", actual);
     }
 
     private ExecutionInstruction getCompressionExecutionInstructionInputJson() throws IOException {
@@ -745,11 +758,11 @@ public class FunctionInputCreator {
         TradeLot.TradeLotBuilder tradeLotBuilder = tradeBuilder.getTradeLot().get(0);
         tradeLotBuilder
                 .getPriceQuantity().get(0)
-                .getQuantity().get(0)
+                .getQuantity()
                 .getValue().setValue(BigDecimal.valueOf(16000.00));
         tradeLotBuilder
                 .getPriceQuantity().get(1)
-                .getQuantity().get(0)
+                .getQuantity()
                 .getValue().setValue(BigDecimal.valueOf(16000.00));
 
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders =
@@ -818,7 +831,7 @@ public class FunctionInputCreator {
                 .getValue();
     }
 
-    private void updateFullNovationFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getFullNovationFuncInputJson() throws IOException {
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setPartyChange(PartyChangeInstruction.builder()
@@ -844,7 +857,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(0.0))
                                                         .setUnit(UnitType.builder()
@@ -865,10 +878,10 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 3),
                 null);
 
-        writeExpectation("functions/business-event/novation/full-novation-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/novation/full-novation-func-input.json", actual);
     }
 
-    private void updatePartialNovationFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getPartialNovationFuncInputJson() throws IOException {
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setPartyChange(PartyChangeInstruction.builder()
@@ -894,7 +907,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(5000.0))
                                                         .setUnit(UnitType.builder()
@@ -906,7 +919,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(8000.0))
                                                         .setUnit(UnitType.builder()
@@ -927,10 +940,10 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 4),
                 null);
 
-        writeExpectation("functions/business-event/novation/partial-novation-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/novation/partial-novation-func-input.json", actual);
     }
 
-    private void updateClearingFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getClearingFuncInputJson() throws IOException {
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 .addBreakdown(PrimitiveInstruction.builder()
                         .setPartyChange(PartyChangeInstruction.builder()
@@ -982,7 +995,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(0.0))
                                                         .setUnit(UnitType.builder()
@@ -1003,10 +1016,10 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 1),
                 null);
 
-        writeExpectation("functions/business-event/clearing/clearing-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/clearing/clearing-func-input.json", actual);
     }
 
-    private void updateAllocationFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getAllocationFuncInputJson() throws IOException {
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Allocated to Fund 2
                 .addBreakdown(PrimitiveInstruction.builder()
@@ -1032,7 +1045,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(7000.0))
                                                         .setUnit(UnitType.builder()
@@ -1062,7 +1075,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(3000.0))
                                                         .setUnit(UnitType.builder()
@@ -1072,7 +1085,7 @@ public class FunctionInputCreator {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                        .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                                 .setValue(NonNegativeQuantitySchedule.builder()
                                                         .setValue(BigDecimal.valueOf(0.0))
                                                         .setUnit(UnitType.builder()
@@ -1090,7 +1103,7 @@ public class FunctionInputCreator {
                 Date.of(2018, 4, 1),
                 null);
 
-        writeExpectation("functions/business-event/allocation/allocation-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/allocation/allocation-func-input.json", actual);
     }
 
     ObservationEvent getCreditEventObservationEvent() {
@@ -1111,7 +1124,7 @@ public class FunctionInputCreator {
                 );
     }
 
-    private void updateCreditEventFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getCreditEventFuncInputJson() throws IOException {
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(getCreditEventObservationEvent());
 
@@ -1129,10 +1142,10 @@ public class FunctionInputCreator {
                 Date.of(2022, 2, 4),
                 Date.of(2022, 2, 4));
 
-        writeExpectation("functions/business-event/credit-event/credit-event-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/credit-event/credit-event-func-input.json", actual);
     }
 
-    private void updateCreditEventWithObservationFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getCreditEventWithObservationFuncInputJson() throws IOException {
 
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cdindex-ex01-cdx-uti.json");
         TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(getCreditEventObservationEvent())).build();
@@ -1167,7 +1180,7 @@ public class FunctionInputCreator {
                 Date.of(2023, 2, 2),
                 Date.of(2023, 2, 2));
 
-        writeExpectation("functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
     }
 
     private ObservationEvent getCorporateActionObservationEvent() {
@@ -1186,7 +1199,7 @@ public class FunctionInputCreator {
         return observationEvent;
     }
 
-    private void updateCorporateActionFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getCorporateActionFuncInputJson() throws IOException {
 
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(getCorporateActionObservationEvent());
@@ -1205,10 +1218,10 @@ public class FunctionInputCreator {
                 Date.of(2009, 2, 1),
                 Date.of(2009, 2, 1));
 
-        writeExpectation("functions/business-event/corporate-actions/corporate-actions-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/corporate-actions/corporate-actions-func-input.json", actual);
     }
 
-    private void updateCorporateActionWithObservationFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getCorporateActionWithObservationFuncInputJson() throws IOException {
 
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex12-on-european-index-underlyer-short-form.json");
         TradeState tradeStateWithObs = tradeState.toBuilder().setObservationHistory(Collections.singletonList(getCorporateActionObservationEvent())).build();
@@ -1241,10 +1254,10 @@ public class FunctionInputCreator {
                 Date.of(2009, 2, 13));
 
 
-        writeExpectation("functions/business-event/corporate-actions/corporate-actions-obs-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/corporate-actions/corporate-actions-obs-func-input.json", actual);
     }
 
-    private void updateExerciseSwaptionFullPhysicalInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getExerciseSwaptionFullPhysicalInputJson() throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex09-euro-swaption-explicit-physical-exercise.json");
 
         ExerciseInstruction.ExerciseInstructionBuilder exerciseInstructionBuilder = ExerciseInstruction.builder();
@@ -1269,10 +1282,10 @@ public class FunctionInputCreator {
                 Date.of(2001, 8, 28),
                 null);
 
-        writeExpectation("functions/business-event/exercise/exercise-swaption-full-physical-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/exercise/exercise-swaption-full-physical-func-input.json", actual);
     }
 
-    private void updateExerciseCashSettledInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getExerciseCashSettledInputJson() throws IOException {
         String example8Submission1 = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-08-Submission-1.json";
         TradeState afterTradeState = getProposedEventInstructionBefore(example8Submission1);
 
@@ -1304,7 +1317,7 @@ public class FunctionInputCreator {
                 Date.of(2019, 4, 1),
                 null);
 
-        writeExpectation("functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/exercise/exercise-cash-settled-func-input.json", actual);
     }
 
     private static void getOrCreateTransfer(TransferBase.TransferBaseBuilder transfer) {
@@ -1327,7 +1340,7 @@ public class FunctionInputCreator {
 
     }
 
-    private void updateExercisePartialExerciseInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getExercisePartialExerciseInputJson() throws IOException {
         String example9Submission1 = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-09-Submission-1.json";
         TradeState afterTradeState = getProposedEventInstructionBefore(example9Submission1);
 
@@ -1373,10 +1386,10 @@ public class FunctionInputCreator {
                 tradeDate,
                 null);
 
-        writeExpectation("functions/business-event/exercise/exercise-partial-exercise-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/exercise/exercise-partial-exercise-func-input.json", actual);
     }
 
-    private void updateExerciseCancellableOptionInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getExerciseCancellableOptionInputJson() throws IOException {
         String example10Submission1 = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-native-cdm-events/Example-10-Submission-1.json";
         TradeState afterTradeState = getProposedEventInstructionBefore(example10Submission1);
 
@@ -1414,14 +1427,14 @@ public class FunctionInputCreator {
                 tradeDate,
                 null);
 
-        writeExpectation("functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/exercise/exercise-cancellable-option-func-input.json", actual);
     }
 
 
     private QuantityChangeInstruction.QuantityChangeInstructionBuilder createQuantityChangeInstruction(UnitType unitOfAmount, BigDecimal amount) {
         return QuantityChangeInstruction.builder()
                 .addChange(PriceQuantity.builder()
-                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
+                        .setQuantityValue(NonNegativeQuantitySchedule.builder()
                                 .setValue(amount)
                                 .setUnit(unitOfAmount)))
                 .setDirection(QuantityChangeDirectionEnum.REPLACE);
@@ -1440,8 +1453,8 @@ public class FunctionInputCreator {
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
         tradeStateBuilder.getTrade().setParty(parties);
         // partyId
-        updatePartyId(tradeStateBuilder, "Bank X", "LEI1RPT0001");
-        updatePartyId(tradeStateBuilder, "Bank Y", "LEI2CP0002");
+        getPartyId(tradeStateBuilder, "Bank X", "LEI1RPT0001");
+        getPartyId(tradeStateBuilder, "Bank Y", "LEI2CP0002");
         // party role
         List<? extends PartyRole> partyRoles = tradeState.getTrade().getPartyRole();
         PartyRole partyRole = partyRoles.get(0);
@@ -1481,7 +1494,6 @@ public class FunctionInputCreator {
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
-                .flatMap(Collection::stream)
                 .map(FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder::getValue)
                 .forEach(quantity -> quantity.setValue(new BigDecimal(10000)));
         // trade id
@@ -1504,7 +1516,7 @@ public class FunctionInputCreator {
         return tradeStateBuilder.build();
     }
 
-    private void updateIndexTransitionVanillaSwapFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getIndexTransitionVanillaSwapFuncInputJson() throws IOException {
         String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex05-long-stub-swap-uti.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
@@ -1538,10 +1550,10 @@ public class FunctionInputCreator {
                 Date.of(2000, 10, 1),
                 null);
 
-        writeExpectation("functions/business-event/index-transition/index-transition-vanilla-swap-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/index-transition/index-transition-vanilla-swap-func-input.json", actual);
     }
 
-    private void updateIndexTransitionXccySwapFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getIndexTransitionXccySwapFuncInputJson() throws IOException {
         String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/cdm-xccy-swap-after-usi-uti.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
@@ -1599,10 +1611,10 @@ public class FunctionInputCreator {
                 Date.of(2018, 6, 17),
                 null);
 
-        writeExpectation("functions/business-event/index-transition/index-transition-xccy-swap-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/index-transition/index-transition-xccy-swap-func-input.json", actual);
     }
 
-    private void updateStockSplitFuncInputJson() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getStockSplitFuncInputJson() throws IOException {
         String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json";
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
@@ -1620,10 +1632,10 @@ public class FunctionInputCreator {
                 Date.of(2001, 11, 1),
                 null);
 
-        writeExpectation("functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
+        return new ExpectationResult<>("functions/business-event/stock-split/stock-split-equity-swap-func-input.json", actual);
     }
 
-    private void updateCorrectionWorkflowFuncInputJson() throws IOException {
+    ExpectationResult<CreateWorkflowInput> getCorrectionWorkflowFuncInputJson() throws IOException {
         String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json";
         Date eventDate = Date.of(1994, 12, 12);
 
@@ -1638,7 +1650,6 @@ public class FunctionInputCreator {
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
-                .flatMap(Collection::stream)
                 .forEach(q -> q.getOrCreateValue().setValue(BigDecimal.valueOf(99_999)));
 
         WorkflowStep newExecutionWorkflowStep =
@@ -1670,10 +1681,10 @@ public class FunctionInputCreator {
 
         CreateWorkflowInput actual = new CreateWorkflowInput(steps);
 
-        writeExpectation("functions/workflow-step/correction/correction-func-input.json", actual);
+        return new ExpectationResult<>("functions/workflow-step/correction/correction-func-input.json", actual);
     }
 
-    private void updateCancellationWorkflowFuncInputJson() throws IOException {
+    ExpectationResult<CreateWorkflowInput> getCancellationWorkflowFuncInputJson() throws IOException {
         String tradeStatePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json";
         Date eventDate = Date.of(1994, 12, 12);
 
@@ -1688,7 +1699,6 @@ public class FunctionInputCreator {
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
-                .flatMap(Collection::stream)
                 .forEach(q -> q.getOrCreateValue().setValue(BigDecimal.valueOf(99_999)));
 
         WorkflowStep initialExecutionWorkflowStep =
@@ -1734,7 +1744,7 @@ public class FunctionInputCreator {
 
         CreateWorkflowInput actual = new CreateWorkflowInput(steps);
 
-        writeExpectation("functions/workflow-step/cancellation/cancellation-func-input.json", actual);
+        return new ExpectationResult<>("functions/workflow-step/cancellation/cancellation-func-input.json", actual);
     }
 
     private WorkflowStep getExecutionWorkflowStep(TradeState tradeState,
@@ -1809,7 +1819,7 @@ public class FunctionInputCreator {
         return MetaFields.builder().addKey(Key.builder().setScope("DOCUMENT").setKeyValue(s));
     }
 
-    private void updatePartyId(TradeState.TradeStateBuilder tradeStateBuilder, String partyName, String partyId) {
+    private void getPartyId(TradeState.TradeStateBuilder tradeStateBuilder, String partyName, String partyId) {
         tradeStateBuilder.getTrade().getParty().stream()
                 .filter(p -> p.getName().getValue().equals(partyName))
                 .findFirst().ifPresent(party ->
@@ -1848,23 +1858,23 @@ public class FunctionInputCreator {
         return workflowStep.build();
     }
 
-    private void updateBondExecutionInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getBondExecutionInput() throws IOException {
         BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "functions/repo-and-bond/bond-execution-func-input.json").toBuilder();
         BusinessEvent businessEvent = reKey(businessEventBuilder).build();
         List<Instruction> instruction = (List<Instruction>) businessEvent.getInstruction();
         CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
-        writeExpectation("functions/repo-and-bond/bond-execution-func-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/bond-execution-func-input.json", actual);
     }
 
-    private void updateRepoExecutionInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getRepoExecutionInput() throws IOException {
         BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "functions/repo-and-bond/repo-execution-func-input.json").toBuilder();
         BusinessEvent businessEvent = reKey(businessEventBuilder).build();
         List<Instruction> instruction = (List<Instruction>) businessEvent.getInstruction();
         CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
-        writeExpectation("functions/repo-and-bond/repo-execution-func-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/repo-execution-func-input.json", actual);
     }
 
-    private void updateRollInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getRollInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveRollDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/roll-primitive-instruction-effective-roll-date.json");
         AdjustableOrRelativeDate terminationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/roll-primitive-instruction-termination-date.json");
@@ -1883,10 +1893,10 @@ public class FunctionInputCreator {
         reKey(rollInstructionBuilder);
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(rollInstructionBuilder.build()), null, unadjustedRollDate, unadjustedRollDate);
-        writeExpectation("functions/repo-and-bond/roll-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/roll-input.json", actual);
     }
 
-    private void updateOnDemandRateChangeInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getOnDemandRateChangeInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/on-demand-rate-change-primitive-instruction-effective-date.json");
         BigDecimal agreedRate = new BigDecimal("0.005");
@@ -1901,10 +1911,10 @@ public class FunctionInputCreator {
         reKey(onDemandRateChangeInstructionBuilder);
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
-        writeExpectation("functions/repo-and-bond/on-demand-rate-change-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/on-demand-rate-change-input.json", actual);
     }
 
-    private void updatePairOffInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getPairOffInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
 
         Identifier.IdentifierBuilder pairReferenceIdentifierBuilder = Identifier.builder();
@@ -1921,10 +1931,10 @@ public class FunctionInputCreator {
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstructions, null, tradeDate, tradeDate);
-        writeExpectation("functions/repo-and-bond/pair-off-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/pair-off-input.json", actual);
     }
 
-    private void updateCancellationInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getCancellationInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate cancellationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/cancellation-primitive-instruction-cancellation-date.json");
 
@@ -1938,10 +1948,10 @@ public class FunctionInputCreator {
 
         Date unadjustedCancellationDate = cancellationDate.getAdjustableDate().getUnadjustedDate();
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(cancellationInstructionBuilder.build()), null, unadjustedCancellationDate, unadjustedCancellationDate);
-        writeExpectation("functions/repo-and-bond/cancellation-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/cancellation-input.json", actual);
     }
 
-    private void updateOnDemandInterestPaymentEventInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getOnDemandInterestPaymentEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
 
         Money interestAmount = ResourcesUtils.getObject(Money.class, "functions/repo-and-bond/on-demand-interest-payment-primitive-instruction-interest-amount.json");
@@ -1960,17 +1970,17 @@ public class FunctionInputCreator {
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
-        writeExpectation("functions/repo-and-bond/on-demand-interest-payment-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/on-demand-interest-payment-input.json", actual);
     }
 
-    private void updateShapingPrimitiveInstructionTradeLots() throws IOException {
+    ExpectationResult<List<TradeLot>> getShapingPrimitiveInstructionTradeLots() throws IOException {
         String resourceName = "functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json";
         List<TradeLot.TradeLotBuilder> tradeLotBuilders = toBuilder(ResourcesUtils.getObjectList(TradeLot.class, resourceName));
         List<TradeLot> actual = build(reKey(tradeLotBuilders));
-        writeExpectation(resourceName, actual);
+        return new ExpectationResult<>(resourceName, actual);
     }
 
-    private void updateShapingEventInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getShapingEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
 
         List<TradeLot> tradeLots = ResourcesUtils.getObjectList(TradeLot.class, "functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json");
@@ -1987,17 +1997,17 @@ public class FunctionInputCreator {
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
-        writeExpectation("functions/repo-and-bond/shaping-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/shaping-input.json", actual);
     }
 
-    private void updatePartialDeliveryDeliveredPriceQuantity() throws IOException {
+    ExpectationResult<List<PriceQuantity>> getPartialDeliveryDeliveredPriceQuantity() throws IOException {
         String resourceName = "functions/repo-and-bond/partial-delivery-delivered-price-quantity.json";
         List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilder = toBuilder(ResourcesUtils.getObjectList(PriceQuantity.class, resourceName));
         List<PriceQuantity> actual = build(reKey(priceQuantityBuilder));
-        writeExpectation(resourceName, actual);
+        return new ExpectationResult<>(resourceName, actual);
     }
 
-    private void updatePartialDeliveryEventInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getPartialDeliveryEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/partial-delivery-effective-date.json");
         List<? extends PriceQuantity> deliveredPriceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "functions/repo-and-bond/partial-delivery-delivered-price-quantity.json");
@@ -2013,10 +2023,10 @@ public class FunctionInputCreator {
         Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
-        writeExpectation("functions/repo-and-bond/partial-delivery-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/partial-delivery-input.json", actual);
     }
 
-    private void updateRepriceEventInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getRepriceEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         BigDecimal newAllinPrice = new BigDecimal("101.25");
         BigDecimal newCashValue = new BigDecimal("9922500.00");
@@ -2033,10 +2043,10 @@ public class FunctionInputCreator {
         Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
-        writeExpectation("functions/repo-and-bond/repo-reprice-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/repo-reprice-input.json", actual);
     }
 
-    private void updateAdjustmentEventInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getAdjustmentEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         BigDecimal newAllinPrice = new BigDecimal("99.25");
         BigDecimal newAssetQuantity = new BigDecimal("10151134");
@@ -2053,27 +2063,28 @@ public class FunctionInputCreator {
         Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
-        writeExpectation("functions/repo-and-bond/repo-adjustment-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/repo-adjustment-input.json", actual);
     }
 
-    private void updateRepoSubstitutionCollateral() throws IOException {
+    ExpectationResult<Collateral> getRepoSubstitutionCollateral() throws IOException {
         String resourceName = "functions/repo-and-bond/repo-substitution-collateral.json";
         Collateral.CollateralBuilder collateralBuilder = ResourcesUtils.getObject(Collateral.class, resourceName).toBuilder();
         Collateral actual = reKey(collateralBuilder).build();
-        writeExpectation(resourceName, actual);
+        return new ExpectationResult<>(resourceName, actual);
     }
 
-    private void updateRepoSubstitutionPriceQuantity() throws IOException {
+    ExpectationResult<List<TradeLot>> getRepoSubstitutionPriceQuantity() throws IOException {
         String resourceName = "functions/repo-and-bond/repo-substitution-price-quantity.json";
         List<TradeLot.TradeLotBuilder> tradeLotBuilders = toBuilder(ResourcesUtils.getObjectList(TradeLot.class, resourceName));
         List<TradeLot> actual = build(reKey(tradeLotBuilders));
-        writeExpectation(resourceName, actual);
+        return new ExpectationResult<>(resourceName, actual);
     }
 
-    private void updateSubstitutionEventInput() throws IOException {
+    ExpectationResult<CreateBusinessEventInput> getSubstitutionEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "functions/repo-and-bond/repo-substitution-effective-date.json");
-        CollateralPortfolio newCollateralPortfolio = ResourcesUtils.getObject(CollateralPortfolio.class, "functions/repo-and-bond/repo-substitution-collateral.json");
+        Collateral collateral = ResourcesUtils.getObject(Collateral.class, "functions/repo-and-bond/repo-substitution-collateral.json");
+        CollateralPortfolio newCollateralPortfolio = collateral.getCollateralPortfolio().get(0).getValue();
         List<? extends PriceQuantity> priceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "functions/repo-and-bond/repo-substitution-price-quantity.json");
 
         PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = createSubstitutionInstruction.evaluate(executionTradeState, effectiveDate, newCollateralPortfolio, priceQuantity).toBuilder();
@@ -2087,7 +2098,7 @@ public class FunctionInputCreator {
         Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
-        writeExpectation("functions/repo-and-bond/repo-substitution-input.json", actual);
+        return new ExpectationResult<>("functions/repo-and-bond/repo-substitution-input.json", actual);
     }
 
     private TradeState removeIsdaProductTaxonomy(TradeState tradeState) {
@@ -2106,20 +2117,37 @@ public class FunctionInputCreator {
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
     }
 
-    private void writeExpectation(String writePath, Object actual) {
+    private void writeExpectation(Path writeBasePath, ExpectationResult<?> expectationResult) {
         // Add environment variable TEST_WRITE_BASE_PATH to override the base write path, e.g.
         // TEST_WRITE_BASE_PATH=/Users/hugohills/dev/github/REGnosys/rosetta-cdm/rosetta-source/src/main/resources/
-        WRITE_BASE_PATH.filter(Files::exists).ifPresent(basePath -> {
-            Path expectationFilePath = basePath.resolve(writePath);
+        if (Files.exists(writeBasePath)) {
+            Path expectationFilePath = writeBasePath.resolve(expectationResult.resourceName);
             try {
-                String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
+                String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectationResult.actual);
                 Files.createDirectories(expectationFilePath.getParent());
                 Files.write(expectationFilePath, actualJson.getBytes());
                 LOGGER.warn("Updated expectation file {}", expectationFilePath.toAbsolutePath());
             } catch (IOException e) {
                 LOGGER.error("Failed to write expectation file {}", expectationFilePath.toAbsolutePath(), e);
             }
-        });
+        }
     }
 
+    static class ExpectationResult<T> {
+        private final String resourceName;
+        private final T actual;
+
+        ExpectationResult(String resourceName, T actual) {
+            this.resourceName = resourceName;
+            this.actual = actual;
+        }
+
+        String getResourceName() {
+            return resourceName;
+        }
+
+        T getActual() {
+            return actual;
+        }
+    }
 }

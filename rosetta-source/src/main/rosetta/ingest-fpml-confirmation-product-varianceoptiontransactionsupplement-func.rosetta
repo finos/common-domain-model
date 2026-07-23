@@ -10,7 +10,6 @@ import cdm.observable.asset.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.shared.* as fpml
 import fpml.consolidated.variance.swaps.* as fpml
 
 func MapVarianceOptionTransactionSupplementCounterpartyList:
@@ -21,7 +20,8 @@ func MapVarianceOptionTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapBuyerSellerModelToCounterpartyList(
-                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel
+                fpmlVarianceOptionTransactionSupplement -> buyerPartyReference,
+                fpmlVarianceOptionTransactionSupplement -> sellerPartyReference
             )
 
 func MapVarianceOptionTransactionSupplementAncillaryPartyList:
@@ -46,10 +46,12 @@ func MapVarianceOptionTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlVarianceOptionTransactionSupplement -> productModel
+                        fpmlVarianceOptionTransactionSupplement -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlVarianceOptionTransactionSupplement -> productModel
+                        fpmlVarianceOptionTransactionSupplement -> primaryAssetClass,
+                        fpmlVarianceOptionTransactionSupplement -> secondaryAssetClass,
+                        fpmlVarianceOptionTransactionSupplement -> productType
                     ),
             economicTerms: MapVarianceOptionTransactionSupplementEconomicTerms(
                         fpmlVarianceOptionTransactionSupplement,
@@ -85,7 +87,8 @@ func MapVarianceOptionTransactionSupplementPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlVarianceOptionTransactionSupplement -> sellerPartyReference,
+                                fpmlVarianceOptionTransactionSupplement -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
@@ -93,7 +96,8 @@ func MapVarianceOptionTransactionSupplementPayout:
                                 fpmlVarianceOptionTransactionSupplement -> clearingInstructions
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlVarianceOptionTransactionSupplement -> buyerPartyReference,
+                                fpmlVarianceOptionTransactionSupplement -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -115,7 +119,8 @@ func MapVarianceOptionTransactionSupplementPayout:
                                     ),
                                 empty,
                                 empty,
-                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                fpmlVarianceOptionTransactionSupplement -> buyerPartyReference,
+                                fpmlVarianceOptionTransactionSupplement -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     ...
@@ -132,18 +137,4 @@ func MapVarianceOptionTransactionSupplementPriceQuantityList:
     add priceQuantityList:
         MapVarianceSwapTransactionSupplementPriceQuantityList(
                 fpmlVarianceOptionTransactionSupplement -> varianceSwapTransactionSupplement
-            )
-
-func MapVarianceOptionTransactionSupplementAccountPartyReference:
-    inputs:
-        fpmlVarianceOptionTransactionSupplement fpml.VarianceOptionTransactionSupplement (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel
             )

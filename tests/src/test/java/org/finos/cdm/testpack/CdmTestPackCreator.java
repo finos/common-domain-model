@@ -91,12 +91,11 @@ public class CdmTestPackCreator {
                         .put(WorkflowStep.class, PipelineModel.Serialisation.Format.RUNE_JSON)
                         .build();
 
-        //TODO: switch over to new serialiser when all cases of choice extensions have been removed the model
         return new PipelineTreeConfig()
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToTradeState.class)
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToWorkflowStep.class)
                 .withInputSerialisationFormatMap(RuneFpmlModelConfig.TYPE_TO_FORMAT_MAP)
-//                .withOutputSerialisationFormatMap(outputSerialisationFormat)
+                .withOutputSerialisationFormatMap(outputSerialisationFormat)
                 .withXmlConfigMap(RuneFpmlModelConfig.TYPE_TO_XML_CONFIG_MAP)
                 .withTestPackFilter(filter)
                 .strictUniqueIds()

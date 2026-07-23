@@ -19,9 +19,13 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 
-type TransferableProduct extends Asset: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+type TransferableProduct: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+    asset Asset (1..1) <"An Asset is defined as something that can be owned and transferred in the financial markets.">
     economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
     productPartyRole CounterpartyRoleEnum (1..1) <"Overrides the parties on the trade to identify the party with the obligation to pay dividends or coupons, e.g issuer.">
+
+    condition AssetPartyRoleExists: <"A TransferableProduct must contain an asset and a partyRole.">
+        asset ->> partyRole exists
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
@@ -45,58 +49,60 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
 
     condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
-        if payout -> PerformancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total
-        then payout -> PerformancePayout -> returnTerms -> dividendReturnTerms exists
+        if payout as PerformancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total
+        then payout as PerformancePayout -> returnTerms -> dividendReturnTerms exists
 
     condition LastRegularPaymentDate: <"FpML specifies that lastRegularPaymentDate must only be included if there is a final stub. As part of the CDM, this data rule has been adjusted to specify that it only applies to interest rate swaps, as the credit derivatives products can have a specified lastRegularPaymentDate while the stub is typically not applicable to those.">
-        if payout -> InterestRatePayout -> paymentDates -> lastRegularPaymentDate exists
-                and payout -> InterestRatePayout -> stubPeriod -> finalStub exists
-        then payout -> InterestRatePayout count = 2
+        if payout as InterestRatePayout -> paymentDates -> lastRegularPaymentDate exists
+                and payout as InterestRatePayout -> stubPeriod -> finalStub exists
+        then payout as InterestRatePayout count = 2
 
     condition PayRelativeTo: <"FpML specifies a required payRelativeTo element as part of the PaymentDates. As standardized CDS don't have such payRelativeTo provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-        if payout -> InterestRatePayout count = 2
-                and payout -> InterestRatePayout -> paymentDates exists
-        then payout -> InterestRatePayout -> paymentDates -> payRelativeTo exists
+        if payout as InterestRatePayout count = 2
+                and payout as InterestRatePayout -> paymentDates exists
+        then payout as InterestRatePayout -> paymentDates -> payRelativeTo exists
 
     condition PaymentDatesAdjustments: <"FpML specifies a required paymentDatesAdjustments element as part of the PaymentDates. As standardized CDS don't have such paymentDatesAdjustments provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-        if payout -> InterestRatePayout count = 2
-                and payout -> InterestRatePayout -> paymentDates exists
-        then payout -> InterestRatePayout -> paymentDates -> paymentDatesAdjustments exists
+        if payout as InterestRatePayout count = 2
+                and payout as InterestRatePayout -> paymentDates exists
+        then payout as InterestRatePayout -> paymentDates -> paymentDatesAdjustments exists
 
     condition PaymentFrequency: <"FpML specifies a required paymentFrequency element as part of the PaymentDates. As standardized CDS may not have such paymentFrequency provision, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-        if payout -> InterestRatePayout count = 2
-                and payout -> InterestRatePayout -> paymentDates exists
-        then payout -> InterestRatePayout -> paymentDates -> paymentFrequency exists
+        if payout as InterestRatePayout count = 2
+                and payout as InterestRatePayout -> paymentDates exists
+        then payout as InterestRatePayout -> paymentDates -> paymentFrequency exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-        if payout -> OptionPayout exists
-        then payout -> OptionPayout -> priceQuantity exists
-                or payout -> OptionPayout -> underlier -> Product ->> economicTerms -> payout -> InterestRatePayout count = 2
+        if payout as OptionPayout exists
+        then payout as OptionPayout -> priceQuantity exists
+                or payout as OptionPayout -> underlier as Product ->> economicTerms -> payout
+                    as InterestRatePayout
+                    count = 2
 
     condition DayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-        if payout -> InterestRatePayout count = 2
-        then payout -> InterestRatePayout -> dayCountFraction exists
+        if payout as InterestRatePayout count = 2
+        then payout as InterestRatePayout -> dayCountFraction exists
 
     condition PaymentDates: <"FpML specifies a required paymentDates element as part of the swapStream. As standardized CDS may not have specified payment dates, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
-        if payout -> InterestRatePayout count = 2
-        then payout -> InterestRatePayout -> dayCountFraction exists
+        if payout as InterestRatePayout count = 2
+        then payout as InterestRatePayout -> dayCountFraction exists
 
     condition MarketPrice: <"FpML specifies that marketFixedRate and marketPrice only have meaning in a credit index trade">
-        if payout -> CreditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
-        then payout -> CreditDefaultPayout -> transactedPrice -> marketFixedRate is absent
-                and payout -> CreditDefaultPayout -> transactedPrice -> marketPrice is absent
+        if payout as CreditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
+        then payout as CreditDefaultPayout -> transactedPrice -> marketFixedRate is absent
+                and payout as CreditDefaultPayout -> transactedPrice -> marketPrice is absent
 
     condition NotionalResetOnPerformancePayout: <"Notional reset only applies to return swaps, and therefore can only exist on an performancePayout or interestRatePayouts that are associated with it.">
-        payout -> CreditDefaultPayout -> priceQuantity -> reset is absent
-            and payout -> AssetPayout -> priceQuantity -> reset is absent
-            and payout -> CommodityPayout -> priceQuantity -> reset is absent
-            and payout -> FixedPricePayout -> priceQuantity -> reset is absent
-            and payout -> SettlementPayout -> priceQuantity -> reset is absent
-            and payout -> OptionPayout -> priceQuantity -> reset is absent
+        payout as CreditDefaultPayout -> priceQuantity -> reset is absent
+            and payout as AssetPayout -> priceQuantity -> reset is absent
+            and payout as CommodityPayout -> priceQuantity -> reset is absent
+            and payout as FixedPricePayout -> priceQuantity -> reset is absent
+            and payout as SettlementPayout -> priceQuantity -> reset is absent
+            and payout as OptionPayout -> priceQuantity -> reset is absent
 
     condition NotionalResetInterestRatePayoutExists: <"As the performancePayout->payoutQuantity->reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
-        if payout -> PerformancePayout -> priceQuantity -> reset contains True
-        then payout -> InterestRatePayout exists
+        if payout as PerformancePayout -> priceQuantity -> reset contains True
+        then payout as InterestRatePayout exists
 
     condition FpML_cd_26_28: <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate. This data rule tackles those two FpML validation rules at once, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute.">
         // Cashflow is no longer part of the product so this condition cannot be tested at the economic terms level.
@@ -109,9 +115,9 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
         True
 
     condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-        if payout -> InterestRatePayout -> paymentDates -> lastRegularPaymentDate exists
+        if payout as InterestRatePayout -> paymentDates -> lastRegularPaymentDate exists
                 and terminationDate exists
-        then payout -> InterestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate or payout -> InterestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> adjustedDate
+        then payout as InterestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate or payout as InterestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> adjustedDate
 
     condition IndependentCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
@@ -138,8 +144,12 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
-                and underlier -> Product ->> economicTerms -> payout -> InterestRatePayout exists
-                and underlier -> Product ->> economicTerms -> payout -> InterestRatePayout count = 2
+                and underlier as Product ->> economicTerms -> payout
+                    as InterestRatePayout
+                    exists
+                and underlier as Product ->> economicTerms -> payout
+                    as InterestRatePayout
+                    count = 2
         then settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
@@ -174,8 +184,13 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
         exerciseTerms -> style exists
 
     condition OptionTypePresent: <"This condition ensures that an option type is set when the underlier is not a non-transferable product.">
-        if underlier -> Product -> NonTransferableProduct is absent
+        if underlier as NonTransferableProduct is absent
         then optionType exists
+
+    condition SettlementCentreRequired: <"SettlementCentre required where underlier is a security.">
+        if underlier as Security exists
+        then (settlementTerms -> securitySettlementCentre exists
+                and settlementTerms -> cashSettlementCentre exists)
 
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
@@ -212,7 +227,7 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
         [metadata address "pointsTo"=PriceQuantity->price]
 
     condition Underlier: <"The underlier on a performance payout can only be an observable.">
-        underlier -> Observable exists
+        underlier as Observable exists
 
     condition PortfolioOrStraightReturn:
         required choice returnTerms, portfolioReturnTerms
@@ -223,27 +238,27 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 
     condition UnderlierOfPortfolioIsBasket: <"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
         if portfolioReturnTerms -> priceReturnTerms exists
-        then underlier -> Observable -> Basket exists
+        then underlier as Basket exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
 
     condition NoSharePriceDividendAdjustmentIndex: <"If the underlier is an index, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier -> Observable -> Index exists
+        if underlier as Index exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition NoSharePriceDividendAdjustmentForeignExchange: <"If the underlier is an foreign exchange, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
+        if underlier as ForeignExchangeRateIndex exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition CorrelationUnderlierOnlyBasket: <"Correlation Return Terms can only have a basket as underlier, since it needs to compute the correlation between two or more products.">
         if returnTerms -> correlationReturnTerms exists
-        then underlier -> Observable -> Basket exists
+        then underlier as Basket exists
 
     condition EquitySpecificAttributes: <"Equity specific attributes cannot be present in non-equity products.">
-        if Qualify_UnderlierObservable_Equity(underlier -> Observable) = False
+        if Qualify_UnderlierObservable_Equity(underlier as Observable) = False
         then returnTerms -> varianceReturnTerms -> dividendApplicability is absent
                 and returnTerms -> varianceReturnTerms -> equityUnderlierProvisions is absent
                 and returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
@@ -270,7 +285,6 @@ type PortfolioReturnTerms extends ReturnTerms: <"Specifies an individual type of
         [metadata address "pointsTo"=PriceQuantity->price]
 
 choice Payout: <"Represents the set of future cashflow methodologies in the form of specific payout data type(s) which result from the financial product.  Examples: a trade in a cash asset will use only a settlement payout; for derivatives, two interest rate payouts can be combined to specify an interest rate swap; one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
-    [metadata key]
 
     AssetPayout <"Defines the assets and movements in a security financing transaction.">
     CommodityPayout <"Defines the payout for the floating leg of a Commodity Swap.">
@@ -314,38 +328,35 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
     ancillaryParty AncillaryParty (0..*) <"Specifies the parties with ancillary roles in the transaction. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
     adjustment NotionalAdjustmentEnum (0..1) <"Specifies the conditions that govern the adjustment to the quantity of a product being traded: e.g. execution, portfolio rebalancing etc. It is typically used in the context of Equity Swaps.">
 
-    condition PriceQuantityTriangulation: <"Check PriceQuantity triangulation for each TradeLot.">
-        PriceQuantityTriangulation(tradeLot) = True
-
     condition NotionalAdjustment: <"As the adjustment attribute applies to return swaps, the equity payout needs to be present alongside it.">
         if adjustment exists
-        then product -> economicTerms -> payout -> PerformancePayout -> returnTerms -> priceReturnTerms exists
-                or product -> economicTerms -> payout -> PerformancePayout exists
+        then product -> economicTerms -> payout as PerformancePayout -> returnTerms -> priceReturnTerms exists
+                or product -> economicTerms -> payout as PerformancePayout exists
 
     condition PerformancePayout_ExtraordinaryDividendsParty:
-        if product -> economicTerms -> payout -> PerformancePayout -> returnTerms -> dividendReturnTerms -> extraordinaryDividendsParty exists
+        if product -> economicTerms -> payout as PerformancePayout -> returnTerms -> dividendReturnTerms -> extraordinaryDividendsParty exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> ExtraordinaryDividendsParty
                 and if ancillaryParty -> role contains AncillaryRoleEnum -> ExtraordinaryDividendsParty
-                    then product -> economicTerms -> payout -> PerformancePayout -> returnTerms -> dividendReturnTerms -> extraordinaryDividendsParty exists
+                    then product -> economicTerms -> payout as PerformancePayout -> returnTerms -> dividendReturnTerms -> extraordinaryDividendsParty exists
 
     condition OptionPayout_PredeterminedClearingOrganizationParty:
-        if product -> economicTerms -> payout -> OptionPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+        if product -> economicTerms -> payout as OptionPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
 
     condition ForwardPayout_PredeterminedClearingOrganizationParty:
-        if product -> economicTerms -> payout -> SettlementPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+        if product -> economicTerms -> payout as SettlementPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
 
     condition PredeterminedClearingOrganizationParty:
         if ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
-        then product -> economicTerms -> payout -> SettlementPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
-                or product -> economicTerms -> payout -> OptionPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+        then product -> economicTerms -> payout as SettlementPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+                or product -> economicTerms -> payout as OptionPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 
     condition ExerciseNoticeReceiverPartyManual:
-        if product -> economicTerms -> payout -> OptionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
+        if product -> economicTerms -> payout as OptionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyManual
                 and if ancillaryParty -> role contains AncillaryRoleEnum -> ExerciseNoticeReceiverPartyManual
-                    then product -> economicTerms -> payout -> OptionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
+                    then product -> economicTerms -> payout as OptionPayout -> exerciseTerms -> exerciseProcedure -> manualExercise -> exerciseNotice -> exerciseNoticeReceiver exists
 
     condition ExerciseNoticeReceiverPartyOptionalEarlyTermination:
         if product -> economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseNotice -> exerciseNoticeReceiver exists
@@ -399,21 +410,25 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
     condition Underlier: <"The underlier for a settlement payout cannot be a NonTransferableProduct.">
-        underlier -> Product -> NonTransferableProduct is absent
+        underlier as NonTransferableProduct is absent
 
     condition Basket: <"If the underlier is a basket, it must contain only transferable assets.">
-        if underlier -> Observable -> Basket exists
-        then (underlier -> Observable -> Basket -> basketConstituent
-                extract Asset exists
+        if underlier as Basket exists
+        then (underlier as Basket -> basketConstituent
+                extract observable as Asset exists
                 ) all = True
 
     condition Index: <"If the underlier is an Index, then it can only be cash settled.">
-        if underlier -> Observable -> Index exists
+        if underlier as Index exists
         then settlementTerms -> cashSettlementTerms exists
 
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
-        if underlier -> Observable -> Asset -> Cash exists
-        then settlementTerms exists
+        if underlier as Cash exists then settlementTerms exists
+
+    condition SettlementCentreRequired: <"SettlementCentre required where underlier is a security.">
+        if underlier as Security exists
+        then (settlementTerms -> securitySettlementCentre exists
+                and settlementTerms -> cashSettlementCentre exists)
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists
@@ -774,8 +789,8 @@ type ExerciseFeeSchedule extends PayerReceiver: <"A class to define a fee or sch
 
     notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">
         [metadata reference]
-    feeAmountSchedule AmountSchedule (0..1) <"The exercise fee amount schedule. The fees are expressed as currency amounts. The currency of the fee is assumed to be that of the notional schedule referenced.">
-    feeRateSchedule Schedule (0..1) <"The exercise free rate schedule. The fees are expressed as percentage rates of the notional being exercised. The currency of the fee is assumed to be that of the notional schedule referenced.">
+    feeAmountSchedule AmountScheduleWithInitialValue (0..1) <"The exercise fee amount schedule. The fees are expressed as currency amounts. The currency of the fee is assumed to be that of the notional schedule referenced.">
+    feeRateSchedule ScheduleWithInitialValue (0..1) <"The exercise free rate schedule. The fees are expressed as percentage rates of the notional being exercised. The currency of the fee is assumed to be that of the notional schedule referenced.">
     feePaymentDate RelativeDateOffset (1..1) <"The date on which exercise fee(s) will be paid. It is specified as a relative date.">
 
     condition ExerciseFeeScheduleChoice: <"Choice rule to represent an FpML choice construct.">
@@ -859,7 +874,12 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
         priceQuantity exists
 
     condition UnderlierNotCash: <"The purchased asset in an assetPayout should not be cash.">
-        underlier -> Cash is absent
+        underlier as Cash is absent
+
+    condition SettlementCentreRequired: <"SettlementCentre required where underlier is a security.">
+        if underlier as Security exists
+        then (settlementTerms -> securitySettlementCentre exists
+                and settlementTerms -> cashSettlementCentre exists)
 
 type DividendTerms: <"Information related to dividends and payments.">
     manufacturedIncomeRequirement DividendPayoutRatio (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">

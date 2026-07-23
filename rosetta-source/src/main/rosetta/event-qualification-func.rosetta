@@ -36,7 +36,9 @@ func Qualify_Adjustment: <"This qualification function is used to qualify adjust
     alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
 
     set is_event:
-        businessEvent -> after -> trade -> product -> economicTerms -> payout -> InterestRatePayout exists
+        businessEvent -> after -> trade -> product -> economicTerms -> payout
+            as InterestRatePayout
+            exists
             and openEconomicTerms -> payout = beforeEconomicterms -> payout
             and beforeTradePurchasePrice exists
             and afterTradePurchasePrice exists
@@ -109,7 +111,7 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
                 extract primitiveInstruction -> transfer only exists
                 ) all = True
             and beforeTransfers count + transferInstructions count = afterTransfers count
-            and transferInstructions -> transferState -> transfer ->> asset -> Cash exists
+            and transferInstructions -> transferState -> transfer ->> asset as Cash exists
 
 func Qualify_ClearedTrade:
     [qualification BusinessEvent]
@@ -224,7 +226,9 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
             only-element
     set is_event:
         (businessEvent -> intent is absent)
-            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
+            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout
+                as AssetPayout
+                exists
             and (businessEvent -> instruction count = 1
                     and businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
                 or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and transfer exists))
@@ -268,8 +272,9 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
     alias before: businessEvent -> instruction -> before -> trade
 
     alias floatingRateIndexChanged:
-        before -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex exists
-            and before -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex
+        before -> tradeLot -> priceQuantity -> observable as InterestRateIndex exists
+            and before -> tradeLot -> priceQuantity -> observable as InterestRateIndex
+                disjoint after -> tradeLot -> priceQuantity -> observable as InterestRateIndex
 
     alias spread:
         FilterPrice(
@@ -323,7 +328,7 @@ func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
             and businessEvent -> after count = 1
             and afterTradeStates count = 1
             and instruction -> primitiveInstruction -> transfer only exists
-            and transfer -> ScheduledTransfer -> transferType all = NetInterest
+            and transfer as ScheduledTransfer -> transferType all = NetInterest
 
 func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change event from the fact that the only primitive is the reset.">
     [qualification BusinessEvent]
@@ -475,7 +480,8 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
             and openEconomicTerms exists
             and openTrades count = 1
             and closedTradeState count = 1
-            and openEconomicTerms -> payout -> InterestRatePayout = beforeEconomicterms -> payout -> InterestRatePayout
+            and openEconomicTerms -> payout as InterestRatePayout
+                = beforeEconomicterms -> payout as InterestRatePayout
             and openEconomicTerms -> collateral = beforeEconomicterms -> collateral
             and beforeTradeCollateralQuantity > afterTradeCollateralQuantity
             and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
@@ -614,7 +620,9 @@ func Qualify_Reprice: <"This qualification function is used to qualify repricing
     alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
 
     set is_event:
-        businessEvent -> after -> trade -> product -> economicTerms -> payout -> InterestRatePayout exists
+        businessEvent -> after -> trade -> product -> economicTerms -> payout
+            as InterestRatePayout
+            exists
             and openTrades count = 1
             and closedTradeState count = 1
             and beforeTradePurchasePrice exists
@@ -634,7 +642,9 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
         is_event boolean (1..1)
     set is_event:
         businessEvent -> intent = EventIntentEnum -> Repurchase
-            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
+            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout
+                as AssetPayout
+                exists
             and (businessEvent -> instruction count = 1
                 and businessEvent -> instruction
                     only-element
@@ -700,7 +710,9 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
                 extract primitiveInstruction -> transfer only exists
                 ) all = True
             and beforeTransfers count + transferInstructions count = afterTransfers count
-            and transferInstructions -> transferState -> transfer ->> asset -> Instrument -> Security exists
+            and transferInstructions -> transferState -> transfer ->> asset
+                as Security
+                exists
 
 func Qualify_Shaping: <"The qualification of a shaping event from the fact that (i) the only primitive is a split where the original trade is closed, (ii) the parties before and after the split remain the same (by contrast with an allocation, for instance) and (iii) the split trades contain a package component in their execution details. This package ties together the resulting shapes trades' identifiers and must be the same across all shaped trades. Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.">
     [qualification BusinessEvent]
@@ -805,6 +817,26 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
             and noOfUnitsChanged = True
             and cashPriceChanged = True
             and adjustmentRatioMatches = True
+
+func Qualify_Substitution: <"Qualification of a collateral substitution event.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
+
+    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
+
+    set is_event:
+        beforeEconomicterms -> terminationDate exists
+            and openEconomicTerms -> effectiveDate exists
+            and openEconomicTerms -> terminationDate exists
+            and openEconomicTerms -> payout <> beforeEconomicterms -> payout
+            and openEconomicTerms -> collateral <> beforeEconomicterms -> collateral
+            and openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate
+            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
 
 func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
     [qualification BusinessEvent]

@@ -23,12 +23,12 @@ func MapFxVolatilitySwapCounterpartyList:
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party1,
-                fpmlFxVolatilitySwap -> floatingLeg -> payerModel -> payerPartyReference
+                fpmlFxVolatilitySwap -> floatingLeg -> payerPartyReference
             )
     add counterpartyList:
         MapCounterparty(
                 CounterpartyRoleEnum -> Party2,
-                fpmlFxVolatilitySwap -> fixedLeg -> payerModel -> payerPartyReference
+                fpmlFxVolatilitySwap -> fixedLeg -> payerPartyReference
             )
 
 func MapFxVolatilitySwapNonTransferableProduct:
@@ -40,8 +40,12 @@ func MapFxVolatilitySwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlFxVolatilitySwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlFxVolatilitySwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlFxVolatilitySwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlFxVolatilitySwap -> primaryAssetClass,
+                        fpmlFxVolatilitySwap -> secondaryAssetClass,
+                        fpmlFxVolatilitySwap -> productType
+                    ),
             economicTerms: MapFxVolatilitySwapEconomicTerms(
                         fpmlFxVolatilitySwap,
                         cdmCounterpartyList
@@ -96,17 +100,17 @@ func MapFxVolatilitySwapReturnTerms:
                             unit:
                                 UnitType {
                                     currency: if fpmlQuoteBasis = Currency1PerCurrency2
-                                            then fpmlQuotedCurrencyPair -> currency1 -> value
+                                            then fpmlFxPerformanceSwap -> quotedCurrencyPair -> currency1 -> value
                                         else if fpmlQuoteBasis = Currency2PerCurrency1
-                                        then fpmlQuotedCurrencyPair -> currency2 -> value,
+                                        then fpmlFxPerformanceSwap -> quotedCurrencyPair -> currency2 -> value,
                                     ...
                                 },
                             perUnitOf:
                                 UnitType {
                                     currency: if fpmlQuoteBasis = Currency1PerCurrency2
-                                            then fpmlQuotedCurrencyPair -> currency2 -> value
+                                            then fpmlFxPerformanceSwap -> quotedCurrencyPair -> currency2 -> value
                                         else if fpmlQuoteBasis = Currency2PerCurrency1
-                                        then fpmlQuotedCurrencyPair -> currency1 -> value,
+                                        then fpmlFxPerformanceSwap -> quotedCurrencyPair -> currency1 -> value,
                                     ...
                                 },
                             priceType: InterestRate,

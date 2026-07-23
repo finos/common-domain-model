@@ -156,12 +156,11 @@ func InsertDatedValue: <"Build a list of datedValues with the new entry inserted
                 date: effectiveDate,
                 value: changeAmount
             }
-        else previousDatedValue
-            extract
-                DatedValue {
-                    date: effectiveDate,
-                    value: UpdateAmount(item -> value, changeAmount, direction)
-                }
+        else if previousDatedValue exists
+        then DatedValue {
+                date: effectiveDate,
+                value: UpdateAmount(previousDatedValue -> value, changeAmount, direction)
+            }
 
     alias postDatedValues: <"Get all the datedValues after the effective date.">
         datedValues filter item -> date > effectiveDate
@@ -173,9 +172,9 @@ func InsertDatedValue: <"Build a list of datedValues with the new entry inserted
 func UpdateDatedValue: <"Updates the amount of the dated value that matches the effective date passed in. Only the datedValue item(s) that match the effective date will be updated according to the direction.">
     inputs:
         datedValues DatedValue (0..*)
-        changeAmount number (0..1)
+        changeAmount number (1..1)
         direction QuantityChangeDirectionEnum (1..1)
-        effectiveDate date (0..1)
+        effectiveDate date (1..1)
     output:
         newdatedValues DatedValue (0..*)
 
@@ -185,36 +184,26 @@ func UpdateDatedValue: <"Updates the amount of the dated value that matches the 
                 DatedValue {
                     date: item -> date,
                     value: if item -> date = effectiveDate
-                            then (if direction = QuantityChangeDirectionEnum -> Increase
-                            then item -> value + changeAmount
-                            else if direction = QuantityChangeDirectionEnum -> Decrease
-                            then item -> value - changeAmount
-                            else if direction = QuantityChangeDirectionEnum -> Replace
-                            then changeAmount)
+                            then UpdateAmount(item -> value, changeAmount, direction)
                         else item -> value
                 }
 
-func UpdateDatedValues: <"Updates the amounts of the dated values based on the given QuantityChangeDirectionEnum. For all periods after the effective date of the change, if the direction is Increase, the old amount and change amount are summed, if the direction is Decrease, then the change amount is subtracted from the old amount, and if the direction is Replace then the change amount replaces the old amount.">
+func UpdateNonNegativeDatedValues: <"Updates the amounts of the dated values based on the given QuantityChangeDirectionEnum. For all periods after the effective date of the change, if the direction is Increase, the old amount and change amount are summed, if the direction is Decrease, then the change amount is subtracted from the old amount, and if the direction is Replace then the change amount replaces the old amount.">
     inputs:
-        datedValues DatedValue (0..*)
-        changeAmount number (0..1)
+        datedValues NonNegativeDatedValue (0..*)
+        changeAmount number (1..1)
         direction QuantityChangeDirectionEnum (1..1)
-        effectiveDate date (0..1)
+        effectiveDate date (1..1)
     output:
-        newdatedValues DatedValue (0..*)
+        newdatedValues NonNegativeDatedValue (0..*)
 
     add newdatedValues:
         datedValues
             extract
-                DatedValue {
+                NonNegativeDatedValue {
                     date: item -> date,
                     value: if item -> date >= effectiveDate
-                            then (if direction = QuantityChangeDirectionEnum -> Increase
-                            then item -> value + changeAmount
-                            else if direction = QuantityChangeDirectionEnum -> Decrease
-                            then item -> value - changeAmount
-                            else if direction = QuantityChangeDirectionEnum -> Replace
-                            then changeAmount)
+                            then UpdateAmount(item -> value, changeAmount, direction)
                         else item -> value
                 }
 

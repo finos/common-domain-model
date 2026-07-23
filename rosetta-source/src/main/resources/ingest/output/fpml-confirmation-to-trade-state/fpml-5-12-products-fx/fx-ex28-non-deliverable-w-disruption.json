@@ -1,244 +1,156 @@
 {
+  "@model" : "cdm",
+  "@type" : "cdm.event.common.TradeState",
+  "@version" : "0.0.0.master-SNAPSHOT",
+  "@key" : "b0eb8356",
   "trade" : {
     "product" : {
       "taxonomy" : [ {
         "source" : "ISDA",
-        "productQualifier" : "ForeignExchange_Spot_Forward"
+        "value" : {
+          "name" : {
+            "@data" : "ForeignExchange_Spot_Forward"
+          }
+        },
+        "calculated" : true
       } ],
       "economicTerms" : {
         "payout" : [ {
-          "SettlementPayout" : {
-            "payerReceiver" : {
-              "payer" : "Party1",
-              "receiver" : "Party2"
+          "@type" : "cdm.product.template.SettlementPayout",
+          "payerReceiver" : {
+            "payer" : "Party1",
+            "receiver" : "Party2"
+          },
+          "priceQuantity" : {
+            "quantitySchedule" : {
+              "@ref:scoped" : "quantity-1"
             },
-            "priceQuantity" : {
-              "quantitySchedule" : {
-                "address" : {
-                  "scope" : "DOCUMENT",
-                  "value" : "quantity-1"
-                }
-              },
-              "priceSchedule" : [ {
-                "address" : {
-                  "scope" : "DOCUMENT",
-                  "value" : "price-1"
-                }
-              } ],
-              "meta" : {
-                "globalKey" : "0"
-              }
+            "priceSchedule" : [ {
+              "@ref:scoped" : "price-1"
+            } ]
+          },
+          "settlementTerms" : {
+            "settlementType" : "Cash",
+            "settlementCurrency" : {
+              "@data" : "USD"
             },
-            "settlementTerms" : {
-              "settlementType" : "Cash",
-              "settlementCurrency" : {
-                "value" : "USD"
-              },
-              "settlementDate" : {
-                "valueDate" : "2013-10-01",
-                "meta" : {
-                  "globalKey" : "3eea81"
-                }
-              },
-              "meta" : {
-                "globalKey" : "3510141a"
-              }
-            },
-            "underlier" : {
-              "Observable" : {
-                "address" : {
-                  "scope" : "DOCUMENT",
-                  "value" : "observable-1"
-                }
-              }
+            "settlementDate" : {
+              "valueDate" : "2013-10-01"
             }
           },
-          "meta" : {
-            "globalKey" : "c13a7d27"
+          "underlier" : {
+            "@type" : "cdm.observable.asset.Observable",
+            "@ref:scoped" : "observable-1"
           }
         } ]
-      },
-      "meta" : {
-        "globalKey" : "c13a7d27"
       }
     },
     "tradeLot" : [ {
       "priceQuantity" : [ {
         "price" : [ {
-          "value" : {
-            "value" : 0.7690,
-            "unit" : {
-              "currency" : {
-                "value" : "USD"
-              }
-            },
-            "perUnitOf" : {
-              "currency" : {
-                "value" : "BRL"
-              }
-            },
-            "priceType" : "ExchangeRate",
-            "composite" : {
-              "baseValue" : 0.7645,
-              "operand" : 0.0045,
-              "arithmeticOperator" : "Add",
-              "operandType" : "ForwardPoint"
+          "@key:scoped" : "price-1",
+          "value" : 0.7690,
+          "unit" : {
+            "currency" : {
+              "@data" : "USD"
             }
           },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "price-1"
-            } ]
-          }
-        } ],
-        "quantity" : [ {
-          "value" : {
-            "value" : 3000000,
-            "unit" : {
-              "currency" : {
-                "value" : "BRL"
-              }
+          "perUnitOf" : {
+            "currency" : {
+              "@data" : "BRL"
             }
           },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "quantity-1"
-            } ]
-          }
-        }, {
-          "value" : {
+          "priceType" : "ExchangeRate",
+          "composite" : {
+            "baseValue" : 0.7645,
+            "operand" : 0.0045,
+            "arithmeticOperator" : "Add",
+            "operandType" : "ForwardPoint"
+          },
+          "derivedQuantity" : {
             "value" : 2307000,
             "unit" : {
               "currency" : {
-                "value" : "USD"
+                "@data" : "USD"
               }
             }
-          },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "quantity-2"
-            } ]
           }
         } ],
-        "observable" : {
-          "value" : {
-            "Asset" : {
-              "Cash" : {
-                "identifier" : [ {
-                  "identifier" : {
-                    "value" : "BRL"
-                  },
-                  "identifierType" : "CurrencyCode"
-                } ],
-                "assetType" : "Cash"
-              }
+        "quantity" : {
+          "@key:scoped" : "quantity-1",
+          "value" : 3000000,
+          "unit" : {
+            "currency" : {
+              "@data" : "BRL"
             }
-          },
-          "meta" : {
-            "location" : [ {
-              "scope" : "DOCUMENT",
-              "value" : "observable-1"
-            } ]
           }
         },
-        "meta" : {
-          "globalKey" : "1e09a799"
+        "observable" : {
+          "@key:scoped" : "observable-1",
+          "@data" : {
+            "@type" : "cdm.base.staticdata.asset.common.Cash",
+            "identifier" : [ {
+              "identifier" : {
+                "@data" : "BRL"
+              },
+              "identifierType" : "CurrencyCode"
+            } ],
+            "assetType" : "Cash"
+          }
         }
       } ]
     } ],
     "counterparty" : [ {
       "role" : "Party1",
       "partyReference" : {
-        "globalReference" : "733fed68",
-        "externalReference" : "party2"
+        "@ref:external" : "party2"
       }
     }, {
       "role" : "Party2",
       "partyReference" : {
-        "globalReference" : "d26b18a8",
-        "externalReference" : "party1"
+        "@ref:external" : "party1"
       }
     } ],
     "tradeIdentifier" : [ {
       "issuerReference" : {
-        "globalReference" : "d26b18a8",
-        "externalReference" : "party1"
+        "@ref:external" : "party1"
       },
       "assignedIdentifier" : [ {
         "identifier" : {
-          "value" : "12345678",
-          "meta" : {
-            "scheme" : "urn:hsbc:trade-id"
-          }
+          "@scheme" : "urn:hsbc:trade-id",
+          "@data" : "12345678"
         }
-      } ],
-      "meta" : {
-        "globalKey" : "26887e99"
-      }
+      } ]
     }, {
       "issuerReference" : {
-        "globalReference" : "733fed68",
-        "externalReference" : "party2"
+        "@ref:external" : "party2"
       },
       "assignedIdentifier" : [ {
         "identifier" : {
-          "value" : "AZ5678901",
-          "meta" : {
-            "scheme" : "run:bnpp/trade-id"
-          }
+          "@scheme" : "run:bnpp/trade-id",
+          "@data" : "AZ5678901"
         }
-      } ],
-      "meta" : {
-        "globalKey" : "12f63b93"
-      }
+      } ]
     } ],
     "tradeDate" : {
-      "value" : "2013-04-01",
-      "meta" : {
-        "globalKey" : "3ee901"
-      }
+      "@data" : "2013-04-01"
     },
     "party" : [ {
+      "@key:external" : "party1",
       "partyId" : [ {
         "identifier" : {
-          "value" : "HSBCGB01",
-          "meta" : {
-            "scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id"
-          }
-        },
-        "meta" : {
-          "globalKey" : "d26b18a8"
+          "@scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id",
+          "@data" : "HSBCGB01"
         }
-      } ],
-      "meta" : {
-        "globalKey" : "d26b18a8",
-        "externalKey" : "party1"
-      }
+      } ]
     }, {
+      "@key:external" : "party2",
       "partyId" : [ {
         "identifier" : {
-          "value" : "BNPPGB01",
-          "meta" : {
-            "scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id"
-          }
-        },
-        "meta" : {
-          "globalKey" : "733fed68"
+          "@scheme" : "http://www.fpml.org/coding-scheme/dummy-party-id",
+          "@data" : "BNPPGB01"
         }
-      } ],
-      "meta" : {
-        "globalKey" : "733fed68",
-        "externalKey" : "party2"
-      }
-    } ],
-    "meta" : {
-      "globalKey" : "2dd8c79a"
-    }
-  },
-  "meta" : {
-    "globalKey" : "2dd8c79a"
+      } ]
+    } ]
   }
 }

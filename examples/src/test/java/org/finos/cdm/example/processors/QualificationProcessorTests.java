@@ -42,9 +42,6 @@ final class QualificationProcessorTests extends AbstractProcessorTest {
         // Verify that exactly one object is uniquely qualified
         assertEquals(1, report.getUniquelyQualifiedObjectsCount(), "Should have uniquely qualified object");
 
-        // Verify that the product taxonomy contains the expected label
-        //assertEquals(((TradeState) (report.getResultObject().build())).getTrade().getProduct().getTaxonomy().stream().map(ProductTaxonomy::getProductQualifier).filter(it -> it.equalsIgnoreCase(expectedLabel)).findFirst().orElse(""), expectedLabel, "This test should have retrieved the expected label");
-
         // Verify that there is exactly one result in the qualification report
         assertEquals(1, report.getResults().size(), "There should be exactly one result in the qualification report");
 
@@ -156,9 +153,6 @@ final class QualificationProcessorTests extends AbstractProcessorTest {
             logger.info("Qualified Object Name: " + result.getUniqueSuccessQualifyResult().map(QualifyResult::getName).orElse("Unknown"));
             logger.info("Is Success: " + result.isSuccess());
         });
-
-        // Verify that the product taxonomy contains the expected label
-        //assertEquals(((WorkflowStep) (report.getResultObject().build())).getBusinessEvent().getAfter().get(0).getTrade().getProduct().getTaxonomy().stream().map(ProductTaxonomy::getProductQualifier).filter(it -> it.equalsIgnoreCase(expectedLabel)).findFirst().orElse(""), expectedLabel, "This test should have retrieved the expected label");
 
         // Verify that there is exactly four results in the qualification report
         assertEquals(4, report.getResults().size(), "There should be exactly four results in the qualification report");

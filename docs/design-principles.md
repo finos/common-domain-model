@@ -130,21 +130,15 @@ reported to a Trade Repository under the ISO 20022 format. What the CDM
 provides is a consistent logical layer that allows to articulate the
 different components of that front-to-back flow.
 
-In practice, mapping to existing formats is supported by *synonym*
-mappings, which are a compact description in the CDM of how data
-attributes in one format map to model components. In turn, those synonym
-mappings can support an *ingestion* process that consumes physical data
-messages and converts them into CDM objects.
+In practice, the CDM provides a consistent representation that data
+expressed in existing formats can be translated to and from, supporting
+processes that consume physical data messages and convert them into CDM
+objects.
 
 **The CDM recognises certain formats as de-facto standards that are
-widely used to exchange information between market participants.** Their
-synonym mappings are included and rigorously tested in each CDM release,
-allowing firms that already use such standards to bootstrap their CDM
-implementation. Besides, because most standard messaging formats are
-typically extended and customised by each market participants (e.g. FpML
-or FIX), the CDM allows the synonym representation for those standards
-to be similarly inherited and extended to cover each firm's specific
-customisation.
+widely used to exchange information between market participants.**
+Providing a common representation for those standards allows firms that
+already use them to bootstrap their CDM implementation.
 
 ## Embedded logic
 
