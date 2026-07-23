@@ -1,0 +1,17 @@
+namespace cdm.event.instructioncomposition.reset
+version "${project.version}"
+
+import cdm.base.staticdata.asset.rates.*
+
+type CollectFloatingRateOptionInstruction: <"Instruction that identifies the floating rate index and the trade date required for downstream Floating Rate Option Data retrieval.">
+    floatingRateIndex FloatingRateIndexEnum (1..1)
+    tradeDate date (1..1)
+
+type ResetInstructionState: <"The definitive state object for the Reset process. It acts as a cumulative 'Golden Record,' storing every data point captured from Step 1 (Index Collection) through Step 7 (Final Calculation) to ensure deterministic processing.">
+
+    // Step 1 - CollectFloatingRateOptionInstruction
+    floatingRateIndex FloatingRateIndexEnum (0..1) <"The benchmark rate index (e.g., LIBOR, EURIBOR, SOFR) identified for this reset.">
+    tradeDate date (0..1) <"The date the underlying trade was executed, used for referencing the relevant holiday calendars.">
+
+type ResetInstructionSteps: <"A wrapper that encapsulates the specific ResetInstructionCompositionStepsEnum, allowing the engine to identify the exact phase of the Reset lifecycle currently being processed.">
+    resetInstructionCompositionSteps ResetInstructionCompositionStepsEnum (1..1)

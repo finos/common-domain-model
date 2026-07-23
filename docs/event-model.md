@@ -139,11 +139,7 @@ type Trade extends TradableProduct:
   partyRole PartyRole (0..*)
   executionDetails ExecutionDetails (0..1)
   contractDetails ContractDetails (0..1)
-  clearedDate date (0..1)
-    [deprecated]
   collateral Collateral (0..1)
-  account Account (0..*)
-    [deprecated]
 ```
 
 ---
@@ -280,7 +276,7 @@ type Observation:
 ### Transfer
 
 A transfer is a multi-purpose object that represents the transfer of any
-asset, including cash, from one party to another. The `Transfer` object
+asset from one party to another. The `Transfer` object
 is associated to an enumeration to qualify the status that the transfer
 is in, from instruction to settlement or rejection.
 
@@ -300,18 +296,23 @@ type TransferState:
 ```
 
 ``` Haskell
-choice Transfer: 
+choice Transfer:
     ScheduledTransfer
-    UnscheduledTransfer    
+    UnscheduledTransfer 
+    ContingentTransfer   
 
 type UnscheduledTransfer extends TransferBase: 
     transferType UnscheduledTransferEnum (0..1) 
 
-type ScheduledTransfer extends TransferBase: 
+type ScheduledTransfer extends TransferBase:
     transferType ScheduledTransferEnum (1..1)
-    corporateActionTransferType CorporateActionTypeEnum (0..1)
-    payoutReference Payout (0..1) 
+    payoutReference Payout (0..1)
         [metadata reference]
+        
+type ContingentTransfer extends TransferBase:
+    transferType ContingentTransferEnum (0..1)
+    payoutReference Payout (0..1) 
+    corporateActionTransferType CorporateActionTypeEnum (0..1)
 ```
 
 ## Primitive Events {#primitive-event}
@@ -601,10 +602,7 @@ func Create_Reset:
 
 ``` Haskell
 type ResetInstruction:
-  payout Payout (1..*)
-    [metadata reference]
-  rateRecordDate date (0..1)
-  resetDate date (1..1)
+    reset Reset (0..*)
 ```
 
 #### Transfer Primitive
@@ -705,73 +703,67 @@ novation* of a contract, which comprises the following:
 -   a party change primitive applied to the post-split trade whose
     quantity corresponds to the novated quantity.
 
-``` JSON
+``` json
 "primitiveInstruction" : {
-     "split" : {
-       "breakdown" : [ {
-         "partyChange" : {
-           "counterparty" : {
-             "partyReference" : {
-               "value" : {
-                 "name" : {
-                   "value" : "Bank Z"
-                 },
-                 "partyId" : [ {
-                   "identifier" : {
-                     "value" : "LEI3RPT0003"
-                   },
-                   "identifierType" : "LEI",
-                 } ]
-               }
-             },
-             "role" : "PARTY_1"
-           },
-           "tradeId" : [ {
-             "assignedIdentifier" : [ {
+   "split" : {
+     "breakdown" : [ {
+       "partyChange" : {
+         "counterparty" : {
+           "role" : "Party1",
+           "partyReference" : {
+             "partyId" : [ {
                "identifier" : {
-                 "value" : "LEI3RPT0003DDDD"
+                 "@data" : "LEI3RPT0003"
                },
-               "identifierType" : "UNIQUE_TRANSACTION_IDENTIFIER"
+               "identifierType" : "LEI"
              } ],
-             "issuer" : {
-               "value" : "LEI3RPT0003"
-             },
-           } ]
+             "name" : {
+               "@data" : "Bank Z"
+             }
+           }
          },
-         "quantityChange" : {
-           "change" : [ {
-             "quantity" : [ {
-               "value" : {
-                 "amount" : 5000,
-                 "unitOfAmount" : {
-                   "currency" : {
-                     "value" : "USD"
-                   }
-                 }
-               }
-             } ]
+         "tradeId" : [ {
+           "issuer" : {
+             "@data" : "LEI3RPT0003"
+           },
+           "assignedIdentifier" : [ {
+             "identifier" : {
+               "@data" : "LEI3RPT0003DDDD"
+             }
            } ],
-           "direction" : "REPLACE"
-         }
-       }, {
-         "quantityChange" : {
-           "change" : [ {
-             "quantity" : [ {
-               "value" : {
-                 "amount" : 8000,
-                 "unitOfAmount" : {
-                   "currency" : {
-                     "value" : "USD"
-                   }
-                 }
+           "identifierType" : "UniqueTransactionIdentifier"
+         } ]
+       },
+       "quantityChange" : {
+         "change" : [ {
+           "quantity" : [ {
+             "value" : 5000,
+             "unit" : {
+               "currency" : {
+                 "@data" : "USD"
                }
-             } ]
-           } ],
-           "direction" : "REPLACE"
-         }
-       } ]
-     }
+             }
+           } ]
+         } ],
+         "direction" : "Replace"
+       }
+     }, {
+       "quantityChange" : {
+         "change" : [ {
+           "quantity" : [ {
+             "value" : 8000,
+             "unit" : {
+               "currency" : {
+                 "@data" : "USD"
+               }
+             }
+           } ]
+         } ],
+         "direction" : "Replace"
+       }
+     } ]
    }
+ }
 ```
 
 A business event is *atomic*, i.e. its primitive components cannot
@@ -838,9 +830,8 @@ message.
 
 ---
 **Note:**
-The type of the `eventQualifier` attribute in `BusinessEvent`, called
-`eventType`, is a *meta-type* that indicates that its value is meant to
-be populated using some functional logic. That functional logic must be
+The `eventQualifier` attribute in `BusinessEvent` is meant to be
+populated using some functional logic. That functional logic must be
 represented by a qualification function annotated with
 `[qualification BusinessEvent]`, as in the example above. This mechanism
 is further detailed in the Rosetta DSL documentation.
@@ -946,8 +937,6 @@ type WorkflowStep:
   action ActionEnum (0..1)
   party Party (0..*)
   account Account (0..*)
-  lineage Lineage (0..1)
-    [deprecated]
   creditLimitInformation CreditLimitInformation (0..1)
   workflowState WorkflowState (0..1)
 ```
@@ -1064,15 +1053,15 @@ The benefits of the CDM generic approach are twofold:
 Below is an instance of a CDM representation ([serialised](https://en.wikipedia.org/wiki/Serialization) into JSON)
 of this approach.
 
-``` JSON
+``` json
 "timestamp": [
  {
     "dateTime": "2007-10-31T18:08:40.335-05:00",
-    "qualification": "EVENT_SUBMITTED"
+    "qualification": "EventSubmitted"
  },
  {
     "dateTime": "2007-10-31T18:08:40.335-05:00",
-    "qualification": "EVENT_CREATED"
+    "qualification": "EventCreated"
  }
 ]
 ```

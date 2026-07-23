@@ -7,6 +7,7 @@ import cdm.observable.asset.*
 import cdm.observable.common.*
 import cdm.observable.event.*
 import cdm.product.asset.*
+import cdm.product.template.*
 
 type CalculationPeriodData:
     startDate date (1..1)
@@ -264,7 +265,7 @@ type WeightedAveragingObservation: <"A single weighted averaging observation.">
     condition PositiveWeight: <" FpML specifies observationNumber as a non-negative decimal.">
         weight >= 0.0
 
-type AmountSchedule extends Schedule: <"A class to specify a currency amount or a currency amount schedule.">
+type AmountScheduleWithInitialValue extends ScheduleWithInitialValue: <"A class to specify a currency amount or a currency amount schedule.">
 
     currency string (1..*) <"The currency in which the amount schedule is denominated. The currency is specified outside of the actual schedule in order to be applied uniformly to it. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
         [metadata scheme]
@@ -313,6 +314,12 @@ type FinalCalculationPeriodDateAdjustment: <"A data to:  define business date co
 
     relevantUnderlyingDateReference AdjustableOrRelativeDates (1..1) <"Reference to the unadjusted cancellation effective dates.">
         [metadata reference]
-    swapStreamReference InterestRatePayout (1..1) <"Reference to the leg, where date adjustments may apply.">
+    swapStreamReference Payout (1..1) <"Reference to the leg, where date adjustments may apply.">
         [metadata reference]
     businessDayConvention BusinessDayConventionEnum (1..1) <"Override business date convention. This takes precedence over leg level information.">
+
+    condition IsInterestRatePayout: <"Payout must be an InterestRate payout.">
+        if swapStreamReference exists
+        then swapStreamReference switch
+            InterestRatePayout then item exists,
+            default False

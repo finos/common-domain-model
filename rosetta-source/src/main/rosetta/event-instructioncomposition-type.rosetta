@@ -1,0 +1,55 @@
+namespace cdm.event.instructioncomposition
+version "${project.version}"
+
+import cdm.event.common.*
+import cdm.event.instructioncomposition.reset.*
+
+/*
+ * Architecture for the event Instruction Composition engine.
+
+ * Key Concepts:
+ * - InstructionComposition: The top-level orchestrator holding shared history, trade references, and the execution state
+ * - CompositionSteps: An ordered sequence of 1 or more atomic actions (e.g., an 8-step process for Resets) tracked by identifiers and timestamps
+ * - Reuseable Instructions: Steps decouple 'what' to do by utilizing CompositionStepInstruction, which pairs a process type with a specific executable payload from the global CompositionStepInstructions list
+ * - State & Output: Tracks intermediate progress via CompositionState and records the final outcome (like a ResetInstruction) in the InstructionCompositionOutput
+ */
+type InstructionComposition: <"Represents an Instruction Composition orchestration, holding data, shared history, and an ordered sequence of CompositionSteps. Each InstructionComposition will have one or more CompositionStps.">
+    [rootType]
+    compositionStep CompositionStep (1..*) <"Ordered sequence of CompositionSteps that drive the Instruction Composition process (atomic actions, calculations, validations).">
+    compositionState CompositionState (0..1) <"Shared state accumulated across executed steps, capturing intermediate and final outputs of the Instruction Composition process.">
+    instructionCompositionType InstructionCompositionTypeEnum (1..1) <"Type of Instruction Composition being orchestrated (e.g. ResetInstruction).">
+    identifier string (1..1) <"Unique identifier of this InstructionComposition instance.">
+    tradeId TradeIdentifier (0..1) <"Identifier of the underlying trade to which this InstructionComposition relates.">
+    instructionCompositionOutput InstructionCompositionOutput (0..1) <"Outputs of each Instruction Composition process. The recording of this information will be done in a single step at the end of the process for each Instruction Composition.">
+
+    condition InstructionCompositionType: <"All CompositionSteps within this InstructionComposition must declare the same InstructionCompositionType as the InstructionComposition itself.">
+        compositionStep -> compositionStepInstruction -> instructionCompositionType all = instructionCompositionType
+
+    condition CompositionStateByType: <"Validates structural integrity by ensuring that the specific InstructionCompositionState type provided (e.g., ResetInstructionState) is strictly aligned with the declared InstructionCompositionType.">
+        if instructionCompositionType = ResetInstruction
+        then (compositionState switch
+                ResetInstructionState then True) = True
+
+type CompositionStep: <"Represents a single atomic step in the Instruction Composition lifecycle, including its instructions, status, and optional output. Each CompositionStep is defined by an identifier, a timestamp and a single Instruction.">
+    identifier string (0..1) <"Identification of the Instruction Composition step.">
+    timestamp zonedDateTime (0..1) <"Date and time of the execution of the Instruction Composition step after being executed.">
+    compositionStepInstruction CompositionStepInstruction (1..1) <"Set of instructions defining the steps of each Instruction Composition process.">
+
+type CompositionStepInstruction: <"Set of instructions defining the steps of each Instruction Composition process. The CompositionStepInstruction is defined by a type (as the same instruction can be reused across different Instruction Composition types), and the selection of one of the list of CompositionStepInstructions (where the information for executing the step is held).">
+    instructionCompositionType InstructionCompositionTypeEnum (1..1) <"Definition of the Instruction Composition.">
+    compositionStepInstructions CompositionStepInstructions (1..1) <"List of all Instruction CompositionSteps that can be reusable across Instruction Compositions.">
+
+type CompositionStepInstructions: <"Container for all instruction steps that can be used within an InstructionComposition.">
+    collectFloatingRateOption CollectFloatingRateOptionInstruction (0..1) <"Data needed to execute the extraction of the Floating Rate Option index name.">
+
+    condition NonEmptyInstruction:
+        one-of
+
+type InstructionCompositionOutput: <"Records the relevant output of each Instruction Composition. Will be updated while executing the relevant steps of the Instruction Composition so at the end of the process the output should be completed and ready to use in other parts of the system.">
+    resetInstruction ResetInstruction (0..1) <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
+
+choice CompositionState: <"A container that holds the cumulative state of an Instruction Composition. It selects the specific history/state schema (e.g., ResetInstructionState) based on the lifecycle process being executed.">
+    ResetInstructionState
+
+choice InstructionCompositionSteps: <"A top-level routing object used to specify which process-specific instruction set is currently active within the execution engine.">
+    ResetInstructionSteps

@@ -12,8 +12,8 @@ import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.eqd.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapBrokerEquityOptionCounterpartyList:
     inputs:
@@ -22,7 +22,10 @@ func MapBrokerEquityOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlBrokerEquityOption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlBrokerEquityOption -> buyerPartyReference,
+                fpmlBrokerEquityOption -> sellerPartyReference
+            )
 
 func MapBrokerEquityOptionNonTransferableProduct:
     inputs:
@@ -33,8 +36,12 @@ func MapBrokerEquityOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlBrokerEquityOption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlBrokerEquityOption -> productModel),
+            identifier: MapProductIdentifierList(fpmlBrokerEquityOption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlBrokerEquityOption -> primaryAssetClass,
+                        fpmlBrokerEquityOption -> secondaryAssetClass,
+                        fpmlBrokerEquityOption -> productType
+                    ),
             economicTerms: MapBrokerEquityOptionEconomicTerms(
                         fpmlBrokerEquityOption,
                         cdmCounterpartyList
@@ -79,12 +86,13 @@ func MapBrokerEquityOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlBrokerEquityOption -> buyerSellerModel,
+                                fpmlBrokerEquityOption -> sellerPartyReference,
+                                fpmlBrokerEquityOption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
-                            quantitySchedule: MapEquityDerivativeBaseQuantityListWithAddress(
+                            quantitySchedule: MapEquityDerivativeBaseQuantityWithAddress(
                                         fpmlBrokerEquityOption,
                                         fpmlBrokerEquityOption -> numberOfOptions
                                     ),
@@ -95,7 +103,8 @@ func MapBrokerEquityOptionPayout:
                                 empty
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlBrokerEquityOption -> buyerSellerModel,
+                                fpmlBrokerEquityOption -> buyerPartyReference,
+                                fpmlBrokerEquityOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -111,13 +120,14 @@ func MapBrokerEquityOptionPayout:
                                         fpmlBrokerEquityOption -> equityExercise
                                     ),
                                 empty,
-                                fpmlBrokerEquityOption -> equityExercise -> equityExerciseValuationSettlementSequence -> automaticExercise,
-                                fpmlBrokerEquityOption -> buyerSellerModel,
+                                fpmlBrokerEquityOption -> equityExercise -> automaticExercise,
+                                fpmlBrokerEquityOption -> buyerPartyReference,
+                                fpmlBrokerEquityOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     strike: MapOptionStrikePrice(
                                 fpmlBrokerEquityOption -> strike -> strikePrice,
-                                fpmlBrokerEquityOption -> strike -> equityStrikeSequence -> strikePercentage,
+                                fpmlBrokerEquityOption -> strike -> strikePercentage,
                                 unit,
                                 perUnitOf
                             ),
@@ -132,30 +142,40 @@ func MapBrokerEquityOptionPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
+    alias observableFromUnderlyer:
+        MapUnderlyerToObservableWithLocation(fpmlBrokerEquityOption -> underlyer)
+    alias financialUnit:
+        if (MapUnderlyerToObservableWithLocation(fpmlBrokerEquityOption -> underlyer)
+                as Security
+                exists
+                and fpmlBrokerEquityOption -> underlyer -> singleUnderlyer -> underlyingAsset
+                    as fpml.Equity
+                    exists)
+        then FinancialUnitEnum -> Share
+        else if MapUnderlyerToObservableWithLocation(fpmlBrokerEquityOption -> underlyer)
+            as Index
+            exists
+        then IndexUnit
     add priceQuantityList:
         PriceQuantity {
-            quantity: MapEquityDerivativeBaseQuantityListWithLocation(
-                        fpmlBrokerEquityOption,
-                        fpmlBrokerEquityOption -> numberOfOptions,
-                        empty,
-                        empty
-                    ),
+            price:
+                PriceSchedule {
+                    priceType: empty,
+                    derivedQuantity: MapEquityDerivativeBaseNotionalQuantityLocation(
+                                fpmlBrokerEquityOption
+                            ),
+                    ...
+                },
+            quantity: if financialUnit exists or observableFromUnderlyer as Basket exists
+                    then MapEquityDerivativeBaseQuantityWithLocation(
+                            fpmlBrokerEquityOption,
+                            fpmlBrokerEquityOption -> numberOfOptions,
+                            empty,
+                            empty,
+                            financialUnit
+                        ),
             observable: MapUnderlyerToObservableWithLocation(
                         fpmlBrokerEquityOption -> underlyer
                     ),
             ...
         }
-
-func MapBrokerEquityOptionAccountPartyReference:
-    inputs:
-        fpmlBrokerEquityOption fpml.BrokerEquityOption (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlBrokerEquityOption -> buyerSellerModel
-            )

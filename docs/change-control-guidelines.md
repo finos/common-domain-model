@@ -53,7 +53,6 @@ Like other types of software, backward compatibility in the context of a domain 
 
 -   Allowed changes:
     - 	Change that relaxes any condition or cardinality constraint
-    - 	Change to any synonym that improves, or at least does not degrade, the mapping coverage
     - 	Addition of new examples or test packs
     - 	Change to the user documentation or model descriptions
     - 	Addition of new data types, optional attributes, enumerations, rules or functions that do not impact current functionality

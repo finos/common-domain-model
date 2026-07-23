@@ -13,7 +13,6 @@ import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.shared.* as fpml
 import fpml.consolidated.volatility.swaps.* as fpml
 
 func MapVolatilitySwapCounterpartyList:
@@ -24,7 +23,8 @@ func MapVolatilitySwapCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlVolatilitySwap -> volatilityLeg first -> payerReceiverModel
+                fpmlVolatilitySwap -> volatilityLeg first -> payerPartyReference,
+                fpmlVolatilitySwap -> volatilityLeg first -> receiverPartyReference
             )
 
 func MapVolatilitySwapNonTransferableProduct:
@@ -36,8 +36,12 @@ func MapVolatilitySwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlVolatilitySwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlVolatilitySwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlVolatilitySwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlVolatilitySwap -> primaryAssetClass,
+                        fpmlVolatilitySwap -> secondaryAssetClass,
+                        fpmlVolatilitySwap -> productType
+                    ),
             economicTerms: MapVolatilitySwapEconomicTerms(
                         fpmlVolatilitySwap,
                         cdmCounterpartyList
@@ -70,7 +74,8 @@ func MapVolatilityLegToPerformancePayout:
             PerformancePayout:
                 PerformancePayout {
                     payerReceiver: MapPayerReceiver(
-                                fpmlVolatilityLeg -> payerReceiverModel,
+                                fpmlVolatilityLeg -> payerPartyReference,
+                                fpmlVolatilityLeg -> receiverPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -86,7 +91,7 @@ func MapVolatilityLegToPerformancePayout:
                     settlementTerms:
                         SettlementTerms {
                             settlementCurrency: MapCurrency(
-                                        fpmlVolatilityLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                                        fpmlVolatilityLeg -> settlementCurrency
                                     ),
                             settlementType: empty,
                             ...
@@ -131,7 +136,7 @@ func MapVolatilitySwapReturnTerms:
                         VolatilityCapFloor {
                             applicable: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> applicable,
                             totalVolatilityCap: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> totalVolatilityCap,
-                            volatilityCapFactor: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> volatilityCapSequence -> volatilityCapFactor
+                            volatilityCapFactor: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> volatilityCapFactor
                         },
                     valuationTerms: empty,
                     ...
@@ -189,9 +194,7 @@ func MapVolatilityLegToNonNegativeQuantityScheduleWithLocation:
             value: fpmlVolatilityLeg -> amount -> volatility -> vegaNotionalAmount,
             unit:
                 UnitType {
-                    currency: MapCurrency(
-                                fpmlVolatilityLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
-                            ),
+                    currency: MapCurrency(fpmlVolatilityLeg -> settlementCurrency),
                     ...
                 },
             ...
@@ -211,17 +214,3 @@ func MapVolatilityLegToNonNegativeQuantityScheduleWithAddress:
         then empty with-meta {
             address: CreateQuantityKey("vegaNotional", fpmlVolatilityLeg)
         }
-
-func MapVolatilitySwapAccountPartyReference:
-    inputs:
-        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlVolatilitySwap -> volatilityLeg -> payerReceiverModel
-            )

@@ -26,7 +26,10 @@ func MapCommodityOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlCommodityOption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlCommodityOption -> buyerPartyReference,
+                fpmlCommodityOption -> sellerPartyReference
+            )
 
 func MapCommodityOptionNonTransferableProduct:
     inputs:
@@ -37,8 +40,12 @@ func MapCommodityOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlCommodityOption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlCommodityOption -> productModel),
+            identifier: MapProductIdentifierList(fpmlCommodityOption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCommodityOption -> primaryAssetClass,
+                        fpmlCommodityOption -> secondaryAssetClass,
+                        fpmlCommodityOption -> productType
+                    ),
             economicTerms: MapCommodityOptionEconomicTerms(
                         fpmlCommodityOption,
                         cdmCounterpartyList
@@ -54,12 +61,10 @@ func MapCommodityOptionEconomicTerms:
 
     set economicTerms:
         EconomicTerms {
-            effectiveDate: MapAdjustableOrRelativeDate(
-                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> effectiveDate
-                    ),
+            effectiveDate: MapAdjustableOrRelativeDate(fpmlCommodityOption -> effectiveDate),
             payout: MapCommodityOptionPayout(fpmlCommodityOption, cdmCounterpartyList),
             terminationDate: MapAdjustableOrRelativeDate(
-                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> terminationDate
+                        fpmlCommodityOption -> terminationDate
                     ),
             ...
         }
@@ -73,16 +78,14 @@ func MapCommodityOptionPayout:
 
     alias strikeUnit:
         UnitType {
-            currency: MapCurrency(
-                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> currency
-                    ),
+            currency: MapCurrency(fpmlCommodityOption -> strikePricePerUnit -> currency),
             ...
         }
 
     alias strikePerUnitOf:
         UnitType {
             capacityUnit: MapCapacityUnitEnum(
-                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel -> commodityNotionalQuantityModelSequence -> notionalQuantity -> quantityUnit -> value
+                        fpmlCommodityOption -> notionalQuantity -> quantityUnit -> value
                     ),
             ...
         }
@@ -92,22 +95,24 @@ func MapCommodityOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlCommodityOption -> buyerSellerModel,
+                                fpmlCommodityOption -> sellerPartyReference,
+                                fpmlCommodityOption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
                             quantitySchedule: MapCommodityNotionalQuantityToQuantityWithAddress(
-                                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel,
+                                        fpmlCommodityOption -> totalNotionalQuantity,
                                         empty
                                     ),
                             ...
                         },
                     settlementTerms: MapCommodityExerciseToSettlementTerms(
-                                fpmlCommodityOption -> commodityFinancialOptionModel -> exercise
+                                fpmlCommodityOption -> exercise
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlCommodityOption -> buyerSellerModel,
+                                fpmlCommodityOption -> buyerPartyReference,
+                                fpmlCommodityOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     observationTerms: MapCommodityOptionToObservationTerms(
@@ -116,31 +121,30 @@ func MapCommodityOptionPayout:
                     underlier:
                         Underlier {
                             Observable: MapAssetToObservableWithAddress(
-                                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodity
+                                        fpmlCommodityOption -> commodity
                                     ),
                             ...
                         },
                     optionType: fpmlCommodityOption -> optionType to-enum OptionTypeEnum,
                     exerciseTerms: MapExerciseTerms(
-                                GetFpmlCommodityExercise(
-                                        fpmlCommodityOption -> commodityFinancialOptionModel -> exercise
-                                    ),
+                                GetFpmlCommodityExercise(fpmlCommodityOption -> exercise),
                                 fpml.ExerciseProcedure {
-                                    followUpConfirmation: fpmlCommodityOption -> commodityFinancialOptionModel -> exercise -> writtenConfirmation,
+                                    followUpConfirmation: fpmlCommodityOption -> exercise -> writtenConfirmation,
                                     ...
                                 },
-                                fpmlCommodityOption -> commodityFinancialOptionModel -> exercise -> automaticExercise,
-                                fpmlCommodityOption -> buyerSellerModel,
+                                fpmlCommodityOption -> exercise -> automaticExercise,
+                                fpmlCommodityOption -> buyerPartyReference,
+                                fpmlCommodityOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
-                    strike: if fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> amount exists
+                    strike: if fpmlCommodityOption -> strikePricePerUnit -> amount exists
                             then MapOptionStrikePrice(
-                                    fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> amount,
+                                    fpmlCommodityOption -> strikePricePerUnit -> amount,
                                     empty,
                                     strikeUnit,
                                     strikePerUnitOf
                                 )
-                        else if fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnitSchedule -> strikePricePerUnitStep -> amount exists
+                        else if fpmlCommodityOption -> strikePricePerUnitSchedule -> strikePricePerUnitStep -> amount exists
                         then OptionStrike {
                                 strikePrice:
                                     Price {
@@ -163,25 +167,22 @@ func MapCommodityOptionToStrikePriceDatedValues:
     output:
         strikePriceSchedule DatedValue (0..*)
 
-    alias fpmlStrikePriceSchedule:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnitSchedule
+    alias fpmlStrikePriceSchedule: fpmlCommodityOption -> strikePricePerUnitSchedule
     alias fpmlCalculationPeriodsSchedule:
         ExtractCommodityCalculationPeriodsScheduleFromHref(
                 CollectAllCalculationPeriodsSchedules(fpmlCommodityOption),
-                fpmlStrikePriceSchedule -> commodityCalculationPeriodsPointerModel -> calculationPeriodsScheduleReference -> href
+                fpmlCommodityOption -> strikePricePerUnitSchedule -> calculationPeriodsScheduleReference -> href
             )
     alias fpmlCalculationPeriods:
         ExtractCommodityCalculationPeriodsFromHref(
                 CollectAllCalculationPeriods(fpmlCommodityOption),
-                fpmlStrikePriceSchedule -> commodityCalculationPeriodsPointerModel -> calculationPeriodsReference -> href
+                fpmlCommodityOption -> strikePricePerUnitSchedule -> calculationPeriodsReference -> href
             )
 
-    alias fpmlCommodityOptionFeatures:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel
     alias effectiveDate:
-        MapAdjustableOrRelativeDate(fpmlCommodityOptionFeatures -> effectiveDate) -> adjustableDate -> unadjustedDate
+        MapAdjustableOrRelativeDate(fpmlCommodityOption -> effectiveDate) -> adjustableDate -> unadjustedDate
     alias terminationDate:
-        MapAdjustableOrRelativeDate(fpmlCommodityOptionFeatures -> terminationDate) -> adjustableDate -> unadjustedDate
+        MapAdjustableOrRelativeDate(fpmlCommodityOption -> terminationDate) -> adjustableDate -> unadjustedDate
 
     alias fpmlCommodityStrikePriceDates:
         if fpmlCalculationPeriods exists
@@ -195,7 +196,7 @@ func MapCommodityOptionToStrikePriceDatedValues:
 
     add strikePriceSchedule:
         MapCommodityOptionStrikePriceSchedule(
-                fpmlStrikePriceSchedule -> strikePricePerUnitStep,
+                fpmlCommodityOption -> strikePricePerUnitSchedule -> strikePricePerUnitStep,
                 fpmlCommodityStrikePriceDates
             )
 
@@ -203,24 +204,24 @@ func CollectAllCalculationPeriodsSchedules:
     inputs:
         fpmlCommodityOption fpml.CommodityOption (0..1)
     output:
-        fpmlCommodityCalculationPeriodsSchedules fpml.CommodityCalculationPeriodsSchedule (0..*)
+        fpmlCommodityCalculationPeriodsScheduleList fpml.CommodityCalculationPeriodsSchedule (0..*)
 
-    add fpmlCommodityCalculationPeriodsSchedules:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityOptionFeaturesModelSequence -> commodityAsianModel -> calculationPeriodsSchedule
-    add fpmlCommodityCalculationPeriodsSchedules:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityAsianModel -> calculationPeriodsSchedule
-    add fpmlCommodityCalculationPeriodsSchedules:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityFloatingStrikePriceModel -> floatingStrikePricePerUnitSchedule
+    add fpmlCommodityCalculationPeriodsScheduleList:
+        fpmlCommodityOption -> calculationPeriodsSchedule
+    add fpmlCommodityCalculationPeriodsScheduleList:
+        fpmlCommodityOption -> calculationPeriodsSchedule
+    add fpmlCommodityCalculationPeriodsScheduleList:
+        fpmlCommodityOption -> floatingStrikePricePerUnitSchedule
 
 func ExtractCommodityCalculationPeriodsScheduleFromHref:
     inputs:
-        fpmlCommodityCalculationPeriodsSchedules fpml.CommodityCalculationPeriodsSchedule (0..*)
+        fpmlCommodityCalculationPeriodsScheduleList fpml.CommodityCalculationPeriodsSchedule (0..*)
         href string (1..1)
     output:
         fpmlCommodityCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
 
     set fpmlCommodityCalculationPeriodsSchedule:
-        fpmlCommodityCalculationPeriodsSchedules
+        fpmlCommodityCalculationPeriodsScheduleList
             filter id = href
             then first
 
@@ -239,20 +240,18 @@ func CollectAllCalculationPeriods:
     output:
         fpmlCommodityCalculationPeriods fpml.AdjustableDates (0..*)
 
-    add fpmlCommodityCalculationPeriods:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityOptionFeaturesModelSequence -> commodityAsianModel -> calculationPeriods
-    add fpmlCommodityCalculationPeriods:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> commodityAsianModel -> calculationPeriods
+    add fpmlCommodityCalculationPeriods: fpmlCommodityOption -> calculationPeriods
+    add fpmlCommodityCalculationPeriods: fpmlCommodityOption -> calculationPeriods
 
 func ExtractCommodityCalculationPeriodsFromHref:
     inputs:
-        fpmlCommodityCalculationPeriodsList fpml.AdjustableDates (0..*)
+        fpmlCommodityCalculationPeriodList fpml.AdjustableDates (0..*)
         href string (1..1)
     output:
         fpmlCommodityCalculationPeriods fpml.AdjustableDates (0..1)
 
     set fpmlCommodityCalculationPeriods:
-        fpmlCommodityCalculationPeriodsList
+        fpmlCommodityCalculationPeriodList
             filter id = href
             then first
 
@@ -271,21 +270,15 @@ func MapCommodityOptionToObservationTerms:
     output:
         observationTerms ObservationTerms (0..1)
 
-    alias fpmlCalculationPeriodsSchedule:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel
-            extract
-                commodityOptionFeaturesModelSequence -> commodityAsianModel -> calculationPeriodsSchedule default commodityAsianModel -> calculationPeriodsSchedule
+    alias fpmlCalculationPeriodsSchedule: fpmlCommodityOption -> calculationPeriodsSchedule
 
-    alias fpmlPricingDates:
-        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel
-            extract
-                commodityOptionFeaturesModelSequence -> commodityAsianModel -> pricingDates default commodityAsianModel -> pricingDates
+    alias fpmlPricingDates: fpmlCommodityOption -> pricingDates
 
     set observationTerms:
         ObservationTerms {
             calculationPeriodDates:
                 CalculationPeriodDates {
-                    calculationPeriodFrequency: MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequncy(
+                    calculationPeriodFrequency: MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequency(
                                 fpmlCalculationPeriodsSchedule
                             ),
                     ...
@@ -300,19 +293,14 @@ func MapCommodityPricingDatesToObservationDates:
     output:
         observationDates ObservationDates (0..1)
 
-    alias fpmlDateSequence:
-        fpmlCommodityPricingDates -> commodityPricingDatesSequence -> commodityPricingDatesSequenceSequence
-
     set observationDates:
         ObservationDates {
             parametricDates:
                 ParametricDates {
-                    dayType: MapDayTypeEnum(
-                                fpmlDateSequence -> daysModel -> dayType to-string
-                            ),
-                    dayDistribution: fpmlDateSequence -> daysModel -> daysModelSequence0 -> dayDistribution -> value to-enum DayDistributionEnum,
+                    dayType: MapDayTypeEnum(fpmlCommodityPricingDates -> dayType to-string),
+                    dayDistribution: fpmlCommodityPricingDates -> dayDistribution -> value to-enum DayDistributionEnum,
                     businessCenters: MapCommodityBusinessCalendarToBusinessCenters(
-                                fpmlDateSequence -> businessCalendar
+                                fpmlCommodityPricingDates -> businessCalendar
                             ),
                     ...
                 },
@@ -328,25 +316,11 @@ func MapCommodityOptionPriceQuantityList:
     add priceQuantityList:
         PriceQuantity {
             quantity: MapCommodityNotionalQuantityToQuantityListWithLocation(
-                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel,
+                        fpmlCommodityOption -> notionalQuantity,
+                        fpmlCommodityOption -> totalNotionalQuantity,
+                        fpmlCommodityOption -> notionalQuantitySchedule,
                         empty
                     ),
-            observable: MapAssetToObservableWithLocation(
-                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodity
-                    ),
+            observable: MapAssetToObservableWithLocation(fpmlCommodityOption -> commodity),
             ...
         }
-
-func MapCommodityOptionAccountPartyReference:
-    inputs:
-        fpmlCommodityOption fpml.CommodityOption (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlCommodityOption -> buyerSellerModel
-            )
