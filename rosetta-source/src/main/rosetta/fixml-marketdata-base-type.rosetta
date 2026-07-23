@@ -1,0 +1,299 @@
+namespace cdm.fixml.marketdata.base : < "test" >
+version "${project.version}"
+
+import cdm.fixml.components.base.*
+import cdm.fixml.fields.base.*
+import cdm.fixml.fields.impl.*
+
+type MktDataReq extends MarketDataRequest_message_t:
+
+type MktDataFull extends MarketDataSnapshotFullRefresh_message_t:
+
+type MktDataInc extends MarketDataIncrementalRefresh_message_t:
+
+type MktDataReqRej extends MarketDataRequestReject_message_t:
+
+type StrmAsgnReq extends StreamAssignmentRequest_message_t:
+
+type StrmAsgnRpt extends StreamAssignmentReport_message_t:
+
+type StrmAsgnRptACK extends StreamAssignmentReportACK_message_t:
+
+type MarketDataRequest_message_t extends Abstract_message_t: <"MarketDataRequest can be found in Volume 3 of the \t\t\t\t\t\tspecification">
+
+    reqID MDReqID_t (1..1)
+    subReqTyp SubscriptionRequestType_t (1..1)
+    mktDepth MarketDepth_t (1..1)
+    updtTyp MDUpdateType_t (0..1)
+    aggBook AggregatedBook_t (0..1)
+    openClsSettlFlag OpenCloseSettlFlag_t (0..1)
+    scope Scope_t (0..1)
+    implctDel MDImplicitDelete_t (0..1)
+    applQuActn ApplQueueAction_t (0..1)
+    applQuMax ApplQueueMax_t (0..1)
+    mdQteTyp MDQuoteType_t (0..1)
+    pty Parties_Block_t (0..*)
+    req MDReqGrp_Block_t (1..*)
+    instReq InstrmtMDReqGrp_Block_t (1..*)
+    trdSes TrdgSesGrp_Block_t (0..*)
+
+type MarketDataSnapshotFullRefresh_message_t extends Abstract_message_t: <"MarketDataSnapshotFullRefresh can be found in Volume 3 of the \t\t\t\t\t\tspecification">
+
+    totNumRpts TotNumReports_t (0..1)
+    rptID MDReportID_t (0..1)
+    bizDt ClearingBusinessDate_t (0..1)
+    mdBkTyp MDBookType_t (0..1)
+    mdSubBkTyp MDSubBookType_t (0..1)
+    mktDepth MarketDepth_t (0..1)
+    mdFeedTyp MDFeedType_t (0..1)
+    refInd RefreshIndicator_t (0..1)
+    trdDt TradeDate_t (0..1)
+    reqID MDReqID_t (0..1)
+    mdStrmID MDStreamID_t (0..1)
+    finclStat FinancialStatus_t (0..1)
+    corpActn CorporateAction_t (0..1)
+    netChgPrevDay NetChgPrevDay_t (0..1)
+    applQuDepth ApplQueueDepth_t (0..1)
+    applQuResolution ApplQueueResolution_t (0..1)
+    applSeqCtrl ApplicationSequenceControl_Block_t (0..1)
+    instrmt Instrument_Block_t (1..1)
+    undly UndInstrmtGrp_Block_t (0..*)
+    leg InstrmtLegGrp_Block_t (0..*)
+    full MDFullGrp_Block_t (1..*)
+    rtg RoutingGrp_Block_t (0..*)
+
+type MarketDataIncrementalRefresh_message_t extends Abstract_message_t: <"MarketDataIncrementalRefresh can be found in Volume 3 of the \t\t\t\t\t\tspecification">
+
+    mdBkTyp MDBookType_t (0..1)
+    mdFeedTyp MDFeedType_t (0..1)
+    trdDt TradeDate_t (0..1)
+    reqID MDReqID_t (0..1)
+    applQuDepth ApplQueueDepth_t (0..1)
+    applQuResolution ApplQueueResolution_t (0..1)
+    applSeqCtrl ApplicationSequenceControl_Block_t (0..1)
+    inc MDIncGrp_Block_t (1..*)
+    rtg RoutingGrp_Block_t (0..*)
+
+type MarketDataRequestReject_message_t extends Abstract_message_t: <"MarketDataRequestReject can be found in Volume 3 of the \t\t\t\t\t\tspecification">
+
+    reqID MDReqID_t (1..1)
+    reqRejResn MDReqRejReason_t (0..1)
+    txt Text_t (0..1)
+    encTxtLen EncodedTextLen_t (0..1)
+    encTxt EncodedText_t (0..1)
+    pty Parties_Block_t (0..*)
+    rjct MDRjctGrp_Block_t (0..*)
+
+type StreamAssignmentRequest_message_t extends Abstract_message_t: <"StreamAssignmentRequest can be found in Volume 3 of the \t\t\t\t\t\tspecification">
+
+    reqID StreamAsgnReqID_t (1..1)
+    asgnReqTyp StreamAsgnReqType_t (1..1)
+    reqs StrmAsgnReqGrp_Block_t (1..*)
+
+type StreamAssignmentReport_message_t extends Abstract_message_t: <"StreamAssignmentReport can be found in Volume 3 of the \t\t\t\t\t\tspecification">
+
+    rptID StreamAsgnRptID_t (1..1)
+    asgnReqTyp StreamAsgnReqType_t (0..1)
+    reqID StreamAsgnReqID_t (0..1)
+    rpts StrmAsgnRptGrp_Block_t (0..*)
+
+type StreamAssignmentReportACK_message_t extends Abstract_message_t: <"StreamAssignmentReportACK can be found in Volume 3 of the \t\t\t\t\t\tspecification">
+
+    actTyp StreamAsgnAckType_t (1..1)
+    rptID StreamAsgnRptID_t (1..1)
+    rejRsn StreamAsgnRejReason_t (0..1)
+    txt Text_t (0..1)
+    encTxtLen EncodedTextLen_t (0..1)
+    encTxt EncodedText_t (0..1)
+
+type MDFullGrp_Block_t:
+
+    typ MDEntryType_t (1..1)
+    id MDEntryID_t (0..1)
+    px MDEntryPx_t (0..1)
+    pxTyp PriceType_t (0..1)
+    ordTyp OrdType_t (0..1)
+    ccy Currency_t (0..1)
+    settlCcy SettlCurrency_t (0..1)
+    sz MDEntrySize_t (0..1)
+    lotTyp LotType_t (0..1)
+    dt MDEntryDate_t (0..1)
+    tm MDEntryTime_t (0..1)
+    tickDirctn TickDirection_t (0..1)
+    mkt MDMkt_t (0..1)
+    sesID TradingSessionID_t (0..1)
+    sesSub TradingSessionSubID_t (0..1)
+    trdgStat SecurityTradingStatus_t (0..1)
+    haltRsn HaltReason_t (0..1)
+    qCond QuoteCondition_t (0..1)
+    trdCond TradeCondition_t (0..1)
+    orig MDEntryOriginator_t (0..1)
+    lctnID LocationID_t (0..1)
+    deskID DeskID_t (0..1)
+    openClsSettlFlag OpenCloseSettlFlag_t (0..1)
+    tmInForce TimeInForce_t (0..1)
+    expireDt ExpireDate_t (0..1)
+    expireTm ExpireTime_t (0..1)
+    minQty MinQty_t (0..1)
+    execInst ExecInst_t (0..1)
+    sellerDays SellerDays_t (0..1)
+    ordID OrderID_t (0..1)
+    ordID2 SecondaryOrderID_t (0..1)
+    entryID QuoteEntryID_t (0..1)
+    buyer MDEntryBuyer_t (0..1)
+    seller MDEntrySeller_t (0..1)
+    numOfOrds NumberOfOrders_t (0..1)
+    posNo MDEntryPositionNo_t (0..1)
+    scope Scope_t (0..1)
+    pxDelta PriceDelta_t (0..1)
+    trdTyp TrdType_t (0..1)
+    txt Text_t (0..1)
+    encTxtLen EncodedTextLen_t (0..1)
+    encTxt EncodedText_t (0..1)
+    mdPxLvl MDPriceLevel_t (0..1)
+    cpcty OrderCapacity_t (0..1)
+    mdOrigTyp MDOriginType_t (0..1)
+    highPx HighPx_t (0..1)
+    lowPx LowPx_t (0..1)
+    firstPx FirstPx_t (0..1)
+    lastPx LastPx_t (0..1)
+    trdVol TradeVolume_t (0..1)
+    settlTyp SettlType_t (0..1)
+    settlDt SettlDate_t (0..1)
+    mdQteTyp MDQuoteType_t (0..1)
+    rptSeq RptSeq_t (0..1)
+    dealingCpcty DealingCapacity_t (0..1)
+    mdEntrySpotRt MDEntrySpotRate_t (0..1)
+    mdEntryFwdPnts MDEntryForwardPoints_t (0..1)
+    yield YieldData_Block_t (0..1)
+    sprdBnchmkCurve SpreadOrBenchmarkCurveData_Block_t (0..1)
+    rtSrc RateSource_Block_t (0..*)
+    secSizesGrp SecSizesGrp_Block_t (0..*)
+    pty Parties_Block_t (0..*)
+
+type MDIncGrp_Block_t:
+
+    updtAct MDUpdateAction_t (1..1)
+    delRsn DeleteReason_t (0..1)
+    mdSubBkTyp MDSubBookType_t (0..1)
+    mktDepth MarketDepth_t (0..1)
+    typ MDEntryType_t (0..1)
+    id MDEntryID_t (0..1)
+    refID MDEntryRefID_t (0..1)
+    mdStrmID MDStreamID_t (0..1)
+    finclStat FinancialStatus_t (0..1)
+    corpActn CorporateAction_t (0..1)
+    px MDEntryPx_t (0..1)
+    pxTyp PriceType_t (0..1)
+    ordTyp OrdType_t (0..1)
+    ccy Currency_t (0..1)
+    settlCcy SettlCurrency_t (0..1)
+    sz MDEntrySize_t (0..1)
+    lotTyp LotType_t (0..1)
+    dt MDEntryDate_t (0..1)
+    tm MDEntryTime_t (0..1)
+    tickDirctn TickDirection_t (0..1)
+    mkt MDMkt_t (0..1)
+    sesID TradingSessionID_t (0..1)
+    sesSub TradingSessionSubID_t (0..1)
+    trdgStat SecurityTradingStatus_t (0..1)
+    haltRsn HaltReason_t (0..1)
+    qCond QuoteCondition_t (0..1)
+    trdCond TradeCondition_t (0..1)
+    trdTyp TrdType_t (0..1)
+    mtchTyp MatchType_t (0..1)
+    orig MDEntryOriginator_t (0..1)
+    lctnID LocationID_t (0..1)
+    deskID DeskID_t (0..1)
+    openClsSettlFlag OpenCloseSettlFlag_t (0..1)
+    tmInForce TimeInForce_t (0..1)
+    expireDt ExpireDate_t (0..1)
+    expireTm ExpireTime_t (0..1)
+    minQty MinQty_t (0..1)
+    execInst ExecInst_t (0..1)
+    sellerDays SellerDays_t (0..1)
+    ordID OrderID_t (0..1)
+    ordID2 SecondaryOrderID_t (0..1)
+    entryID QuoteEntryID_t (0..1)
+    trdID TradeID_t (0..1)
+    buyer MDEntryBuyer_t (0..1)
+    seller MDEntrySeller_t (0..1)
+    numOfOrds NumberOfOrders_t (0..1)
+    posNo MDEntryPositionNo_t (0..1)
+    scope Scope_t (0..1)
+    pxDelta PriceDelta_t (0..1)
+    netChgPrevDay NetChgPrevDay_t (0..1)
+    txt Text_t (0..1)
+    encTxtLen EncodedTextLen_t (0..1)
+    encTxt EncodedText_t (0..1)
+    mdPxLvl MDPriceLevel_t (0..1)
+    cpcty OrderCapacity_t (0..1)
+    mdOrigTyp MDOriginType_t (0..1)
+    highPx HighPx_t (0..1)
+    lowPx LowPx_t (0..1)
+    firstPx FirstPx_t (0..1)
+    lastPx LastPx_t (0..1)
+    trdVol TradeVolume_t (0..1)
+    settlTyp SettlType_t (0..1)
+    settlDt SettlDate_t (0..1)
+    transBkdTm TransBkdTime_t (0..1)
+    txnTm TransactTime_t (0..1)
+    mdQteTyp MDQuoteType_t (0..1)
+    rptSeq RptSeq_t (0..1)
+    dealingCpcty DealingCapacity_t (0..1)
+    mdEntrySpotRt MDEntrySpotRate_t (0..1)
+    mdEntryFwdPnts MDEntryForwardPoints_t (0..1)
+    instrmt Instrument_Block_t (0..1)
+    undly UndInstrmtGrp_Block_t (0..*)
+    leg InstrmtLegGrp_Block_t (0..*)
+    yield YieldData_Block_t (0..1)
+    sprdBnchmkCurve SpreadOrBenchmarkCurveData_Block_t (0..1)
+    rtSrc RateSource_Block_t (0..*)
+    secSizesGrp SecSizesGrp_Block_t (0..*)
+    statsIndGrp StatsIndGrp_Block_t (0..*)
+    pty Parties_Block_t (0..*)
+
+type MDReqGrp_Block_t:
+
+    typ MDEntryType_t (1..1)
+
+type MDRjctGrp_Block_t:
+
+    altMDSrcID AltMDSourceID_t (0..1)
+
+type SecSizesGrp_Block_t:
+
+    mdSecSizeType MDSecSizeType_t (0..1)
+    mdSecSize MDSecSize_t (0..1)
+
+type StatsIndGrp_Block_t:
+
+    statsTyp StatsType_t (0..1)
+
+type StrmAsgnReqGrp_Block_t:
+
+    pty Parties_Block_t (0..*)
+    instrmts StrmAsgnReqInstrmtGrp_Block_t (0..*)
+
+type StrmAsgnRptGrp_Block_t:
+
+    pty Parties_Block_t (0..*)
+    instrmts StrmAsgnRptInstrmtGrp_Block_t (0..*)
+
+type StrmAsgnReqInstrmtGrp_Block_t:
+
+    settlTyp SettlType_t (0..1)
+    sz MDEntrySize_t (0..1)
+    mdStrmID MDStreamID_t (0..1)
+    instrmt Instrument_Block_t (0..1)
+
+type StrmAsgnRptInstrmtGrp_Block_t:
+
+    settlTyp SettlType_t (0..1)
+    asgnTyp StreamAsgnType_t (0..1)
+    mdStrmID MDStreamID_t (0..1)
+    rejRsn StreamAsgnRejReason_t (0..1)
+    txt Text_t (0..1)
+    encTxtLen EncodedTextLen_t (0..1)
+    encTxt EncodedText_t (0..1)
+    instrmt Instrument_Block_t (0..1)

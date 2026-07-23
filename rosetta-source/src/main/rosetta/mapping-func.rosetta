@@ -1,0 +1,54 @@
+namespace cdm.mapping
+version "${project.version}"
+
+import cdm.fixml.*
+import cdm.fixml.components.base.*
+import cdm.fixml.order.base.*
+import cdm.fixml.fields.base.*
+
+func Ingest_FixmlOrderToSecuritiesLoan: <"Maps a FIXML NewOrderSingle message representing a securities-lending order to a SecuritiesLoan.">
+    [ingest cdmFixml]
+    inputs:
+        fixmlDocument FIXML (1..1)
+    output:
+        securitiesLoan SecuritiesLoan (1..1)
+
+    alias order:
+        fixmlDocument -> message switch
+            Order then item,
+            default empty
+
+    alias instrument: order -> instrmt
+    alias parties: order -> pty
+
+    set securitiesLoan:
+        SecuritiesLoan {
+            loanIdentifier: order -> id,
+            loanedSecurity:
+                LoanedSecurity {
+                    ticker: instrument -> sym,
+                    identifier: instrument -> id,
+                    exchange: instrument -> exch
+                },
+            quantity: order -> ordQty -> qty,
+            currency: order -> ccy,
+            settlementDate: order -> settlDt,
+            executionTimestamp: order -> txnTm,
+            lender: PartyIdWithRole(parties, PartyRole_enum_t -> _1),
+            borrower: PartyIdWithRole(parties, PartyRole_enum_t -> _17),
+            clearingOrganisation: PartyIdWithRole(parties, PartyRole_enum_t -> _21)
+        }
+
+func PartyIdWithRole: <"Extracts the identifier of the first party with the given role.">
+    inputs:
+        parties Parties_Block_t (0..*)
+        role PartyRole_enum_t (1..1)
+    output:
+        partyId string (0..1)
+
+    set partyId:
+        parties
+            filter r = role
+            then first
+            then extract id
+

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ══════════════════════════════════════════════════════════════════════
+  FIXML Sample 1 – NewOrderSingle (MsgType=D)
+  US Equity Lend | Cash Collateral (USD) | Open Term
+  ══════════════════════════════════════════════════════════════════════
+  Business Context
+  ─────────────────
+  Goldman Sachs (lender) initiates an open-ended securities loan of
+  100,000 Apple Inc. shares to Morgan Stanley (borrower).  Collateral
+  is cash USD at 102% initial margin, marked-to-market daily.  Lending
+  fee: 35 bps p.a.  Open (indefinite) term – either party may terminate
+  on demand subject to T+3 recall notice.  Cleared via DTC / Loanet.
+  FIX Fields of Note
+  ──────────────────
+    Side=F          Lend  (repo/securities-lending convention)
+    OrdType=1       Market (rate at prevailing market level)
+    TimeInForce=1   GTC   (Good Till Cancel – open / no fixed end date)
+    RepoRt=0.35     Lending fee rate = 35 bps per annum
+    SecTyp=SECLOAN    Securities Loan  (transaction-level security type)
+    Ccy=USD         Loan & collateral currency
+  Collateral Note
+  ───────────────
+  Cash USD at 102% initial margin (US same-currency equity convention).
+  Indicative notional : 100,000 × USD 187.50  = USD 18,750,000
+  Collateral required : USD 18,750,000 × 1.02 = USD 19,125,000
+  In many workflows a separate CollateralRequest (MsgType=AX) message
+  is also exchanged to formalise collateral terms for STP.
+  ══════════════════════════════════════════════════════════════════════
+-->
+<FIXML v="FIX.5.0SP2" xv="209" s="2026-05-07">
+  <Order
+          ID="GSCO-SL-20260507-0001"
+          Side="F"
+          TxnTm="2026-05-07T09:30:15.000Z"
+          Typ="1"
+          HndlInst="1"
+          Acct="GSCO-PRIME-01"
+          SettlDt="2026-05-09"
+          Ccy="USD"
+          TmInForce="1"
+          RepoRt="0.35">
+    <!-- ── LENT SECURITY: Apple Inc. Common Stock (NASDAQ) ── -->
+    <Instrmt
+            Sym="AAPL"
+            ID="US0378331005"
+            Src="4"
+            SecTyp="SECLOAN"
+            CFI="ESXXXX"
+            Exch="XNAS"/>
+    <!--
+      Src=4        ISIN identifier source
+      SecTyp=SECLOAN Securities Loan (overrides underlying equity type)
+      CFI          E=Equity, S=Common/Ordinary shares
+    -->
+    <!-- ── LOAN QUANTITY: 100,000 shares ── -->
+    <OrdQty Qty="100000"/>
+    <!-- ── PARTIES ── -->
+    <Pty ID="GSCO"       Src="D" R="1"/>
+    <!-- R=1  : ExecutingFirm  – Lender  : Goldman Sachs & Co. LLC       -->
+    <Pty ID="MSCO"       Src="D" R="17"/>
+    <!-- R=17 : ContraFirm     – Borrower: Morgan Stanley & Co. LLC      -->
+    <Pty ID="DTCCLOANET" Src="D" R="21"/>
+    <!-- R=21 : ClearingOrg   – DTC / OCC Loanet (US clearing platform)  -->
+  </Order>
+</FIXML>

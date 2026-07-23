@@ -1,0 +1,1071 @@
+namespace cdm.fixml.components.base : < "test" >
+version "${project.version}"
+
+import cdm.fixml.fields.base.*
+import cdm.fixml.fields.impl.*
+
+typeAlias Version_t:
+    string(pattern: "(FIX.2.7)|(FIX.3.0)|(FIX\\.4\\.[0-4])|(FIX\\.5\\.0(SP[1-3]))|(FIXT.1.[1-2])")
+
+type BaseHeader_t:
+
+    msgTyp MsgType_t (0..1)
+    applVerID ApplVerID_t (0..1)
+    sid SenderCompID_t (0..1)
+    tid TargetCompID_t (0..1)
+    obid OnBehalfOfCompID_t (0..1)
+    d2ID DeliverToCompID_t (0..1)
+    seqNum MsgSeqNum_t (0..1)
+    sSub SenderSubID_t (0..1)
+    sLoc SenderLocationID_t (0..1)
+    tSub TargetSubID_t (0..1)
+    tLoc TargetLocationID_t (0..1)
+    obSub OnBehalfOfSubID_t (0..1)
+    obLoc OnBehalfOfLocationID_t (0..1)
+    d2Sub DeliverToSubID_t (0..1)
+    d2Loc DeliverToLocationID_t (0..1)
+    posDup PossDupFlag_t (0..1)
+    posRsnd PossResend_t (0..1)
+    snt SendingTime_t (0..1)
+    origSnt OrigSendingTime_t (0..1)
+    msgEncd MessageEncoding_t (0..1)
+    hop HopGrp_Block_t (0..*)
+
+type HopGrp_Block_t:
+
+    id HopCompID_t (0..1)
+    snt HopSendingTime_t (0..1)
+    ref HopRefID_t (0..1)
+
+type MessageHeader_t extends BaseHeader_t:
+
+type BatchHeader_t extends BaseHeader_t:
+
+type Abstract_message_t:
+
+    hdr MessageHeader_t (0..1)
+
+type Batch_t:
+
+    id string (0..1)
+    totMsg int (0..1)
+    hdr BatchHeader_t (0..1)
+    message Abstract_message_t (0..*)
+
+type FIXML:
+
+    v Version_t (0..1)
+    r string (0..1)
+    xv int (0..1)
+    cv string (0..1)
+    xr string (0..1)
+    s date (0..1)
+    message Abstract_message_t (0..1)
+    batch Batch_t (0..*)
+
+    condition Choice:
+        required choice message, batch
+
+type CommissionData_Block_t:
+
+    comm Commission_t (0..1)
+    commTyp CommType_t (0..1)
+    ccy CommCurrency_t (0..1)
+    fundRenewWaiv FundRenewWaiv_t (0..1)
+
+type DiscretionInstructions_Block_t:
+
+    dsctnInst DiscretionInst_t (0..1)
+    ofstValu DiscretionOffsetValue_t (0..1)
+    moveTyp DiscretionMoveType_t (0..1)
+    ofstTyp DiscretionOffsetType_t (0..1)
+    limitTyp DiscretionLimitType_t (0..1)
+    rndDir DiscretionRoundDirection_t (0..1)
+    scope DiscretionScope_t (0..1)
+
+type FinancingDetails_Block_t:
+
+    agmtDesc AgreementDesc_t (0..1)
+    agmtID AgreementID_t (0..1)
+    agmtDt AgreementDate_t (0..1)
+    agmtCcy AgreementCurrency_t (0..1)
+    trmTyp TerminationType_t (0..1)
+    startDt StartDate_t (0..1)
+    endDt EndDate_t (0..1)
+    dlvryTyp DeliveryType_t (0..1)
+    mgnRatio MarginRatio_t (0..1)
+
+type Instrument_Block_t:
+
+    sym Symbol_t (0..1)
+    sfx SymbolSfx_t (0..1)
+    id SecurityID_t (0..1)
+    src SecurityIDSource_t (0..1)
+    prod Product_t (0..1)
+    prodCmplx ProductComplex_t (0..1)
+    secGrp SecurityGroup_t (0..1)
+    cfi CFICode_t (0..1)
+    secTyp SecurityType_t (0..1)
+    subTyp SecuritySubType_t (0..1)
+    mmy MaturityMonthYear_t (0..1)
+    matDt MaturityDate_t (0..1)
+    matTm MaturityTime_t (0..1)
+    settlOnOpenFlag SettleOnOpenFlag_t (0..1)
+    asgnMeth InstrmtAssignmentMethod_t (0..1)
+    status SecurityStatus_t (0..1)
+    cpnPmt CouponPaymentDate_t (0..1)
+    restrctTyp RestructuringType_t (0..1)
+    snrty Seniority_t (0..1)
+    notlPctOut NotionalPercentageOutstanding_t (0..1)
+    origNotlPctOut OriginalNotionalPercentageOutstanding_t (0..1)
+    attchPnt AttachmentPoint_t (0..1)
+    detchPnt DetachmentPoint_t (0..1)
+    issued IssueDate_t (0..1)
+    repoCollSecTyp RepoCollateralSecurityType_t (0..1)
+    repoTrm RepurchaseTerm_t (0..1)
+    repoRt RepurchaseRate_t (0..1)
+    fctr Factor_t (0..1)
+    crdRtg CreditRating_t (0..1)
+    rgstry InstrRegistry_t (0..1)
+    issuCtry CountryOfIssue_t (0..1)
+    stPrv StateOrProvinceOfIssue_t (0..1)
+    lcl LocaleOfIssue_t (0..1)
+    redeem RedemptionDate_t (0..1)
+    strkPx StrikePrice_t (0..1)
+    strkCcy StrikeCurrency_t (0..1)
+    strkMult StrikeMultiplier_t (0..1)
+    strkValu StrikeValue_t (0..1)
+    strkPxDtrmnMeth StrikePriceDeterminationMethod_t (0..1)
+    strkPxBndryMeth StrikePriceBoundaryMethod_t (0..1)
+    strkPxBndryPrcsn StrikePriceBoundaryPrecision_t (0..1)
+    pxDtrmnMeth UnderlyingPriceDeterminationMethod_t (0..1)
+    optAt OptAttribute_t (0..1)
+    mult ContractMultiplier_t (0..1)
+    multTyp ContractMultiplierUnit_t (0..1)
+    flowSchedTyp FlowScheduleType_t (0..1)
+    minPxIncr MinPriceIncrement_t (0..1)
+    minPxIncrAmt MinPriceIncrementAmount_t (0..1)
+    uom UnitOfMeasure_t (0..1)
+    uomQty UnitOfMeasureQty_t (0..1)
+    pxUOM PriceUnitOfMeasure_t (0..1)
+    pxUOMQty PriceUnitOfMeasureQty_t (0..1)
+    settlMeth SettlMethod_t (0..1)
+    exerStyle ExerciseStyle_t (0..1)
+    optPayoutTyp OptPayoutType_t (0..1)
+    optPayAmt OptPayoutAmount_t (0..1)
+    pxQteMeth PriceQuoteMethod_t (0..1)
+    valMeth ValuationMethod_t (0..1)
+    listMeth ListMethod_t (0..1)
+    capPx CapPrice_t (0..1)
+    flrPx FloorPrice_t (0..1)
+    putCall PutOrCall_t (0..1)
+    flexInd FlexibleIndicator_t (0..1)
+    flexProdElig FlexProductEligibilityIndicator_t (0..1)
+    tmUnit TimeUnit_t (0..1)
+    cpnRt CouponRate_t (0..1)
+    exch SecurityExchange_t (0..1)
+    posLmt PositionLimit_t (0..1)
+    ntPosLmt NTPositionLimit_t (0..1)
+    issr Issuer_t (0..1)
+    encIssrLen EncodedIssuerLen_t (0..1)
+    encIssr EncodedIssuer_t (0..1)
+    desc SecurityDesc_t (0..1)
+    encSecDescLen EncodedSecurityDescLen_t (0..1)
+    encSecDesc EncodedSecurityDesc_t (0..1)
+    pool Pool_t (0..1)
+    cSetMo ContractSettlMonth_t (0..1)
+    cpPgm CPProgram_t (0..1)
+    cpRegT CPRegType_t (0..1)
+    dated DatedDate_t (0..1)
+    intAcrl InterestAccrualDate_t (0..1)
+    aid SecAltIDGrp_Block_t (0..*)
+    secXML SecurityXML_Block_t (0..1)
+    evnt EvntGrp_Block_t (0..*)
+    pty InstrumentParties_Block_t (0..*)
+    cmplxEvnt ComplexEvents_Block_t (0..*)
+
+type InstrumentExtension_Block_t:
+
+    dlvryForm DeliveryForm_t (0..1)
+    pctAtRisk PctAtRisk_t (0..1)
+    attrb AttrbGrp_Block_t (0..*)
+
+type InstrumentLeg_Block_t:
+
+    sym LegSymbol_t (0..1)
+    sfx LegSymbolSfx_t (0..1)
+    id LegSecurityID_t (0..1)
+    src LegSecurityIDSource_t (0..1)
+    prod LegProduct_t (0..1)
+    cfi LegCFICode_t (0..1)
+    secTyp LegSecurityType_t (0..1)
+    secSubTyp LegSecuritySubType_t (0..1)
+    mmy LegMaturityMonthYear_t (0..1)
+    mat LegMaturityDate_t (0..1)
+    matTm LegMaturityTime_t (0..1)
+    cpnPmt LegCouponPaymentDate_t (0..1)
+    issued LegIssueDate_t (0..1)
+    repoCollSecTyp LegRepoCollateralSecurityType_t (0..1)
+    repoTrm LegRepurchaseTerm_t (0..1)
+    repoRt LegRepurchaseRate_t (0..1)
+    fctr LegFactor_t (0..1)
+    crdRtg LegCreditRating_t (0..1)
+    rgstry LegInstrRegistry_t (0..1)
+    ctry LegCountryOfIssue_t (0..1)
+    stOrProvnc LegStateOrProvinceOfIssue_t (0..1)
+    lcl LegLocaleOfIssue_t (0..1)
+    redeem LegRedemptionDate_t (0..1)
+    strk LegStrikePrice_t (0..1)
+    strkCcy LegStrikeCurrency_t (0..1)
+    optA LegOptAttribute_t (0..1)
+    cmult LegContractMultiplier_t (0..1)
+    multTyp LegContractMultiplierUnit_t (0..1)
+    flowSchedTyp LegFlowScheduleType_t (0..1)
+    uom LegUnitOfMeasure_t (0..1)
+    uomQty LegUnitOfMeasureQty_t (0..1)
+    pxUOM LegPriceUnitOfMeasure_t (0..1)
+    pxUOMQty LegPriceUnitOfMeasureQty_t (0..1)
+    tmUnit LegTimeUnit_t (0..1)
+    exerStyle LegExerciseStyle_t (0..1)
+    cpnRt LegCouponRate_t (0..1)
+    exch LegSecurityExchange_t (0..1)
+    issr LegIssuer_t (0..1)
+    encLegIssrLen EncodedLegIssuerLen_t (0..1)
+    encLegIssr EncodedLegIssuer_t (0..1)
+    desc LegSecurityDesc_t (0..1)
+    encLegSecDescLen EncodedLegSecurityDescLen_t (0..1)
+    encLegSecDesc EncodedLegSecurityDesc_t (0..1)
+    ratioQty LegRatioQty_t (0..1)
+    side LegSide_t (0..1)
+    ccy LegCurrency_t (0..1)
+    pool LegPool_t (0..1)
+    dated LegDatedDate_t (0..1)
+    cSetMo LegContractSettlMonth_t (0..1)
+    intAcrl LegInterestAccrualDate_t (0..1)
+    putCall LegPutOrCall_t (0..1)
+    legOptionRatio LegOptionRatio_t (0..1)
+    px LegPrice_t (0..1)
+    legAID LegSecAltIDGrp_Block_t (0..*)
+
+type LegBenchmarkCurveData_Block_t:
+
+    ccy LegBenchmarkCurveCurrency_t (0..1)
+    name LegBenchmarkCurveName_t (0..1)
+    point LegBenchmarkCurvePoint_t (0..1)
+    px LegBenchmarkPrice_t (0..1)
+    pxTyp LegBenchmarkPriceType_t (0..1)
+
+type LegStipulations_Block_t:
+
+    stipTyp LegStipulationType_t (0..1)
+    stipVal LegStipulationValue_t (0..1)
+
+type NestedParties_Block_t:
+
+    id NestedPartyID_t (0..1)
+    src NestedPartyIDSource_t (0..1)
+    r NestedPartyRole_t (0..1)
+    sub NstdPtysSubGrp_Block_t (0..*)
+
+type OrderQtyData_Block_t:
+
+    qty OrderQty_t (0..1)
+    cash CashOrderQty_t (0..1)
+    pct OrderPercent_t (0..1)
+    rndDir RoundingDirection_t (0..1)
+    rndMod RoundingModulus_t (0..1)
+
+type Parties_Block_t:
+
+    id PartyID_t (0..1)
+    src PartyIDSource_t (0..1)
+    r PartyRole_t (0..1)
+    sub PtysSubGrp_Block_t (0..*)
+
+type PegInstructions_Block_t:
+
+    ofstVal PegOffsetValue_t (0..1)
+    pegPxTyp PegPriceType_t (0..1)
+    moveTyp PegMoveType_t (0..1)
+    ofstTyp PegOffsetType_t (0..1)
+    lmtTyp PegLimitType_t (0..1)
+    rndDir PegRoundDirection_t (0..1)
+    scope PegScope_t (0..1)
+    pegSecurityIDSource PegSecurityIDSource_t (0..1)
+    pegSecID PegSecurityID_t (0..1)
+    pgSymbl PegSymbol_t (0..1)
+    pegSecDesc PegSecurityDesc_t (0..1)
+
+type PositionAmountData_Block_t:
+
+    typ PosAmtType_t (0..1)
+    amt PosAmt_t (0..1)
+    ccy PositionCurrency_t (0..1)
+
+type PositionQty_Block_t:
+
+    typ PosType_t (0..1)
+    long LongQty_t (0..1)
+    short ShortQty_t (0..1)
+    stat PosQtyStatus_t (0..1)
+    qtyDt QuantityDate_t (0..1)
+    pty NestedParties_Block_t (0..*)
+
+type SettlInstructionsData_Block_t:
+
+    dlvryTyp SettlDeliveryType_t (0..1)
+    standInstDbTyp StandInstDbType_t (0..1)
+    standInstDbName StandInstDbName_t (0..1)
+    standInstDbID StandInstDbID_t (0..1)
+    dlvInst DlvyInstGrp_Block_t (0..*)
+
+type SettlParties_Block_t:
+
+    id SettlPartyID_t (0..1)
+    src SettlPartyIDSource_t (0..1)
+    r SettlPartyRole_t (0..1)
+    sub SettlPtysSubGrp_Block_t (0..*)
+
+type SpreadOrBenchmarkCurveData_Block_t:
+
+    spread Spread_t (0..1)
+    ccy BenchmarkCurveCurrency_t (0..1)
+    name BenchmarkCurveName_t (0..1)
+    point BenchmarkCurvePoint_t (0..1)
+    px BenchmarkPrice_t (0..1)
+    pxTyp BenchmarkPriceType_t (0..1)
+    secID BenchmarkSecurityID_t (0..1)
+    secIDSrc BenchmarkSecurityIDSource_t (0..1)
+
+type Stipulations_Block_t:
+
+    typ StipulationType_t (0..1)
+    val StipulationValue_t (0..1)
+
+type TrdRegTimestamps_Block_t:
+
+    ts TrdRegTimestamp_t (0..1)
+    typ TrdRegTimestampType_t (0..1)
+    src TrdRegTimestampOrigin_t (0..1)
+    dskTyp DeskType_t (0..1)
+    dskTypSrc DeskTypeSource_t (0..1)
+    dskOrdHndlInst DeskOrderHandlingInst_t (0..1)
+
+type UnderlyingInstrument_Block_t:
+
+    sym UnderlyingSymbol_t (0..1)
+    sfx UnderlyingSymbolSfx_t (0..1)
+    id UnderlyingSecurityID_t (0..1)
+    src UnderlyingSecurityIDSource_t (0..1)
+    prod UnderlyingProduct_t (0..1)
+    cfi UnderlyingCFICode_t (0..1)
+    secTyp UnderlyingSecurityType_t (0..1)
+    subTyp UnderlyingSecuritySubType_t (0..1)
+    mmy UnderlyingMaturityMonthYear_t (0..1)
+    mat UnderlyingMaturityDate_t (0..1)
+    matTm UnderlyingMaturityTime_t (0..1)
+    cpnPmt UnderlyingCouponPaymentDate_t (0..1)
+    restrctTyp UnderlyingRestructuringType_t (0..1)
+    snrty UnderlyingSeniority_t (0..1)
+    notlPctOut UnderlyingNotionalPercentageOutstanding_t (0..1)
+    origNotlPctOut UnderlyingOriginalNotionalPercentageOutstanding_t (0..1)
+    attchPnt UnderlyingAttachmentPoint_t (0..1)
+    detchPnt UnderlyingDetachmentPoint_t (0..1)
+    issued UnderlyingIssueDate_t (0..1)
+    repoCollSecTyp UnderlyingRepoCollateralSecurityType_t (0..1)
+    repoTrm UnderlyingRepurchaseTerm_t (0..1)
+    repoRt UnderlyingRepurchaseRate_t (0..1)
+    fctr UnderlyingFactor_t (0..1)
+    crdRtg UnderlyingCreditRating_t (0..1)
+    rgstry UnderlyingInstrRegistry_t (0..1)
+    ctry UnderlyingCountryOfIssue_t (0..1)
+    stOrProvnc UnderlyingStateOrProvinceOfIssue_t (0..1)
+    lcl UnderlyingLocaleOfIssue_t (0..1)
+    redeem UnderlyingRedemptionDate_t (0..1)
+    strkPx UnderlyingStrikePrice_t (0..1)
+    strkCcy UnderlyingStrikeCurrency_t (0..1)
+    optA UnderlyingOptAttribute_t (0..1)
+    mult UnderlyingContractMultiplier_t (0..1)
+    multTyp UnderlyingContractMultiplierUnit_t (0..1)
+    flowSchedTyp UnderlyingFlowScheduleType_t (0..1)
+    uom UnderlyingUnitOfMeasure_t (0..1)
+    uomQty UnderlyingUnitOfMeasureQty_t (0..1)
+    pxUOM UnderlyingPriceUnitOfMeasure_t (0..1)
+    pxUOMQty UnderlyingPriceUnitOfMeasureQty_t (0..1)
+    tmUnit UnderlyingTimeUnit_t (0..1)
+    exerStyle UnderlyingExerciseStyle_t (0..1)
+    cpnRt UnderlyingCouponRate_t (0..1)
+    exch UnderlyingSecurityExchange_t (0..1)
+    issr UnderlyingIssuer_t (0..1)
+    encUndIssrLen EncodedUnderlyingIssuerLen_t (0..1)
+    encUndIssr EncodedUnderlyingIssuer_t (0..1)
+    desc UnderlyingSecurityDesc_t (0..1)
+    encUndSecDescLen EncodedUnderlyingSecurityDescLen_t (0..1)
+    encUndSecDesc EncodedUnderlyingSecurityDesc_t (0..1)
+    cpPgm UnderlyingCPProgram_t (0..1)
+    cpRegTyp UnderlyingCPRegType_t (0..1)
+    allocPct UnderlyingAllocationPercent_t (0..1)
+    ccy UnderlyingCurrency_t (0..1)
+    qty UnderlyingQty_t (0..1)
+    settlTyp UnderlyingSettlementType_t (0..1)
+    cashAmt UnderlyingCashAmount_t (0..1)
+    cashTyp UnderlyingCashType_t (0..1)
+    px UnderlyingPx_t (0..1)
+    dirtPx UnderlyingDirtyPrice_t (0..1)
+    endPx UnderlyingEndPrice_t (0..1)
+    startVal UnderlyingStartValue_t (0..1)
+    curVal UnderlyingCurrentValue_t (0..1)
+    endVal UnderlyingEndValue_t (0..1)
+    adjQty UnderlyingAdjustedQuantity_t (0..1)
+    fxRate UnderlyingFXRate_t (0..1)
+    fxRateCalc UnderlyingFXRateCalc_t (0..1)
+    capValu UnderlyingCapValue_t (0..1)
+    setMeth UnderlyingSettlMethod_t (0..1)
+    putCall UnderlyingPutOrCall_t (0..1)
+    undAID UndSecAltIDGrp_Block_t (0..*)
+    stip UnderlyingStipulations_Block_t (0..*)
+    pty UndlyInstrumentParties_Block_t (0..*)
+
+type YieldData_Block_t:
+
+    typ YieldType_t (0..1)
+    yld Yield_t (0..1)
+    calcDt YieldCalcDate_t (0..1)
+    redDt YieldRedemptionDate_t (0..1)
+    redPx YieldRedemptionPrice_t (0..1)
+    redPxTyp YieldRedemptionPriceType_t (0..1)
+
+type UnderlyingStipulations_Block_t:
+
+    typ UnderlyingStipType_t (0..1)
+    val UnderlyingStipValue_t (0..1)
+
+type NestedParties2_Block_t:
+
+    id Nested2PartyID_t (0..1)
+    src Nested2PartyIDSource_t (0..1)
+    r Nested2PartyRole_t (0..1)
+    sub NstdPtys2SubGrp_Block_t (0..*)
+
+type NestedParties3_Block_t:
+
+    id Nested3PartyID_t (0..1)
+    src Nested3PartyIDSource_t (0..1)
+    r Nested3PartyRole_t (0..1)
+    sub NstdPtys3SubGrp_Block_t (0..*)
+
+type ClrInstGrp_Block_t:
+
+    clrngInstrctn ClearingInstruction_t (0..1)
+
+type CompIDReqGrp_Block_t:
+
+    refCompID RefCompID_t (0..1)
+    refSubID RefSubID_t (0..1)
+    lctnID LocationID_t (0..1)
+    deskID DeskID_t (0..1)
+
+type CompIDStatGrp_Block_t:
+
+    refCompID RefCompID_t (1..1)
+    refSubID RefSubID_t (0..1)
+    lctnID LocationID_t (0..1)
+    deskID DeskID_t (0..1)
+    statValu StatusValue_t (1..1)
+    statText StatusText_t (0..1)
+
+type ContAmtGrp_Block_t:
+
+    contAmtTyp ContAmtType_t (0..1)
+    contAmtValu ContAmtValue_t (0..1)
+    contAmtCurr ContAmtCurr_t (0..1)
+
+type ContraGrp_Block_t:
+
+    cntraBrkr ContraBroker_t (0..1)
+    cntraTrdr ContraTrader_t (0..1)
+    cntraTrdQty ContraTradeQty_t (0..1)
+    cntraTrdTm ContraTradeTime_t (0..1)
+    cntraLegRefID ContraLegRefID_t (0..1)
+
+type InstrmtGrp_Block_t:
+
+    instrmt Instrument_Block_t (0..1)
+
+type InstrmtLegExecGrp_Block_t:
+
+    qty LegQty_t (0..1)
+    ordQty LegOrderQty_t (0..1)
+    swapTyp LegSwapType_t (0..1)
+    legAllocID LegAllocID_t (0..1)
+    posEfct LegPositionEffect_t (0..1)
+    cover LegCoveredOrUncovered_t (0..1)
+    refID LegRefID_t (0..1)
+    settlTyp LegSettlType_t (0..1)
+    settlDt LegSettlDate_t (0..1)
+    lastPx LegLastPx_t (0..1)
+    settlCcy LegSettlCurrency_t (0..1)
+    legLastFwdPnts LegLastForwardPoints_t (0..1)
+    legCalcCcyLastQty LegCalculatedCcyLastQty_t (0..1)
+    legGrossTrdAmt LegGrossTradeAmt_t (0..1)
+    legVolatility LegVolatility_t (0..1)
+    legDividendYield LegDividendYield_t (0..1)
+    legCurrencyRatio LegCurrencyRatio_t (0..1)
+    legExecInst LegExecInst_t (0..1)
+    lastQty LegLastQty_t (0..1)
+    leg InstrumentLeg_Block_t (0..1)
+    stip LegStipulations_Block_t (0..*)
+    preAll LegPreAllocGrp_Block_t (0..*)
+    pty NestedParties3_Block_t (0..*)
+
+type InstrmtLegGrp_Block_t extends InstrumentLeg_Block_t:
+
+type InstrmtLegIOIGrp_Block_t:
+
+    ioiQty LegIOIQty_t (0..1)
+    leg InstrumentLeg_Block_t (0..1)
+    stip LegStipulations_Block_t (0..*)
+
+type InstrmtLegSecListGrp_Block_t:
+
+    swapTyp LegSwapType_t (0..1)
+    settlTyp LegSettlType_t (0..1)
+    leg InstrumentLeg_Block_t (0..1)
+    stip LegStipulations_Block_t (0..*)
+    bnchmkCurve LegBenchmarkCurveData_Block_t (0..1)
+
+type InstrmtMDReqGrp_Block_t:
+
+    ccy Currency_t (0..1)
+    typ QuoteType_t (0..1)
+    settlTyp SettlType_t (0..1)
+    settlDt SettlDate_t (0..1)
+    sz MDEntrySize_t (0..1)
+    mdStrmID MDStreamID_t (0..1)
+    instrmt Instrument_Block_t (1..1)
+    undly UndInstrmtGrp_Block_t (0..*)
+    leg InstrmtLegGrp_Block_t (0..*)
+
+type LegPreAllocGrp_Block_t:
+
+    allocAcct LegAllocAccount_t (0..1)
+    indAllocID LegIndividualAllocID_t (0..1)
+    allocQty LegAllocQty_t (0..1)
+    allocAcctIDSrc LegAllocAcctIDSource_t (0..1)
+    allocSettlCcy LegAllocSettlCurrency_t (0..1)
+    pty NestedParties2_Block_t (0..*)
+
+type LinesOfTextGrp_Block_t:
+
+    txt Text_t (1..1)
+    encTxtLen EncodedTextLen_t (0..1)
+    encTxt EncodedText_t (0..1)
+
+type MiscFeesGrp_Block_t:
+
+    amt MiscFeeAmt_t (0..1)
+    curr MiscFeeCurr_t (0..1)
+    typ MiscFeeType_t (0..1)
+    basis MiscFeeBasis_t (0..1)
+
+type OrdAllocGrp_Block_t:
+
+    clOrdID ClOrdID_t (0..1)
+    ordID OrderID_t (0..1)
+    ordID2 SecondaryOrderID_t (0..1)
+    clOrdID2 SecondaryClOrdID_t (0..1)
+    listID ListID_t (0..1)
+    qty OrderQty_t (0..1)
+    avgPx OrderAvgPx_t (0..1)
+    bkngQty OrderBookingQty_t (0..1)
+    pty NestedParties2_Block_t (0..*)
+
+type PreAllocGrp_Block_t:
+
+    acct AllocAccount_t (0..1)
+    actIDSrc AllocAcctIDSource_t (0..1)
+    allocSettlCcy AllocSettlCurrency_t (0..1)
+    indAllocID IndividualAllocID_t (0..1)
+    qty AllocQty_t (0..1)
+    pty NestedParties_Block_t (0..*)
+
+type PreAllocMlegGrp_Block_t:
+
+    acct AllocAccount_t (0..1)
+    actIDSrc AllocAcctIDSource_t (0..1)
+    allocSettlCcy AllocSettlCurrency_t (0..1)
+    indAllocID IndividualAllocID_t (0..1)
+    qty AllocQty_t (0..1)
+    pty NestedParties3_Block_t (0..*)
+
+type RoutingGrp_Block_t:
+
+    rtgTyp RoutingType_t (0..1)
+    rtgID RoutingID_t (0..1)
+
+type TrdgSesGrp_Block_t:
+
+    sesID TradingSessionID_t (0..1)
+    sesSub TradingSessionSubID_t (0..1)
+
+type UndInstrmtGrp_Block_t extends UnderlyingInstrument_Block_t:
+
+type EvntGrp_Block_t:
+
+    eventTyp EventType_t (0..1)
+    dt EventDate_t (0..1)
+    tm EventTime_t (0..1)
+    px EventPx_t (0..1)
+    txt EventText_t (0..1)
+
+type SecAltIDGrp_Block_t:
+
+    altID SecurityAltID_t (0..1)
+    altIDSrc SecurityAltIDSource_t (0..1)
+
+type LegSecAltIDGrp_Block_t:
+
+    secAltID LegSecurityAltID_t (0..1)
+    secAltIDSrc LegSecurityAltIDSource_t (0..1)
+
+type UndSecAltIDGrp_Block_t:
+
+    altID UnderlyingSecurityAltID_t (0..1)
+    altIDSrc UnderlyingSecurityAltIDSource_t (0..1)
+
+type AttrbGrp_Block_t:
+
+    typ InstrAttribType_t (0..1)
+    val InstrAttribValue_t (0..1)
+
+type DlvyInstGrp_Block_t:
+
+    instSrc SettlInstSource_t (0..1)
+    instTyp DlvyInstType_t (0..1)
+    pty SettlParties_Block_t (0..*)
+
+type SettlPtysSubGrp_Block_t:
+
+    id SettlPartySubID_t (0..1)
+    typ SettlPartySubIDType_t (0..1)
+
+type PtysSubGrp_Block_t:
+
+    id PartySubID_t (0..1)
+    typ PartySubIDType_t (0..1)
+
+type NstdPtysSubGrp_Block_t:
+
+    id NestedPartySubID_t (0..1)
+    typ NestedPartySubIDType_t (0..1)
+
+type NstdPtys2SubGrp_Block_t:
+
+    id Nested2PartySubID_t (0..1)
+    typ Nested2PartySubIDType_t (0..1)
+
+type NstdPtys3SubGrp_Block_t:
+
+    id Nested3PartySubID_t (0..1)
+    typ Nested3PartySubIDType_t (0..1)
+
+type StrategyParametersGrp_Block_t:
+
+    strtPrmNme StrategyParameterName_t (0..1)
+    strtPrmTyp StrategyParameterType_t (0..1)
+    strtPrmVal StrategyParameterValue_t (0..1)
+
+type InstrumentParties_Block_t:
+
+    id InstrumentPartyID_t (0..1)
+    src InstrumentPartyIDSource_t (0..1)
+    r InstrumentPartyRole_t (0..1)
+    sub InstrumentPtysSubGrp_Block_t (0..*)
+
+type InstrumentPtysSubGrp_Block_t:
+
+    id InstrumentPartySubID_t (0..1)
+    typ InstrumentPartySubIDType_t (0..1)
+
+type UndlyInstrumentParties_Block_t:
+
+    id UnderlyingInstrumentPartyID_t (0..1)
+    src UnderlyingInstrumentPartyIDSource_t (0..1)
+    r UnderlyingInstrumentPartyRole_t (0..1)
+    sub UndlyInstrumentPtysSubGrp_Block_t (0..*)
+
+type UndlyInstrumentPtysSubGrp_Block_t:
+
+    id UnderlyingInstrumentPartySubID_t (0..1)
+    typ UnderlyingInstrumentPartySubIDType_t (0..1)
+
+type DisplayInstruction_Block_t:
+
+    displayQty DisplayQty_t (0..1)
+    secDspQty SecondaryDisplayQty_t (0..1)
+    dspWhn DisplayWhen_t (0..1)
+    dspMthd DisplayMethod_t (0..1)
+    dsplLwQty DisplayLowQty_t (0..1)
+    displayHighQty DisplayHighQty_t (0..1)
+    dspMinIncr DisplayMinIncr_t (0..1)
+    rfrshQty RefreshQty_t (0..1)
+
+type TriggeringInstruction_Block_t:
+
+    trgrTyp TriggerType_t (0..1)
+    trgrActn TriggerAction_t (0..1)
+    trgrPx TriggerPrice_t (0..1)
+    trgrSym TriggerSymbol_t (0..1)
+    trgrSecID TriggerSecurityID_t (0..1)
+    trgrSecIDSrc TriggerSecurityIDSource_t (0..1)
+    trgrSecDesc TriggerSecurityDesc_t (0..1)
+    trgrPxTyp TriggerPriceType_t (0..1)
+    trgrPxTypScp TriggerPriceTypeScope_t (0..1)
+    trgrPxDir TriggerPriceDirection_t (0..1)
+    trgrNewPx TriggerNewPrice_t (0..1)
+    trgrOrdTyp TriggerOrderType_t (0..1)
+    trgrNewQty TriggerNewQty_t (0..1)
+    trgrTrdSessID TriggerTradingSessionID_t (0..1)
+    trgrTrdSessSubID TriggerTradingSessionSubID_t (0..1)
+
+type RootParties_Block_t:
+
+    id RootPartyID_t (0..1)
+    src RootPartyIDSource_t (0..1)
+    r RootPartyRole_t (0..1)
+    sub RootSubParties_Block_t (0..*)
+
+type RootSubParties_Block_t:
+
+    id RootPartySubID_t (0..1)
+    typ RootPartySubIDType_t (0..1)
+
+type TrdSessLstGrp_Block_t:
+
+    sesID TradingSessionID_t (1..1)
+    sesSub TradingSessionSubID_t (0..1)
+    tradSesUpdtActn TradSesUpdateAction_t (0..1)
+    exch SecurityExchange_t (0..1)
+    mktID MarketID_t (0..1)
+    mktSegID MarketSegmentID_t (0..1)
+    tradingSessionDesc TradingSessionDesc_t (0..1)
+    method TradSesMethod_t (0..1)
+    mode TradSesMode_t (0..1)
+    unsol UnsolicitedIndicator_t (0..1)
+    stat TradSesStatus_t (1..1)
+    statRejRsn TradSesStatusRejReason_t (0..1)
+    startTm TradSesStartTime_t (0..1)
+    openTm TradSesOpenTime_t (0..1)
+    preClsTm TradSesPreCloseTime_t (0..1)
+    clsTm TradSesCloseTime_t (0..1)
+    endTm TradSesEndTime_t (0..1)
+    totVolTrdd TotalVolumeTraded_t (0..1)
+    txnTm TransactTime_t (0..1)
+    txt Text_t (0..1)
+    encTxtLen EncodedTextLen_t (0..1)
+    encTxt EncodedText_t (0..1)
+    trdgSesRules TradingSessionRules_Block_t (0..1)
+
+type MsgTypeGrp_Block_t:
+
+    refMsgTyp RefMsgType_t (0..1)
+    refApplVerID RefApplVerID_t (0..1)
+    refApplExtID RefApplExtID_t (0..1)
+    refCstmApplVerID RefCstmApplVerID_t (0..1)
+    dfltVerInd DefaultVerIndicator_t (0..1)
+
+type SecurityTradingRules_Block_t:
+
+    baseTrdgRules BaseTradingRules_Block_t (0..1)
+    trdgSesRulesGrp TradingSessionRulesGrp_Block_t (0..*)
+    attrb NestedInstrumentAttribute_Block_t (0..*)
+
+type SettlDetails_Block_t:
+
+    settlSrc SettlObligSource_t (0..1)
+    pty SettlParties_Block_t (0..*)
+
+type SecurityXML_Block_t:
+
+    ^schema SecurityXMLSchema_t (0..1)
+    anyContents string (0..*) <"Placeholder for xsd:any: Min Occurs: 0; Max Occurs: unbounded; Namespace: ##any; Process Contents: skip.">
+
+type TickRules_Block_t:
+
+    startTickPxRng StartTickPriceRange_t (0..1)
+    endTickPxRng EndTickPriceRange_t (0..1)
+    tickIncr TickIncrement_t (0..1)
+    tickRuleTyp TickRuleType_t (0..1)
+
+type StrikeRules_Block_t:
+
+    strkRule StrikeRuleID_t (0..1)
+    startStrkPxRng StartStrikePxRange_t (0..1)
+    endStrkPxRng EndStrikePxRange_t (0..1)
+    strkIncr StrikeIncrement_t (0..1)
+    strkExrStyle StrikeExerciseStyle_t (0..1)
+    matRules MaturityRules_Block_t (0..*)
+
+type MaturityRules_Block_t:
+
+    matRuleID MaturityRuleID_t (0..1)
+    mmyFmt MaturityMonthYearFormat_t (0..1)
+    mmyIncrUnits MaturityMonthYearIncrementUnits_t (0..1)
+    startMMY StartMaturityMonthYear_t (0..1)
+    endMMY EndMaturityMonthYear_t (0..1)
+    mmyIncr MaturityMonthYearIncrement_t (0..1)
+
+type SecondaryPriceLimits_Block_t:
+
+    pxLmtTyp SecondaryPriceLimitType_t (0..1)
+    lowLmtPx SecondaryLowLimitPrice_t (0..1)
+    hiLmtPx SecondaryHighLimitPrice_t (0..1)
+    trdgRefPx SecondaryTradingReferencePrice_t (0..1)
+
+type PriceLimits_Block_t:
+
+    pxLmtTyp PriceLimitType_t (0..1)
+    lowLmtPx LowLimitPrice_t (0..1)
+    hiLmtPx HighLimitPrice_t (0..1)
+    trdgRefPx TradingReferencePrice_t (0..1)
+
+type MarketDataFeedTypes_Block_t:
+
+    mdFeedTyp MDFeedType_t (0..1)
+    mktDepth MarketDepth_t (0..1)
+    mdBkTyp MDBookType_t (0..1)
+
+type LotTypeRules_Block_t:
+
+    lotTyp LotType_t (0..1)
+    minLotSz MinLotSize_t (0..1)
+
+type MatchRules_Block_t:
+
+    mtchAlgo MatchAlgorithm_t (0..1)
+    mtchTyp MatchType_t (0..1)
+
+type ExecInstRules_Block_t:
+
+    execInstValu ExecInstValue_t (0..1)
+
+type TimeInForceRules_Block_t:
+
+    tmInForce TimeInForce_t (0..1)
+
+type OrdTypeRules_Block_t:
+
+    ordTyp OrdType_t (0..1)
+
+type TradingSessionRules_Block_t:
+
+    ordTypRules OrdTypeRules_Block_t (0..*)
+    tmInForceRules TimeInForceRules_Block_t (0..*)
+    execInstRules ExecInstRules_Block_t (0..*)
+    mtchRules MatchRules_Block_t (0..*)
+    mdFeedTyps MarketDataFeedTypes_Block_t (0..*)
+
+type TradingSessionRulesGrp_Block_t:
+
+    sesID TradingSessionID_t (0..1)
+    sesSub TradingSessionSubID_t (0..1)
+    trdgSesRules TradingSessionRules_Block_t (0..1)
+
+type BaseTradingRules_Block_t:
+
+    expirationCycle ExpirationCycle_t (0..1)
+    minTrdVol MinTradeVol_t (0..1)
+    maxTrdVol MaxTradeVol_t (0..1)
+    mxPxVar MaxPriceVariation_t (0..1)
+    impldMktInd ImpliedMarketIndicator_t (0..1)
+    trdCcy TradingCurrency_t (0..1)
+    rndLot RoundLot_t (0..1)
+    mlegModel MultilegModel_t (0..1)
+    mlegPxMeth MultilegPriceMethod_t (0..1)
+    pxTyp PriceType_t (0..1)
+    tickRules TickRules_Block_t (0..*)
+    lotTypeRules LotTypeRules_Block_t (0..*)
+    pxLmts PriceLimits_Block_t (0..1)
+
+type MarketSegmentGrp_Block_t:
+
+    mktID MarketID_t (0..1)
+    mktSegID MarketSegmentID_t (0..1)
+    secTrdgRules SecurityTradingRules_Block_t (0..1)
+    strkRules StrikeRules_Block_t (0..*)
+
+type DerivativeInstrumentPartySubIDsGrp_Block_t:
+
+    id DerivativeInstrumentPartySubID_t (0..1)
+    typ DerivativeInstrumentPartySubIDType_t (0..1)
+
+type DerivativeInstrumentParties_Block_t:
+
+    id DerivativeInstrumentPartyID_t (0..1)
+    src DerivativeInstrumentPartyIDSource_t (0..1)
+    r DerivativeInstrumentPartyRole_t (0..1)
+    sub DerivativeInstrumentPartySubIDsGrp_Block_t (0..*)
+
+type DerivativeInstrumentAttribute_Block_t:
+
+    typ DerivativeInstrAttribType_t (0..1)
+    val DerivativeInstrAttribValue_t (0..1)
+
+type NestedInstrumentAttribute_Block_t:
+
+    typ NestedInstrAttribType_t (0..1)
+    val NestedInstrAttribValue_t (0..1)
+
+type DerivativeInstrument_Block_t:
+
+    sym DerivativeSymbol_t (0..1)
+    sfx DerivativeSymbolSfx_t (0..1)
+    id DerivativeSecurityID_t (0..1)
+    src DerivativeSecurityIDSource_t (0..1)
+    prod DerivativeProduct_t (0..1)
+    prodCmplx DerivativeProductComplex_t (0..1)
+    flexProdElig DerivFlexProductEligibilityIndicator_t (0..1)
+    secGrp DerivativeSecurityGroup_t (0..1)
+    cfi DerivativeCFICode_t (0..1)
+    secTyp DerivativeSecurityType_t (0..1)
+    secSubTyp DerivativeSecuritySubType_t (0..1)
+    mmy DerivativeMaturityMonthYear_t (0..1)
+    matDt DerivativeMaturityDate_t (0..1)
+    matTm DerivativeMaturityTime_t (0..1)
+    openCloseSettlFlag DerivativeSettleOnOpenFlag_t (0..1)
+    asgnMeth DerivativeInstrmtAssignmentMethod_t (0..1)
+    status DerivativeSecurityStatus_t (0..1)
+    issDt DerivativeIssueDate_t (0..1)
+    rgstry DerivativeInstrRegistry_t (0..1)
+    ctry DerivativeCountryOfIssue_t (0..1)
+    stPrv DerivativeStateOrProvinceOfIssue_t (0..1)
+    lcl DerivativeLocaleOfIssue_t (0..1)
+    strkPx DerivativeStrikePrice_t (0..1)
+    strkCcy DerivativeStrikeCurrency_t (0..1)
+    strkMult DerivativeStrikeMultiplier_t (0..1)
+    strkValu DerivativeStrikeValue_t (0..1)
+    optAt DerivativeOptAttribute_t (0..1)
+    mult DerivativeContractMultiplier_t (0..1)
+    multTyp DerivativeContractMultiplierUnit_t (0..1)
+    flowSchedTyp DerivativeFlowScheduleType_t (0..1)
+    minPxIncr DerivativeMinPriceIncrement_t (0..1)
+    minPxIncrAmt DerivativeMinPriceIncrementAmount_t (0..1)
+    uom DerivativeUnitOfMeasure_t (0..1)
+    uomQty DerivativeUnitOfMeasureQty_t (0..1)
+    pxUOM DerivativePriceUnitOfMeasure_t (0..1)
+    pxUOMQty DerivativePriceUnitOfMeasureQty_t (0..1)
+    settlMeth DerivativeSettlMethod_t (0..1)
+    pxQteMeth DerivativePriceQuoteMethod_t (0..1)
+    valMeth DerivativeValuationMethod_t (0..1)
+    listMeth DerivativeListMethod_t (0..1)
+    capPx DerivativeCapPrice_t (0..1)
+    flrPx DerivativeFloorPrice_t (0..1)
+    putCall DerivativePutOrCall_t (0..1)
+    exerStyle DerivativeExerciseStyle_t (0..1)
+    optPayAmt DerivativeOptPayAmount_t (0..1)
+    tmUnit DerivativeTimeUnit_t (0..1)
+    exch DerivativeSecurityExchange_t (0..1)
+    posLmt DerivativePositionLimit_t (0..1)
+    ntPosLmt DerivativeNTPositionLimit_t (0..1)
+    issr DerivativeIssuer_t (0..1)
+    encIssrLen DerivativeEncodedIssuerLen_t (0..1)
+    encIssr DerivativeEncodedIssuer_t (0..1)
+    desc DerivativeSecurityDesc_t (0..1)
+    encSecDescLen DerivativeEncodedSecurityDescLen_t (0..1)
+    encSecDesc DerivativeEncodedSecurityDesc_t (0..1)
+    cSetMo DerivativeContractSettlMonth_t (0..1)
+    aid DerivativeSecurityAltIDGrp_Block_t (0..*)
+    secXML DerivativeSecurityXML_Block_t (0..1)
+    evnt DerivativeEventsGrp_Block_t (0..*)
+    pty DerivativeInstrumentParties_Block_t (0..*)
+
+type DerivativeSecurityAltIDGrp_Block_t:
+
+    id DerivativeSecurityAltID_t (0..1)
+    src DerivativeSecurityAltIDSource_t (0..1)
+
+type DerivativeEventsGrp_Block_t:
+
+    eventTyp DerivativeEventType_t (0..1)
+    dt DerivativeEventDate_t (0..1)
+    tm DerivativeEventTime_t (0..1)
+    px DerivativeEventPx_t (0..1)
+    txt DerivativeEventText_t (0..1)
+
+type DerivativeSecurityDefinition_Block_t:
+
+    derivInstrmt DerivativeInstrument_Block_t (0..1)
+    attrb DerivativeInstrumentAttribute_Block_t (0..*)
+    mktSegGrp MarketSegmentGrp_Block_t (0..*)
+
+type RelSymDerivSecUpdGrp_Block_t:
+
+    listUpdActn ListUpdateAction_t (0..1)
+    corpActn CorporateAction_t (0..1)
+    ccy Currency_t (0..1)
+    txnTm RelSymTransactTime_t (0..1)
+    txt Text_t (0..1)
+    encTxtLen EncodedTextLen_t (0..1)
+    encTxt EncodedText_t (0..1)
+    instrmt Instrument_Block_t (0..1)
+    instrmtExt InstrumentExtension_Block_t (0..1)
+    pxLmts2 SecondaryPriceLimits_Block_t (0..1)
+    leg InstrmtLegGrp_Block_t (0..*)
+
+type DerivativeSecurityXML_Block_t:
+
+    ^schema DerivativeSecurityXMLSchema_t (0..1)
+    anyContents string (0..*) <"Placeholder for xsd:any: Min Occurs: 0; Max Occurs: unbounded; Namespace: ##any; Process Contents: skip.">
+
+type ApplicationSequenceControl_Block_t:
+
+    applID ApplID_t (0..1)
+    applSeqNum ApplSeqNum_t (0..1)
+    applLastSeqNum ApplLastSeqNum_t (0..1)
+    applResendFlag ApplResendFlag_t (0..1)
+
+type NstdPtys4SubGrp_Block_t:
+
+    id Nested4PartySubID_t (0..1)
+    typ Nested4PartySubIDType_t (0..1)
+
+type NestedParties4_Block_t:
+
+    id Nested4PartyID_t (0..1)
+    src Nested4PartyIDSource_t (0..1)
+    r Nested4PartyRole_t (0..1)
+    sub NstdPtys4SubGrp_Block_t (0..*)
+
+type RateSource_Block_t:
+
+    rtSrc RateSource_t (0..1)
+    rtSrcTyp RateSourceType_t (0..1)
+    refPg ReferencePage_t (0..1)
+
+type TargetParties_Block_t:
+
+    id TargetPartyID_t (0..1)
+    src TargetPartyIDSource_t (0..1)
+    r TargetPartyRole_t (0..1)
+
+type ComplexEvents_Block_t:
+
+    typ ComplexEventType_t (0..1)
+    optPayAmt ComplexOptPayoutAmount_t (0..1)
+    px ComplexEventPrice_t (0..1)
+    pxBndryMeth ComplexEventPriceBoundaryMethod_t (0..1)
+    pxBndryPrcsn ComplexEventPriceBoundaryPrecision_t (0..1)
+    pxTmTyp ComplexEventPriceTimeType_t (0..1)
+    cond ComplexEventCondition_t (0..1)
+    evntDts ComplexEventDates_Block_t (0..*)
+
+type ComplexEventDates_Block_t:
+
+    startDt ComplexEventStartDate_t (0..1)
+    endDt ComplexEventEndDate_t (0..1)
+    evntTms ComplexEventTimes_Block_t (0..*)
+
+type ComplexEventTimes_Block_t:
+
+    startTm ComplexEventStartTime_t (0..1)
+    endTm ComplexEventEndTime_t (0..1)
