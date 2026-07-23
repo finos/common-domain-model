@@ -24,7 +24,7 @@ Proposals for an entity to be given maintainership status or to have maintainers
 The [maintenance and release](maintenance-and-release.md) page provides further detail on maintainers' responsibilities. 
 
 ## Maintainers Approval Process 
-![image](/img/Approval-Process.png)
+![imhttps://github.com/finos/common-domain-model/pull/4568/conflict?name=website%252Fversioned_docs%252Fversion-5.20.0%252Fmaintainers.md&ancestor_oid=6090422e0f2a6c2842197252a5eec7b7e60b8f27&base_oid=0c62cacd8e6d58c1117fdd572715b0a2dd8bfd9a&head_oid=c5987f7dc05b7613d739a04598e16aff202b27cbage](/img/Approval-Process.png)
 
 Click [here](change-control-guidelines#pr-approval-process) to view the pull request approval guidelines. 
 
@@ -34,19 +34,20 @@ FINOS Common Domain Model is maintained by FINOS members and the wider open sour
 
 The following are the FINOS CDM maintainers and the firms they represent.  
 
-|FINOS CDM Maintainer   |Representing    |Capacity                                     |GithubID              |    
-| --------------------- | -------------- | ------------------------------------------- | -------------------- |           
-| Gabriel Callsen       | ICMA           | OrgRep                                      | gabriel-ICMA         | 
-| Tom Healey            | ICMA           | OrgRep                                      | tomhealey-icma       | 
-| Tabish Ahmed          | ISDA           | OrgRep                                      | tabi5h               | 
-| Eleonora Acuna        | ISDA           | OrgRep                                      | eacunaISDA           | 
-| Lyteck Lynhiavu       | ISDA           | OrgRep                                      | llynhiavu            | 
-| Adrian Dale           | ISLA           | OrgRep                                      | ADaleISLA            | 
-| Chris Rayner          | ISLA           | OrgRep                                      | chrisisla            | 
-| Leo Labeis            | REGnosys       | OrgRep                                      | lolabeis             | 
-| Hugo Hills            | REGnosys       | OrgRep                                      | hugohills-regnosys   | 
-| Jayasri Radhakrishnan | REGnosys       | OrgRep                                      | JayasriR             | 
-| Manuel Martos         | TradeHeader    | OrgRep                                      | manel-martos         | 
-| Marc Gratacos         | TradeHeader    | OrgRep                                      | mgratacos            | 
+|FINOS CDM Maintainer  |Representing    |Capacity                                     |GithubID              |    
+| -------------------- | -------------- | ------------------------------------------- | -------------------- |           
+| Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
+| Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
+| Tabish Ahmed         | ISDA           | OrgRep                                      | tabi5h               | 
+| Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
+| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
+| Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
+| Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
+| Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
+| Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
+| Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
+| Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
+| Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
+| Nicholas Moger       | JPMorgan Chase & Co.|  OrgRep                                | nicholas-moger       | 
 
 If you would like to get in touch with the CDM maintainer team, contact them through their [mailing list](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
