@@ -20,7 +20,7 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
        <li>Agree objectives 2026+</li>
       </ul></td>
       <td><ul>
-        <li>BAU </li>
+        <li>Mission & Objectives </li>
       </ul></td>
       <td><ul>
         <li>BAU </li>
@@ -42,13 +42,12 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
         <li>Python generator upgrade to handle functions</li>
         <li>Serialisation- Ph2/3 (Backward/Forward Compatibility)</li>
         <li>Prioritised items from SWG November 2025</li>
+        <li>Chair to be updated</li>
       </ul></td>
       <td><ul>
-        <li>Serialisation- Ph2/3 (Backward/Forward Compatibility)</li>
         <li>Prioritised items from SWG November 2025</li>
       </ul></td>
       <td><ul>
-        <li>Serialisation- Ph2/3 (Backward/Forward Compatibility)</li>
         <li>Prioritised items from SWG November 2025</li>
       </ul></td>
      </tr>
@@ -56,27 +55,24 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
     <tr>
     <td><b>Contribution Review WG</b><br>Rotating</td>
     　<td><ul>
-       <li>CDM7.0 Release- end Feb</li>
-       <li>Date / timestamp Harmonisation *</li>
+       <li>CDM7.0 Release- end Feb</li> 
        <li>Interest Rate Swap reset design **</li>
        <li>Continued managed release service</li>
        <li>BAU </li>
       </ul></td>
       <td><ul>
-       <li>Date / timestamp Harmonisation *</li>
+       <li>Events & Positions *</li> 
        <li>Delivery of IRS Reset workflow (April) **</li>
        <li>Continued managed release service</li>
        <li>BAU </li>
       </ul></td>
-      <td><ul>
-       <li>Events & Positions *</li>        
-       <li>Position Algebra *</li>        
+      <td><ul>   
+       <li>Events & Positions *</li> 
        <li>Continued managed release service</li>
        <li>BAU </li>
       </ul></td>
       <td><ul>
-       <li>Events & Positions *</li>        
-       <li>Position Algebra *</li>                
+       <li>Events & Positions *</li>                
        <li>Continued managed release service</li>
        <li>BAU </li>
       </ul></td>
@@ -146,19 +142,18 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
       </ul></td>
       <td><ul>
         <li>SFTR (led by ISLA & ICMA)</li>
-        <li>Strate</li>
         <li>Traceability Tool build</li>
         <li>ReportableInformation improvements</li>
+        <li>MiFID II RTS 22 build</li>
       </ul></td>
       <td><ul>
         <li>SFTR (led by ISLA & ICMA)</li>
-        <li>MiFiR EU build</li>
+        <li>MiFID II RTS 1 & 2 build</li>
         <li>Strate</li>
         <li>Traceability Tool</li>
       </ul></td>
       <td><ul>
-        <li>MiFiR EU UAT</li>
-        <li>Traceability Tool</li>
+        <li>MiFID II test</li>
       </ul></td>
      </tr>
   </tr>
@@ -221,16 +216,15 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
   <tr>
     <td><ul>
         <li>Current documentation annual review</li>
-        <li>CDM Release Management Service</li>
-        <li>AI Bot: document assistance, user query tool</li>          
+        <li>CDM Release Management Service</li>          
       </ul></td>
       <td><ul>
         <li>CDM Release Management Service</li>    
-        <li>AI Bot: document assistance, user query tool</li>
       </ul></td>
       <td><ul>
         <li>CDM Release Management Service</li>        
-        <li>Ongoing maintenance</li>  
+        <li>Ongoing maintenance</li>
+        <li>AI Bot: document assistance, user query tool</li>
       </ul></td>
       <td><ul>
         <li>CDM Release Management Service</li>        

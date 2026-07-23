@@ -20,11 +20,11 @@ The CSL specifies three different contribution roles for each specific [working 
 
 Contributions to the CDM have to comply with the set of [design principles](design-principles.md) that include the following concepts:
 
-* **Normalisation** through abstraction of common components
-* **Composability** where objects are composed and qualified from the bottom up
-* **Mapping** to existing industry messaging formats
-* **Embedded logic** to represent industry processes
-* **Modularisation** into logical layers, using namespace organisation
+* **Normalisation** through abstraction of common components
+* **Composability** where objects are composed and qualified from the bottom up
+* **Mapping** to existing industry messaging formats
+* **Embedded logic** to represent industry processes
+* **Modularisation** into logical layers, using namespace organisation
 
 ## Version Management
 
@@ -57,8 +57,6 @@ make any change to update to such version.
         code's public interfaces
 -   Allowed changes:
     -   Change that relaxes any condition or cardinality constraint
-    -   Change to any synonym that improves, or at least does not
-        degrade, the mapping coverage
     -   Addition of new examples or test packs
     -   Change to the user documentation or model descriptions
     -   Addition of new data types, optional attributes, enumerations,
@@ -89,8 +87,7 @@ reviewing and releasing changes to the CDM contributed by the wider
 industry community including market participants, trade associations and
 technology or service vendors. It describes:
 
--   What a Contributor should do to edit and contribute changes to the
-    CDM
+-   What a Contributor should do to edit and contribute changes to the CDM
 -   What a Maintainer should do to review the changes
 -   How to release a new CDM version once changes have been approved
 
@@ -166,26 +163,17 @@ Please refer to the [editing](editing.md) section which covers editing the model
 
 ### Testing
 
-The CDM has adopted a test-driven development approach that maps model
-components to existing sample data (e.g., FpML documents or other
-existing standards). Mappings are specified in the CDM using `synonym`
-which are collected into a Translation Dictionary, and the sample data
-are collected into a Test Pack. Each new model version is
-regression-tested using those mappings to translate the sample data in
-the Test Pack and then comparing against the expected number of mapped
-data points, validation and qualification results.
+The CDM has adopted a test-driven development approach that exercises
+model components against existing sample data (e.g., FpML documents or
+other existing standards). The sample data are collected into Test
+Packs, and each new model version is regression-tested by validating and
+qualifying the sample data in the Test Pack and comparing against the
+expected validation and qualification results.
 
-When using Rosetta to edit the model, contributors are invited to test
-their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/).
-When editing existing model components, the corresponding synonyms
-should be updated to maintain or improve existing mapping levels. When
-adding new model components, new sample data and corresponding synonym
-mappings should also be provided so the new use-case can be added to the
-set of regression tests.
-
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#mapping-component) for details about the synonym
-mapping syntax.
+When editing existing model components, contributors are invited to test
+their changes against the Test Pack. When adding new model components,
+new sample data should also be provided so the new use-case can be added
+to the set of regression tests.
 
 ### Namespace
 
@@ -267,7 +255,7 @@ through the following review checklist:
 -   Review Pull Request to assert that:
     -   Model changes fulfil the proposed design and use-case
         requirements
-    -   Synonyms have been updated and output (JSON) looks correct
+    -   Test pack sample data and output (JSON) look correct
     -   Contributed model version is not stale and does not conflict
         with any recent changes
     -   Changes are in accordance with the CDM governance guidelines
@@ -336,7 +324,7 @@ once it is approved:
     Maintainer should adjust or include any code snippets by editing the
     *documentation.rst* file on GitHub.
 -   **Code generation**: Model changes may cause code generator failures
-    (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code
+    (e.g., Java, Typescript etc.). In the unlikely event of code
     generation failures, these will need to be addressed by the
     Maintainer.
 

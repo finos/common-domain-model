@@ -1,0 +1,22 @@
+namespace cdm.event.instructioncomposition.reset
+version "${project.version}"
+
+import cdm.product.asset.*
+
+// Instruction Composition  STEP 1 - Get Floating Rate Index Name
+func Create_CollectFloatingRateOptionInstruction: <"This function generates the Instruction Composition step instruction necessary to collect the Floating Rate Option data by extracting the floating rate index name from the floating leg.">
+    inputs:
+        floatingLeg InterestRatePayout (1..1) <"The floating leg of the incoming interest-rate trade.">
+        tradeDate date (1..1) <"The trade date of the trade for which we are collecting the floating rate index name. This will be used later to reference which version of the Floating Rate Option Matrix to obtain the data from.">
+    output:
+        floatingRateOptionDataInstruction CollectFloatingRateOptionInstruction (1..1) <"The output Instruction Composition step instruction containing the index name and trade date.">
+
+    alias index:
+        floatingLeg -> rateSpecification switch
+            FloatingRateSpecification then (item -> rateOption switch
+                    FloatingRateIndex then item -> floatingRateIndex,
+                    default empty),
+            default empty
+
+    set floatingRateOptionDataInstruction -> floatingRateIndex: index
+    set floatingRateOptionDataInstruction -> tradeDate: tradeDate

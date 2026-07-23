@@ -1,6 +1,6 @@
 package cdm.product.asset.calculation.functions;
 
-import cdm.base.math.DatedValue;
+import cdm.base.math.NonNegativeDatedValue;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.Money;
@@ -10,7 +10,7 @@ import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.settlement.ResolvablePriceQuantity;
 import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
-import org.isda.cdm.functions.AbstractFunctionTest;
+import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -72,16 +72,16 @@ public class GetNotionalAmountTest extends AbstractFunctionTest {
                 .setQuantityScheduleValue(NonNegativeQuantitySchedule.builder()
                         .setValue(BigDecimal.valueOf(9_000_000))
                         .setUnit(UnitType.builder().setCurrencyValue("USD"))
-                        .addDatedValue(DatedValue.builder()
+                        .addDatedValue(NonNegativeDatedValue.builder()
                                 .setDate(Date.of(2021, 3, 10))
                                 .setValue(BigDecimal.valueOf(10_000_000)))
-                        .addDatedValue(DatedValue.builder()
+                        .addDatedValue(NonNegativeDatedValue.builder()
                                 .setDate(Date.of(2021, 6, 10))
                                 .setValue(BigDecimal.valueOf(11_000_000)))
-                        .addDatedValue(DatedValue.builder()
+                        .addDatedValue(NonNegativeDatedValue.builder()
                                 .setDate(Date.of(2021, 9, 10))
                                 .setValue(BigDecimal.valueOf(12_000_000)))
-                        .addDatedValue(DatedValue.builder()
+                        .addDatedValue(NonNegativeDatedValue.builder()
                                 .setDate(Date.of(2021, 12, 10))
                                 .setValue(BigDecimal.valueOf(13_000_000))))
                 .build();
