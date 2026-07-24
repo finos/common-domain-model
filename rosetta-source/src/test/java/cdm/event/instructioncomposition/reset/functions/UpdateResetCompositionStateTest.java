@@ -1,12 +1,10 @@
-package cdm.event.instructioncomposition.functions;
+package cdm.event.instructioncomposition.reset.functions;
 
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.event.instructioncomposition.CompositionStepInstructions;
 import cdm.event.instructioncomposition.reset.CollectFloatingRateOptionInstruction;
 import cdm.event.instructioncomposition.reset.DetermineUnadjustedCalculationPeriodInstruction;
-import cdm.event.instructioncomposition.reset.DetermineUnadjustedCalculationPeriodInstruction;
 import cdm.event.instructioncomposition.reset.ResetInstructionState;
-import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.rosetta.model.lib.records.Date;
 import org.finos.cdm.functions.AbstractFunctionTest;

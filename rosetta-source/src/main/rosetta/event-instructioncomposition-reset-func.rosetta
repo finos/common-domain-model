@@ -1,6 +1,7 @@
 namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
+import cdm.event.instructioncomposition.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 
@@ -44,3 +45,38 @@ func Create_DetermineUnadjustedCalculationPeriodInstruction: <"This function gen
 
     set determineUnadjustedCalculationPeriodInstruction -> unadjustedResetDate: <"Sets the unadjusted reset date to the output.">
         unadjustedResetDate
+
+func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
+    inputs:
+        currentResetCompositionState ResetInstructionState (0..1)
+        nextStepToAdd CompositionStepInstructions (1..1)
+    output:
+        updatedResetCompositionState ResetInstructionState (1..1)
+
+    // Step 1: Floating Rate Index & Trade Date
+    set updatedResetCompositionState -> floatingRateIndex:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption -> floatingRateIndex
+        else currentResetCompositionState -> floatingRateIndex
+    set updatedResetCompositionState -> tradeDate:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption -> tradeDate
+        else currentResetCompositionState -> tradeDate
+
+    // Step 2: Unadjusted Calculation Period & Reset Date
+    set updatedResetCompositionState -> unadjustedCalculationPeriod:
+        if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
+        then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedCalculationPeriod
+        else currentResetCompositionState -> unadjustedCalculationPeriod
+
+    set updatedResetCompositionState -> unadjustedResetDate:
+        if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
+        then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedResetDate
+        else currentResetCompositionState -> unadjustedResetDate
+
+func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
+    inputs:
+        resetInstructionState ResetInstructionState (0..1)
+        instructionCompositionOutput InstructionCompositionOutput (0..1)
+    output:
+        resetInstructionNextStep ResetInstructionSteps (0..1)
