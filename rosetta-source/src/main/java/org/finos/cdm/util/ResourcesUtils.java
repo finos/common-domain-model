@@ -52,7 +52,7 @@ public class ResourcesUtils {
 	public static String getJson(String resourceName) throws IOException {
 		URL url = Resources.getResource(resourceName);
 		String json = Resources.toString(url, StandardCharsets.UTF_8);
-		return json;
+		return json.replace("\r\n", "\n");
 	}
 
 	public static <T> T getInputObject(String funcInputFile, String funcInputName, Class<T> funcInputType) throws IOException {
