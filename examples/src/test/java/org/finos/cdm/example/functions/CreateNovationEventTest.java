@@ -3,7 +3,6 @@ package org.finos.cdm.example.functions;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
-import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
 import cdm.base.staticdata.party.*;
@@ -82,11 +81,10 @@ public class CreateNovationEventTest extends AbstractExampleTest {
                                                 .setNameValue("Bank Z")
                                                 .addPartyId(PartyIdentifier.builder()
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI)
-                                                        .setIdentifierValue("LEI-PARTY-3")))
+                                                        .setValueValue("LEI-PARTY-3")))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
-                                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                .setIdentifierValue("UTI-Trade-Party-3"))
+                                        .setValueValue("UTI-Trade-Party-3")
                                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuerValue("LEI-PARTY-3")))))
                 // Split breakdown to terminate the original trade
@@ -120,7 +118,7 @@ public class CreateNovationEventTest extends AbstractExampleTest {
                         .setDateTime(ZonedDateTime.of(eventDate.toLocalDate(), LocalTime.of(9, 0), ZoneOffset.UTC.normalized()))
                         .setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME))
                 .addEventIdentifier(Identifier.builder()
-                        .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue("NovationExample")))
+                        .setValueValue("NovationExample"))
                 .build(); // ensure you call build() on the function input
     }
 

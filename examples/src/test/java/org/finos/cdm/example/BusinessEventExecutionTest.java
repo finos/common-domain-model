@@ -6,7 +6,6 @@ import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
-import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
@@ -887,10 +886,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         // Add an identifier for the event to facilitate tracking or auditing.
         Identifier eventIdentifier = Identifier.builder()
-                .addAssignedIdentifier(
-                        AssignedIdentifier.builder()
-                                .setIdentifierValue("ExecutionExamples") // Example identifier for the event.
-                );
+                .setValueValue("ExecutionExamples"); // Example identifier for the event.
 
         // Build and return the WorkflowStep with the constructed event instruction, timestamp, and identifier.
         return WorkflowStep.builder()
@@ -946,10 +942,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         // Add an event identifier for tracking or auditing purposes.
         Identifier eventIdentifier = Identifier.builder()
-                .addAssignedIdentifier(
-                        AssignedIdentifier.builder()
-                                .setIdentifierValue("ExecutionExamples") // Example identifier.
-                );
+                .setValueValue("ExecutionExamples"); // Example identifier.
 
         // Build and return the WorkflowStep containing the constructed event instruction, timestamp, and identifier.
         return WorkflowStep.builder()

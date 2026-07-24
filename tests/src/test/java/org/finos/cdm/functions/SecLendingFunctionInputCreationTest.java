@@ -433,7 +433,7 @@ public class SecLendingFunctionInputCreationTest {
                                 .setMeta(MetaFields.builder().setExternalKey(externalKey))
                                 .setNameValue(partyId)
                                 .addPartyId(PartyIdentifier.builder()
-                                        .setIdentifierValue(partyId)
+                                        .setValueValue(partyId)
                                         .build()))
                         .setRole(role))
                 .setPartyRole(PartyRole.builder()
@@ -477,8 +477,8 @@ public class SecLendingFunctionInputCreationTest {
     private static TradeIdentifier createAllocationIdentifier(TradeState tradeState, String allocationName) {
         TradeIdentifier.TradeIdentifierBuilder allocationIdentifierBuilder = tradeState.getTrade().getTradeIdentifier().get(0)
                 .build().toBuilder();
-        allocationIdentifierBuilder.getAssignedIdentifier()
-                .forEach(c -> c.setIdentifierValue(c.getIdentifier().getValue() + "-" + allocationName));
+        allocationIdentifierBuilder.getValue()
+                .setValue(allocationIdentifierBuilder.getValue().getValue() + "-" + allocationName);
         return allocationIdentifierBuilder.build();
     }
 

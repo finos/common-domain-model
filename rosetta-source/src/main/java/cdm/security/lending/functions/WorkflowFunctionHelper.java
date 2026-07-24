@@ -1,6 +1,5 @@
 package cdm.security.lending.functions;
 
-import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.event.common.ActionEnum;
 import cdm.event.common.BusinessEvent;
@@ -87,7 +86,7 @@ public class WorkflowFunctionHelper {
 
     private List<Identifier> createWorkflowIdentifier() {
         return Collections.singletonList(Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue("workflow-id-" + workflowId.getAndIncrement()).build()).build());
+                .setValueValue("workflow-id-" + workflowId.getAndIncrement()).build());
     }
 
     private List<EventTimestamp> createEventTime(ZonedDateTime zonedDateTime) {

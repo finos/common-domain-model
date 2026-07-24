@@ -5,7 +5,6 @@ import cdm.base.math.NonNegativeQuantity;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
-import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.PartyReferencePayerReceiver;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
@@ -125,7 +124,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                         .setDateTime(ZonedDateTime.of(eventDate.toLocalDate(), LocalTime.of(9, 0), ZoneOffset.UTC.normalized()))
                         .setQualification(EventTimestampQualificationEnum.EVENT_CREATION_DATE_TIME))
                 .addEventIdentifier(Identifier.builder()
-                        .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifierValue("PartialTerminationExample")))
+                        .setValueValue("PartialTerminationExample"))
                 .build(); // ensure you call build() on the function input
     }
 
