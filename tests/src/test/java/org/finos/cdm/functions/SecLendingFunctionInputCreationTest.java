@@ -477,8 +477,10 @@ public class SecLendingFunctionInputCreationTest {
     private static TradeIdentifier createAllocationIdentifier(TradeState tradeState, String allocationName) {
         TradeIdentifier.TradeIdentifierBuilder allocationIdentifierBuilder = tradeState.getTrade().getTradeIdentifier().get(0)
                 .build().toBuilder();
-        allocationIdentifierBuilder.getValue()
-                .setValue(allocationIdentifierBuilder.getValue().getValue() + "-" + allocationName);
+        FieldWithMetaString.FieldWithMetaStringBuilder value = allocationIdentifierBuilder.getValue();
+        if (value != null && value.getValue() != null) {
+            value.setValue(value.getValue() + "-" + allocationName);
+        }
         return allocationIdentifierBuilder.build();
     }
 
