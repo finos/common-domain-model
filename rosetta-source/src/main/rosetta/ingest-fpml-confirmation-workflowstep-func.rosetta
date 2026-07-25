@@ -43,6 +43,7 @@ func MapWorkflowStep:
         effectiveDate date (0..1)
         fpmlTradingEvents fpml.TradingEventSummary (0..1)
         fpmlAdditionalPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
+        executionInstruction ExecutionInstruction (0..1) <"When provided, the workflow step's Instruction uses an `execution` PrimitiveInstruction and no `before` TradeState.">
     output:
         workflowStep WorkflowStep (0..1)
 
@@ -56,13 +57,9 @@ func MapWorkflowStep:
                     instruction: [
                             Instruction {
                                 primitiveInstruction:
-                                    if intent = Execution
+                                    if executionInstruction exists
                                     then PrimitiveInstruction {
-                                            execution: MapTradeToExecutionInstruction(
-                                                            fpmlTrade,
-                                                            fpmlPartyList,
-                                                            fpmlQuoteList
-                                                        ),
+                                            execution: executionInstruction,
                                             ...
                                         }
                                     else MapPrimitiveInstruction(
@@ -72,7 +69,7 @@ func MapWorkflowStep:
                                                 fpmlAmendment
                                             ),
                                 before:
-                                    if intent <> Execution
+                                    if executionInstruction is absent
                                     then MapTradeState(
                                                 fpmlTrade,
                                                 fpmlPartyList,

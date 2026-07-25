@@ -203,6 +203,7 @@ func MapClearingConfirmedToWorkflowStep:
                 eventDate,
                 effectiveDate,
                 empty,
+                empty,
                 empty
             )
 
@@ -261,6 +262,7 @@ func MapExecutionAdviceToWorkflowStep:
                 intent,
                 eventDate,
                 effectiveDate,
+                empty,
                 empty,
                 empty
             )
@@ -321,6 +323,7 @@ func MapExecutionAdviceRetractedToWorkflowStep:
                 eventDate,
                 effectiveDate,
                 empty,
+                empty,
                 empty
             )
 
@@ -352,10 +355,18 @@ func MapExecutionNotificationToWorkflowStep:
                 fpmlExecutionNotification -> optionExercise
             )
 
+    alias executionInstruction:
+        if (rawIntent = ContractFormation or rawIntent is absent)
+                and fpmlTrade -> documentation is absent
+        then MapTradeToExecutionInstruction(
+                fpmlTrade,
+                fpmlExecutionNotification -> party,
+                fpmlExecutionNotification -> quote
+            )
+
     alias intent:
-        if rawIntent = ContractFormation or rawIntent is absent
-        then EventIntentEnum -> Execution
-        else rawIntent
+        if executionInstruction is absent
+        then rawIntent
 
     alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
     alias effectiveDate: GetEffectiveDate(empty, empty, empty)
@@ -378,7 +389,8 @@ func MapExecutionNotificationToWorkflowStep:
                 eventDate,
                 effectiveDate,
                 empty,
-                empty
+                empty,
+                executionInstruction
             )
 
 func MapRequestClearingToWorkflowStep:
@@ -428,6 +440,7 @@ func MapRequestClearingToWorkflowStep:
                 eventDate,
                 effectiveDate,
                 empty,
+                empty,
                 empty
             )
 
@@ -462,6 +475,7 @@ func MapTradeChangeAdviceToWorkflowStep:
                 intent,
                 eventDate,
                 effectiveDate,
+                empty,
                 empty,
                 empty
             )
