@@ -1075,16 +1075,15 @@ identifier information comprises the `assignedIdentifier` and an
 `issuer`, which may be provided as a reference or via a scheme.
 
 ``` Haskell
-type Identifier:
+type Identifier extends IdentifierBase:
   [metadata key]
   issuerReference Party (0..1)
     [metadata reference]
   issuer string (0..1)
     [metadata scheme]
-  assignedIdentifier AssignedIdentifier (1..*)
 
   condition IssuerChoice:
-    required choice issuerReference, issuer
+    optional choice issuerReference, issuer
 ```
 
 ---

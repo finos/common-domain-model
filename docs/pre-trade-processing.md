@@ -54,7 +54,7 @@ specified.
 type AvailableInventory:
     [rootType]
     availableInventoryType AvailableInventoryTypeEnum (1..1)
-    identifer AssignedIdentifier (0..1)
+    identifer SingleIdentifier (0..1)
     comment string (0..1)
     messageInformation MessageInformation (0..1)
     party Party (0..*)
@@ -102,7 +102,7 @@ which it extends.
 
 ``` Haskell
 type InventoryRecord:
-    identifer AssignedIdentifier (1..1) 
+    identifer SingleIdentifier (1..1) 
     security Security (1..1) 
 ```
 
@@ -357,7 +357,7 @@ thus inherits all the data points from within it._
 type AvailableInventory:
     [rootType]
     availableInventoryType AvailableInventoryTypeEnum (1..1)
-    identifer AssignedIdentifier (0..1)
+    identifer SingleIdentifier (0..1)
     comment string (0..1) 
     messageInformation MessageInformation (0..1) 
     party Party (0..*) 
@@ -404,7 +404,7 @@ which it extends.
 
 ``` Haskell
 type InventoryRecord:
-    identifer AssignedIdentifier (1..1) 
+    identifer SingleIdentifier (1..1) 
     security Security (1..1) 
 ```
 

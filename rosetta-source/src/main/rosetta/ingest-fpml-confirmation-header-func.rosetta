@@ -21,6 +21,7 @@ func MapTradeIdentifierList:
         fpmlTradeHeader -> partyTradeIdentifier
             extract MapPartyTradeIdentifierToTradeIdentifierList
             then flatten
+
     add cdmTradeIdentifierList:
         fpmlPartyTradeIdentifierList
             extract MapPartyTradeIdentifierToTradeIdentifierList
@@ -39,13 +40,17 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
             )
 
     alias identifierForIssuer:
-        MapTradeIdToAssignedIdentifier(fpmlPartyTradeIdentifierList -> tradeId, empty)
+        MapTradeIdToIdentifierValue(fpmlPartyTradeIdentifierList -> tradeId)
 
     alias identifierForTrade:
         fpmlPartyTradeIdentifierList -> tradeIdentifierChoice
+            extract MapTradeIdToIdentifierValue(tradeId)
+
+    alias identifierForVersionedTrade:
+        fpmlPartyTradeIdentifierList -> tradeIdentifierChoice
             extract
-                MapTradeIdToAssignedIdentifier(
-                        tradeId default versionedTradeId -> tradeId,
+                MapTradeIdToVersionedIdentifier(
+                        versionedTradeId -> tradeId,
                         versionedTradeId -> version
                     )
 
@@ -53,8 +58,8 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
         fpmlPartyTradeIdentifierList -> linkId
             extract
                 if linkIdScheme = "http://www.fpml.org/coding-scheme/external/esma-report-tracking-number"
-                then AssignedIdentifier {
-                        identifier: value with-meta {
+                then Identifier {
+                        value: value with-meta {
                                 scheme: linkIdScheme
                             },
                         ...
@@ -73,12 +78,10 @@ func MapPartyTradeIdentifierToTradeIdentifierList:
 
     set cdmTradeIdentifier:
         TradeIdentifier {
+            value: identifierForTrade only-element default identifierForIssuer,
             issuer: issuer,
             issuerReference: issuerReference,
-            assignedIdentifier: [
-                    identifierForTrade default identifierForIssuer,
-                    identifiersForLinkId
-                ],
+            versionedIdentifier: identifierForVersionedTrade,
             identifierType: identifierTypeForTrade default identifierTypeForIssuer
         }
 
@@ -93,13 +96,13 @@ func MapTradeIdentifierSequenceToTradeIdentifier:
 
     set cdmTradeIdentifier -> issuerReference -> reference: fpmlPartyReference -> href
 
-    add cdmTradeIdentifier -> assignedIdentifier:
-        fpmlTradeIdentifierChoice extract MapTradeIdToAssignedIdentifier(tradeId, empty)
+    set cdmTradeIdentifier -> value:
+        fpmlTradeIdentifierChoice first extract MapTradeIdToIdentifierValue(tradeId)
 
-    add cdmTradeIdentifier -> assignedIdentifier:
+    add cdmTradeIdentifier -> versionedIdentifier:
         fpmlTradeIdentifierChoice
             extract
-                MapTradeIdToAssignedIdentifier(
+                MapTradeIdToVersionedIdentifier(
                         versionedTradeId -> tradeId,
                         versionedTradeId -> version
                     )
@@ -119,24 +122,29 @@ func MapIssuerTradeIdModelToIdentifier:
     set cdmTradeIdentifier:
         TradeIdentifier {
             issuer: MapStringWithScheme(fpmlIssuer -> value, fpmlIssuer -> issuerIdScheme),
-            assignedIdentifier: MapTradeIdToAssignedIdentifier(fpmlTradeId, empty),
+            value: MapTradeIdToIdentifierValue(fpmlTradeId),
             identifierType: MapTradeIdToIdentifierType(fpmlTradeId),
             ...
         }
 
-func MapTradeIdToAssignedIdentifier:
+func MapTradeIdToIdentifierValue:
+    inputs:
+        fpmlTradeId fpml.TradeId (0..1)
+    output:
+        cdmValue string (0..1)
+
+    set cdmValue: MapStringWithScheme(fpmlTradeId -> value, fpmlTradeId -> tradeIdScheme)
+
+func MapTradeIdToVersionedIdentifier:
     inputs:
         fpmlTradeId fpml.TradeId (0..1)
         fpmlVersion int (0..1)
     output:
-        cdmAssignedIdentifier AssignedIdentifier (0..1)
+        cdmVersionedIdentifier VersionedIdentifier (0..1)
 
-    set cdmAssignedIdentifier:
-        AssignedIdentifier {
-            identifier: MapStringWithScheme(
-                        fpmlTradeId -> value,
-                        fpmlTradeId -> tradeIdScheme
-                    ),
+    set cdmVersionedIdentifier:
+        VersionedIdentifier {
+            value: MapStringWithScheme(fpmlTradeId -> value, fpmlTradeId -> tradeIdScheme),
             version: fpmlVersion
         }
 

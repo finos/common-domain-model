@@ -9,7 +9,6 @@ import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.*;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
-import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
 import cdm.base.staticdata.party.*;
@@ -452,8 +451,7 @@ public class FunctionInputCreator {
         QuantityChangeInstruction quantityChangeInstruction = quantityChangeInstructionBuilder
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addLotIdentifier(Identifier.builder()
-                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                .setIdentifierValue("LOT-2")))
+                        .setValueValue("LOT-2"))
                 .addChange(PriceQuantity.builder()
                         .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -472,8 +470,7 @@ public class FunctionInputCreator {
         QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
                 .addLotIdentifier(Identifier.builder()
-                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                .setIdentifierValue("LOT-2")))
+                        .setValueValue("LOT-2"))
                 // equity payout PQ
                 .addChange(PriceQuantity.builder()
                         .setObservableValue(Observable.builder()
@@ -483,7 +480,7 @@ public class FunctionInputCreator {
                                                         .setSecurityType(SecurityTypeEnum.EQUITY)
                                                         .addIdentifier(AssetIdentifier.builder()
                                                                 .setIdentifierType(AssetIdTypeEnum.OTHER)
-                                                                .setIdentifier(FieldWithMetaString.builder()
+                                                                .setValue(FieldWithMetaString.builder()
                                                                         .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
                                                                         .setValue("SHPGY.O")))))))
                         .setQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
@@ -550,8 +547,7 @@ public class FunctionInputCreator {
 
     ExpectationResult<CreateBusinessEventInput> getIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
         final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-2"));
+                .setValueValue("LOT-2");
         QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
                 .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
@@ -612,11 +608,9 @@ public class FunctionInputCreator {
         TradeLot.TradeLotBuilder tradeLot2Builder = tradeLot1Builder.build().toBuilder();
 
         tradeLot1Builder.addLotIdentifier(Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-1")));
+                .setValueValue("LOT-1"));
         tradeLot2Builder.addLotIdentifier(Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-2")));
+                .setValueValue("LOT-2"));
         tradableProductBuilder.addTradeLot(tradeLot2Builder);
         reKey(tradableProductBuilder);
         return tradeStateBuilder.build();
@@ -784,18 +778,17 @@ public class FunctionInputCreator {
         tradeBuilder
                 .getParty().get(0)
                 .getPartyId().get(0)
-                .setIdentifierValue("LEI1RPT0001");
+                .setValueValue("LEI1RPT0001");
 
         tradeBuilder
                 .getParty().get(1)
                 .getPartyId().get(0)
-                .setIdentifierValue("LEI2CP0002");
+                .setValueValue("LEI2CP0002");
 
         TradeIdentifier tradeIdentifier = TradeIdentifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifier(FieldWithMetaString.builder()
+                .setValue(FieldWithMetaString.builder()
                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/uti"))
-                                .setValue("LEI1RPT0003EFG")))
+                                .setValue("LEI1RPT0003EFG"))
                 .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                 .setIssuer(FieldWithMetaString.builder()
                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
@@ -841,14 +834,13 @@ public class FunctionInputCreator {
                                                 .setNameValue("Bank Z")
                                                 .addPartyId(PartyIdentifier.builder()
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI)
-                                                        .setIdentifier(FieldWithMetaString.builder().setValue("LEI3RPT0003").setMeta(MetaFields.builder()
+                                                        .setValue(FieldWithMetaString.builder().setValue("LEI3RPT0003").setMeta(MetaFields.builder()
                                                                 .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
-                                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI3RPT0003CCC")))
+                                                        .setValue("LEI3RPT0003CCC"))
                                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
@@ -891,15 +883,14 @@ public class FunctionInputCreator {
                                                 .setNameValue("Bank Z")
                                                 .addPartyId(PartyIdentifier.builder()
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI)
-                                                        .setIdentifier(FieldWithMetaString.builder().setValue("LEI3RPT0003")
+                                                        .setValue(FieldWithMetaString.builder().setValue("LEI3RPT0003")
                                                                 .setMeta(MetaFields.builder()
                                                                         .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
-                                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI3RPT0003DDDD")))
+                                                        .setValue("LEI3RPT0003DDDD"))
                                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
@@ -952,7 +943,7 @@ public class FunctionInputCreator {
                                                 .setMeta(MetaFields.builder().setExternalKey("clearing-svc"))
                                                 .setNameValue("ClearItAll")
                                                 .addPartyId(PartyIdentifier.builder()
-                                                        .setIdentifier(FieldWithMetaString.builder()
+                                                        .setValue(FieldWithMetaString.builder()
                                                                 .setMeta(MetaFields.builder()
                                                                         .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
                                                                 .setValue("LEI1DCO"))
@@ -960,10 +951,9 @@ public class FunctionInputCreator {
                                                 .build())
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
-                                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI1DCO01BETA")))
+                                                        .setValue("LEI1DCO01BETA"))
                                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
@@ -975,7 +965,7 @@ public class FunctionInputCreator {
                                                 .setMeta(MetaFields.builder().setExternalKey("clearing-svc"))
                                                 .setNameValue("ClearItAll")
                                                 .addPartyId(PartyIdentifier.builder()
-                                                        .setIdentifier(FieldWithMetaString.builder()
+                                                        .setValue(FieldWithMetaString.builder()
                                                                 .setMeta(MetaFields.builder()
                                                                         .setScheme("http://www.fpml.org/coding-scheme/external/iso17442"))
                                                                 .setValue("LEI1DCO"))
@@ -983,10 +973,9 @@ public class FunctionInputCreator {
                                                 .build())
                                         .setRole(CounterpartyRoleEnum.PARTY_1))
                                 .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
-                                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI1DCO01GAMMA")))
+                                                        .setValue("LEI1DCO01GAMMA"))
                                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
@@ -1030,14 +1019,13 @@ public class FunctionInputCreator {
                                                 .setNameValue("Fund 2")
                                                 .addPartyId(PartyIdentifier.builder()
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI)
-                                                        .setIdentifier(FieldWithMetaString.builder().setValue("LEI2CP00A1")
+                                                        .setValue(FieldWithMetaString.builder().setValue("LEI2CP00A1")
                                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
-                                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI1RPT001POST1")))
+                                                        .setValue("LEI1RPT001POST1"))
                                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
@@ -1059,15 +1047,14 @@ public class FunctionInputCreator {
                                                 .setNameValue("Fund 3")
                                                 .addPartyId(PartyIdentifier.builder()
                                                         .setIdentifierType(PartyIdentifierTypeEnum.LEI)
-                                                        .setIdentifier(FieldWithMetaString.builder().setValue("LEI3CP00A2")
+                                                        .setValue(FieldWithMetaString.builder().setValue("LEI3CP00A2")
                                                                 .setMeta(MetaFields.builder()
                                                                         .setScheme("http://www.fpml.org/coding-scheme/external/iso17442")))))
                                         .setRole(CounterpartyRoleEnum.PARTY_2))
                                 .setTradeId(Lists.newArrayList(TradeIdentifier.builder()
-                                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
-                                                        .setValue("LEI1RPT001POST2")))
+                                                        .setValue("LEI1RPT001POST2"))
                                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                                         .setIssuer(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
@@ -1118,7 +1105,7 @@ public class FunctionInputCreator {
                                                 .setName(FieldWithMetaString.builder()
                                                         .setValue("McDonald's Corporation"))
                                                 .addEntityIdentifier(EntityIdentifier.builder()
-                                                        .setIdentifierValue("UE2136O97NLB5BYP9H04")
+                                                        .setValueValue("UE2136O97NLB5BYP9H04")
                                                         .setIdentifierType(EntityIdentifierTypeEnum.LEI)))
                                 .setNoReferenceObligation(true))
                 );
@@ -1160,7 +1147,7 @@ public class FunctionInputCreator {
                                         .setName(FieldWithMetaString.builder()
                                                 .setValue("McDonald's Corporation"))
                                         .addEntityIdentifier(EntityIdentifier.builder()
-                                                .setIdentifierValue("UE2136O97NLB5BYP9H04")
+                                                .setValueValue("UE2136O97NLB5BYP9H04")
                                                 .setIdentifierType(EntityIdentifierTypeEnum.LEI)))
                                 .setNoReferenceObligation(true))
 
@@ -1357,13 +1344,10 @@ public class FunctionInputCreator {
 
         exerciseInstructionBuilder.addReplacementTradeIdentifier(
                 TradeIdentifier.builder()
-                        .addAssignedIdentifier(
-                                AssignedIdentifier.builder()
-                                        .setIdentifier(FieldWithMetaString.builder()
+                        .setValue(FieldWithMetaString.builder()
                                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"))
                                                 .setValue("LEI1RPT0001IIIIEx")
                                         )
-                        )
                         .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
                         .setIssuer(FieldWithMetaString.builder()
                                 .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"))
@@ -1497,7 +1481,7 @@ public class FunctionInputCreator {
                 .map(FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder::getValue)
                 .forEach(quantity -> quantity.setValue(new BigDecimal(10000)));
         // trade id
-        tradeStateBuilder.getTrade().getTradeIdentifier().get(0).getAssignedIdentifier().get(0).setIdentifierValue("LEI1RPT0001KKKK");
+        tradeStateBuilder.getTrade().getTradeIdentifier().get(0).setValueValue("LEI1RPT0001KKKK");
         // trade date
         tradeStateBuilder.getTrade().setTradeDateValue(Date.of(2018, 4, 1));
         return tradeStateBuilder;
@@ -1511,8 +1495,7 @@ public class FunctionInputCreator {
         TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
         TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradeLot().get(0);
         tradeLotBuilder.addLotIdentifier(Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-1")));
+                .setValueValue("LOT-1"));
         return tradeStateBuilder.build();
     }
 
@@ -1779,8 +1762,7 @@ public class FunctionInputCreator {
 
     private List<Identifier> getIdentifier(String id) {
         return Collections.singletonList(Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue(id)));
+                .setValueValue(id));
     }
 
     private List<Party> getParties(BusinessEvent businessEvent) {
@@ -1825,7 +1807,7 @@ public class FunctionInputCreator {
                 .findFirst().ifPresent(party ->
                         party.addPartyId(PartyIdentifier.builder()
                                 .setIdentifierType(PartyIdentifierTypeEnum.LEI)
-                                .setIdentifier(FieldWithMetaString.builder()
+                                .setValue(FieldWithMetaString.builder()
                                         .setValue(partyId)
                                         .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso17442")
                                         ))));
@@ -1918,8 +1900,7 @@ public class FunctionInputCreator {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
 
         Identifier.IdentifierBuilder pairReferenceIdentifierBuilder = Identifier.builder();
-        pairReferenceIdentifierBuilder.getOrCreateAssignedIdentifier(0)
-                .setIdentifierValue("Package");
+        pairReferenceIdentifierBuilder.setValueValue("Package");
 
         List<? extends Instruction> pairOffInstruction = createPairOffInstruction.evaluate(Lists.newArrayList(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
         List<Instruction> rekeyedPairOffInstructions = pairOffInstruction.stream()
