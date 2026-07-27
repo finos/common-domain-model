@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.event.common.*
 import cdm.event.workflow.*
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.ingest.fpml.confirmation.workflowstep.*
 
@@ -203,7 +204,6 @@ func MapClearingConfirmedToWorkflowStep:
                 eventDate,
                 effectiveDate,
                 empty,
-                empty,
                 empty
             )
 
@@ -262,7 +262,6 @@ func MapExecutionAdviceToWorkflowStep:
                 intent,
                 eventDate,
                 effectiveDate,
-                empty,
                 empty,
                 empty
             )
@@ -323,7 +322,6 @@ func MapExecutionAdviceRetractedToWorkflowStep:
                 eventDate,
                 effectiveDate,
                 empty,
-                empty,
                 empty
             )
 
@@ -344,7 +342,7 @@ func MapExecutionNotificationToWorkflowStep:
 
     alias action: MapMessageAction(fpmlExecutionNotification -> isCorrection, empty)
 
-    alias rawIntent:
+    alias intent:
         MapIntent(
                 fpmlTrade,
                 fpmlExecutionNotification -> originatingEvent,
@@ -355,24 +353,54 @@ func MapExecutionNotificationToWorkflowStep:
                 fpmlExecutionNotification -> optionExercise
             )
 
+    alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
+    alias effectiveDate: GetEffectiveDate(empty, empty, empty)
+
     alias executionInstruction:
-        if (rawIntent = ContractFormation or rawIntent is absent)
-                and fpmlTrade -> documentation is absent
-        then MapTradeToExecutionInstruction(
+        MapTradeToExecutionInstruction(
                 fpmlTrade,
                 fpmlExecutionNotification -> party,
                 fpmlExecutionNotification -> quote
             )
 
-    alias intent:
-        if executionInstruction is absent
-        then rawIntent
-
-    alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
-    alias effectiveDate: GetEffectiveDate(empty, empty, empty)
-
     set workflowStep:
-        MapWorkflowStep(
+        if fpmlTrade -> documentation is absent
+        then WorkflowStep {
+                proposedEvent:
+                    EventInstruction {
+                        eventDate: eventDate,
+                        effectiveDate: effectiveDate,
+                        instruction: [
+                                Instruction {
+                                    primitiveInstruction:
+                                        PrimitiveInstruction {
+                                            execution: executionInstruction,
+                                            ...
+                                        },
+                                    ...
+                                }
+                            ],
+                        ...
+                    },
+                timestamp: MapEventTimestamp(
+                            fpmlExecutionNotification -> header -> creationTimestamp,
+                            fpmlTrade
+                        ),
+                eventIdentifier: MapEventIdentifier(
+                            fpmlExecutionNotification -> header -> messageId,
+                            empty,
+                            fpmlTrade -> tradeHeader -> partyTradeIdentifier
+                        ),
+                messageInformation: MapMessageInformation(
+                            fpmlExecutionNotification -> header -> messageId,
+                            fpmlExecutionNotification -> header -> sentBy,
+                            fpmlExecutionNotification -> header -> sendTo
+                        ),
+                action: action,
+                nextEvent: MapNextEvent(fpmlTrade -> tradeHeader -> partyTradeInformation),
+                ...
+            }
+        else MapWorkflowStep(
                 fpmlExecutionNotification -> header -> messageId,
                 fpmlExecutionNotification -> header -> creationTimestamp,
                 fpmlExecutionNotification -> header -> sentBy,
@@ -389,8 +417,7 @@ func MapExecutionNotificationToWorkflowStep:
                 eventDate,
                 effectiveDate,
                 empty,
-                empty,
-                executionInstruction
+                empty
             )
 
 func MapRequestClearingToWorkflowStep:
@@ -440,7 +467,6 @@ func MapRequestClearingToWorkflowStep:
                 eventDate,
                 effectiveDate,
                 empty,
-                empty,
                 empty
             )
 
@@ -475,7 +501,6 @@ func MapTradeChangeAdviceToWorkflowStep:
                 intent,
                 eventDate,
                 effectiveDate,
-                empty,
                 empty,
                 empty
             )
