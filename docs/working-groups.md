@@ -20,8 +20,8 @@ The following Working Groups are currently active for this project:
 **FINOS Domain WGs:**
 * [CDM Derivatives Working Group](CDM-Derivatives-WG.md) - bi-weekly
 * [CDM Collateral Working Group](CDM-Collateral-WG.md) - monthly
-* [CDM Tokenized Assets Working Group](https://cdm.finos.org/docs/CDM-Tokenized-Assets-WG) - monthly
-* [CDM Physical Risk Working Group](https://cdm.finos.org/docs/CDM-Physical-Risk-WG) - monthly
+* [CDM Tokenized Assets Working Group](CDM-Tokenized-Assets-WG.md) - monthly
+* [CDM Physical Risk Working Group](CDM-Physical-Risk-WG.md) - monthly
 
 **Domain WGs run outside of FINOS:**
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
