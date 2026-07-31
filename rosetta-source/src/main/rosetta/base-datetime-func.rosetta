@@ -460,3 +460,31 @@ func AdjustDateToModfollowingBusinessDay: <"Applies the 'Following' convention, 
         if IsDifferentMonth
         then AdjustDateToPrecedingBusinessDay(unadjustedDate, nonBusinessDates)
         else followingDate
+
+func GenerateCalendarDateList: <"Recursively generates a list of all calendar dates between startDate and endDate (inclusive). Does not filter weekends or holidays.">
+    inputs:
+        startDate date (1..1) <"Start of the date range to be generated.">
+        endDate date (1..1) <"End of the date range to be generated">
+        isEndDateExclusive boolean (0..1) <"If True, the endDate is excluded from the list [startDate, endDate). Defaults to False.">
+    output:
+        dateList date (0..*) <"Resulting list of calendar dates between startDate and endDate (inclusive).">
+
+    alias effectiveEndDate: <"Adjusts the end date ONLY if the exclusive flag is explicitly True.">
+        if isEndDateExclusive exists and isEndDateExclusive = True
+        then AddDays(endDate, -1)
+        else endDate
+
+    alias active: <"Condition to determine if generation should continue (startDate must be before or equal to endDate).">
+        startDate <= effectiveEndDate
+
+    alias priorDate: <"Date immediately preceding the current endDate, used for recursion.">
+        AddDays(effectiveEndDate, -1)
+
+    alias priorList: <"Recursive call to generate all dates from startDate up to the priorDate. Pass False so we don't subtract a day on every single recursive step.">
+        GenerateCalendarDateList(startDate, priorDate, False)
+
+    alias newList: <"Append the current endDate to the recursively generated list.">
+        AppendDateToList(priorList, effectiveEndDate)
+
+    add dateList: <"Return the new list if still within range, stops recursion when startDate passes endDate.">
+        if active then newList
