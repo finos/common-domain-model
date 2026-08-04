@@ -81,7 +81,7 @@ public class SerialisationTest {
 
     @Test
     void shouldConvertSampleBetweenJsonFormats() throws IOException {
-        String sampleInRuneJson = ResourcesUtils.getJson("ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json");
+        String sampleInRuneJson = LineEndings.normalise(ResourcesUtils.getJson("ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json"));
         
         LOGGER.info("Sample serialized in Rune JSON : {}", sampleInRuneJson);
 
