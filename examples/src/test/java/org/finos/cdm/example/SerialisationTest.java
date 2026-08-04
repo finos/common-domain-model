@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
+import com.regnosys.rosetta.common.util.LineEndings;
 import com.rosetta.model.lib.records.Date;
 import org.finos.cdm.example.util.ResourcesUtils;
 import org.finos.rune.mapper.RuneJsonObjectMapper;
@@ -107,7 +108,7 @@ public class SerialisationTest {
         ObjectMapper legacyJsonObjectMapper = RosettaObjectMapper.getNewMinimalRosettaObjectMapper();
 
         // Serialize sample
-        return legacyJsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tradeStateDeserializedFromRuneJson);
+        return LineEndings.normalise(legacyJsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tradeStateDeserializedFromRuneJson));
     }
 
     private static String convertFromLegacyJsonToRuneJson(String sampleInLegacyJson) throws JsonProcessingException {
@@ -123,6 +124,6 @@ public class SerialisationTest {
         RuneJsonObjectMapper runeJsonObjectMapper = new RuneJsonObjectMapper();
 
         // Serialize sample
-        return runeJsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tradeStateDeserializedFromRuneJson);
+        return LineEndings.normalise(runeJsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tradeStateDeserializedFromRuneJson));
     }
 }
