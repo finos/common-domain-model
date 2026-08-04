@@ -8,6 +8,7 @@ import cdm.base.staticdata.asset.rates.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.margin.schedule.*
 
 isProduct root EconomicTerms;
 
@@ -1204,15 +1205,35 @@ func Qualify_SubProduct_Basis: <"Qualifies a product as having the Sub Product c
                 as InflationRateSpecification
                 count = 2
 
-func Qualify_Transaction_ZeroCoupon: <"Qualifies a product as having the Transaction classification Zero Coupon">
+func Qualify_Transaction_ZeroCoupon: <"Qualifies a product as having the Transaction classification Zero Coupon. The determination of the qualification is based on the following criteria: 1) The interest rate payout has a payment frequency of term or 2) the maximum frequency period corresponds to the duration of the contract.">
+   
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
         is_product boolean (1..1)
+
+    alias effectiveDate: <"Effective date of the contract.">
+        AuxiliarEffectiveDate(economicTerms)
+
+    alias maturityDate: <"Maturity date of the contract.">
+        AuxiliarTerminationDate(economicTerms)
+
     set is_product:
         economicTerms -> payout as InterestRatePayout -> paymentDates -> paymentFrequency
             filter item -> periodMultiplier = 1 and item -> period = PeriodExtendedEnum -> T
             then exists
+        or 
+        (effectiveDate exists and maturityDate exists and
+        //The maturity date equals the effective date plus the longest payment frequency period
+        AddPeriod(
+                effectiveDate,
+                economicTerms -> payout as InterestRatePayout -> paymentDates -> paymentFrequency
+                    then max [
+                        PeriodCalculation(
+                                item -> period to-enum PeriodEnum,
+                                item -> periodMultiplier)
+                    ]
+            ) = maturityDate)
 
 func Qualify_Transaction_ZeroCoupon_KnownAmount: <"Qualifies a product as having the Transaction classification Zero Coupon with a Known Amount. This category applies to a Zero Coupon Swap in which the fixed leg pays a known amount at maturity.">
     inputs:
