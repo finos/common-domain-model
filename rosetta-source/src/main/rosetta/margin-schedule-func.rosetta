@@ -395,11 +395,10 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
 
 func AuxiliarEffectiveDate: <"Extracts the effective date of specific products such as interest rate swaps and swaptions.">
     inputs:
-        trade Trade (1..1)
+        economicTerms EconomicTerms (1..1)
     output:
         effectiveDate date (0..1)
-    alias product: trade -> product
-    alias economicTerms: product -> economicTerms
+
     set effectiveDate:
         // interestRatePayout
         if economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
@@ -414,11 +413,10 @@ func AuxiliarEffectiveDate: <"Extracts the effective date of specific products s
 
 func AuxiliarTerminationDate: <"Extracts the termination date of specific products such as interest rate swaps and swaptions.">
     inputs:
-        trade Trade (1..1)
+        economicTerms EconomicTerms (1..1)
     output:
         terminationDate date (0..1)
-    alias product: trade -> product
-    alias economicTerms: product -> economicTerms
+        
     set terminationDate:
         // interestRatePayout
         if economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
@@ -525,7 +523,7 @@ func StandardizedScheduleDuration: <"Extracts the duration of a trade, according
                 // Credit Total return swap on a bond not supported
             )
     alias auxiliarDurationInYears:
-        DateDifferenceYears(AuxiliarEffectiveDate(trade), AuxiliarTerminationDate(trade))
+        DateDifferenceYears(AuxiliarEffectiveDate(trade -> product -> economicTerms), AuxiliarTerminationDate(trade -> product -> economicTerms))
     set durationInYears:
         if genericDurationInYears exists
         then genericDurationInYears
