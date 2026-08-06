@@ -186,6 +186,46 @@ func AddDays: <"Adds the specified number of calendar days to the supplied date.
     output:
         resultDate date (1..1) <"The date shifted by the specified number of days.">
 
+func AddPeriod: <"Adds a frequency-based period to a date, adjusting for leap years. Month periods are considered as 30 days (31st month-end days are not handled).">
+    inputs:
+        inputDate date (1..1) <"Base date.">
+        frequency Frequency (1..1) <"Period to add.">
+    output:
+        resultDate date (1..1) <"Resulting date.">
+
+    alias periodDays: <"Convert period to days.">
+        PeriodCalculation(
+            frequency -> period to-enum PeriodEnum,
+            frequency -> periodMultiplier
+        )
+
+    alias resultDateNoLeapYears: <"Add period days.">
+        AddDays(inputDate, periodDays)
+
+    alias LeapYearDays: <"Calculate days to be added due to leap years.">
+        LeapYearDateDifference(inputDate, resultDateNoLeapYears) / 366.0
+
+    set resultDate: <"Apply leap year adjustment.">
+        AddDays(resultDateNoLeapYears, LeapYearDays)
+        //TODO: Handle month-end days (the 31st) instead of the current 30-day month convention.
+
+func PeriodCalculation: <"Converts a period to an equivalent number of days.">
+    inputs:
+        period PeriodEnum (1..1) <"Period unit.">
+        periodMultiplier int (1..1) <"Number of period units.">
+    output:
+        result int (1..1) <"Period days.">
+
+    set result:
+        if period = D
+        then periodMultiplier
+        else if period = W
+        then periodMultiplier * 7
+        else if period = M
+        then periodMultiplier * 30
+        else if period = Y
+        then periodMultiplier * 365
+
 func DateDifference: <"Subtracts the two supplied dates to return the number of calendar days between them.  A negative number implies first is after second.">
     [codeImplementation]
     inputs:
