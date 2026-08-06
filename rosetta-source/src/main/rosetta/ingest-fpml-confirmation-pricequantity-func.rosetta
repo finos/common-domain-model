@@ -1734,8 +1734,9 @@ func MapFloatingRateIndex:
         FloatingRateIndex {
             identifier:
                 AssetIdentifier {
-                    identifier: fpmlFloatingRateCalculation -> floatingRateIndex -> value,
-                    identifierType: Other // This will require contains syntax to derive correctly
+                    value: fpmlFloatingRateCalculation -> floatingRateIndex -> value,
+                    identifierType: Other, // This will require contains syntax to derive correctly
+                    ...
                 },
             assetClass: InterestRate,
             floatingRateIndex: MapFloatingRateIndexEnum(
@@ -1808,8 +1809,9 @@ func MapFloatingRateIndexToRateOptionWithLocation:
                             FloatingRateIndex {
                                 identifier:
                                     AssetIdentifier {
-                                        identifier: fpmlFloatingRateIndex -> value,
-                                        identifierType: Other
+                                        value: fpmlFloatingRateIndex -> value,
+                                        identifierType: Other,
+                                        ...
                                     },
                                 assetClass: InterestRate,
                                 floatingRateIndex: MapFloatingRateIndexEnum(
@@ -2292,15 +2294,17 @@ func MapAssetIdentifierList:
         fpmlIdentifiedAsset -> instrumentId
             extract
                 AssetIdentifier {
-                    identifier: MapStringWithScheme(value, instrumentIdScheme),
-                    identifierType: MapAssetIdType(instrumentIdScheme)
+                    value: MapStringWithScheme(value, instrumentIdScheme),
+                    identifierType: MapAssetIdType(instrumentIdScheme),
+                    ...
                 }
 
     add assetIdentifierList:
         if fpmlIdentifiedAsset -> description exists
         then AssetIdentifier {
-                identifier: fpmlIdentifiedAsset -> description,
-                identifierType: Name
+                value: fpmlIdentifiedAsset -> description,
+                identifierType: Name,
+                ...
             }
 
 func MapIndexNameToAssetIdentifier:
@@ -2311,11 +2315,12 @@ func MapIndexNameToAssetIdentifier:
 
     set assetIdentifier:
         AssetIdentifier {
-            identifier: MapStringWithScheme(
+            value: MapStringWithScheme(
                         fpmlIndexName -> value,
                         fpmlIndexName -> indexNameScheme
                     ),
-            identifierType: Name
+            identifierType: Name,
+            ...
         }
 
 func MapIndexIdToAssetIdentifier:
@@ -2326,11 +2331,12 @@ func MapIndexIdToAssetIdentifier:
 
     set assetIdentifier:
         AssetIdentifier {
-            identifier: MapStringWithScheme(
+            value: MapStringWithScheme(
                         fpmlIndexId -> value,
                         fpmlIndexId -> indexIdScheme
                     ),
-            identifierType: MapAssetIdType(fpmlIndexId -> indexIdScheme) default Name
+            identifierType: MapAssetIdType(fpmlIndexId -> indexIdScheme) default Name,
+            ...
         }
 
 func MapAssetIdType:
@@ -2396,8 +2402,9 @@ func MapCurrencyToAssetCash:
                 Cash {
                     identifier:
                         AssetIdentifier {
-                            identifier: MapCurrency(fpmlCurrency),
-                            identifierType: CurrencyCode
+                            value: MapCurrency(fpmlCurrency),
+                            identifierType: CurrencyCode,
+                            ...
                         },
                     assetType: Cash,
                     ...
