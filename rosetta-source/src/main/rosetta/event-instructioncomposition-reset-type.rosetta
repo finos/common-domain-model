@@ -18,6 +18,9 @@ type AdjustPeriodInstruction: <"Instruction that holds the adjusted period.">
 type AdjustDateInstruction: <"Instruction that holds the adjusted date.">
     adjustedDate date (1..1)
 
+type AdjustObservationDatesInstruction: <"Instruction that holds the adjusted observation dates.">
+    adjustedObservationDates date (1..*)
+
 type ResetInstructionState: <"The definitive state object for the Reset process. It acts as a cumulative 'Golden Record,' storing every data point captured from Step 1 (Index Collection) through Step 7 (Final Calculation) to ensure deterministic processing.">
 
     // Step 1 - CollectFloatingRateOptionInstruction
@@ -30,6 +33,8 @@ type ResetInstructionState: <"The definitive state object for the Reset process.
     adjustedCalculationPeriod CalculationPeriodBase (0..1) <"The calculation period after adjusting for non-business days and relevant financial calendars.">
     // Step 4 - AdjustDateInstruction
     adjustedResetDate date (0..1) <"The final, legally binding reset date after applying business day conventions.">
+    // Step 6 - AdjustObservationDatesInstruction
+    adjustedObservationDates date (0..*) <"The final set of observation dates adjusted for bank holidays and index-specific calendars.">
 
 type ResetInstructionSteps: <"A wrapper that encapsulates the specific ResetInstructionCompositionStepsEnum, allowing the engine to identify the exact phase of the Reset lifecycle currently being processed.">
     resetInstructionCompositionSteps ResetInstructionCompositionStepsEnum (1..1)

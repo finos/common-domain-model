@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.base.staticdata.asset.rates.*
 import cdm.event.common.*
 import cdm.legaldocumentation.common.*
+import cdm.observable.asset.calculatedrate.*
 import cdm.observable.asset.fro.*
 
 // =====================================================================
@@ -49,3 +50,54 @@ func FilterInvalidFloatingRateIndexTradeDate: <"Returns the invalid floating rat
             then filter
                 history -> startDate > tradeState -> trade -> tradeDate or history -> endDate < tradeState -> trade -> tradeDate
             then extract item -> fro -> floatingRateIndex
+
+func DetermineObservationType: <"Evaluates the Floating Rate Index properties and methodologies to determine the Observation Type.">
+    inputs:
+        category FloatingRateIndexCategoryEnum (1..1) <"The ISDA category of the floating rate index.">
+        style FloatingRateIndexStyleEnum (0..1) <"The ISDA style of the index.">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"Method from FRO matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"Method from Confirmation.">
+    output:
+        observationType ObservationTypeEnum (1..1) <"The resulting observation type classification.">
+
+    alias isSingle:
+        category = FloatingRateIndexCategoryEnum -> ScreenRate
+            and style <> FloatingRateIndexStyleEnum -> Overnight
+            and calculationMethodologyFromFloatingRateOption is absent
+            and calculationMethodologyFromConfirmation is absent
+
+    alias isCompoundedIndex:
+        category = FloatingRateIndexCategoryEnum -> Calculated
+            and style = FloatingRateIndexStyleEnum -> CompoundedIndex
+            and (if calculationMethodologyFromConfirmation exists
+                then calculationMethodologyFromConfirmation = CalculationMethodEnum -> CompoundedIndex
+                else if calculationMethodologyFromFloatingRateOption exists
+                then calculationMethodologyFromFloatingRateOption = FloatingRateIndexCalculationMethodEnum -> Compounded)
+
+    alias isMultiple:
+        ( // Calculated Rate Scenarios
+            category = FloatingRateIndexCategoryEnum -> Calculated
+                and (style = FloatingRateIndexStyleEnum -> AverageFRO or style = FloatingRateIndexStyleEnum -> CompoundedFRO)
+                and (if calculationMethodologyFromConfirmation exists
+                    then calculationMethodologyFromConfirmation = CalculationMethodEnum -> Compounding
+                            or calculationMethodologyFromConfirmation = CalculationMethodEnum -> Averaging
+                    else if calculationMethodologyFromFloatingRateOption exists
+                    then calculationMethodologyFromFloatingRateOption = FloatingRateIndexCalculationMethodEnum -> OISCompound
+                            or calculationMethodologyFromFloatingRateOption = FloatingRateIndexCalculationMethodEnum -> Average))
+            or ( // Screen Rate + Overnight Rate Scenario
+            category = FloatingRateIndexCategoryEnum -> ScreenRate
+                and style = FloatingRateIndexStyleEnum -> Overnight
+                and (if calculationMethodologyFromConfirmation exists
+                    then calculationMethodologyFromConfirmation = CalculationMethodEnum -> Compounding
+                            or calculationMethodologyFromConfirmation = CalculationMethodEnum -> Averaging
+                    else if calculationMethodologyFromFloatingRateOption exists
+                    then calculationMethodologyFromFloatingRateOption = FloatingRateIndexCalculationMethodEnum -> OISCompound
+                            or calculationMethodologyFromFloatingRateOption = FloatingRateIndexCalculationMethodEnum -> Average))
+
+    set observationType:
+        if isSingle
+        then ObservationTypeEnum -> Single
+        else if isMultiple
+        then ObservationTypeEnum -> Multiple
+        else if isCompoundedIndex
+        then ObservationTypeEnum -> CompoundedIndex
