@@ -348,3 +348,63 @@ func AdjustableDatesResolution: <"Prioritization of unadjustedDate over adjusted
         if adjustableDates -> unadjustedDate exists
         then adjustableDates -> unadjustedDate
         else adjustableDates -> adjustedDate
+
+func AdjustDateToBusinessDayConvention: <"Applies a specific business day convention to a single date if it's a holiday and adjusts it.">
+    inputs:
+        unadjustedDate date (1..1)
+        holidayDates date (0..*)
+        businessConvention BusinessDayConventionEnum (1..1)
+    output:
+        adjustedDate date (1..1)
+
+    set adjustedDate:
+        if (holidayDates contains unadjustedDate) = False
+        then unadjustedDate
+        else businessConvention switch
+            FOLLOWING then
+                ApplyFollowing(unadjustedDate, holidayDates),
+            PRECEDING then
+                ApplyPreceding(unadjustedDate, holidayDates),
+            MODFOLLOWING then
+                ApplyModFollowing(unadjustedDate, holidayDates),
+            default unadjustedDate
+
+func ApplyFollowing: <"Finds the next available business day by moving forward in time.">
+    inputs:
+        unadjustedDate date (1..1)
+        holidayDates date (0..*)
+    output:
+        nextBusinessDay date (1..1)
+
+    set nextBusinessDay:
+        if (holidayDates contains unadjustedDate) = False
+        then unadjustedDate
+        else ApplyFollowing(AddDays(unadjustedDate, 1), holidayDates)
+
+func ApplyPreceding: <"Finds the previous available business day by moving backward in time.">
+    inputs:
+        unadjustedDate date (1..1)
+        holidayDates date (0..*)
+    output:
+        previousBusinessDay date (1..1)
+
+    set previousBusinessDay:
+        if (holidayDates contains unadjustedDate) = False
+        then unadjustedDate
+        else ApplyPreceding(AddDays(unadjustedDate, -1), holidayDates)
+
+func ApplyModFollowing: <"Applies the 'Following' convention, but reverts to 'Preceding' if the adjustment crosses a month boundary.">
+    inputs:
+        unadjustedDate date (1..1)
+        holidayDates date (0..*)
+    output:
+        adjustedDate date (1..1)
+
+    alias followingDate: ApplyFollowing(unadjustedDate, holidayDates)
+
+    alias IsDifferentMonth: (followingDate -> month) <> (unadjustedDate -> month)
+
+    set adjustedDate:
+        if IsDifferentMonth
+        then ApplyPreceding(unadjustedDate, holidayDates)
+        else followingDate
