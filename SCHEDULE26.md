@@ -2,9 +2,9 @@
 
 This is a draft to be presented on the next Steering Working Group in September
 
-## 2026 Timeline
+## 2026/27 Timeline
 
-| Version | Jun | Jul | Aug | Sep | Oct | Nov | Dec | Jan 27 | Feb 27 | Mar 27 | Apr 27 | May 27 | Jun 27 | Jul 27 |
+| Version | Jun | Jul | Aug | Sep | Oct | Nov | Dec | Jan | Feb | Mar | Apr | May | Jun | Jul |
 |--------------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|--------|
 | **CDM 5**    | ⬜ | | | | | | | | | | | | |        | |
 | **CDM 6**    | 🟩 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | ⬜      | 
