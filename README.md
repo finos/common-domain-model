@@ -71,7 +71,7 @@ Please read our [development guidelines](https://cdm.finos.org/docs/dev-guidelin
 
 The CDM Governance process defines the roles of the Maintainers and Working Groups to oversee changes to the model.  The sponsoring Trade Associations (ISDA, ISLA and ICMA) have commissioned REGnosys to provide the CDM Release Management Service to ensure that changes are advanced in a transparent and efficient manner.
 
-![CDM Contribution Workflow](.github/cdm-contribution-workflow.png)
+![CDM Contribution Workflow](docs/cdm-contribution-workflow.png)
 
 ### Pull Requests via Rosetta
 
