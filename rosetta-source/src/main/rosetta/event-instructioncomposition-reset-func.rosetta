@@ -1,7 +1,9 @@
 namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
+import cdm.event.instructioncomposition.*
 import cdm.product.asset.*
+import cdm.product.common.schedule.*
 
 // Instruction Composition  STEP 1 - Get Floating Rate Index Name
 func Create_CollectFloatingRateOptionInstruction: <"This function generates the Instruction Composition step instruction necessary to collect the Floating Rate Option data by extracting the floating rate index name from the floating leg.">
@@ -20,3 +22,61 @@ func Create_CollectFloatingRateOptionInstruction: <"This function generates the 
 
     set floatingRateOptionDataInstruction -> floatingRateIndex: index
     set floatingRateOptionDataInstruction -> tradeDate: tradeDate
+
+// Instruction Composition STEP 2 - Determine Unadjusted Calculation Period
+func Create_DetermineUnadjustedCalculationPeriodInstruction: <"This function generates the Instruction Composition step instruction necessary to determine the unadjusted calculation period and adding it to the DetermineUnadjustedObservationPeriodInstruction.">
+    inputs:
+        calculationPeriodDates CalculationPeriodDates (1..1)
+        unadjustedResetDate date (1..1)
+    output:
+        determineUnadjustedCalculationPeriodInstruction DetermineUnadjustedCalculationPeriodInstruction (1..1)
+
+    alias calculationPeriod: <"The resulting calculation period obtained from the Calculation Period Dates and the unadjusted reset date.">
+        CalculationPeriodBase {
+            adjustedStartDate: CalculationPeriod(
+                        calculationPeriodDates,
+                        unadjustedResetDate
+                    ) -> startDate,
+            adjustedEndDate: CalculationPeriod(calculationPeriodDates, unadjustedResetDate) -> endDate
+        }
+
+    set determineUnadjustedCalculationPeriodInstruction -> unadjustedCalculationPeriod: <"Sets the unadjusted calculation period to the output.">
+        calculationPeriod
+
+    set determineUnadjustedCalculationPeriodInstruction -> unadjustedResetDate: <"Sets the unadjusted reset date to the output.">
+        unadjustedResetDate
+
+func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
+    inputs:
+        currentResetCompositionState ResetInstructionState (0..1)
+        nextStepToAdd CompositionStepInstructions (1..1)
+    output:
+        updatedResetCompositionState ResetInstructionState (1..1)
+
+    // Step 1: Floating Rate Index & Trade Date
+    set updatedResetCompositionState -> floatingRateIndex:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption -> floatingRateIndex
+        else currentResetCompositionState -> floatingRateIndex
+    set updatedResetCompositionState -> tradeDate:
+        if nextStepToAdd -> collectFloatingRateOption exists
+        then nextStepToAdd -> collectFloatingRateOption -> tradeDate
+        else currentResetCompositionState -> tradeDate
+
+    // Step 2: Unadjusted Calculation Period & Reset Date
+    set updatedResetCompositionState -> unadjustedCalculationPeriod:
+        if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
+        then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedCalculationPeriod
+        else currentResetCompositionState -> unadjustedCalculationPeriod
+
+    set updatedResetCompositionState -> unadjustedResetDate:
+        if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
+        then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedResetDate
+        else currentResetCompositionState -> unadjustedResetDate
+
+func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
+    inputs:
+        resetInstructionState ResetInstructionState (0..1)
+        instructionCompositionOutput InstructionCompositionOutput (0..1)
+    output:
+        resetInstructionNextStep ResetInstructionSteps (0..1)
