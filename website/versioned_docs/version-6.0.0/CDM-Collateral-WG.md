@@ -4,7 +4,12 @@ title: CDM Collateral Working Group
 
 ## Common Domain Model Collateral Start-Up Guide
 
+The Collateral Working Group supports the harmonisation of collateral data, processes, and documentation across the industry, covering areas such as eligible collateral, margin workflows, exposure, and collateral validation.
+
+[View Collateral Working Group Terms of Reference](https://github.com/finos/common-domain-model/blob/master/website/static/pdfs/CDM.Collateral.WG.Book.of.Work.May.2023.pdf)
+
 ISDA has also launched the Get Started with the CDM for Collateral Guide! You can now access a wealth of resources and tutorials on CDM for collateral management on the [CDM-Collateral Initiatives page](https://www.isda.org/2023/02/16/isda-collateral-initiatives/).
+
 
 ## Overview
 
