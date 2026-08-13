@@ -186,7 +186,7 @@ func AddDays: <"Adds the specified number of calendar days to the supplied date.
     output:
         resultDate date (1..1) <"The date shifted by the specified number of days.">
 
-func AddPeriod: <"Adds a frequency-based period to a date, adjusting for leap years. Month periods are considered as 30 days (31st month-end days are not handled).">
+func AddPeriodToDate: <"Adds a frequency-based period to a date, adjusting for leap years. Month periods are considered as 30 days (31st month-end days are not handled).">
     inputs:
         inputDate date (1..1) <"Base date.">
         frequency Frequency (1..1) <"Period to add.">
@@ -194,7 +194,7 @@ func AddPeriod: <"Adds a frequency-based period to a date, adjusting for leap ye
         resultDate date (1..1) <"Resulting date.">
 
     alias periodDays: <"Convert period to days.">
-        PeriodCalculation(
+        ConvertPeriodToNumberOfDays(
             frequency -> period to-enum PeriodEnum,
             frequency -> periodMultiplier
         )
@@ -209,7 +209,7 @@ func AddPeriod: <"Adds a frequency-based period to a date, adjusting for leap ye
         AddDays(resultDateNoLeapYears, LeapYearDays)
         //TODO: Handle month-end days (the 31st) instead of the current 30-day month convention.
 
-func PeriodCalculation: <"Converts a period to an equivalent number of days.">
+func ConvertPeriodToNumberOfDays: <"Converts a period to an equivalent number of days.">
     inputs:
         period PeriodEnum (1..1) <"Period unit.">
         periodMultiplier int (1..1) <"Number of period units.">
