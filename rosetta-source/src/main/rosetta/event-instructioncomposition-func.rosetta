@@ -70,23 +70,6 @@ func AddStepToCompositionState: <"Directs the incoming instruction to the approp
                     nextStepToAdd -> compositionStepInstructions
                 )
 
-func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
-    inputs:
-        currentResetCompositionState ResetInstructionState (0..1)
-        nextStepToAdd CompositionStepInstructions (1..1)
-    output:
-        updatedResetCompositionState ResetInstructionState (1..1)
-
-    // Step 1: Floating Rate Index & Trade Date
-    set updatedResetCompositionState -> floatingRateIndex:
-        if nextStepToAdd -> collectFloatingRateOption exists
-        then nextStepToAdd -> collectFloatingRateOption -> floatingRateIndex
-        else currentResetCompositionState -> floatingRateIndex
-    set updatedResetCompositionState -> tradeDate:
-        if nextStepToAdd -> collectFloatingRateOption exists
-        then nextStepToAdd -> collectFloatingRateOption -> tradeDate
-        else currentResetCompositionState -> tradeDate
-
 func NextCompositionStepToExecute: <"Determines the next logical execution step for a given Instruction Composition by evaluating its current execution history and process type.">
     inputs:
         currentInstructionComposition InstructionComposition (1..1)
@@ -107,10 +90,3 @@ func NextCompositionStepToExecute: <"Determines the next logical execution step 
         if currentInstructionComposition -> instructionCompositionType = ResetInstruction
         then resetInstructionNextStep
         else empty
-
-func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
-    inputs:
-        resetInstructionState ResetInstructionState (0..1)
-        instructionCompositionOutput InstructionCompositionOutput (0..1)
-    output:
-        resetInstructionNextStep ResetInstructionSteps (0..1)

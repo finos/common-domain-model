@@ -1,6 +1,6 @@
 
-# CDM Contributrion Workflow
-![CDM Contribution Workflow](../.github/cdm-contribution-workflow.png)
+# CDM Contribution Workflow
+![CDM Contribution Workflow](../website/static/img/cdm-contribution-workflow.png)
 
 # Issues
 
@@ -34,7 +34,7 @@ Once all the above activities are complete, remove the “Triage” label.
 
 All of the Working Groups follow a consistent process of agenda curation and review of Issues and PRs.  These items are tracked through a lifecycle on the Kanban board in GitHub through the following status changes:
 
-![CDM Contribution Workflow](../.github/cdm-wg-lifecycle.png)
+![CDM Contribution Workflow](../website/static/img/cdm-wg-lifecycle.png)
 
 
 - Items may be moved from No Status to Pipeline and Current by the Release Management team, by the WG Chair, or (in most cases) by the Issue creator.
@@ -97,7 +97,7 @@ During the WG meeting
 ## Maintainer Review & Release
 ### L) — Maintainers Assigned:
 
-- One or more assigned maintainers are able to review the Release PR.
+- One or more assigned maintainers are able to review the Release PR. At this point the Issue is moved to the 'PR Ready' column, indicating the PR is ready to be reviewed
 
 ### M) — Maintainers Review:
 
@@ -114,6 +114,3 @@ During the WG meeting
 ### Q) — Closed:
 
 - The process is complete. The issue/PR are officially closed.
-
-Use Control + Shift + m to toggle the tab key moving focus. Alternatively, use esc then tab to move to the next interactive element on the page.
- 
