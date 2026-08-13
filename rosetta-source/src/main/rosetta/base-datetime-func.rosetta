@@ -1,6 +1,7 @@
 namespace cdm.base.datetime: <"Basic date and time concepts: relative date, date range, offset, business centre etc.">
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.codelist.*
 
 func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
@@ -203,7 +204,7 @@ func  AddPeriodToDate: <"Adds a frequency-based period to a date, adjusting for 
         AddDays(inputDate, periodDays)
 
     alias LeapYearDays: <"Calculate days to be added due to leap years.">
-        LeapYearDateDifference(inputDate, resultDateNoLeapYears) / 366.0
+        RoundToPrecision(LeapYearDateDifference(inputDate, resultDateNoLeapYears) / 366.0, 0, RoundingDirectionEnum -> Nearest, False)
 
     set resultDate: <"Apply leap year adjustment.">
         AddDays(resultDateNoLeapYears, LeapYearDays)
