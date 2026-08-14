@@ -195,20 +195,25 @@ func AddPeriodToDate: <"Adds a frequency-based period to a date, adjusting for l
 
     alias periodDays: <"Convert period to days.">
         ConvertPeriodToNumberOfDays(
-            frequency -> period to-enum PeriodEnum,
-            frequency -> periodMultiplier
-        )
+                frequency -> period to-enum PeriodEnum,
+                frequency -> periodMultiplier
+            )
 
     alias resultDateNoLeapYears: <"Add period days.">
         AddDays(inputDate, periodDays)
 
     alias LeapYearDays: <"Calculate days to be added due to leap years.">
-        RoundToPrecision(LeapYearDateDifference(inputDate, resultDateNoLeapYears) / 366.0, 0, RoundingDirectionEnum -> Nearest, False)
+        RoundToPrecision(
+                LeapYearDateDifference(inputDate, resultDateNoLeapYears) / 366.0,
+                0,
+                RoundingDirectionEnum -> Nearest,
+                False
+            )
 
     set resultDate: <"Apply leap year adjustment.">
         AddDays(resultDateNoLeapYears, LeapYearDays)
-        //TODO: Handle month-end days (the 31st) instead of the current 30-day month convention.
 
+// TODO: Handle month-end days (the 31st) instead of the current 30-day month convention.
 func ConvertPeriodToNumberOfDays: <"Converts a period to an equivalent number of days.">
     inputs:
         period PeriodEnum (1..1) <"Period unit.">
