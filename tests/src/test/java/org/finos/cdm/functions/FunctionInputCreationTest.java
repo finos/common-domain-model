@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
+import com.regnosys.rosetta.common.util.LineEndings;
 import com.rosetta.model.lib.process.PostProcessor;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModule;
@@ -341,12 +342,8 @@ class FunctionInputCreationTest {
     }
 
     private static void assertResult(ExpectationResult<?> result) throws IOException {
-        String expectedJson = ResourcesUtils.getJson(result.getResourceName());
-        String actualJson = OBJECT_WRITER.writeValueAsString(result.getActual());
-        assertEquals(normalizeLineEndings(expectedJson), normalizeLineEndings(actualJson));
-    }
-
-    private static String normalizeLineEndings(String s) {
-        return s.replace("\r\n", "\n");
+        String expectedJson = LineEndings.normalise(ResourcesUtils.getJson(result.getResourceName()));
+        String actualJson = LineEndings.normalise(OBJECT_WRITER.writeValueAsString(result.getActual()));
+        assertEquals(expectedJson, actualJson);
     }
 }
