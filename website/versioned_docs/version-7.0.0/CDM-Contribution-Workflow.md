@@ -1,6 +1,6 @@
 
 # CDM Contribution Workflow
-![CDM Contribution Workflow](/img/cdm-contribution-workflow.png)
+![CDM Contribution Workflow](../../../docs/cdm-contribution-workflow.png)
 
 # Issues
 
@@ -34,7 +34,7 @@ Once all the above activities are complete, remove the “Triage” label.
 
 All of the Working Groups follow a consistent process of agenda curation and review of Issues and PRs.  These items are tracked through a lifecycle on the Kanban board in GitHub through the following status changes:
 
-![CDM Contribution Workflow](/img/cdm-wg-lifecycle.png)
+![CDM Contribution Workflow](https://github.com/finos/common-domain-model/blob/master/docs/home.mdx)
 
 
 - Items may be moved from No Status to Pipeline and Current by the Release Management team, by the WG Chair, or (in most cases) by the Issue creator.
