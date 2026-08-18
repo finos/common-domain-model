@@ -13,6 +13,7 @@ import cdm.ingest.fpml.confirmation.party.*
 import cdm.observable.asset.*
 import cdm.product.asset.*
 import cdm.product.template.*
+
 import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.bond.option.* as fpml
@@ -680,13 +681,15 @@ func MapFxOptionResolvedQuantity:
         fpmlFxOption fpml.FxOption (1..1)
     output:
         quantity Quantity (0..1)
-    alias call: MapCurrencyAmountToQuantity(
-                    fpmlFxOption -> callCurrencyAmount -> amount,
-                    empty,
-                    fpmlFxOption -> callCurrencyAmount -> currency,
-                    empty
-                )
-    alias put: MapCurrencyAmountToQuantity(
+    alias call:
+        MapCurrencyAmountToQuantity(
+                fpmlFxOption -> callCurrencyAmount -> amount,
+                empty,
+                fpmlFxOption -> callCurrencyAmount -> currency,
+                empty
+            )
+    alias put:
+        MapCurrencyAmountToQuantity(
                 fpmlFxOption -> putCurrencyAmount -> amount,
                 empty,
                 fpmlFxOption -> putCurrencyAmount -> currency,
@@ -694,15 +697,18 @@ func MapFxOptionResolvedQuantity:
             )
     set quantity:
         if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
-        then Quantity{value: call -> value,
+        then Quantity {
+                value: call -> value,
                 datedValue: call -> datedValue,
                 unit: call -> unit,
-                ...}
-            
-        else Quantity {value: put -> value,
-                datedValue: put -> datedValue,
-                unit: put -> unit,
-                ...}
+                ...
+            }
+        else Quantity {
+            value: put -> value,
+            datedValue: put -> datedValue,
+            unit: put -> unit,
+            ...
+        }
 
 func MapCommodityNotionalQuantityToQuantityListWithLocation:
     inputs:
