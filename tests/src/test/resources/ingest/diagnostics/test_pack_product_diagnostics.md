@@ -3,7 +3,7 @@
 | Test Pack | FpML Product | Samples | Completeness |
 |:-----------------------------------------------------|:-----------------------------------------------|:-------:|:-------:|
 | fpml-5-10-incomplete-processes | creditDefaultSwap | 5 | 148% |
-| fpml-5-10-incomplete-processes | swap | 6 | 102% |
+| fpml-5-10-incomplete-processes | swap | 6 | 98% |
 | fpml-5-10-incomplete-products-bond-options | bondOption | 3 | 98% |
 | fpml-5-10-incomplete-products-commodity-derivatives | commodityDigitalOption | 1 | 100% |
 | fpml-5-10-incomplete-products-commodity-derivatives | commodityForward | 4 | 102% |
@@ -35,7 +35,7 @@
 | fpml-5-10-invalid-products | swap | 12 | 100% |
 | fpml-5-10-processes | creditDefaultSwap | 9 | 110% |
 | fpml-5-10-processes | fxSingleLeg | 1 | 102% |
-| fpml-5-10-processes | swap | 5 | 100% |
+| fpml-5-10-processes | swap | 5 | 96% |
 | fpml-5-10-products-commodity | commodityBasketOption | 1 | 100% |
 | fpml-5-10-products-commodity | commodityOption | 7 | 95% |
 | fpml-5-10-products-commodity | commoditySwap | 6 | 103% |
