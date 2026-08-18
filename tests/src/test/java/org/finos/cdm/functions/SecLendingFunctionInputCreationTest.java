@@ -478,14 +478,10 @@ public class SecLendingFunctionInputCreationTest {
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
 
-        assertEquals(normalizeLineEndings(readResource(inputJson)),
-                normalizeLineEndings(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual)),
+        assertEquals(LineEndings.normalise(readResource(inputJson)),
+                LineEndings.normalise(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual)),
                 "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
         return actual;
-    }
-
-    private static String normalizeLineEndings(String s) {
-        return s.replace("\r\n", "\n");
     }
 
     private BusinessEvent runCreateBusinessEventFunc(CreateBusinessEventInput input) {
