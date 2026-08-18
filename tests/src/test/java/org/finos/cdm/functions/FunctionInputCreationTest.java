@@ -343,6 +343,10 @@ class FunctionInputCreationTest {
     private static void assertResult(ExpectationResult<?> result) throws IOException {
         String expectedJson = ResourcesUtils.getJson(result.getResourceName());
         String actualJson = OBJECT_WRITER.writeValueAsString(result.getActual());
-        assertEquals(expectedJson, actualJson);
+        assertEquals(normalizeLineEndings(expectedJson), normalizeLineEndings(actualJson));
+    }
+
+    private static String normalizeLineEndings(String s) {
+        return s.replace("\r\n", "\n");
     }
 }
