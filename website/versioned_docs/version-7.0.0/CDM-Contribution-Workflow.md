@@ -1,6 +1,6 @@
 
 # CDM Contribution Workflow
-![CDM Contribution Workflow](.github/cdm-contribution-workflow.png)
+![CDM Contribution Workflow](../../../docs/cdm-contribution-workflow.png)
 
 # Issues
 
