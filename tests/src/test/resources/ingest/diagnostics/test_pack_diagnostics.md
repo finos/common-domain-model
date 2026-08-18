@@ -3,11 +3,11 @@
 | Test Pack | Samples | Completeness |
 |:-----------------------------------------------------|:-------:|:-------:|
 | fpml-5-13-incomplete-processes-execution-advice | 3 | 272% |
-| fpml-5-10-incomplete-processes | 11 | 121% |
+| fpml-5-10-incomplete-processes | 11 | 119% |
 | fpml-5-13-processes-execution-advice | 14 | 107% |
-| fpml-5-10-processes | 15 | 106% |
 | fpml-5-13-incomplete-products-repo | 2 | 106% |
 | fpml-5-12-products-repo | 2 | 106% |
+| fpml-5-10-processes | 15 | 105% |
 | fpml-5-13-incomplete-products-variance-swaps | 2 | 103% |
 | fpml-5-13-incomplete-products-fx-derivatives | 16 | 101% |
 | fpml-5-12-incomplete-products-equity | 1 | 100% |
