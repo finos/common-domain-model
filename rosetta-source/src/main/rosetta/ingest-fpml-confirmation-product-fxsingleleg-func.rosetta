@@ -9,7 +9,7 @@ import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
-
+import cdm.base.math.*
 import fpml.consolidated.* as fpml
 import fpml.consolidated.fx.* as fpml
 import fpml.consolidated.shared.* as fpml
@@ -84,6 +84,19 @@ func MapFxCoreDetailsModelToSettlementPayout:
     output:
         payout Payout (0..1)
 
+    alias resolvedQuantityCurrency:
+        fpmlExchangeRate -> quotedCurrencyPair
+            extract
+                if quoteBasis = Currency2PerCurrency1
+                then currency2
+                else currency1
+
+    alias DerivedQuanitity:
+        if resolvedQuantityCurrency = fpmlExchangedCurrency1 -> paymentAmount -> currency
+        then fpmlExchangedCurrency1 -> paymentAmount
+        else if resolvedQuantityCurrency = fpmlExchangedCurrency2 -> paymentAmount -> currency
+        then fpmlExchangedCurrency2 -> paymentAmount
+
     alias exchangedCurrency:
         GetFpmlExchangedCurrency(
                 fpmlExchangeRate,
@@ -102,6 +115,16 @@ func MapFxCoreDetailsModelToSettlementPayout:
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
+                            resolvedQuantity:
+                                Quantity {
+                                    value: DerivedQuanitity -> amount,
+                                    unit:
+                                        UnitType {
+                                            currency: DerivedQuanitity -> currency -> value,
+                                            ...
+                                        },
+                                    ...
+                                },
                             quantitySchedule: MapFxCoreDetailsModelQuantityWithAddress(
                                         fpmlExchangeRate,
                                         fpmlLeg

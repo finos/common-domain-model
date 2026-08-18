@@ -34,6 +34,10 @@ type QuantitySchedule extends MeasureSchedule: <"Specifies a quantity schedule t
 
     multiplier Measure (0..1) <"Defines an optional number that the quantity should be multiplied by to derive a total quantity. This number is associated to a unit. For example in the case of the Coal (API2) CIF ARA (ARGUS-McCloskey) Futures Contract on the CME, where the unit would be contracts, the multiplier value would 1,000 and the mulitiplier unit would be 1,000 MT (Metric Tons).">
     frequency Frequency (0..1) <"Defines the frequency to be used when defining a quantity. For example a quantity may be specified as a number of barrels of oil per day, which needs multiplying by the number of days in the relevant period to get the total quantity as a number of barrels.">
+    total Schedule (0..1) <"Specifies the total quantity when the quantity itself is specified with a frequency.">
+
+    condition TotalQuantity: <"A total quantity must only be specified when the frequency exists.">
+        if total exists then frequency exists
 
     condition Quantity_multiplier: <"Requires that the multiplier must be positive.">
         if multiplier exists then multiplier -> value >= 0.0

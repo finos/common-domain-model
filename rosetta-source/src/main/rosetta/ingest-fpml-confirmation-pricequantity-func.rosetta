@@ -13,7 +13,6 @@ import cdm.ingest.fpml.confirmation.party.*
 import cdm.observable.asset.*
 import cdm.product.asset.*
 import cdm.product.template.*
-
 import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.bond.option.* as fpml
@@ -675,6 +674,36 @@ func MapFxOptionQuantityWithAddress:
         if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
         then CreateQuantityWithAddress(CreateQuantityKey("putCurrencyAmount", empty))
         else CreateQuantityWithAddress(CreateQuantityKey("callCurrencyAmount", empty))
+
+func MapFxOptionResolvedQuantity:
+    inputs:
+        fpmlFxOption fpml.FxOption (1..1)
+    output:
+        quantity Quantity (0..1)
+            [metadata address]
+    alias call: MapCurrencyAmountToQuantity(
+                    fpmlFxOption -> callCurrencyAmount -> amount,
+                    empty,
+                    fpmlFxOption -> callCurrencyAmount -> currency,
+                    empty
+                )
+    alias put: MapCurrencyAmountToQuantity(
+                fpmlFxOption -> putCurrencyAmount -> amount,
+                empty,
+                fpmlFxOption -> putCurrencyAmount -> currency,
+                empty
+            )
+    set quantity:
+        if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+        then Quantity{value: call -> value,
+                datedValue: call -> datedValue,
+                unit: call -> unit,
+                ...}
+            
+        else Quantity {value: put -> value,
+                datedValue: put -> datedValue,
+                unit: put -> unit,
+                ...}
 
 func MapCommodityNotionalQuantityToQuantityListWithLocation:
     inputs:
