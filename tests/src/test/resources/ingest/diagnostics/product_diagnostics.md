@@ -35,7 +35,7 @@
 | equityOption | 37 | 97% |
 | equityOptionTransactionSupplement | 16 | 96% |
 | commoditySwaption | 11 | 93% |
-| fxOption | 26 | 93% |
+| fxOption | 26 | 92% |
 | commodityOption | 26 | 92% |
 | instrumentTradeDetails | 2 | 91% |
 | dividendSwapTransactionSupplement | 12 | 81% |
