@@ -2,13 +2,13 @@
   "@model" : "cdm",
   "@type" : "cdm.event.workflow.WorkflowStep",
   "@version" : "0.0.0.master-SNAPSHOT",
-  "@key" : "131e00fc",
+  "@key" : "405c76e2",
   "proposedEvent" : {
     "intent" : "Clearing",
     "eventDate" : "2011-02-04",
     "instruction" : [ {
-      "before" : {
-        "trade" : {
+      "primitiveInstruction" : {
+        "execution" : {
           "product" : {
             "taxonomy" : [ {
               "source" : "ISDA",
@@ -194,72 +194,70 @@
               "nonStandardisedTerms" : false
             }
           },
-          "tradeLot" : [ {
-            "priceQuantity" : [ {
-              "quantity" : {
-                "@key:scoped" : "quantity-1",
-                "value" : 25000000.00,
-                "unit" : {
-                  "currency" : {
-                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
-                    "@data" : "USD"
-                  }
+          "priceQuantity" : [ {
+            "quantity" : {
+              "@key:scoped" : "quantity-1",
+              "value" : 25000000.00,
+              "unit" : {
+                "currency" : {
+                  "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                  "@data" : "USD"
                 }
-              },
-              "observable" : {
-                "@key:scoped" : "observable-1",
+              }
+            },
+            "observable" : {
+              "@key:scoped" : "observable-1",
+              "@data" : {
+                "@type" : "cdm.observable.asset.InterestRateIndex",
+                "@key:scoped" : "InterestRateIndex-1",
                 "@data" : {
-                  "@type" : "cdm.observable.asset.InterestRateIndex",
-                  "@key:scoped" : "InterestRateIndex-1",
-                  "@data" : {
-                    "@type" : "cdm.observable.asset.FloatingRateIndex",
-                    "identifier" : [ {
-                      "identifier" : {
-                        "@data" : "USD-LIBOR-ISDA"
-                      },
-                      "identifierType" : "Other"
-                    } ],
-                    "assetType" : "Other",
-                    "assetClass" : "InterestRate",
-                    "floatingRateIndex" : {
+                  "@type" : "cdm.observable.asset.FloatingRateIndex",
+                  "identifier" : [ {
+                    "identifier" : {
                       "@data" : "USD-LIBOR-ISDA"
                     },
-                    "indexTenor" : {
-                      "periodMultiplier" : 3,
-                      "period" : "M"
-                    }
+                    "identifierType" : "Other"
+                  } ],
+                  "assetType" : "Other",
+                  "assetClass" : "InterestRate",
+                  "floatingRateIndex" : {
+                    "@data" : "USD-LIBOR-ISDA"
+                  },
+                  "indexTenor" : {
+                    "periodMultiplier" : 3,
+                    "period" : "M"
                   }
                 }
               }
-            }, {
-              "price" : [ {
-                "@key:scoped" : "price-1",
-                "value" : 0.02232,
-                "unit" : {
-                  "currency" : {
-                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
-                    "@data" : "USD"
-                  }
-                },
-                "perUnitOf" : {
-                  "currency" : {
-                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
-                    "@data" : "USD"
-                  }
-                },
-                "priceType" : "InterestRate"
-              } ],
-              "quantity" : {
-                "@key:scoped" : "quantity-2",
-                "value" : 25000000.00,
-                "unit" : {
-                  "currency" : {
-                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
-                    "@data" : "USD"
-                  }
+            }
+          }, {
+            "price" : [ {
+              "@key:scoped" : "price-1",
+              "value" : 0.02232,
+              "unit" : {
+                "currency" : {
+                  "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                  "@data" : "USD"
+                }
+              },
+              "perUnitOf" : {
+                "currency" : {
+                  "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                  "@data" : "USD"
+                }
+              },
+              "priceType" : "InterestRate"
+            } ],
+            "quantity" : {
+              "@key:scoped" : "quantity-2",
+              "value" : 25000000.00,
+              "unit" : {
+                "currency" : {
+                  "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                  "@data" : "USD"
                 }
               }
-            } ]
+            }
           } ],
           "counterparty" : [ {
             "role" : "Party1",
@@ -272,21 +270,7 @@
               "@ref:external" : "fcm1"
             }
           } ],
-          "tradeIdentifier" : [ {
-            "issuerReference" : {
-              "@ref:external" : "sef"
-            },
-            "assignedIdentifier" : [ {
-              "identifier" : {
-                "@scheme" : "http://www.sefco.com/swaps/trade-id",
-                "@data" : "1"
-              }
-            } ]
-          } ],
-          "tradeDate" : {
-            "@data" : "2014-01-15"
-          },
-          "party" : [ {
+          "parties" : [ {
             "@key:external" : "sef",
             "partyId" : [ {
               "identifier" : {
@@ -335,7 +319,7 @@
               "@data" : "FCM A"
             }
           } ],
-          "partyRole" : [ {
+          "partyRoles" : [ {
             "partyReference" : {
               "@ref:external" : "dco"
             },
@@ -376,7 +360,21 @@
                 "arithmeticOperator" : "Add"
               }
             }
-          }
+          },
+          "tradeDate" : {
+            "@data" : "2014-01-15"
+          },
+          "tradeIdentifier" : [ {
+            "issuerReference" : {
+              "@ref:external" : "sef"
+            },
+            "assignedIdentifier" : [ {
+              "identifier" : {
+                "@scheme" : "http://www.sefco.com/swaps/trade-id",
+                "@data" : "1"
+              }
+            } ]
+          } ]
         }
       }
     } ]
