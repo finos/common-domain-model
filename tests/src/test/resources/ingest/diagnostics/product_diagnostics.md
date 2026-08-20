@@ -23,7 +23,7 @@
 | volatilitySwapTransactionSupplement | 4 | 99% |
 | fxSwap | 7 | 99% |
 | equitySwapTransactionSupplement | 30 | 99% |
-| swap | 166 | 99% |
+| swap | 166 | 98% |
 | varianceSwapTransactionSupplement | 6 | 98% |
 | swaption | 25 | 98% |
 | bondOption | 12 | 98% |
@@ -35,7 +35,7 @@
 | equityOption | 37 | 97% |
 | equityOptionTransactionSupplement | 16 | 96% |
 | commoditySwaption | 11 | 93% |
-| fxOption | 26 | 93% |
+| fxOption | 26 | 92% |
 | commodityOption | 26 | 92% |
 | instrumentTradeDetails | 2 | 91% |
 | dividendSwapTransactionSupplement | 12 | 81% |
