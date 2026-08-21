@@ -1,6 +1,8 @@
 namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
+import cdm.base.datetime.*
+import cdm.base.staticdata.codelist.*
 import cdm.event.instructioncomposition.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
@@ -46,6 +48,54 @@ func Create_DetermineUnadjustedCalculationPeriodInstruction: <"This function gen
     set determineUnadjustedCalculationPeriodInstruction -> unadjustedResetDate: <"Sets the unadjusted reset date to the output.">
         unadjustedResetDate
 
+// Code Implementation Function - External call to fetch the list of non business dates
+func GetNonBusinessDates: <"This function, given the list of business centers applicable and a period or a list of dates, extracts the list of non business dates for the given period or list of dates and returns the corresponding list of non business dates. The function should receive as input a list of dates or a period, but not both at the same time. That is, given either a list of periods or a period (start date + end date), the function will return their non business days.">
+    [codeImplementation]
+    inputs:
+        businessCenters BusinessCenter (0..*) <"The business centers related to a period or a list of one or more dates.">
+        period CalculationPeriodBase (0..1) <"The period from which the list of non business dates are generated.">
+        dates date (0..*) <"The list of dates from which the list of non business dates are generated.">
+    output:
+        nonBusinessDates date (1..*) <"The list of non business dates.">
+
+    condition PeriodOrDates: <"There can only be a period or a list of dates specified as input to this function. The function then fetches the non business dates of the given period OR list of dates and returns them.">
+        if period is absent
+        then dates exists
+        else if dates is absent
+        then period exists
+
+// Instruction Composition STEP 3 - Adjust Calculation Period
+func Create_AdjustPeriodInstruction: <"This function generates the Instruction Composition step instruction necessary to adjust the unadjusted period, and adding it to the AdjustPeriodInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
+    inputs:
+        unadjustedPeriod CalculationPeriodBase (1..1) <"The Unadjusted Period.">
+        nonBusinessDates date (0..*) <"The list of non business dates applicable to the Period.">
+        businessConvention BusinessDayConventionEnum (1..1) <"The business day convention to apply to adjust the Unadjusted Period (e.g., FOLLOWING, PRECEDING).">
+    output:
+        adjustPeriodInstruction AdjustPeriodInstruction (1..1) <"The Adjusted Calculation Period.">
+
+    alias adjustedCalculationPeriodStart: <"The adjusted starting date of the calculation period.">
+        AdjustDateToBusinessDayConvention(
+                unadjustedPeriod -> adjustedStartDate,
+                nonBusinessDates,
+                businessConvention
+            )
+
+    alias adjustedCalculationPeriodEnd: <"The adjusted ending date of the calculation period.">
+        AdjustDateToBusinessDayConvention(
+                unadjustedPeriod -> adjustedEndDate,
+                nonBusinessDates,
+                businessConvention
+            )
+
+    set adjustPeriodInstruction:
+        AdjustPeriodInstruction {
+            adjustedPeriod:
+                CalculationPeriodBase {
+                    adjustedStartDate: adjustedCalculationPeriodStart,
+                    adjustedEndDate: adjustedCalculationPeriodEnd
+        }}
+
+// COMPOSITION STATE CHANGES FOR RESET
 func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
     inputs:
         currentResetCompositionState ResetInstructionState (0..1)
@@ -68,12 +118,18 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
         if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
         then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedCalculationPeriod
         else currentResetCompositionState -> unadjustedCalculationPeriod
-
     set updatedResetCompositionState -> unadjustedResetDate:
         if nextStepToAdd -> determineUnadjustedCalculationPeriod exists
         then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedResetDate
         else currentResetCompositionState -> unadjustedResetDate
 
+    // Step 3: Adjusted Period
+    set updatedResetCompositionState -> adjustedCalculationPeriod:
+        if nextStepToAdd -> adjustPeriod exists
+        then nextStepToAdd -> adjustPeriod -> adjustedPeriod
+        else currentResetCompositionState -> adjustedCalculationPeriod
+
+// NEXT STEP FOR RESET
 func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
     inputs:
         resetInstructionState ResetInstructionState (0..1)
