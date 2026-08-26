@@ -382,3 +382,18 @@ func Log: <"Calculates the natural logarithm ln(x). Uses argument scaling to shi
         then // x=10 -> Log(1) + 2.302...
             Log_Internal_Series(x / 10.0) + 2.302585093
         else Log_Internal_Series(x)
+
+func RepeatNumber: <"Create a vector containing a number repeated N times.">
+    inputs:
+        value number (1..1) <"Number to repeat.">
+        times number (1..1) <"Number of repetitions (must be >= 0).">
+    output:
+        resultVector number (0..*) <"Vector containing the repeated number.">
+
+    condition TimesGreaterThanZero:
+        times >= 0
+
+    set resultVector:
+        if times = 0
+        then []
+        else AppendToVector(RepeatNumber(value, times - 1), value)

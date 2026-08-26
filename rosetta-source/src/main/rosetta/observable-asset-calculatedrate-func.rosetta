@@ -400,6 +400,29 @@ func ApplyAveragingFormula: <"Implements the weighted arithmetic averaging formu
     set results -> calculatedRate: calculatedRate
     add results -> weightedRates: weightedObservations
 
+func ApplyCompoundedIndexFormula: <"Implements the Compounded Index Formula as per the 2021 ISDA Interest Rate Definitions specified in section 7.7.3.">
+    inputs:
+        indexLevelStart number (1..1) <"The relevant index level at the start of the observation period.">
+        indexLevelEnd number (1..1) <"The relevant index level at the end of the observation period.">
+        dayCountFraction DayCountFractionEnum (1..1) <"The applicable day count fraction.">
+        numberOfCalendarDays int (1..1) <"The number of calendar days contained within the observation period.">
+    output:
+        compoundedIndex number (1..1) <"The resulting value after calculating the compounded index formula.">
+
+    alias compoundedGrowthFactor: <"The total growth factor of the index over the observation period including daily compounding.">
+        indexLevelEnd / indexLevelStart
+
+    alias compoundedRate: <"The effective compounded rate over the actual calendar length of the accrual period.">
+        compoundedGrowthFactor - 1
+
+    alias dayCountBasis: <"The contractual normalization factor.">
+        DayCountBasis(dayCountFraction)
+
+    alias compoundedIndexValue: <"The effective interest rate earned over the accrual period, expressed on the contract’s agreed day-count basis.">
+        compoundedRate * dayCountBasis / numberOfCalendarDays
+
+    set compoundedIndex: compoundedIndexValue
+
 // =====================================================================
 //
 // Index value lookup (observation) functions
