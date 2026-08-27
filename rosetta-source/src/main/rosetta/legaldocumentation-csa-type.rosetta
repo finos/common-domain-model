@@ -97,7 +97,7 @@ type CreditSupportAgreementElectionsBase: <"A logical container designed to hold
     demandsAndNotices DemandsAndNotices (0..1) <"The optional specification of address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
     additionalRepresentations AdditionalRepresentations (0..1) <"The specification Additional Representations that may be applicable to the agreement.">
     masterAgreementDatedAsOfDate MasterAgreementDatedAsOfDate (0..1) <"Defines the dates agreed by the parties as the date of the Credit Support Annex or Credit Support Deed.">
-    finalReturns FinalReturns (1..1) <"A clause providing that final return collateral is to be provided without consideration of any Minimum Transfer Amount and collateral haircut.">
+    finalReturns FinalReturns (1..1) <"A clause providing that final return collateral is to be provided without consideration of any Minimum Transfer Amount and collateral haircut."> 
 
 type CollateralTransferAgreementElections: <"The set of elections which specify a Collateral Transfer Agreement.">
     regime Regime (1..1) <"The Regime Table provision , which determines the regulatory regime(s) applicable to each of the parties to the agreement.">
@@ -128,6 +128,7 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
     additionalAmendments string (0..1) <"Any additional amendments that might be specified by the parties to the agreement.">
     additionalBespokeTerms string (0..1) <"Any additional terms that might be specified applicable.">
     pledgeeRepresentativeRider PledgeeRepresentativeRider (0..1) <"The terms of the Rider for the ISDA Euroclear 2019 Collateral Transfer Agreement with respect to the use of a Pledgee Representative attached to this Agreement.">
+    masterAgreementDatedAsOfDate MasterAgreementDatedAsOfDate (0..1) <"Defines the dates agreed by the parties as the date of the Collateral Transfer Agreement.">
     finalReturns FinalReturns (0..1) <"A clause providing that final return collateral is to be provided without consideration of any Minimum Transfer Amount and collateral haircut.">
 
 type SecurityAgreementElections: <"The set of elections which specify a Security Agremeent.">
@@ -316,9 +317,9 @@ type ValuationCalculationDateLocationElection: <"A class to specify each of the 
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(e)(i)" name "Calculation Date Location"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(d)(i)" name "Calculation Date Location"]
     party CounterpartyRoleEnum (1..1) <"The elective party.">
-    businessCenter BusinessCenter (0..1) <"The Calculation Date Location when specified as a business center which corresponds to the FpML list of business centers or can be mapped to it.">
+    businessCenter BusinessCenter (0..*) <"The Calculation Date Location when specified as a business center which corresponds to the FpML list of business centers or can be mapped to it.">
         [metadata scheme]
-    customLocation string (0..1) <"The Calculation Date Location when specified a location which doesn't correspond to the FpML list of business centers or cannot be mapped to it.">
+    customLocation string (0..*) <"The Calculation Date Location when specified a location which doesn't correspond to the FpML list of business centers or cannot be mapped to it.">
 
     condition Choice: <"The Calculation Date Location is specified either as a standard business center or as a custom location.">
         required choice businessCenter, customLocation
@@ -1073,6 +1074,7 @@ type CreditSupportObligationsVariationMargin extends CreditSupportObligationsBas
         [docReference ISDA CSD_English_1995]
         [docReference ISDA CSA_VM_English_2016]
         [docReference ISDA CSA_VM_NewYork_2016]
+    independentAmount LegacyIndependentAmount (0..1) <"Specifies the additional amount of collateral that is required to be delivered by a party irrespective of the mark-to-market exposure under the related Transactions. It may take the form of a fixed amount or may be determined using ratings.">
 
 type EligibleCreditSupport: <"Specifies the collateral posting obligations of the security provider or security providers as specified in the corresponding agreement">
     partyElection EligibleCollateralElection (1..2) <"The specification of the collateral posting obligations for the security provider party(ies)">
@@ -1263,7 +1265,7 @@ type CSAValuationDate: <"Specifies the date on which the value of collateral or 
 
 type ValuationAgent: <"Details of the party valuating the collateral to be delivered or returned.">
     party CalculationValuationAgentPartyEnum (0..1) <"Specification of which party calculating the value of collateral to be delivered or returned.">
-    valuationAgent ValuationAgentDeterminationEnum (0..1) <"Specifies how the Valuation Agent is determined.">
+    valuationAgent ValuationAgentDeterminationEnum (0..*) <"Specifies how the Valuation Agent is determined.">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
     condition AdditionalLanguage: <"If no party is defined, additional language must be used to specify the elective party.">
@@ -1516,7 +1518,7 @@ type EligibilityToHoldCollateral: <"Specifies the conditions under which a party
     initialCustodian LegalEntity (0..1) <"Election to specify the initial custodian.">
         [docReference ISDA CSA_VM_2016]
     criteria EligibilityToHoldCollateralCriteria (0..1) <"A logical container to hold a defined set of related data. In this case the collation of criteria required by the party and its custodian to Hold the other party's Posted Collateral.">
-    eligibleCountry string (0..*) <"The restrictions that might be required by a party and its custodian in terms of country(ies) where the other party's collateral can be held.">
+    eligibleLocation string (0..*) <"The restrictions that might be required by a party and its custodian in terms of country(ies) or location(s) where the other party's collateral can be held.">
         [metadata scheme]
     custodianCondition string (0..1) <"Specifies any additional conditions relevant to the Custodian of the respective parties as set out in the Holding and Using Posted Collateral clause.">
 
