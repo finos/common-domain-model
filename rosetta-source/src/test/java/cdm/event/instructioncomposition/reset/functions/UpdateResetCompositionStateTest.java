@@ -2,6 +2,8 @@ package cdm.event.instructioncomposition.reset.functions;
 
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.event.instructioncomposition.CompositionStepInstructions;
+import cdm.event.instructioncomposition.reset.AdjustPeriodInstruction;
+import cdm.event.instructioncomposition.reset.AdjustDateInstruction;
 import cdm.event.instructioncomposition.reset.CollectFloatingRateOptionInstruction;
 import cdm.event.instructioncomposition.reset.DetermineUnadjustedCalculationPeriodInstruction;
 import cdm.event.instructioncomposition.reset.ResetInstructionState;
@@ -130,6 +132,108 @@ class UpdateResetCompositionStateTest extends AbstractFunctionTest {
 
             assertNull(result.getUnadjustedCalculationPeriod());
             assertNull(result.getUnadjustedResetDate());
+        }
+    }
+
+    @Nested
+    @DisplayName("Step 3 - Adjusted Calculation Period")
+    class AdjustPeriodTest {
+
+        @Test
+        @DisplayName("Sets adjustedCalculationPeriod from the step instruction when adjustPeriod is present")
+        void shouldSetAdjustedCalculationPeriodFromStepWhenAdjustPeriodIsPresent() {
+            CalculationPeriodBase adjustedPeriod = CalculationPeriodBase.builder()
+                    .setAdjustedStartDate(Date.of(2024, 1, 1))
+                    .setAdjustedEndDate(Date.of(2024, 3, 31))
+                    .build();
+            CompositionStepInstructions nextStep = CompositionStepInstructions.builder()
+                    .setAdjustPeriod(AdjustPeriodInstruction.builder()
+                            .setAdjustedPeriod(adjustedPeriod)
+                            .build())
+                    .build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, nextStep);
+
+            assertEquals(Date.of(2024, 1, 1), result.getAdjustedCalculationPeriod().getAdjustedStartDate(),
+                    "adjustedStartDate must be taken from the step instruction");
+            assertEquals(Date.of(2024, 3, 31), result.getAdjustedCalculationPeriod().getAdjustedEndDate(),
+                    "adjustedEndDate must be taken from the step instruction");
+        }
+
+        @Test
+        @DisplayName("Carries forward adjustedCalculationPeriod from the current state when adjustPeriod is absent")
+        void shouldCarryForwardAdjustedCalculationPeriodFromCurrentStateWhenAdjustPeriodIsAbsent() {
+            CalculationPeriodBase existingPeriod = CalculationPeriodBase.builder()
+                    .setAdjustedStartDate(Date.of(2024, 4, 1))
+                    .setAdjustedEndDate(Date.of(2024, 6, 30))
+                    .build();
+            ResetInstructionState currentState = ResetInstructionState.builder()
+                    .setAdjustedCalculationPeriod(existingPeriod)
+                    .build();
+            CompositionStepInstructions nextStepWithoutAdjustPeriod = CompositionStepInstructions.builder().build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(currentState, nextStepWithoutAdjustPeriod);
+
+            assertEquals(Date.of(2024, 4, 1), result.getAdjustedCalculationPeriod().getAdjustedStartDate(),
+                    "adjustedStartDate must be carried forward from the current state");
+            assertEquals(Date.of(2024, 6, 30), result.getAdjustedCalculationPeriod().getAdjustedEndDate(),
+                    "adjustedEndDate must be carried forward from the current state");
+        }
+
+        @Test
+        @DisplayName("Produces null adjustedCalculationPeriod when adjustPeriod is absent and current state is absent")
+        void shouldProduceNullAdjustedCalculationPeriodWhenAdjustPeriodAndCurrentStateAreBothAbsent() {
+            CompositionStepInstructions nextStepWithoutAdjustPeriod = CompositionStepInstructions.builder().build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, nextStepWithoutAdjustPeriod);
+
+            assertNull(result.getAdjustedCalculationPeriod(),
+                    "adjustedCalculationPeriod must be null when both current state and step instruction are absent");
+        }
+    }
+
+    @Nested
+    @DisplayName("Step 4 - Adjusted Date")
+    class AdjustDateTest {
+
+        @Test
+        @DisplayName("Sets adjustedResetDate from the step instruction when adjustDate is present")
+        void shouldSetAdjustedResetDateFromStepWhenAdjustDateIsPresent() {
+            CompositionStepInstructions nextStep = CompositionStepInstructions.builder()
+                    .setAdjustDate(AdjustDateInstruction.builder()
+                            .setAdjustedDate(Date.of(2024, 3, 20))
+                            .build())
+                    .build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, nextStep);
+
+            assertEquals(Date.of(2024, 3, 20), result.getAdjustedResetDate(),
+                    "adjustedResetDate must be taken from the step instruction");
+        }
+
+        @Test
+        @DisplayName("Carries forward adjustedResetDate from the current state when adjustDate is absent")
+        void shouldCarryForwardAdjustedResetDateFromCurrentStateWhenAdjustDateIsAbsent() {
+            ResetInstructionState currentState = ResetInstructionState.builder()
+                    .setAdjustedResetDate(Date.of(2024, 3, 20))
+                    .build();
+            CompositionStepInstructions nextStepWithoutAdjustDate = CompositionStepInstructions.builder().build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(currentState, nextStepWithoutAdjustDate);
+
+            assertEquals(Date.of(2024, 3, 20), result.getAdjustedResetDate(),
+                    "adjustedResetDate must be carried forward from the current state");
+        }
+
+        @Test
+        @DisplayName("Produces null adjustedResetDate when adjustDate is absent and current state is absent")
+        void shouldProduceNullAdjustedResetDateWhenAdjustDateAndCurrentStateAreBothAbsent() {
+            CompositionStepInstructions nextStepWithoutAdjustDate = CompositionStepInstructions.builder().build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, nextStepWithoutAdjustDate);
+
+            assertNull(result.getAdjustedResetDate(),
+                    "adjustedResetDate must be null when both current state and step instruction are absent");
         }
     }
 }

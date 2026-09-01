@@ -90,6 +90,8 @@ public class FunctionInputCreator {
     @Inject
     private Create_BusinessEvent createBusinessEvent;
     @Inject
+    private Create_Execution createExecution;
+    @Inject
     private Create_WorkflowStep createWorkflowStep;
     @Inject
     private Create_RollPrimitiveInstruction createRollPrimitiveInstruction;
@@ -824,11 +826,24 @@ public class FunctionInputCreator {
     }
 
     private TradeState getProposedEventInstructionBefore(String resourceName) throws IOException {
-        return ResourcesUtils.getObject(WorkflowStep.class, resourceName).getProposedEvent()
+        Instruction instruction = ResourcesUtils.getObject(WorkflowStep.class, resourceName)
+                .getProposedEvent()
                 .getInstruction()
-                .get(0)
-                .getBefore()
-                .getValue();
+                .get(0);
+
+        TradeState before = Optional.ofNullable(instruction.getBefore())
+                .map(ReferenceWithMetaTradeState::getValue)
+                .orElse(null);
+        if (before != null) {
+            return before;
+        }
+
+        ExecutionInstruction execution = Optional.ofNullable(instruction.getPrimitiveInstruction())
+                .map(PrimitiveInstruction::getExecution)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Sample " + resourceName + " has neither a before TradeState nor an ExecutionInstruction"));
+
+        return createExecution.evaluate(execution);
     }
 
     ExpectationResult<CreateBusinessEventInput> getFullNovationFuncInputJson() throws IOException {
