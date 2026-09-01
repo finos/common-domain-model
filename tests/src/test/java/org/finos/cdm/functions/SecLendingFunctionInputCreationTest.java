@@ -30,6 +30,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.rosetta.common.util.LineEndings;
 import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
@@ -477,8 +478,8 @@ public class SecLendingFunctionInputCreationTest {
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
 
-        assertEquals(readResource(inputJson),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+        assertEquals(LineEndings.normalise(readResource(inputJson)),
+                LineEndings.normalise(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual)),
                 "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
         return actual;
     }
@@ -497,12 +498,12 @@ public class SecLendingFunctionInputCreationTest {
     }
 
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
-        String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
-        String expectedJson = getJson(expectedJsonPath);
+        String actualJson = LineEndings.normalise(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual));
+        String expectedJson = LineEndings.normalise(getJson(expectedJsonPath));
         if (TestingExpectationUtil.WRITE_EXPECTATIONS) {
                 writeExpectation(expectedJsonPath, actualJson);
         } else {
-        assertEquals(expectedJson, actualJson,
+            assertEquals(expectedJson, actualJson,
                 "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
 
 

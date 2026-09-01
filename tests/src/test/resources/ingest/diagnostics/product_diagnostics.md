@@ -4,8 +4,10 @@
 |:-----------------------------------------------|:-------:|:-------:|
 | securityLending | 4 | 106% |
 | commoditySwap | 46 | 105% |
+| fxSwap | 7 | 104% |
 | genericProduct | 2 | 103% |
 | creditDefaultSwap | 168 | 101% |
+| fxSingleLeg | 27 | 101% |
 | varianceSwap | 8 | 101% |
 | fxVarianceSwap | 2 | 101% |
 | commodityForward | 8 | 101% |
@@ -21,21 +23,19 @@
 | option | 1 | 100% |
 | capFloor | 11 | 100% |
 | volatilitySwapTransactionSupplement | 4 | 99% |
-| fxSwap | 7 | 99% |
 | equitySwapTransactionSupplement | 30 | 99% |
-| swap | 166 | 99% |
+| swap | 166 | 98% |
 | varianceSwapTransactionSupplement | 6 | 98% |
 | swaption | 25 | 98% |
 | bondOption | 12 | 98% |
 | commodityPerformanceSwap | 8 | 98% |
 | returnSwap | 36 | 98% |
-| fxSingleLeg | 27 | 98% |
 | correlationSwap | 8 | 97% |
 | creditDefaultSwapOption | 18 | 97% |
 | equityOption | 37 | 97% |
 | equityOptionTransactionSupplement | 16 | 96% |
+| fxOption | 26 | 95% |
 | commoditySwaption | 11 | 93% |
-| fxOption | 26 | 93% |
 | commodityOption | 26 | 92% |
 | instrumentTradeDetails | 2 | 91% |
 | dividendSwapTransactionSupplement | 12 | 81% |
