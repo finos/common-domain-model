@@ -1,6 +1,7 @@
 namespace cdm.base.datetime: <"Basic date and time concepts: relative date, date range, offset, business centre etc.">
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.codelist.*
 
 func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
@@ -186,6 +187,51 @@ func AddDays: <"Adds the specified number of calendar days to the supplied date.
     output:
         resultDate date (1..1) <"The date shifted by the specified number of days.">
 
+func AddPeriodToDate: <"Adds a frequency-based period to a date, adjusting for leap years. Month periods are considered as 30 days (31st month-end days are not handled).">
+    inputs:
+        inputDate date (1..1) <"Base date.">
+        frequency Frequency (1..1) <"Period to add.">
+    output:
+        resultDate date (1..1) <"Resulting date.">
+
+    alias periodDays: <"Convert period to days.">
+        ConvertPeriodToNumberOfDays(
+                frequency -> period to-enum PeriodEnum,
+                frequency -> periodMultiplier
+            )
+
+    alias resultDateNoLeapYears: <"Add period days.">
+        AddDays(inputDate, periodDays)
+
+    alias LeapYearDays: <"Calculate days to be added due to leap years.">
+        RoundToPrecision(
+                LeapYearDateDifference(inputDate, resultDateNoLeapYears) / 366.0,
+                0,
+                RoundingDirectionEnum -> Nearest,
+                False
+            )
+
+    set resultDate: <"Apply leap year adjustment.">
+        AddDays(resultDateNoLeapYears, LeapYearDays)
+
+// TODO: Handle month-end days (the 31st) instead of the current 30-day month convention.
+func ConvertPeriodToNumberOfDays: <"Converts a period to an equivalent number of days.">
+    inputs:
+        period PeriodEnum (1..1) <"Period unit.">
+        periodMultiplier int (1..1) <"Number of period units.">
+    output:
+        result int (1..1) <"Period days.">
+
+    set result:
+        if period = D
+        then periodMultiplier
+        else if period = W
+        then periodMultiplier * 7
+        else if period = M
+        then periodMultiplier * 30
+        else if period = Y
+        then periodMultiplier * 365
+
 func DateDifference: <"Subtracts the two supplied dates to return the number of calendar days between them.  A negative number implies first is after second.">
     [codeImplementation]
     inputs:
@@ -348,3 +394,69 @@ func AdjustableDatesResolution: <"Prioritization of unadjustedDate over adjusted
         if adjustableDates -> unadjustedDate exists
         then adjustableDates -> unadjustedDate
         else adjustableDates -> adjustedDate
+
+func AdjustDateToBusinessDayConvention: <"Applies a specific business day convention to a single date if it's a non-business day and adjusts it. Note: Currently, only FOLLOWING, PRECEDING, and MODFOLLOWING conventions are implemented. Other conventions will raise an error indicating they are not yet supported.">
+    inputs:
+        unadjustedDate date (1..1)
+        nonBusinessDates date (0..*)
+        businessConvention BusinessDayConventionEnum (1..1)
+    output:
+        adjustedDate date (1..1)
+
+    condition SupportedConvention: <"Only FOLLOWING, PRECEDING, MODFOLLOWING, and NONE are currently implemented. Unsupported conventions are blocked to prevent returning silently unadjusted dates.">
+        businessConvention = BusinessDayConventionEnum -> FOLLOWING
+            or businessConvention = BusinessDayConventionEnum -> PRECEDING
+            or businessConvention = BusinessDayConventionEnum -> MODFOLLOWING
+            or businessConvention = BusinessDayConventionEnum -> NONE
+
+    set adjustedDate:
+        if (nonBusinessDates contains unadjustedDate) = False
+        then unadjustedDate
+        else businessConvention switch
+            FOLLOWING then
+                AdjustDateToFollowingBusinessDay(unadjustedDate, nonBusinessDates),
+            PRECEDING then
+                AdjustDateToPrecedingBusinessDay(unadjustedDate, nonBusinessDates),
+            MODFOLLOWING then
+                AdjustDateToModfollowingBusinessDay(unadjustedDate, nonBusinessDates),
+            default unadjustedDate
+
+func AdjustDateToFollowingBusinessDay: <"Finds the next available business day by moving forward in time.">
+    inputs:
+        unadjustedDate date (1..1)
+        nonBusinessDates date (0..*)
+    output:
+        nextBusinessDay date (1..1)
+
+    set nextBusinessDay:
+        if (nonBusinessDates contains unadjustedDate) = False
+        then unadjustedDate
+        else AdjustDateToFollowingBusinessDay(AddDays(unadjustedDate, 1), nonBusinessDates)
+
+func AdjustDateToPrecedingBusinessDay: <"Finds the previous available business day by moving backward in time.">
+    inputs:
+        unadjustedDate date (1..1)
+        nonBusinessDates date (0..*)
+    output:
+        previousBusinessDay date (1..1)
+
+    set previousBusinessDay:
+        if (nonBusinessDates contains unadjustedDate) = False
+        then unadjustedDate
+        else AdjustDateToPrecedingBusinessDay(AddDays(unadjustedDate, -1), nonBusinessDates)
+
+func AdjustDateToModfollowingBusinessDay: <"Applies the 'Following' convention, but reverts to 'Preceding' if the adjustment crosses a month boundary.">
+    inputs:
+        unadjustedDate date (1..1)
+        nonBusinessDates date (0..*)
+    output:
+        adjustedDate date (1..1)
+
+    alias followingDate: AdjustDateToFollowingBusinessDay(unadjustedDate, nonBusinessDates)
+
+    alias IsDifferentMonth: (followingDate -> month) <> (unadjustedDate -> month)
+
+    set adjustedDate:
+        if IsDifferentMonth
+        then AdjustDateToPrecedingBusinessDay(unadjustedDate, nonBusinessDates)
+        else followingDate
