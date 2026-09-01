@@ -5,6 +5,32 @@ import cdm.base.datetime.*
 import cdm.event.common.*
 import cdm.event.instructioncomposition.reset.*
 
+/*
+ * This namespace defines the orchestration and state-transition layer of the Instruction Composition framework. It provides a deterministic execution engine responsible for sequencing instructions, aggregating state history, and managing the lifecycle of an Instruction Composition process.
+
+ *   A Instruction Composition in this model is a discrete, step-based state machine where:
+ *     1. Each InstructionCompositionStep represents the execution of exactly one atomic instruction.
+ *     2. Each instruction performs a field-level overlay to update the shared CompositionStep.
+ *     3. The CompositionStep acts as the "Golden Record" of accumulated state.
+ *     4. The process is governed by a flow controller that determines the next required action.
+
+ *   The execution model works as follows:
+
+ * - STEP EXECUTION & RECONSTRUCTION
+ *   [func] Create_InstructionComposition:
+ *     - Initializes or inherits process identity (instructionCompositionIdentifier, tradeId, instructionCompositionType).
+ *     - Generates a new CompositionStep with a step identifier, execution timestamp (Now()), and structured step instruction details.
+ *     - Updates the cumulative CompositionState by overlaying the current instruction onto previous state data using AddStepToCompositionState.
+ *     - Reconstructs the full InstructionComposition object, preserving the ordered step audit trail (compositionStep) and tracking completion via instructionCompositionOutput.
+
+ * - STATE TRANSITION LOGIC (OVERLAY MAPPING)
+ *   [func] AddStepToCompositionState:
+ *     - Routes the instruction to process-specific state handlers (e.g., UpdateResetCompositionState).
+
+ * - PROCESS FLOW & SEQUENCING
+ *   [func] NextCompositionStepToExecute:
+ *     - Dispatches execution flow evaluation to specific process evaluators (e.g., ResetInstructionNextStep)
+ */
 func Create_InstructionComposition: <"Creates a new InstructionComposition instance by appending a CompositionStep derived from the provided instruction, updating any previous compositionState, and producing the Instruction Composition Output if at the end of the Instruction Composition process.">
     inputs:
         previousInstructionComposition InstructionComposition (0..1) <"The existing Instruction Composition state before this execution step. If absent, this indicates the start of a new Instruction Composition lifecycle.">
@@ -32,7 +58,7 @@ func Create_InstructionComposition: <"Creates a new InstructionComposition insta
 
     alias instructionCompositionOutput:
         InstructionCompositionOutput {
-            resetInstruction: empty
+            resetInstruction: compositionStepInstruction -> compositionStepInstructions -> resetInstruction
         }
 
     condition FirstInstructionComposition: <"Validation rule ensuring that for the initial execution (where no previous state exists), both the composition identifier and the composition type must be explicitly defined.">
