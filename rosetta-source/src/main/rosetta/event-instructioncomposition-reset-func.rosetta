@@ -4,6 +4,9 @@ version "${project.version}"
 import cdm.base.datetime.*
 import cdm.base.staticdata.codelist.*
 import cdm.event.instructioncomposition.*
+import cdm.observable.asset.*
+import cdm.observable.asset.calculatedrate.*
+import cdm.observable.asset.fro.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 
@@ -95,7 +98,6 @@ func Create_AdjustPeriodInstruction: <"This function generates the Instruction C
                     adjustedEndDate: adjustedCalculationPeriodEnd
         }}
 
-// COMPOSITION STATE CHANGES FOR RESET
 // Instruction Composition STEP 4 - Adjust the Reset Date
 func Create_AdjustDateInstruction: <"This function generates the Instruction Composition step instruction necessary to adjust the unadjusted reset date, and adding it to the AdjustResetDateInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
     inputs:
@@ -115,6 +117,120 @@ func Create_AdjustDateInstruction: <"This function generates the Instruction Com
     set adjustDateInstruction:
         AdjustDateInstruction {
             adjustedDate: adjustedResetDate
+        }
+
+// Instruction Composition STEP 6 - Adjust Observation Dates
+func Create_AdjustObservationDatesInstruction: <"This function generates the Instruction Composition step instruction necessary to make the necessary adjustments to the observation dates, and adding the resulting adjusted dates to the AdjustObservationDatesInstruction. Supported shifts and offsets in this version are: {Fixing Day Offset, Lookback Shift (only for Multiple Observations)}. The following mechanisms are currently out-of-scope: {Observation Period Shift, Lockout Shift, Lookback Shift (for Compounded Index Observations)}.">
+    inputs:
+        unadjustedObservationDates date (0..*) <"The list of unadjusted observation dates. For Single Observation, this contains one date. For Multiple Observation, it is a list of daily calendar dates, and for Index Observation it contains the first and last dates of the calculation period.">
+        fixingDayOffset Offset (0..1) <"The offset to apply to obtain the fixing date or fixing period.">
+        lookbackShift OffsetCalculation (0..1) <"The lookback shift offset to apply for Multiple Observation (e.g., 5 business days lag). This should be absent for Single and Index observations.">
+        category FloatingRateIndexCategoryEnum (1..1) <"The ISDA category of the floating rate index (e.g., Screen Rate, Calculated Rate).">
+        style FloatingRateIndexStyleEnum (0..1) <"The ISDA style of the index (e.g., CompoundedFRO).">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the FRO Matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the Confirmation.">
+        nonBusinessDatesObservationDates date (0..*) <"The list of non business dates applicable to the observation period (used for Lookback Shifts).">
+        nonBusinessDatesAdjustedResetDate date (0..*) <"The list of non business dates applicable to the reset date (used for Fixing Day Offsets).">
+    output:
+        adjustObservationDatesInstruction AdjustObservationDatesInstruction (1..1) <"The instruction containing the final list of adjusted observation dates.">
+
+    // --- Observation Distinctions ---
+    alias observationType:
+        DetermineObservationType(
+                category,
+                style,
+                calculationMethodologyFromFloatingRateOption,
+                calculationMethodologyFromConfirmation
+            )
+
+    // --- Calculations ---
+    // SINGLE OBSERVATION
+    alias singleAdjusted: <"Applies the Fixing Day Offset (if present) to the single observation date using the Reset Date holiday calendar.">
+        if observationType = Single
+        then ShiftBusinessDays(
+                    unadjustedObservationDates only-element,
+                    if fixingDayOffset exists
+                    then fixingDayOffset -> periodMultiplier
+                    else 0,
+                    nonBusinessDatesAdjustedResetDate
+                )
+
+    // MULTIPLE OBSERVATION
+    alias multipleStartFixingOffset: <"Applies the Fixing Day Offset (if present) to the start date of the period using the Observation Dates holiday calendar.">
+        if observationType = Multiple
+        then ShiftBusinessDays(
+                    unadjustedObservationDates first,
+                    if fixingDayOffset exists
+                    then fixingDayOffset -> periodMultiplier
+                    else 0,
+                    nonBusinessDatesObservationDates
+                )
+
+    alias multipleStartLookbackShift: <"Applies the Lookback Shift (if present) to the fixing day offset-adjusted start date of the period using the Observation Dates holiday calendar.">
+        if observationType = Multiple
+        then ShiftBusinessDays(
+                    multipleStartFixingOffset,
+                    if lookbackShift exists
+                    then lookbackShift -> offsetDays * -1
+                    else 0,
+                    nonBusinessDatesObservationDates
+                )
+
+    alias multipleEndFixingOffset: <"Applies the Fixing Day Offset (if present) to the end date of the period using the Observation Dates holiday calendar.">
+        if observationType = Multiple
+        then ShiftBusinessDays(
+                    unadjustedObservationDates last,
+                    if fixingDayOffset exists
+                    then fixingDayOffset -> periodMultiplier
+                    else 0,
+                    nonBusinessDatesObservationDates
+                )
+
+    alias multipleEndLookbackShift: <"Applies the Lookback Shift (if present) to the fixing day offset-adjusted end date of the period using the Observation Dates holiday calendar.">
+        if observationType = Multiple
+        then ShiftBusinessDays(
+                    multipleEndFixingOffset,
+                    if lookbackShift exists
+                    then lookbackShift -> offsetDays * -1
+                    else 0,
+                    nonBusinessDatesObservationDates
+                )
+
+    alias unadjustedMiddleDates: <"Regenerates the full list of calendar dates between the new shifted start and end dates. This ensures we account for every calendar day in the new shifted period before applying adjustments.">
+        GenerateCalendarDateList(multipleStartLookbackShift, multipleEndLookbackShift)
+
+    alias uniqueMiddleAdjustedDates: <"Adjusts every date in the shifted calendar period to the Preceding Business Day. Sorts and removes duplicates to prepare for gap filling.">
+        unadjustedMiddleDates
+            extract
+                AdjustDateToBusinessDayConvention(
+                        item,
+                        nonBusinessDatesObservationDates,
+                        BusinessDayConventionEnum -> PRECEDING
+                    )
+            then sort
+            then distinct
+
+    alias multipleAdjustedDateList: <"Expands the list of valid business days to fill any gaps. Repeats the previous business day for any missing calendar days to maintain the correct weightings.">
+        ExpandMissingDates(uniqueMiddleAdjustedDates)
+
+    // COMPOUNDED INDEX
+    alias compoundedIndexList: <"For Compounded indices, returns the start and end date of the unadjusted period without modification.">
+        [unadjustedObservationDates first, unadjustedObservationDates last]
+
+    condition FixingOffsetDaysOnly: <"Validates that the Fixing Day Offset period is defined in Days.">
+        if fixingDayOffset exists
+        then fixingDayOffset -> period = D
+        else if fixingDayOffset is absent
+        then True
+
+    set adjustObservationDatesInstruction: <"Constructs the instruction with the correct calculated list of dates based on the identified observation route.">
+        AdjustObservationDatesInstruction {
+            adjustedObservationDates: if observationType = Single
+                    then singleAdjusted
+                else if observationType = CompoundedIndex
+                then compoundedIndexList
+                else if observationType = Multiple
+                then multipleAdjustedDateList
         }
 
 // COMPOSITION STATE CHANGES FOR RESET
@@ -156,6 +272,12 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
         if nextStepToAdd -> adjustDate exists
         then nextStepToAdd -> adjustDate -> adjustedDate
         else currentResetCompositionState -> adjustedResetDate
+
+    // Step 6: Adjusted Observation Dates
+    set updatedResetCompositionState -> adjustedObservationDates:
+        if nextStepToAdd -> adjustObservationDates exists
+        then nextStepToAdd -> adjustObservationDates -> adjustedObservationDates
+        else currentResetCompositionState -> adjustedObservationDates
 
 // NEXT STEP FOR RESET
 func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
