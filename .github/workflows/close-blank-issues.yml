@@ -1,0 +1,213 @@
+name: Close Blank Issues
+
+# The repo sets `blank_issues_enabled: false` in .github/ISSUE_TEMPLATE/config.yml,
+# which only hides the "Blank issue" option in the template chooser from people
+# without write access. Anyone can still bypass the chooser by going straight to
+# /issues/new, or by using the REST/GraphQL API or the GitHub mobile app - which
+# is how issues such as #4956 get opened by non-maintainers.
+#
+# This workflow closes such issues as "not planned" with an explanatory comment,
+# unless the author is a member of the finos/cdm-maintainers team.
+#
+# It only ever acts on issues opened from now on. Two things guarantee that:
+#   - the only trigger that can comment or close is `issues: opened`, which fires
+#     once, at creation; and
+#   - MAX_ISSUE_AGE_MINUTES below rejects anything that was not created in the
+#     last hour, so a pre-existing issue (e.g. #4956) or an issue transferred in
+#     from another repo is never touched.
+# The manual trigger is report-only and cannot modify an issue under any input.
+
+on:
+  issues:
+    types: [opened]
+  # Report-only: logs the decision this workflow would reach for an existing
+  # issue, without commenting on or closing anything. Useful for checking the
+  # detection and team-membership logic before/after merging.
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to evaluate (report only - nothing is modified)'
+        required: true
+        type: string
+
+# Least privilege: declaring this block sets every other scope to none.
+permissions:
+  issues: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  close-blank-issue:
+    name: Close blank issues opened by non-maintainers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close blank issue if the author is not a CDM maintainer
+        uses: actions/github-script@v9
+        env:
+          # Optional. A token that can read finos org team membership:
+          #   - a fine-grained PAT with organisation permission "Members: read", or
+          #   - a classic PAT with the `read:org` scope, or
+          #   - a GitHub App installation token with "Members: read".
+          # The built-in GITHUB_TOKEN cannot read org teams, so if this secret is
+          # not configured the workflow falls back to the author_association check
+          # below (see isMaintainer()).
+          MAINTAINERS_TEAM_TOKEN: ${{ secrets.CDM_MAINTAINERS_READ_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+        with:
+          # Deliberately the default GITHUB_TOKEN: commenting and closing only
+          # needs repo-scoped `issues: write`, so the org-read token above is
+          # never used for write operations.
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const TEAM_ORG = 'finos';
+            const TEAM_SLUG = 'cdm-maintainers';
+
+            // Safety net so this can only ever affect newly opened issues. The
+            // `issues: opened` event fires within seconds of creation, so an
+            // issue older than this was not opened by the event that triggered
+            // the run - it is pre-existing, or was transferred in from another
+            // repository. Generous enough to survive a queued Actions runner.
+            const MAX_ISSUE_AGE_MINUTES = 60;
+
+            // Author associations treated as "maintainer" when no
+            // MAINTAINERS_TEAM_TOKEN secret is configured. This is broader than
+            // the team (any FINOS org member passes), which is deliberate: the
+            // fallback errs towards leaving issues open.
+            const TRUSTED_ASSOCIATIONS = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+
+            const CLOSE_COMMENT = [
+              '> [!IMPORTANT]',
+              '> Only CDM Maintainers can use this issue template.',
+              '',
+              'This issue was created without one of the CDM issue templates, so it has been closed automatically.',
+              '',
+              'If you would like to raise this with the CDM community, please either:',
+              '',
+              '- open a **Feature**, **Task** or **Bug** issue from the [template chooser](https://github.com/finos/common-domain-model/issues/new/choose), or',
+              '- start a thread in [Discussions → Q&A](https://github.com/finos/common-domain-model/discussions/categories/q-a).',
+            ].join('\n');
+
+            const issueNumber = Number(process.env.ISSUE_NUMBER);
+            // The manual trigger is always report-only; only the `issues: opened`
+            // event can comment or close.
+            const reportOnly = context.eventName === 'workflow_dispatch';
+
+            // Read the issue from the API rather than trusting the webhook
+            // payload alone, so the same code path serves workflow_dispatch and
+            // sees the current type/label state.
+            const { data: issue } = await github.rest.issues.get({
+              ...context.repo,
+              issue_number: issueNumber,
+            });
+
+            const author = issue.user.login;
+
+            // Bots (Dependabot, FINOS automation, etc.) open issues without a
+            // template by design, so they are never candidates for auto-closing.
+            if (issue.user.type === 'Bot') {
+              core.info(`Issue #${issueNumber} was opened by the bot @${author}; leaving it alone.`);
+              return;
+            }
+
+            if (issue.state !== 'open' && !reportOnly) {
+              core.info(`Issue #${issueNumber} is already ${issue.state}; nothing to do.`);
+              return;
+            }
+
+            // Age guard: never act on an issue that pre-dates this run.
+            const ageMinutes = (Date.now() - Date.parse(issue.created_at)) / 60000;
+            if (ageMinutes > MAX_ISSUE_AGE_MINUTES) {
+              const detail = `Issue #${issueNumber} was created ${Math.round(ageMinutes)} minutes ago (${issue.created_at}), older than the ${MAX_ISSUE_AGE_MINUTES}-minute limit.`;
+              if (!reportOnly) {
+                core.info(`${detail} This workflow only acts on newly opened issues, so it is being left alone.`);
+                return;
+              }
+              core.warning(`${detail} A real run would stop here and leave it untouched; continuing only to report the classification.`);
+            }
+
+            // Every CDM issue template sets both an issue type ("Feature", "Task",
+            // "Bug") and the "Triage" label, and both are applied at creation time.
+            // An issue with neither did not come from a template.
+            const labels = (issue.labels || []).map((l) => (typeof l === 'string' ? l : l.name));
+            const issueType = issue.type ? issue.type.name : null;
+            const cameFromTemplate = Boolean(issueType) || labels.length > 0;
+
+            core.info(`Issue #${issueNumber} by @${author}: type=${issueType ?? 'none'}, labels=[${labels.join(', ')}]`);
+
+            if (cameFromTemplate) {
+              core.info('Issue was created from an issue template; leaving it open.');
+              return;
+            }
+
+            async function isMaintainer() {
+              const token = process.env.MAINTAINERS_TEAM_TOKEN;
+
+              if (token) {
+                const response = await fetch(
+                  `https://api.github.com/orgs/${TEAM_ORG}/teams/${TEAM_SLUG}/memberships/${encodeURIComponent(author)}`,
+                  {
+                    headers: {
+                      authorization: `Bearer ${token}`,
+                      accept: 'application/vnd.github+json',
+                      'x-github-api-version': '2022-11-28',
+                      'user-agent': 'finos-common-domain-model-close-blank-issues',
+                    },
+                  },
+                );
+
+                if (response.status === 200) {
+                  const membership = await response.json();
+                  core.info(`@${author} has ${TEAM_ORG}/${TEAM_SLUG} membership state "${membership.state}".`);
+                  return true; // "active" or "pending" - both treated as a maintainer.
+                }
+
+                if (response.status === 404) {
+                  core.info(`@${author} is not a member of ${TEAM_ORG}/${TEAM_SLUG}.`);
+                  return false;
+                }
+
+                // 401/403 means the secret is missing a scope or has expired.
+                // Fall through to the author_association check rather than
+                // closing an issue on the back of a broken credential.
+                core.warning(
+                  `Team membership lookup for @${author} returned HTTP ${response.status}. ` +
+                    'Check that CDM_MAINTAINERS_READ_TOKEN is valid and has org "Members: read" / read:org. ' +
+                    'Falling back to the author_association check.',
+                );
+              } else {
+                core.warning(
+                  'CDM_MAINTAINERS_READ_TOKEN is not configured, so team membership cannot be checked exactly. ' +
+                    'Falling back to the author_association check.',
+                );
+              }
+
+              core.info(`@${author} author_association is "${issue.author_association}".`);
+              return TRUSTED_ASSOCIATIONS.includes(issue.author_association);
+            }
+
+            if (await isMaintainer()) {
+              core.info(`@${author} is treated as a CDM maintainer; leaving issue #${issueNumber} open.`);
+              return;
+            }
+
+            if (reportOnly) {
+              core.notice(`[report only] Issue #${issueNumber} (opened by @${author}) classifies as a blank issue from a non-maintainer. Nothing has been changed.`);
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: issueNumber,
+              body: CLOSE_COMMENT,
+            });
+
+            await github.rest.issues.update({
+              ...context.repo,
+              issue_number: issueNumber,
+              state: 'closed',
+              state_reason: 'not_planned',
+            });
+
+            core.notice(`Closed issue #${issueNumber} (opened by @${author}) as not planned: blank issue from a non-maintainer.`);
