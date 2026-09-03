@@ -539,12 +539,17 @@ func MapNaturalPerson:
 
     set cdmNaturalPerson:
         NaturalPerson {
-            personId: fpmlPerson -> personId
-                    extract
-                        MapPersonIdentifier(
-                                item,
-                                fpmlPerson -> contactInfo -> address -> country
-                            ),
+                        personId: fpmlPerson
+                    extract person [
+                        person -> personId
+                            extract fpmlPersonId [
+                                MapPersonIdentifier(
+                                        fpmlPersonId,
+                                        fpmlPersonId -> personIdScheme,
+                                        person -> contactInfo -> address -> country
+                                    )
+                            ]
+                    ],
             honorific: fpmlPerson -> honorific,
             firstName: fpmlPerson -> firstName,
             middleName: fpmlPerson -> middleName,
@@ -563,6 +568,7 @@ func MapNaturalPerson:
 func MapPersonIdentifier:
     inputs:
         fpmlPersonId fpml.PersonId (0..1)
+        identifierScheme string (0..1)
         fpmlCountryCode fpml.CountryCode (0..1)
     output:
         cdmPersonIdentifier PersonIdentifier (0..1)
@@ -574,11 +580,11 @@ func MapPersonIdentifier:
                         fpmlPersonId -> value,
                         fpmlPersonId -> personIdScheme
                     ),
+            identifierType: MapPersonIdentifierTypeEnum(identifierScheme),
             country: MapStringWithScheme(
                         fpmlCountryCode -> value,
                         fpmlCountryCode -> countryScheme
                     ),
-            ...
         }
 
 func MapNaturalPersonRoleList:
