@@ -10,7 +10,7 @@ const copyrightOwner = 'FINOS'
 
 module.exports = {
   title: `${projectName}`,
-  url: 'https://www.cdm.finos.org',
+  url: 'https://cdm.finos.org',
   baseUrl: '/',
   favicon: 'img/favicon/favicon.ico',
   projectName: `${projectName}`,
@@ -119,7 +119,7 @@ module.exports = {
             },
             {
               label: 'Schemas',
-              href: 'https://github.com/finos/common-domain-model/schemas',
+              to: '/schemas/',
             },
             {
               label: 'What Is The CDM?',
