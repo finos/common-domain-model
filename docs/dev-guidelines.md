@@ -13,7 +13,7 @@ The CSL specifies three different contribution roles for each specific [working 
 
 * [Maintainers](maintainers.md) - those who drive consensus within the working group
 * Editors - those who codify ideas into a formal specification
-* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [participants](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [participants](https://github.com/finos/standards-project-blueprint/blob/master/PARTICIPANTS.md) file. 
 
 
 ## CDM Design Principles
@@ -412,7 +412,7 @@ one-off branch in the source-control repository. Please refer to the
 
 1. Fork it (https://github.com/finos/common-domain-model)
 2. Create your feature branch (`git checkout -b feature/my-new-feature`)
-3. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
+3. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rune VS Code plugin](https://github.com/finos/rune-dsl/tree/main/rune-ide/vscode)
 4. Read our contribution guidelines and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
 5. Commit your changes (`git commit -am 'My New Feature'`)
 6. Push to the branch (`git push origin feature/my-new-feature`)
