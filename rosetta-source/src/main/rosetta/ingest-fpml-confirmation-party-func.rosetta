@@ -37,9 +37,7 @@ import cdm.ingest.fpml.confirmation.product.varianceswap.*
 import cdm.ingest.fpml.confirmation.product.varianceswaptransactionsupplement.*
 import cdm.ingest.fpml.confirmation.product.volatilityswap.*
 import cdm.ingest.fpml.confirmation.product.volatilityswaptransactionsupplement.*
-
 import com.rosetta.model.*
-
 import fpml.consolidated.* as fpml
 import fpml.consolidated.bond.option.* as fpml
 import fpml.consolidated.cd.* as fpml
@@ -545,7 +543,6 @@ func MapNaturalPerson:
                             extract fpmlPersonId [
                                 MapPersonIdentifier(
                                         fpmlPersonId,
-                                        fpmlPersonId -> personIdScheme,
                                         person -> contactInfo -> address -> country
                                     )
                             ]
@@ -568,7 +565,6 @@ func MapNaturalPerson:
 func MapPersonIdentifier:
     inputs:
         fpmlPersonId fpml.PersonId (0..1)
-        identifierScheme string (0..1)
         fpmlCountryCode fpml.CountryCode (0..1)
     output:
         cdmPersonIdentifier PersonIdentifier (0..1)
@@ -580,7 +576,7 @@ func MapPersonIdentifier:
                         fpmlPersonId -> value,
                         fpmlPersonId -> personIdScheme
                     ),
-            identifierType: MapPersonIdentifierTypeEnum(identifierScheme),
+            identifierType: MapPersonIdentifierTypeEnum(fpmlPersonId -> personIdScheme),
             country: MapStringWithScheme(
                         fpmlCountryCode -> value,
                         fpmlCountryCode -> countryScheme
