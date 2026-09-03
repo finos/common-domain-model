@@ -8,7 +8,7 @@ export const featuresTwoHeader = [
             <br />
             <span style={{ fontSize: '1.25em' }}> The Common Domain Model (CDM) is a standardized, machine-readable, and machine-executable model that represents financial products, trades in those products, and the lifecycle events of those trades.</span>
 
-            <span style={{ fontSize: '1.25em' }}> The standard is developed through the <a href="https://community.finos.org/docs/governance/#open-standard-projects">Community Specification</a> open governance process, and underlying code assets are released under the <a href="https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md">Community Specification License 1.0</a>.</span>
+            <span style={{ fontSize: '1.25em' }}> The standard is developed through the <a href="https://community.finos.org/docs/governance/#open-standard-projects">Community Specification</a> open governance process, and underlying code assets are released under the <a href="https://github.com/finos/standards-project-blueprint/blob/master/LICENSE">Community Specification License 1.0</a>.</span>
             <hr />
             </>
         ),
