@@ -543,7 +543,6 @@ func MapNaturalPerson:
                             extract fpmlPersonId [
                                 MapPersonIdentifier(
                                         fpmlPersonId,
-                                        fpmlPersonId -> personIdScheme,
                                         person -> contactInfo -> address -> country
                                     )
                             ]
@@ -566,7 +565,6 @@ func MapNaturalPerson:
 func MapPersonIdentifier:
     inputs:
         fpmlPersonId fpml.PersonId (0..1)
-        identifierScheme string (0..1)
         fpmlCountryCode fpml.CountryCode (0..1)
     output:
         cdmPersonIdentifier PersonIdentifier (0..1)
@@ -578,7 +576,7 @@ func MapPersonIdentifier:
                         fpmlPersonId -> value,
                         fpmlPersonId -> personIdScheme
                     ),
-            identifierType: MapPersonIdentifierTypeEnum(identifierScheme),
+            identifierType: MapPersonIdentifierTypeEnum(fpmlPersonId -> personIdScheme),
             country: MapStringWithScheme(
                         fpmlCountryCode -> value,
                         fpmlCountryCode -> countryScheme
