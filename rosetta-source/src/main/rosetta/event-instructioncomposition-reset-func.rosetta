@@ -96,28 +96,6 @@ func Create_AdjustPeriodInstruction: <"This function generates the Instruction C
         }}
 
 // COMPOSITION STATE CHANGES FOR RESET
-// Instruction Composition STEP 4 - Adjust the Reset Date
-func Create_AdjustDateInstruction: <"This function generates the Instruction Composition step instruction necessary to adjust the unadjusted reset date, and adding it to the AdjustResetDateInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
-    inputs:
-        unadjustedDate date (1..1) <"The Unadjusted Date.">
-        nonBusinessDates date (0..*) <"The list of non business dates applicable to the Reset Date, obtained from the GetNonBusinessDates function.">
-        businessConvention BusinessDayConventionEnum (1..1) <"The business day convention to apply to adjust the Unadjusted Reset Date (e.g., FOLLOWING, PRECEDING).">
-    output:
-        adjustDateInstruction AdjustDateInstruction (1..1) <"The Adjusted Reset Date.">
-
-    alias adjustedResetDate: <"The adjusted reset date.">
-        AdjustDateToBusinessDayConvention(
-                unadjustedDate,
-                nonBusinessDates,
-                businessConvention
-            )
-
-    set adjustDateInstruction:
-        AdjustDateInstruction {
-            adjustedDate: adjustedResetDate
-        }
-
-// COMPOSITION STATE CHANGES FOR RESET
 func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
     inputs:
         currentResetCompositionState ResetInstructionState (0..1)
@@ -150,12 +128,6 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
         if nextStepToAdd -> adjustPeriod exists
         then nextStepToAdd -> adjustPeriod -> adjustedPeriod
         else currentResetCompositionState -> adjustedCalculationPeriod
-
-    // Step 4: Adjusted Date
-    set updatedResetCompositionState -> adjustedResetDate:
-        if nextStepToAdd -> adjustDate exists
-        then nextStepToAdd -> adjustDate -> adjustedDate
-        else currentResetCompositionState -> adjustedResetDate
 
 // NEXT STEP FOR RESET
 func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
