@@ -2,10 +2,84 @@ namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.math.*
 import cdm.base.staticdata.codelist.*
+import cdm.event.common.*
 import cdm.event.instructioncomposition.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
+
+/*
+ * This namespace defines the functional logic for the Interest Rate Reset Instruction Composition process. In the lifecycle of a derivative, a "Reset" occurs when a floating rate option (e.g., SOFR, EURIBOR, Term rates) is observed from the market and applied to a trade to calculate the next payment.
+
+ * The Reset Instruction Composition automates this by:
+ *    1. Bridging the gap between the legal trade confirmation and external market data.
+ *    2. Executing an 8-step deterministic workflow to sequence data extraction, date adjustments, market observations, and compounding calculations.
+
+ * CURRENT FUNCTIONAL SCOPE
+ * -------------------------------------------------------------------------------
+
+ * - Supported Business Day Conventions:
+ *      - Following
+ *      - Preceding
+ *      - Modified Following
+
+ * - Out-of-Scope Business Day Conventions:
+ *      - Modified Preceding
+ *      - Nearest
+ *      - Not Adjusted
+
+ * - Supported Observation Shifts and Offsets:
+ *      - Fixing Day Offset (applicable to Single and Multiple Observations)
+ *      - Lookback Shift (applicable to Multiple Observations)
+
+ *  - Out-of-Scope Observation Mechanisms:
+ *      - Observation Period Shift
+ *      - Lockout Shift
+ *      - Lookback Shift for Compounded Index Observations
+
+ *  - Supported Calculation Methodologies (Step 7):
+ *      - Single Observation (direct pass-through)
+ *      - Compounded Index (formula evaluation)
+ *      - Multiple Observation Compounding (Compounding / OISCompound)
+
+ *  WORKFLOW OVERVIEW
+ * -------------------------------------------------------------------------------
+
+ * - STEP 1: Collect Floating Rate Option Data¡
+ * - STEP 2: Determine Unadjusted Calculation Period
+ * - [Placeholder Function] GetNonBusinessDates
+ * - STEP 3: Adjust Calculation Period
+ * - STEP 4: Adjust Reset Date
+ * - [Placeholder Function] ExtractFloatingRateOptionData
+ * - [Placeholder Function] GetNonBusinessDates
+ * - STEP 6: Adjust Observation Dates
+ * - [Placeholder Function] GetMarketRates
+ * - STEP 7: Calculate Reset Value
+ * - STEP 8: Record Reset Instruction Output
+
+ *  STATE MANAGEMENT & TRANSITION LOGIC
+ *  -------------------------------------------------------------------------------
+ *  - STATE OVERLAY
+ *    [func] UpdateResetCompositionState:
+ *      - Implements deterministic state persistence across individual step milestones:
+ *          • Step 1: Floating Rate Index & Trade Date (Create_CollectFloatingRateOptionInstruction)
+ *          • Step 2: Unadjusted Calculation Period & Reset Date (Create_DetermineUnadjustedCalculationPeriodInstruction)
+ *          • Step 3: Adjusted Calculation Period (Create_AdjustPeriodInstruction)
+ *          • Step 4: Adjusted Reset Date
+ *          • Step 5: Unadjusted Observation Dates & Floating Rate Option Data
+ *          • Step 6: Adjusted Observation Dates
+ *          • Step 7: Final Calculation Results & Observed Rate Dates
+ *      - Field Resolution Rule:
+ *          - If the incoming step provides a value -> that value updates the state.
+ *          - Otherwise -> the previous state value is carried forward (preserved).
+ *  - NEXT STEP EVALUATION
+ *    [func] ResetInstructionNextStep:
+ *      - Evaluates the accumulated ResetInstructionState against mandatory milestone data requirements across the process lifecycle.
+ *      - Identifies the specific step enum (ResetInstructionSteps) required to resolve missing data gaps or generate the final output.
+ */
 
 // Instruction Composition  STEP 1 - Get Floating Rate Index Name
 func Create_CollectFloatingRateOptionInstruction: <"This function generates the Instruction Composition step instruction necessary to collect the Floating Rate Option data by extracting the floating rate index name from the floating leg.">
@@ -95,7 +169,6 @@ func Create_AdjustPeriodInstruction: <"This function generates the Instruction C
                     adjustedEndDate: adjustedCalculationPeriodEnd
         }}
 
-// COMPOSITION STATE CHANGES FOR RESET
 // Instruction Composition STEP 4 - Adjust the Reset Date
 func Create_AdjustDateInstruction: <"This function generates the Instruction Composition step instruction necessary to adjust the unadjusted reset date, and adding it to the AdjustResetDateInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
     inputs:
@@ -116,6 +189,59 @@ func Create_AdjustDateInstruction: <"This function generates the Instruction Com
         AdjustDateInstruction {
             adjustedDate: adjustedResetDate
         }
+
+// Instruction Composition STEP 8 - Record Reset Instruction Output
+func Create_ResetInstruction: <"This function generates the Reset Instruction necessary to finalize the Reset Instruction Composition process.">
+    inputs:
+        resetValue number (1..1)
+        resetValueCurrency string (1..1)
+        resetDate date (1..1)
+        observable Observable (1..1) <"The Observable object, required by the Reset instruction, and found in the Confirmation. It specifies the Floating Rate Index that applies to the Reset process.">
+    output:
+        resetInstruction ResetInstruction (1..1) <"The Reset Instruction containing the final Instruction Composition Output required.">
+    alias observation:
+        Observation {
+            observedValue:
+                Price {
+                    value: resetValue,
+                    unit:
+                        UnitType {
+                            currency: resetValueCurrency,
+                            ...
+                        },
+                    perUnitOf:
+                        UnitType {
+                            currency: resetValueCurrency,
+                            ...
+                        },
+                    priceType: InterestRate,
+                    ...
+                },
+            observationIdentifier:
+                ObservationIdentifier {
+                    observable: observable,
+                    observationDate: resetDate,
+                    ...
+        }}
+    alias finalResetValue:
+        Price {
+            value: resetValue,
+            unit:
+                UnitType {
+                    currency: resetValueCurrency,
+                    ...
+                },
+            perUnitOf:
+                UnitType {
+                    currency: resetValueCurrency,
+                    ...
+                },
+            priceType: InterestRate,
+            ...
+        }
+    set resetInstruction -> reset -> resetDate: resetDate
+    set resetInstruction -> reset -> resetValue: finalResetValue
+    add resetInstruction -> reset -> observations: observation
 
 // COMPOSITION STATE CHANGES FOR RESET
 func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
