@@ -159,35 +159,55 @@ jobs:
               const token = process.env.MAINTAINERS_TEAM_TOKEN;
 
               if (token) {
+                const headers = {
+                  authorization: `Bearer ${token}`,
+                  accept: 'application/vnd.github+json',
+                  'x-github-api-version': '2022-11-28',
+                  'user-agent': 'finos-common-domain-model-close-blank-issues',
+                };
+                const teamUrl = `https://api.github.com/orgs/${TEAM_ORG}/teams/${TEAM_SLUG}`;
                 const response = await fetch(
-                  `https://api.github.com/orgs/${TEAM_ORG}/teams/${TEAM_SLUG}/memberships/${encodeURIComponent(author)}`,
-                  {
-                    headers: {
-                      authorization: `Bearer ${token}`,
-                      accept: 'application/vnd.github+json',
-                      'x-github-api-version': '2022-11-28',
-                      'user-agent': 'finos-common-domain-model-close-blank-issues',
-                    },
-                  },
+                  `${teamUrl}/memberships/${encodeURIComponent(author)}`,
+                  { headers },
                 );
 
                 // 200 covers both "active" and "pending" membership.
                 if (response.status === 200) return true;
 
                 if (response.status === 404) {
-                  core.info(`@${author} is not a member of ${TEAM_ORG}/${TEAM_SLUG}.`);
-                  return false;
-                }
+                  // A 404 here means "not a member" only if the team is visible to
+                  // this credential at all. GitHub requires the team to be visible to
+                  // the authenticated user, and a secret team is visible only to its
+                  // own members and to organisation owners - so a token created by
+                  // someone outside the team 404s for everybody. Taken literally that
+                  // would mean "nobody is a maintainer", and blank issues from
+                  // maintainers would be closed too. Confirm the team is readable
+                  // before believing the absence.
+                  const teamResponse = await fetch(teamUrl, { headers });
 
-                // This secret was configured deliberately, so a credential that
-                // has expired or lost a scope is worth surfacing. core.error
-                // annotates the run summary without failing the job - the check
-                // below still reaches a sensible answer.
-                core.error(
-                  `Team membership lookup returned HTTP ${response.status}. ` +
-                    'Check that CDM_MAINTAINERS_READ_TOKEN is valid and has org "Members: read" / read:org. ' +
-                    'Using the author_association check for this run.',
-                );
+                  if (teamResponse.status === 200) {
+                    core.info(`@${author} is not a member of ${TEAM_ORG}/${TEAM_SLUG}.`);
+                    return false;
+                  }
+
+                  core.error(
+                    `${TEAM_ORG}/${TEAM_SLUG} is not readable with CDM_MAINTAINERS_READ_TOKEN ` +
+                      `(HTTP ${teamResponse.status}), so team membership cannot be determined. The ` +
+                      'token needs organisation "Members: read", and for a secret team it must belong ' +
+                      'to a team member or an organisation owner. Using the author_association check ' +
+                      'for this run.',
+                  );
+                } else {
+                  // This secret was configured deliberately, so a credential that has
+                  // expired or lost a scope is worth surfacing. core.error annotates
+                  // the run summary without failing the job - the check below still
+                  // reaches a sensible answer.
+                  core.error(
+                    `Team membership lookup returned HTTP ${response.status}. ` +
+                      'Check that CDM_MAINTAINERS_READ_TOKEN is valid and has org "Members: read" / read:org. ' +
+                      'Using the author_association check for this run.',
+                  );
+                }
               } else {
                 // Not a problem: running without the secret is a supported mode.
                 core.info('No CDM_MAINTAINERS_READ_TOKEN configured; using the author_association check.');
