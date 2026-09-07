@@ -1,7 +1,10 @@
 namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
+import cdm.observable.asset.*
+import cdm.observable.asset.calculatedrate.*
 import cdm.product.common.schedule.*
 
 type CollectFloatingRateOptionInstruction: <"Instruction that identifies the floating rate index and the trade date required for downstream Floating Rate Option Data retrieval.">
@@ -18,6 +21,11 @@ type AdjustPeriodInstruction: <"Instruction that holds the adjusted period.">
 type AdjustDateInstruction: <"Instruction that holds the adjusted date.">
     adjustedDate date (1..1)
 
+type CalculateResetValueInstruction: <"Instruction storing the computed reset value and the calculation method used to derive it.">
+    resetValue Price (1..1)
+    calculationMethod CalculationMethodEnum (0..1)
+    observedRateDates DatedValue (1..*)
+
 type ResetInstructionState: <"The definitive state object for the Reset process. It acts as a cumulative 'Golden Record,' storing every data point captured from Step 1 (Index Collection) through Step 7 (Final Calculation) to ensure deterministic processing.">
 
     // Step 1 - CollectFloatingRateOptionInstruction
@@ -30,6 +38,10 @@ type ResetInstructionState: <"The definitive state object for the Reset process.
     adjustedCalculationPeriod CalculationPeriodBase (0..1) <"The calculation period after adjusting for non-business days and relevant financial calendars.">
     // Step 4 - AdjustDateInstruction
     adjustedResetDate date (0..1) <"The final, legally binding reset date after applying business day conventions.">
+    // Step 7 - RecordMarketRatesInstruction
+    resetValue Price (0..1) <"The final calculated rate or price derived from the observed market data.">
+    calculationMethod calculatedrate.CalculationMethodEnum (0..1) <"The specific compounding or averaging formula used to arrive at the final reset value.">
+    observedRateDates DatedValue (0..*) <"The audit trail of individual market fixings captured on each adjusted observation date.">
 
 type ResetInstructionSteps: <"A wrapper that encapsulates the specific ResetInstructionCompositionStepsEnum, allowing the engine to identify the exact phase of the Reset lifecycle currently being processed.">
     resetInstructionCompositionSteps ResetInstructionCompositionStepsEnum (1..1)

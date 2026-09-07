@@ -475,3 +475,19 @@ func ApplyFinalRateRounding: <"Apply the final rate rounding treatment logic as 
         else RoundingDirectionEnum -> Nearest
 
     set roundedRate: RoundToPrecision(baseRate, precision, direction, False)
+
+func MapFloatingRateIndexCalculationMethodEnumToCalculationMethodEnum: <"Translates equivalent calculation methodologies from one type of enumeration to another. Does not cover Averaging methodology as it is out of scope.">
+    inputs:
+        calcMethodIn FloatingRateIndexCalculationMethodEnum (1..1)
+    output:
+        calcMethodOut CalculationMethodEnum (1..1)
+
+    condition SupportedCalculationMethod: <"The function just supports these calculation methods: OIS Compound and Compounded.">
+        calcMethodIn = FloatingRateIndexCalculationMethodEnum -> OISCompound
+            or calcMethodIn = FloatingRateIndexCalculationMethodEnum -> Compounded
+
+    set calcMethodOut:
+        if calcMethodIn = OISCompound
+        then Compounding
+        else if calcMethodIn = Compounded
+        then CompoundedIndex

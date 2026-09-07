@@ -1,12 +1,16 @@
 package cdm.event.instructioncomposition.reset.functions;
 
+import cdm.base.math.DatedValue;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.event.instructioncomposition.CompositionStepInstructions;
-import cdm.event.instructioncomposition.reset.AdjustPeriodInstruction;
 import cdm.event.instructioncomposition.reset.AdjustDateInstruction;
+import cdm.event.instructioncomposition.reset.AdjustPeriodInstruction;
+import cdm.event.instructioncomposition.reset.CalculateResetValueInstruction;
 import cdm.event.instructioncomposition.reset.CollectFloatingRateOptionInstruction;
 import cdm.event.instructioncomposition.reset.DetermineUnadjustedCalculationPeriodInstruction;
 import cdm.event.instructioncomposition.reset.ResetInstructionState;
+import cdm.observable.asset.Price;
+import cdm.observable.asset.calculatedrate.CalculationMethodEnum;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.rosetta.model.lib.records.Date;
 import org.finos.cdm.functions.AbstractFunctionTest;
@@ -15,6 +19,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -234,6 +241,80 @@ class UpdateResetCompositionStateTest extends AbstractFunctionTest {
 
             assertNull(result.getAdjustedResetDate(),
                     "adjustedResetDate must be null when both current state and step instruction are absent");
+        }
+    }
+
+    @Nested
+    @DisplayName("Step 7 - Final Calculation Results")
+    class CalculateResetValueTest {
+
+        @Test
+        @DisplayName("Sets resetValue, calculationMethod and observedRateDates from the step instruction when calculateResetValue is present")
+        void shouldSetResetValueCalculationMethodAndObservedRateDatesFromStepWhenCalculateResetValueIsPresent() {
+            Price resetValue = Price.builder()
+                    .setValue(new BigDecimal("0.055"))
+                    .build();
+            DatedValue obs1 = DatedValue.builder().setDate(Date.of(2024, 1, 1)).setValue(new BigDecimal("0.055")).build();
+            DatedValue obs2 = DatedValue.builder().setDate(Date.of(2024, 1, 2)).setValue(new BigDecimal("0.055")).build();
+            CompositionStepInstructions nextStep = CompositionStepInstructions.builder()
+                    .setCalculateResetValue(CalculateResetValueInstruction.builder()
+                            .setResetValue(resetValue)
+                            .setCalculationMethod(CalculationMethodEnum.COMPOUNDING)
+                            .setObservedRateDates(Arrays.asList(obs1, obs2))
+                            .build())
+                    .build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, nextStep);
+
+            assertEquals(new BigDecimal("0.055"), result.getResetValue().getValue(),
+                    "resetValue must be taken from the step instruction");
+            assertEquals(CalculationMethodEnum.COMPOUNDING, result.getCalculationMethod(),
+                    "calculationMethod must be taken from the step instruction");
+            assertEquals(2, result.getObservedRateDates().size(),
+                    "observedRateDates must be taken from the step instruction");
+            assertEquals(Date.of(2024, 1, 1), result.getObservedRateDates().get(0).getDate());
+            assertEquals(Date.of(2024, 1, 2), result.getObservedRateDates().get(1).getDate());
+        }
+
+        @Test
+        @DisplayName("Carries forward resetValue, calculationMethod and observedRateDates from the current state when calculateResetValue is absent")
+        void shouldCarryForwardResetValueCalculationMethodAndObservedRateDatesFromCurrentStateWhenCalculateResetValueIsAbsent() {
+            Price existingResetValue = Price.builder()
+                    .setValue(new BigDecimal("0.060"))
+                    .build();
+            DatedValue existingObs = DatedValue.builder()
+                    .setDate(Date.of(2024, 1, 5))
+                    .setValue(new BigDecimal("0.060"))
+                    .build();
+            ResetInstructionState currentState = ResetInstructionState.builder()
+                    .setResetValue(existingResetValue)
+                    .setCalculationMethod(CalculationMethodEnum.COMPOUNDED_INDEX)
+                    .setObservedRateDates(Collections.singletonList(existingObs))
+                    .build();
+            CompositionStepInstructions nextStepWithoutCalculateResetValue = CompositionStepInstructions.builder().build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(currentState, nextStepWithoutCalculateResetValue);
+
+            assertEquals(new BigDecimal("0.060"), result.getResetValue().getValue(),
+                    "resetValue must be carried forward from the current state");
+            assertEquals(CalculationMethodEnum.COMPOUNDED_INDEX, result.getCalculationMethod(),
+                    "calculationMethod must be carried forward from the current state");
+            assertEquals(1, result.getObservedRateDates().size(),
+                    "observedRateDates must be carried forward from the current state");
+            assertEquals(Date.of(2024, 1, 5), result.getObservedRateDates().get(0).getDate());
+        }
+
+        @Test
+        @DisplayName("Returns null resetValue, null calculationMethod and empty observedRateDates when absent from both next step and current state")
+        void shouldReturnNullFieldsWhenAbsentFromBothNextStepAndCurrentState() {
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, CompositionStepInstructions.builder().build());
+
+            assertNull(result.getResetValue(),
+                    "resetValue must be null when both current state and step instruction are absent");
+            assertNull(result.getCalculationMethod(),
+                    "calculationMethod must be null when both current state and step instruction are absent");
+            assertNull(result.getObservedRateDates(),
+                    "observedRateDates must be null when both current state and step instruction are absent");
         }
     }
 }
