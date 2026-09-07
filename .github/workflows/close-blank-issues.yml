@@ -9,6 +9,11 @@ name: Close Blank Issues
 # This workflow closes such issues as "not planned" with an explanatory comment,
 # unless the author is a member of the finos/cdm-maintainers team.
 #
+# The exact team check is optional. With no credential configured the workflow
+# exempts FINOS organisation members and repository collaborators instead -
+# coarser, but it needs no secret and has nothing to rotate. See
+# MAINTAINERS_TEAM_TOKEN below.
+#
 # It only ever acts on issues opened from now on. Two things guarantee that:
 #   - the only trigger that can comment or close is `issues: opened`, which fires
 #     once, at creation; and
@@ -46,13 +51,15 @@ jobs:
       - name: Close blank issue if the author is not a CDM maintainer
         uses: actions/github-script@v9
         env:
-          # Optional. A token that can read finos org team membership:
-          #   - a fine-grained PAT with organisation permission "Members: read", or
+          # OPTIONAL - the workflow is fully functional without it. When set, it
+          # narrows the check from "is this person inside FINOS or this repo at
+          # all" to "is this person in finos/cdm-maintainers". Accepts:
+          #   - a fine-grained PAT with organisation permission "Members: read",
           #   - a classic PAT with the `read:org` scope, or
           #   - a GitHub App installation token with "Members: read".
-          # The built-in GITHUB_TOKEN cannot read org teams, so if this secret is
-          # not configured the workflow falls back to the author_association check
-          # below (see isMaintainer()).
+          # A separate credential is needed because the built-in GITHUB_TOKEN
+          # cannot read organisation teams. Left unset, isAuthorised() below uses
+          # the author_association check instead.
           MAINTAINERS_TEAM_TOKEN: ${{ secrets.CDM_MAINTAINERS_READ_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
         with:
@@ -71,10 +78,10 @@ jobs:
             // repository. Generous enough to survive a queued Actions runner.
             const MAX_ISSUE_AGE_MINUTES = 60;
 
-            // Author associations treated as "maintainer" when no
-            // MAINTAINERS_TEAM_TOKEN secret is configured. This is broader than
-            // the team (any FINOS org member passes), which is deliberate: the
-            // fallback errs towards leaving issues open.
+            // Author associations treated as authorised when no
+            // MAINTAINERS_TEAM_TOKEN secret is configured. Broader than the team
+            // (any FINOS org member or repo collaborator passes), which is
+            // deliberate: the default errs towards leaving issues open.
             const TRUSTED_ASSOCIATIONS = ['OWNER', 'MEMBER', 'COLLABORATOR'];
 
             const CLOSE_COMMENT = [
@@ -141,7 +148,14 @@ jobs:
               return;
             }
 
-            async function isMaintainer() {
+            // Actions logs on a public repository are world-readable, and this
+            // lookup can see private organisation membership. So the authorised
+            // path logs only its conclusion - never which check passed, the
+            // membership state, or the author_association value - so that a
+            // maintainer who keeps their FINOS membership private is not outed by
+            // a workflow log. The unauthorised path can be specific, because it
+            // discloses only an absence.
+            async function isAuthorised() {
               const token = process.env.MAINTAINERS_TEAM_TOKEN;
 
               if (token) {
@@ -157,38 +171,36 @@ jobs:
                   },
                 );
 
-                if (response.status === 200) {
-                  const membership = await response.json();
-                  core.info(`@${author} has ${TEAM_ORG}/${TEAM_SLUG} membership state "${membership.state}".`);
-                  return true; // "active" or "pending" - both treated as a maintainer.
-                }
+                // 200 covers both "active" and "pending" membership.
+                if (response.status === 200) return true;
 
                 if (response.status === 404) {
                   core.info(`@${author} is not a member of ${TEAM_ORG}/${TEAM_SLUG}.`);
                   return false;
                 }
 
-                // 401/403 means the secret is missing a scope or has expired.
-                // Fall through to the author_association check rather than
-                // closing an issue on the back of a broken credential.
-                core.warning(
-                  `Team membership lookup for @${author} returned HTTP ${response.status}. ` +
+                // This secret was configured deliberately, so a credential that
+                // has expired or lost a scope is worth surfacing. core.error
+                // annotates the run summary without failing the job - the check
+                // below still reaches a sensible answer.
+                core.error(
+                  `Team membership lookup returned HTTP ${response.status}. ` +
                     'Check that CDM_MAINTAINERS_READ_TOKEN is valid and has org "Members: read" / read:org. ' +
-                    'Falling back to the author_association check.',
+                    'Using the author_association check for this run.',
                 );
               } else {
-                core.warning(
-                  'CDM_MAINTAINERS_READ_TOKEN is not configured, so team membership cannot be checked exactly. ' +
-                    'Falling back to the author_association check.',
-                );
+                // Not a problem: running without the secret is a supported mode.
+                core.info('No CDM_MAINTAINERS_READ_TOKEN configured; using the author_association check.');
               }
 
-              core.info(`@${author} author_association is "${issue.author_association}".`);
-              return TRUSTED_ASSOCIATIONS.includes(issue.author_association);
+              if (TRUSTED_ASSOCIATIONS.includes(issue.author_association)) return true;
+
+              core.info(`@${author} has author_association "${issue.author_association}".`);
+              return false;
             }
 
-            if (await isMaintainer()) {
-              core.info(`@${author} is treated as a CDM maintainer; leaving issue #${issueNumber} open.`);
+            if (await isAuthorised()) {
+              core.info(`Issue #${issueNumber} was opened by someone permitted to raise issues without a template; leaving it open.`);
               return;
             }
 
