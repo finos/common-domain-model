@@ -8,7 +8,7 @@ Focused on swaps (IR, credit, equity, commodity, etc.), options, FX, post-trade 
 
 ## Meetings
 
-**Join us on the Second and Last Wednesday at 11:30 AM EST (4:30PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/94159751957?password=8a54da8a-9f42-4448-a8a9-246e545279cb&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
+**Join us every two weeks on Wednesday at 11:30 AM EST (4:30PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/94159751957?password=8a54da8a-9f42-4448-a8a9-246e545279cb&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
 
 ## Subscribe
 
