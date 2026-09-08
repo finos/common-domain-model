@@ -160,7 +160,7 @@ func GetGrossInitialMarginFromStandardizedSchedule:
         standardizedSchedule -> notional * initialMarginRequirement * 0.01
     set grossInitialMargin -> unit -> currency:
         standardizedSchedule -> notionalCurrency
-    post-condition PositiveGrossInitialMargin: <"Ensure gross initial margin is greater than 0">
+    post-condition PositiveGrossInitialMargin:
         grossInitialMargin -> value > 0
 ```
 The function first determines the margin rate using the `GetStandardizedScheduleMarginRate` function. Once the margin rate is established, it multiplies this rate by the notional amount of the trade to calculate the gross initial margin.
@@ -203,11 +203,11 @@ func GetNetInitialMarginFromExposure:
         0.4*totalGIM + 0.6*totalGIM*netToGrossRatio  
     set initialMargin -> netInitialMargin -> unit -> currency:
         tradeInitialMargin -> markToMarketValue -> unit -> currency distinct only-element
-    post-condition NonNegativeNetInitialMargin: <"Ensure net initial margin is non-negative">
+    post-condition NonNegativeNetInitialMargin:
         initialMargin -> netInitialMargin -> value >= 0
-    post-condition TotalGIMAddition: <"Ensure that only a single currency exists">
+    post-condition TotalGIMAddition:
         tradeInitialMargin -> grossInitialMargin -> unit -> currency distinct count = 1
-    post-condition NGRAddition: <"Ensure that only a single currency exists">
+    post-condition NGRAddition:
         tradeInitialMargin -> markToMarketValue -> unit -> currency distinct count = 1
 ```
 This function checks for existing exposures within the portfolio, allowing for an adjusted representation of the initial margin requirement. By deducting existing exposures from the gross initial margin, it reflects a more accurate margin requirement tailored to the actual risk profile of the portfolio.
