@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
+import cdm.base.staticdata.identifier.*
 
 choice Asset: <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the attributes must be used.">
     Cash <"An Asset that consists solely of a monetary holding in a currency.">
@@ -41,9 +42,7 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
         if assetType = Loan and partyRole exists
         then partyRole -> role = Lender or partyRole -> role = Borrower
 
-type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
-    identifier string (1..1) <"The identifier value.">
-        [metadata scheme]
+type AssetIdentifier extends SingleIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
 type InstrumentBase extends AssetBase: <"Defines the common attributes for all Instrument data types.">
@@ -53,10 +52,8 @@ choice Instrument: <"A type of Asset that is issued by one party to one or more 
     Loan <"An Asset that represents a loan or borrow obligation.">
     Security <"An Asset that is issued by a party to be held by or transferred to others.">
 
-type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type ProductIdentifier extends SingleIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
-    identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
-        [metadata scheme]
     source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
 
 type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
@@ -103,7 +100,7 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
 
     condition CurrencyExists: <"There must be one and only one currency code and it must be valid (ie in the enumerated list).">
         AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) count = 1
-            and AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) -> identifier
+            and AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) -> value
                 first
                 to-enum CurrencyCodeEnum
                 exists
