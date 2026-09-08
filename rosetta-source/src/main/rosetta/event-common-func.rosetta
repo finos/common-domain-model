@@ -186,18 +186,18 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releva
     condition IsInterestRatePayout: <"Payout must be an InterestRatePayout.">
         payout as InterestRatePayout exists
 
-    set interestCashSettlementAmount -> ScheduledTransfer -> quantity -> value: performance
-    set interestCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
+    set interestCashSettlementAmount -> ScheduledPartyTransfer -> quantity -> value: performance
+    set interestCashSettlementAmount -> ScheduledPartyTransfer -> quantity -> unit -> currency:
         interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
-    set interestCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
+    set interestCashSettlementAmount -> ScheduledPartyTransfer -> payerReceiver -> payerPartyReference:
         if performance >= 0 then payer else receiver
-    set interestCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
+    set interestCashSettlementAmount -> ScheduledPartyTransfer -> payerReceiver -> receiverPartyReference:
         if performance >= 0 then receiver else payer
 
-    set interestCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
+    set interestCashSettlementAmount -> ScheduledPartyTransfer -> settlementDate -> adjustedDate:
         date
 
-    set interestCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
+    set interestCashSettlementAmount -> ScheduledPartyTransfer -> payoutReference: payout as-key
 
 func ResolveReset: <"Defines the interface for adopters to resolve a reset, given a trade state and a date.">
     [codeImplementation]
@@ -314,19 +314,19 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> value: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
+    set equityCashSettlementAmount -> ScheduledPartyTransfer -> quantity -> value: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
+    set equityCashSettlementAmount -> ScheduledPartyTransfer -> quantity -> unit -> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
-    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
+    set equityCashSettlementAmount -> ScheduledPartyTransfer -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> ScheduledPartyTransfer -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
-    set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
+    set equityCashSettlementAmount -> ScheduledPartyTransfer -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
+    set equityCashSettlementAmount -> ScheduledPartyTransfer -> payoutReference: payout as-key
 
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return)  Equity Notional Amount.">
     inputs:
@@ -721,17 +721,17 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
         if instruction -> quantity exists
         then instruction -> quantity -> unit -> financialUnit = FinancialUnitEnum -> Share
 
-    set transfer -> ScheduledTransfer -> quantity:
+    set transfer -> ScheduledPartyTransfer -> quantity:
         NonNegativeQuantity {
             value: securityQuantity -> value,
             unit: securityQuantity -> unit,
             ...
         }
 
-    add transfer -> ScheduledTransfer -> asset -> Instrument -> Security -> identifier:
+    add transfer -> ScheduledPartyTransfer -> asset -> Instrument -> Security -> identifier:
         assetPayout -> underlier ->> identifier
 
-    set transfer -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
+    set transfer -> ScheduledPartyTransfer -> payerReceiver -> payerPartyReference:
         if instruction -> payerReceiver -> payer exists
         then ExtractCounterpartyByRole(
                     instruction -> tradeState -> trade -> counterparty,
@@ -743,7 +743,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
                     assetPayout -> payerReceiver -> payer
                 ) -> partyReference
 
-    set transfer -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
+    set transfer -> ScheduledPartyTransfer -> payerReceiver -> receiverPartyReference:
         if instruction -> payerReceiver -> payer exists
         then ExtractCounterpartyByRole(
                     instruction -> tradeState -> trade -> counterparty,
@@ -755,9 +755,9 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
                     assetPayout -> payerReceiver -> receiver
                 ) -> partyReference
 
-    set transfer -> ScheduledTransfer -> settlementDate -> adjustedDate: instruction -> date
+    set transfer -> ScheduledPartyTransfer -> settlementDate -> adjustedDate: instruction -> date
 
-    set transfer -> ScheduledTransfer -> payoutReference: payout as-key
+    set transfer -> ScheduledPartyTransfer -> payoutReference: payout as-key
 
 func ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
     inputs:
@@ -787,7 +787,7 @@ func ResolveTransfer: <"Defines how to calculate the amount due to be transferre
                     instruction -> resets,
                     instruction -> date
                 )
-    set transfer -> ScheduledTransfer -> settlementDate -> adjustedDate: instruction -> date
+    set transfer -> ScheduledPartyTransfer -> settlementDate -> adjustedDate: instruction -> date
 
 func ResolveCashSettlementDate: <"A product agnostic function that resolves the settlement date of the payout for the period in question">
     [codeImplementation]
@@ -850,13 +850,13 @@ func SecurityFinanceCashSettlementAmount:
         tradeState -> trade -> tradeLot -> priceQuantity -> observable as Asset ->> identifier
             = assetPayout -> underlier ->> identifier
 
-    set cashSettlementAmount -> ScheduledTransfer -> quantity -> value:
+    set cashSettlementAmount -> ScheduledPartyTransfer -> quantity -> value:
         securityPrice -> value * securityQuantity -> value * marginRatio
 
-    set cashSettlementAmount -> ScheduledTransfer -> quantity -> unit -> currency:
+    set cashSettlementAmount -> ScheduledPartyTransfer -> quantity -> unit -> currency:
         securityPrice -> unit -> currency
 
-    set cashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
+    set cashSettlementAmount -> ScheduledPartyTransfer -> payerReceiver -> payerPartyReference:
         if payerReceiver exists
         then ExtractCounterpartyByRole(
                     tradeState -> trade -> counterparty,
@@ -868,7 +868,7 @@ func SecurityFinanceCashSettlementAmount:
                     assetPayout -> payerReceiver -> receiver
                 ) -> partyReference
 
-    set cashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
+    set cashSettlementAmount -> ScheduledPartyTransfer -> payerReceiver -> receiverPartyReference:
         if payerReceiver exists
         then ExtractCounterpartyByRole(
                     tradeState -> trade -> counterparty,
@@ -880,9 +880,9 @@ func SecurityFinanceCashSettlementAmount:
                     assetPayout -> payerReceiver -> payer
                 ) -> partyReference
 
-    set cashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate: date
+    set cashSettlementAmount -> ScheduledPartyTransfer -> settlementDate -> adjustedDate: date
 
-    set cashSettlementAmount -> ScheduledTransfer -> payoutReference: payout as-key
+    set cashSettlementAmount -> ScheduledPartyTransfer -> payoutReference: payout as-key
 
 func Create_Split: <"Defines the logic for splitting a trade into separate copies. The split instruction contains a breakdown into N set of primitive instructions. Each set contains the primitive instructions to be applied to each post-split trade, eventually producing N trades. The split function underpins a number of business events such as clearing or allocation.">
     inputs:
@@ -1353,23 +1353,23 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
                 interestRatePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    // @TODO Where this is a return, UnscheduledTransfer -> Return should be specified. You can also compare Payer/Receiver on the Payout vs the Payer/Receiver on the Transfer
-    set transfer -> ScheduledTransfer -> quantity -> value: performance
+    // @TODO Where this is a return, UnScheduledPartyTransfer -> Return should be specified. You can also compare Payer/Receiver on the Payout vs the Payer/Receiver on the Transfer
+    set transfer -> ScheduledPartyTransfer -> quantity -> value: performance
 
-    set transfer -> ScheduledTransfer -> quantity -> unit -> currency:
+    set transfer -> ScheduledPartyTransfer -> quantity -> unit -> currency:
         interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
 
-    set transfer -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
+    set transfer -> ScheduledPartyTransfer -> payerReceiver -> payerPartyReference:
         if performance >= 0
         then payerPartyReference
         else receiverPartyReference
 
-    set transfer -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
+    set transfer -> ScheduledPartyTransfer -> payerReceiver -> receiverPartyReference:
         if performance >= 0
         then receiverPartyReference
         else payerPartyReference
 
-    set transfer -> ScheduledTransfer -> settlementDate -> adjustedDate: transferDate
+    set transfer -> ScheduledPartyTransfer -> settlementDate -> adjustedDate: transferDate
 
 func ToMoney:
     inputs:
@@ -2026,8 +2026,8 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
 
     alias transfer: <"A fully structured Transfer or the following need to be provided to create a cashflow.">
         Transfer {
-            ScheduledTransfer:
-                ScheduledTransfer {
+            ScheduledPartyTransfer:
+                ScheduledPartyTransfer {
                     quantity:
                         NonNegativeQuantity {
                             value: interestAmount -> value,
