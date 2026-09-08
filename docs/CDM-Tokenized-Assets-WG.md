@@ -12,7 +12,7 @@ This initiative will begin by introducing new attributes to the current Asset an
 
 ## Meetings
 
-**Join us on the second and last Wednesday every month 10AM EST (3PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/92172584188?password=cf35c343-0e3e-49e3-9dae-117c6f6accb8&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
+**Join us on the third Wednesday of every month at 10AM EST (3PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/92172584188?password=cf35c343-0e3e-49e3-9dae-117c6f6accb8&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
 
 ## Subscribe
 
