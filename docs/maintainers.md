@@ -46,6 +46,7 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
+| Jayasri Radhakrishnan| Regnosys       | OrgRep                                      | JayasriR             | 
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
 | Nicholas Moger       | JPMorgan Chase & Co.|  OrgRep                                | nicholas-moger       | 
