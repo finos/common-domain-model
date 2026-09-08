@@ -31,4 +31,4 @@ The following Working Groups are currently active for this project:
 * [ISDA CDM Legal Agreement Working Group](https://www.isda.org/committees?ccode=CDMLA) - This working group will be used to extend the CDM for the CSA and Master Agreements and is open to ISDA members only. - bi-monthly 
 
 
-Email help@finos.org to be added to the meeting invites directly, or find the the meeting in the [FINOS Community Calendar](https://www.finos.org/calendar). 
+You can register yourself for any of these meetings from its Working Group page, or find them in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 

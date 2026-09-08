@@ -18,7 +18,7 @@ The CDM Contribution Review Working Group (CRWG) plays a crucial role in the CDM
 
 ## Meetings
 
-**Join us on the First and Third Tuesday at 10 AM EST (3 PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://www.finos.org/calendar). 
+**Join us on the First and Third Tuesday at 10 AM EST (3 PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/94584131804?password=b7edff0a-9cc6-426f-b0d9-28eb4fb0de71&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
 
 
 ## Subscribe
