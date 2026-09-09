@@ -85,17 +85,10 @@ public class CdmTestPackCreator {
         PipelineTestPackFilter filter = PipelineTestPackFilter.create()
                 .withTestPacksSpecificToFunctions(getEventsTestPackFilter());
 
-        ImmutableMap<Class<?>, PipelineModel.Serialisation.Format> outputSerialisationFormat =
-                ImmutableMap.<Class<?>, PipelineModel.Serialisation.Format>builder()
-                        .put(TradeState.class, PipelineModel.Serialisation.Format.RUNE_JSON)
-                        .put(WorkflowStep.class, PipelineModel.Serialisation.Format.RUNE_JSON)
-                        .build();
-
         return new PipelineTreeConfig()
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToTradeState.class)
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToWorkflowStep.class)
                 .withInputSerialisationFormatMap(RuneFpmlModelConfig.TYPE_TO_FORMAT_MAP)
-                .withOutputSerialisationFormatMap(outputSerialisationFormat)
                 .withXmlConfigMap(RuneFpmlModelConfig.TYPE_TO_XML_CONFIG_MAP)
                 .withTestPackFilter(filter)
                 .strictUniqueIds()

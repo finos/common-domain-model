@@ -28,6 +28,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
+import com.regnosys.rosetta.common.util.LineEndings;
 import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
@@ -487,8 +488,8 @@ public class SecLendingFunctionInputCreationTest {
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
         if (!TestingExpectationUtil.WRITE_EXPECTATIONS) {
-            assertEquals(ResourcesUtils.getJson(inputJson),
-                    STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
+            assertEquals(LineEndings.normalise(ResourcesUtils.getJson(inputJson)),
+                    LineEndings.normalise(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual)),
                     "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
         }
         return actual;
@@ -508,8 +509,8 @@ public class SecLendingFunctionInputCreationTest {
     }
 
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
-        String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
-        String expectedJson = getJson(expectedJsonPath);
+        String actualJson = LineEndings.normalise(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual));
+        String expectedJson = LineEndings.normalise(getJson(expectedJsonPath));
         if (TestingExpectationUtil.WRITE_EXPECTATIONS) {
             writeExpectation(expectedJsonPath, actualJson);
         } else {
