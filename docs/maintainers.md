@@ -43,7 +43,7 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
-| Minesh Patel         |                | OrgRep                                      | minesh-s-patel       | 
+| Minesh Patel         | Individual     | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
 | Jayasri Radhakrishnan| Regnosys       | OrgRep                                      | JayasriR             | 
