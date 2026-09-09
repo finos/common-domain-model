@@ -8,8 +8,8 @@ For more information on discussions and announcements subscribe to our mailing l
 
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
-CDM [design principles](design-principles.md) and
-[agile development approach](development-approach.md) and submitted
+CDM [design principles](docs/design-principles.md) and
+[agile development approach](docs/development-approach.md) and submitted
 to FINOS staff and the relevant Working Group (such as the [CRWG](https://cdm.finos.org/docs/CDM-Contribution-Review-WG) or [TAWG](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)) for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
@@ -18,15 +18,15 @@ reviewing, revising or extending the proposal.
 Once approved, the amendment will be scheduled to be merged with the
 CDM's main code branch by the CDM Maintainers.
 
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository. Each [Working Group](working-groups.md) must adhere to the requirements.
+This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository. Each [Working Group](docs/working-groups.md) must adhere to the requirements.
 
-Click [here](cdm-org-structure.md) to view the diagram showing the Working Groups' organisational structure. 
+Click [here](docs/cdm-org-structure.md) to view the diagram showing the Working Groups' organisational structure. 
 
 ## 1. Roles
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
-* 1.1. [Maintainer](maintainers.md). CDM Maintainers are responsible for the overall stewardship of the Common Domain Model, including guiding its development, maintenance, and evolution in accordance with agreed design principles, scope, and community objectives.
+* 1.1. [Maintainer](docs/maintainers.md). CDM Maintainers are responsible for the overall stewardship of the Common Domain Model, including guiding its development, maintenance, and evolution in accordance with agreed design principles, scope, and community objectives.
 
    Maintainers approve contributions from participants and working groups, facilitate discussion and consensus building, and review, approve, and merge proposed changes to ensure technical soundness, internal consistency, and architectural integrity of the model.
 
@@ -43,7 +43,7 @@ Each Working Group may include the following roles. Additional roles may be adop
 
 ## 2. Decision Making
 
-* 2.1. Consensus-Based Decision Making. [Working Groups](docs/working-groups.md) make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. An individual's [role](working-groups.md) will determine the extent of their decision making abilities. For example, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
+* 2.1. Consensus-Based Decision Making. [Working Groups](docs/working-groups.md) make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. An individual's [role](docs/working-groups.md) will determine the extent of their decision making abilities. For example, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
 
 * 2.2. Appeal Process. Decisions may be appealed via a pull request or an issue, and that appeal will be considered by the Maintainer in good faith, who will respond in writing within a reasonable time.
 

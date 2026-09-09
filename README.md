@@ -17,7 +17,7 @@ A single, digital processing standard for trade events and actions enhances fina
 - Accelerates financial technology innovation by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
 - Delivers better regulatory oversight, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
-The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://www.finos.org/), starting in February 2023. The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/1._Community_Specification_License-v1.md). To participate in the standard process and working group meetings, [enroll as a participant](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/participants.md#how-to-enroll-as-a-participant) by completing a [Community Specification Contributor License Agreement](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/0._CS_Contributor_License_Agreement.md) (CSL CLA).  All meetings are to be held [in accordance with the FINOS policies and procedures](https://community.finos.org/docs/governance/meeting-procedures).
+The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://www.finos.org/), starting in February 2023. The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/main/LICENSE). To participate in the standard process and working group meetings, [enroll as a participant](https://github.com/finos/standards-project-blueprint/blob/main/PARTICIPANTS.md#how-to-enroll-as-a-participant) by completing a [Community Specification Contributor License Agreement](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/CS_Contributor_License_Agreement.md) (CSL CLA).  All meetings are to be held [in accordance with the FINOS policies and procedures](https://community.finos.org/docs/governance/meeting-procedures).
 
 To subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
@@ -101,11 +101,11 @@ The CDM has extensive documentation which is kept up to date. Any change to the 
 
 ### Roles
 
-The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/5._Governance.md#1roles) for each specific Working Group:
+The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/main/GOVERNANCE.md#1roles) for each specific Working Group:
 
 * Maintainers - those who drive consensus within the working group
 * [Editors](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md#1-roles) - those who codify ideas into a formal specification
-* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/participants.md) file.
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/main/PARTICIPANTS.md) file.
 
 ### Active Working Groups
 
@@ -159,7 +159,7 @@ A list of Maintainers along with their type will be kept visible within the gove
 
 Proposals for an entity to be given maintainership status or to have maintainership rescinded should be made at a Steering Group, with final approval or rejection at the following Steering Group to ensure fair notice for all. Proposals should be sent to the Steering Group chair to add to the agenda.
 
-**CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
+**CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/main/GOVERNANCE.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
 
 **CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
 
