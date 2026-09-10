@@ -1,7 +1,13 @@
 namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.codelist.*
 import cdm.event.instructioncomposition.*
+import cdm.observable.asset.*
+import cdm.observable.asset.calculatedrate.*
+import cdm.observable.asset.fro.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 
@@ -46,6 +52,127 @@ func Create_DetermineUnadjustedCalculationPeriodInstruction: <"This function gen
     set determineUnadjustedCalculationPeriodInstruction -> unadjustedResetDate: <"Sets the unadjusted reset date to the output.">
         unadjustedResetDate
 
+// Code Implementation Function - External call to fetch the list of non business dates
+func GetNonBusinessDates: <"This function, given the list of business centers applicable and a period or a list of dates, extracts the list of non business dates for the given period or list of dates and returns the corresponding list of non business dates. The function should receive as input a list of dates or a period, but not both at the same time. That is, given either a list of periods or a period (start date + end date), the function will return their non business days.">
+    [codeImplementation]
+    inputs:
+        businessCenters BusinessCenter (0..*) <"The business centers related to a period or a list of one or more dates.">
+        period CalculationPeriodBase (0..1) <"The period from which the list of non business dates are generated.">
+        dates date (0..*) <"The list of dates from which the list of non business dates are generated.">
+    output:
+        nonBusinessDates date (1..*) <"The list of non business dates.">
+
+    condition PeriodOrDates: <"There can only be a period or a list of dates specified as input to this function. The function then fetches the non business dates of the given period OR list of dates and returns them.">
+        if period is absent
+        then dates exists
+        else if dates is absent
+        then period exists
+
+// Instruction Composition STEP 3 - Adjust Calculation Period
+func Create_AdjustPeriodInstruction: <"This function generates the Instruction Composition step instruction necessary to adjust the unadjusted period, and adding it to the AdjustPeriodInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
+    inputs:
+        unadjustedPeriod CalculationPeriodBase (1..1) <"The Unadjusted Period.">
+        nonBusinessDates date (0..*) <"The list of non business dates applicable to the Period.">
+        businessConvention BusinessDayConventionEnum (1..1) <"The business day convention to apply to adjust the Unadjusted Period (e.g., FOLLOWING, PRECEDING).">
+    output:
+        adjustPeriodInstruction AdjustPeriodInstruction (1..1) <"The Adjusted Calculation Period.">
+
+    alias adjustedCalculationPeriodStart: <"The adjusted starting date of the calculation period.">
+        AdjustDateToBusinessDayConvention(
+                unadjustedPeriod -> adjustedStartDate,
+                nonBusinessDates,
+                businessConvention
+            )
+
+    alias adjustedCalculationPeriodEnd: <"The adjusted ending date of the calculation period.">
+        AdjustDateToBusinessDayConvention(
+                unadjustedPeriod -> adjustedEndDate,
+                nonBusinessDates,
+                businessConvention
+            )
+
+    set adjustPeriodInstruction:
+        AdjustPeriodInstruction {
+            adjustedPeriod:
+                CalculationPeriodBase {
+                    adjustedStartDate: adjustedCalculationPeriodStart,
+                    adjustedEndDate: adjustedCalculationPeriodEnd
+        }}
+
+// Instruction Composition STEP 4 - Adjust the Reset Date
+func Create_AdjustDateInstruction: <"This function generates the Instruction Composition step instruction necessary to adjust the unadjusted reset date, and adding it to the AdjustResetDateInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
+    inputs:
+        unadjustedDate date (1..1) <"The Unadjusted Date.">
+        nonBusinessDates date (0..*) <"The list of non business dates applicable to the Reset Date, obtained from the GetNonBusinessDates function.">
+        businessConvention BusinessDayConventionEnum (1..1) <"The business day convention to apply to adjust the Unadjusted Reset Date (e.g., FOLLOWING, PRECEDING).">
+    output:
+        adjustDateInstruction AdjustDateInstruction (1..1) <"The Adjusted Reset Date.">
+
+    alias adjustedResetDate: <"The adjusted reset date.">
+        AdjustDateToBusinessDayConvention(
+                unadjustedDate,
+                nonBusinessDates,
+                businessConvention
+            )
+
+    set adjustDateInstruction:
+        AdjustDateInstruction {
+            adjustedDate: adjustedResetDate
+        }
+
+// External call to fetch FRO metadata from the ISDA FRO Matrix
+func ExtractFloatingRateOptionData: <"This function, given a floating rate option, extracts the floating rate option's metadata from the ISDA FRO Matrix and returns that data in a CDM structured format. Additionally, it uses the reference date specified to select the relevant version of the FRO Matrix.">
+    [codeImplementation]
+    inputs:
+        tradeDate date (1..1) <"The Trade Date, used to reference the ISDA FRO Matrix version.">
+        floatingRateIndex FloatingRateIndexEnum (1..1) <"The Floating Rate Index for which to extract its metadata from the ISDA FRO Matrix.">
+    output:
+        floatingRateIndexData FloatingRateIndexDefinition (1..1) <"The Floating Rate Index data extracted from the ISDA FRO Matrix.">
+
+// Instruction Composition STEP 5 - Determine Unadjusted Observation Dates
+func Create_DetermineUnadjustedObservationDatesInstruction: <"This function generates the Instruction Composition step instruction necessary to generate the unadjusted observation dates, and adding them to the DetermineUnadjustedObservationDatesInstruction.">
+    inputs:
+        adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The adjusted calculation period.">
+        adjustedResetDate date (1..1) <"The adjusted reset date.">
+        floatingRateIndexData FloatingRateIndexDefinition (1..1) <"The Floating Rate Index data extracted from the ISDA FRO Matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"The calculation methodology applicable to the Floating Rate Index found in the Confirmation.">
+    output:
+        determineUnadjustedObservationDatesInstruction DetermineUnadjustedObservationDatesInstruction (1..1) <"The list of one or more Unadjusted Observation Dates.">
+
+    alias category: floatingRateIndexData -> calculationDefaults -> category
+
+    alias style: floatingRateIndexData -> calculationDefaults -> indexStyle
+
+    alias calculationMethodologyFromFloatingRateOption:
+        floatingRateIndexData -> calculationDefaults -> method
+
+    alias observationType:
+        DetermineObservationType(
+                category,
+                style,
+                calculationMethodologyFromFloatingRateOption,
+                calculationMethodologyFromConfirmation
+            )
+
+    condition MethodFromConfirmationExistsWhenOvernightRate: <"If the Floating Rate Index has a Style of Overnight, then the calculation methodology originating from the Workflow Step must be present.">
+        if style = Overnight
+        then calculationMethodologyFromConfirmation exists
+    set determineUnadjustedObservationDatesInstruction:
+        DetermineUnadjustedObservationDatesInstruction {
+            unadjustedObservationDates: if observationType = Single
+                    then adjustedResetDate
+                else if observationType = Multiple
+                then GenerateCalendarDateList(
+                            adjustedCalculationPeriod -> adjustedStartDate,
+                            adjustedCalculationPeriod -> adjustedEndDate,
+                            False
+                        )
+                else if observationType = CompoundedIndex
+                then [adjustedCalculationPeriod -> adjustedStartDate, adjustedCalculationPeriod -> adjustedEndDate],
+            floatingRateIndexData: floatingRateIndexData
+        }
+
+// COMPOSITION STATE CHANGES FOR RESET
 func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
     inputs:
         currentResetCompositionState ResetInstructionState (0..1)
@@ -74,6 +201,25 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
         then nextStepToAdd -> determineUnadjustedCalculationPeriod -> unadjustedResetDate
         else currentResetCompositionState -> unadjustedResetDate
 
+    // Step 3: Adjusted Period
+    set updatedResetCompositionState -> adjustedCalculationPeriod:
+        if nextStepToAdd -> adjustPeriod exists
+        then nextStepToAdd -> adjustPeriod -> adjustedPeriod
+        else currentResetCompositionState -> adjustedCalculationPeriod
+
+    // Step 4: Adjusted Date
+    set updatedResetCompositionState -> adjustedResetDate:
+        if nextStepToAdd -> adjustDate exists
+        then nextStepToAdd -> adjustDate -> adjustedDate
+        else currentResetCompositionState -> adjustedResetDate
+
+    // Step 5: Unadjusted Observation Dates & Index Definition
+    set updatedResetCompositionState -> unadjustedObservationDates:
+        if nextStepToAdd -> determineUnadjustedObservationDates exists
+        then nextStepToAdd -> determineUnadjustedObservationDates -> unadjustedObservationDates
+        else currentResetCompositionState -> unadjustedObservationDates
+
+// NEXT STEP FOR RESET
 func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
     inputs:
         resetInstructionState ResetInstructionState (0..1)
