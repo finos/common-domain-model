@@ -12,7 +12,7 @@ The Physical Risk Working Group is focused on integrating physical risk into the
 
 As physical risks intensify, leading to increased insurance premiums and the potential for widespread market withdrawal of insurance, this group will outline how the financial system can swiftly adopt an open-source framework. This framework will accelerate the scalable and cost-effective integration of physical risk, helping to manage regional exposures to major hazards.
 
-You can find more information about the Working Group proposal here: https://github.com/finos/common-domain-model/issues/3432.
+[View Physical Risk Working Group Terms of Reference](https://github.com/finos/common-domain-model/issues/3432)
 
 ## Meetings
 

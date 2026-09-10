@@ -145,7 +145,7 @@ export default function Schemas() {
             borderRadius: '4px',
             overflow: 'auto' 
           }}>
-            {`https://cdm.finos.org/schemas/6.0/cdm-base-datetime-AdjustableDate.schema.json`}
+            {`https://cdm.finos.org/schemas/7.0/cdm-base-datetime-AdjustableDate.schema.json`}
           </pre>
 
           <h3>Schema Format</h3>
