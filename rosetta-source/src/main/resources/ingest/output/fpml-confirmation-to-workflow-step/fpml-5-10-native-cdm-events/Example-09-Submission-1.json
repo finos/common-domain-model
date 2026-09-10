@@ -2,12 +2,13 @@
   "@model" : "cdm",
   "@type" : "cdm.event.workflow.WorkflowStep",
   "@version" : "0.0.0.master-SNAPSHOT",
-  "@key" : "2121c51f",
+  "@key" : "63bc76b8",
   "proposedEvent" : {
+    "intent" : "ContractFormation",
     "eventDate" : "2018-05-01",
     "instruction" : [ {
-      "primitiveInstruction" : {
-        "execution" : {
+      "before" : {
+        "trade" : {
           "product" : {
             "taxonomy" : [ {
               "source" : "ISDA",
@@ -244,66 +245,68 @@
               "nonStandardisedTerms" : false
             }
           },
-          "priceQuantity" : [ {
-            "price" : [ {
-              "@key:scoped" : "price-1",
-              "value" : 0.05,
-              "unit" : {
-                "currency" : {
-                  "@data" : "EUR"
-                }
-              },
-              "perUnitOf" : {
-                "currency" : {
-                  "@data" : "EUR"
-                }
-              },
-              "priceType" : "InterestRate"
-            } ],
-            "quantity" : {
-              "@key:scoped" : "quantity-1",
-              "value" : 16000,
-              "unit" : {
-                "currency" : {
-                  "@data" : "EUR"
-                }
-              }
-            }
-          }, {
-            "quantity" : {
-              "@key:scoped" : "quantity-2",
-              "value" : 16000,
-              "unit" : {
-                "currency" : {
-                  "@data" : "EUR"
-                }
-              }
-            },
-            "observable" : {
-              "@key:scoped" : "observable-1",
-              "@data" : {
-                "@type" : "cdm.observable.asset.InterestRateIndex",
-                "@key:scoped" : "InterestRateIndex-1",
-                "@data" : {
-                  "@type" : "cdm.observable.asset.FloatingRateIndex",
-                  "identifier" : [ {
-                    "identifier" : {
-                      "@data" : "EUR-EURIBOR-Telerate"
-                    },
-                    "identifierType" : "Other"
-                  } ],
-                  "assetType" : "Other",
-                  "assetClass" : "InterestRate",
-                  "floatingRateIndex" : {
-                    "@data" : "EUR-EURIBOR-Telerate"
-                  },
-                  "indexTenor" : {
-                    "periodMultiplier" : 6,
-                    "period" : "M"
+          "tradeLot" : [ {
+            "priceQuantity" : [ {
+              "price" : [ {
+                "@key:scoped" : "price-1",
+                "value" : 0.05,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "EUR"
+                  }
+                },
+                "perUnitOf" : {
+                  "currency" : {
+                    "@data" : "EUR"
+                  }
+                },
+                "priceType" : "InterestRate"
+              } ],
+              "quantity" : {
+                "@key:scoped" : "quantity-1",
+                "value" : 16000,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "EUR"
                   }
                 }
               }
-            }
+            }, {
+              "quantity" : {
+                "@key:scoped" : "quantity-2",
+                "value" : 16000,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "EUR"
+                  }
+                }
+              },
+              "observable" : {
+                "@key:scoped" : "observable-1",
+                "@data" : {
+                  "@type" : "cdm.observable.asset.InterestRateIndex",
+                  "@key:scoped" : "InterestRateIndex-1",
+                  "@data" : {
+                    "@type" : "cdm.observable.asset.FloatingRateIndex",
+                    "identifier" : [ {
+                      "identifier" : {
+                        "@data" : "EUR-EURIBOR-Telerate"
+                      },
+                      "identifierType" : "Other"
+                    } ],
+                    "assetType" : "Other",
+                    "assetClass" : "InterestRate",
+                    "floatingRateIndex" : {
+                      "@data" : "EUR-EURIBOR-Telerate"
+                    },
+                    "indexTenor" : {
+                      "periodMultiplier" : 6,
+                      "period" : "M"
+                    }
+                  }
+                }
+              }
+            } ]
           } ],
           "counterparty" : [ {
             "role" : "Party1",
@@ -322,7 +325,23 @@
               "@ref:external" : "party2"
             } ]
           } ],
-          "parties" : [ {
+          "tradeIdentifier" : [ {
+            "issuer" : {
+              "@scheme" : "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier",
+              "@data" : "LEI1RPT0001\n                "
+            },
+            "assignedIdentifier" : [ {
+              "identifier" : {
+                "@scheme" : "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier",
+                "@data" : "\n                    LEI1RPT0001IIII\n                "
+              }
+            } ],
+            "identifierType" : "UniqueTransactionIdentifier"
+          } ],
+          "tradeDate" : {
+            "@data" : "2018-05-01"
+          },
+          "party" : [ {
             "@key:external" : "party1",
             "partyId" : [ {
               "identifier" : {
@@ -379,7 +398,7 @@
               "@data" : "Up&Atem"
             }
           } ],
-          "partyRoles" : [ {
+          "partyRole" : [ {
             "partyReference" : {
               "@ref:external" : "broker1"
             },
@@ -387,24 +406,46 @@
             "ownershipPartyReference" : {
               "@ref:external" : "party1"
             }
-          } ],
-          "tradeDate" : {
-            "@data" : "2018-05-01"
-          },
-          "tradeIdentifier" : [ {
-            "issuer" : {
-              "@scheme" : "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier",
-              "@data" : "LEI1RPT0001\n                "
-            },
-            "assignedIdentifier" : [ {
-              "identifier" : {
-                "@scheme" : "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier",
-                "@data" : "\n                    LEI1RPT0001IIII\n                "
-              }
-            } ],
-            "identifierType" : "UniqueTransactionIdentifier"
           } ]
-        }
+        },
+        "transferHistory" : [ {
+          "transfer" : {
+            "@type" : "cdm.event.common.UnscheduledTransfer",
+            "quantity" : {
+              "value" : 100000,
+              "unit" : {
+                "currency" : {
+                  "@data" : "EUR"
+                }
+              }
+            },
+            "asset" : {
+              "@type" : "cdm.base.staticdata.asset.common.Cash",
+              "identifier" : [ {
+                "identifier" : {
+                  "@data" : "EUR"
+                },
+                "identifierType" : "CurrencyCode"
+              } ],
+              "assetType" : "Cash"
+            },
+            "settlementDate" : {
+              "unadjustedDate" : "2018-05-03",
+              "dateAdjustments" : {
+                "businessDayConvention" : "FOLLOWING"
+              }
+            },
+            "payerReceiver" : {
+              "payerPartyReference" : {
+                "@ref:external" : "party1"
+              },
+              "receiverPartyReference" : {
+                "@ref:external" : "party2"
+              }
+            },
+            "transferType" : "Premium"
+          }
+        } ]
       }
     } ]
   },
