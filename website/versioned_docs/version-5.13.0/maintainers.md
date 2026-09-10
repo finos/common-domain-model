@@ -34,19 +34,20 @@ FINOS Common Domain Model is maintained by FINOS members and the wider open sour
 
 The following are the FINOS CDM maintainers and the firms they represent.  
 
-|FINOS CDM Maintainer   |Representing    |Capacity                                     |GithubID              |    
-| --------------------- | -------------- | ------------------------------------------- | -------------------- |           
-| Gabriel Callsen       | ICMA           | OrgRep                                      | gabriel-ICMA         | 
-| Tom Healey            | ICMA           | OrgRep                                      | tomhealey-icma       | 
-| Tabish Ahmed          | ISDA           | OrgRep                                      | tabi5h               | 
-| Eleonora Acuna        | ISDA           | OrgRep                                      | eacunaISDA           | 
-| Lyteck Lynhiavu       | ISDA           | OrgRep                                      | llynhiavu            | 
-| Adrian Dale           | ISLA           | OrgRep                                      | ADaleISLA            | 
-| Chris Rayner          | ISLA           | OrgRep                                      | chrisisla            | 
-| Leo Labeis            | REGnosys       | OrgRep                                      | lolabeis             | 
-| Hugo Hills            | REGnosys       | OrgRep                                      | hugohills-regnosys   | 
-| Jayasri Radhakrishnan | REGnosys       | OrgRep                                      | JayasriR             | 
-| Manuel Martos         | TradeHeader    | OrgRep                                      | manel-martos         | 
-| Marc Gratacos         | TradeHeader    | OrgRep                                      | mgratacos            | 
+|FINOS CDM Maintainer  |Representing    |Capacity                                     |GithubID              |    
+| -------------------- | -------------- | ------------------------------------------- | -------------------- |           
+| Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
+| Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
+| Tabish Ahmed         | ISDA           | OrgRep                                      | tabi5h               | 
+| Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
+| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
+| Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
+| Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
+| Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
+| Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
+| Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
+| Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
+| Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
+| Nicholas Moger       | JPMorgan Chase & Co.|  OrgRep                                | nicholas-moger       | 
 
 If you would like to get in touch with the CDM maintainer team, contact them through their [mailing list](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**

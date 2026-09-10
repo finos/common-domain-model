@@ -6,7 +6,8 @@
 const config = {
   // Versions to download and make available
   versions: [
-    { version: '6.0.0', urlPath: '6.0', status: 'Latest' },
+    { version: '7.0.0', urlPath: '7.0', status: 'Latest' },
+    { version: '6.0.0', urlPath: '6.0', status: 'Previous' },
     { version: '5.20.0', urlPath: '5.20', status: 'Previous' },
     { version: '5.13.0', urlPath: '5.13', status: 'Previous' },
   ],
