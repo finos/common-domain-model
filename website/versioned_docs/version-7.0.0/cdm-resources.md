@@ -40,7 +40,7 @@ The Japanese Securities Clearing Corporation (JSCC) announced today that JSCC is
 
 JPMorganChase’s derivatives business leverages the Fintech Open Source Foundation (FINOS) Common Domain Model (CDM) and ISDA Digital Regulatory Reporting (DRR).
 
-### [CDM Update: Focus on Reporting, Collateral & Sec Lending Next](https://derivsource.com/2024/08/28/common-domain-model-providing-a-standardised-data-representation-of-trade-events-isda-cdm/?utm_campaign=DerivSource%20SOCIALS&utm_content=305908647&utm_medium=social&utm_source=linkedin&hss_channel=lcp-1903852)
+### [CDM Update: Focus on Reporting, Collateral & Sec Lending Next](https://regnosys.com/press/cdm-update-focus-on-reporting-collateral-sec-lending-next/)
 
 The article examines the CDMs expanded role in enhancing post-trade efficiency through standardized data models for reporting, collateral management, and securities lending, fostering transparency, regulatory alignment, and automation across financial markets.
 
