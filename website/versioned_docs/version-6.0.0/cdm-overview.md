@@ -15,13 +15,24 @@ and machine-executable blueprint for how financial products are traded
 and managed across the transaction lifecycle. It is represented as a
 [domain model](https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353) and distributed in open source.
 
-For an overview of the Common Domain Model, a comparative analysis with FpML, an exploration of the CDM's historical development and events, as well as insights into its further applications, including its role in the ecosystem and support for smart contract technology, we recommend reviewing the [CDM Overview deck](/pdfs/CDM-Overview-Nov.pdf). 
+For an overview of the Common Domain Model, a comparative analysis with FpML, an exploration of the CDM's historical development and events, as well as insights into its further applications, including its role in the ecosystem and support for smart contract technology, we recommend reviewing the [CDM Overview deck](/pdfs/CDM-General-Overview.pdf). 
+
+For more detailed insight into specific CDM use cases, the following additional overview decks are available:
+
+- [CDM Collateral Use Case Overview](/pdfs/CDM-Collateral-Use-Case-Overview-2026.pdf) - explores how the CDM supports collateral management through standardised eligible collateral schedules, margin call workflows, collateral validation, and digital documentation across OTC, repo, securities lending, and cleared markets.
+- [CDM Smart Contracts Overview](/pdfs/CDM-Smart-Contracts-Overview-2026.pdf) -  outlines how the CDM enables standardized, machine-executable smart contract workflows for post-trade events such as interest rate resets, supporting automation, auditability, interoperability, and future tokenized workflows.
+- [CDM Tokenization Use Case Overview](/pdfs/CDM-Tokenization-Use-Case-Overview-2026.pdf) -  explains how the CDM supports tokenized assets and digital securities through both asset-level and settlement-level tokenisation models, helping firms represent cryptoassets, security tokens, and tokenized securities consistently across legal and operational frameworks.
+
+These materials provide practical examples of how the CDM can be implemented across financial markets and support industry-wide standardisation, automation, and interoperability.
 
 ISDA’s Digital Regulatory Reporting (DRR) solution leverages the open-source Common Domain Model (CDM) to convert industry-agreed interpretations of new or amended regulatory reporting rules into clear, machine-executable code. This approach enhances implementation efficiency and reduces costs. Institutions contributing to the development of the ISDA DRR include (but are not limited to) those listed on [ISDA’s Digital Regulatory Reporting Page](https://www.isda.org/isda-digital-regulatory-reporting/).
 
-ISDA has also launched the Get Started with the CDM for Collateral Guide! You can now access a wealth of resources and tutorials on CDM for collateral management on the [CDM-Collateral Initiatives page](https://www.isda.org/2023/02/16/isda-collateral-initiatives/).
-
 If you’re interested in the Common Domain Model (CDM), please complete the [CDM Interest Form](https://www.finos.org/common-domain-model) to join our mailing list. By signing up, you’ll receive updates on CDM initiatives, meeting agendas, and other working group activities.
+
+## CDM Training
+
+-    **Introduction to the CDM (LFEL1016)**: A 90-minute Express Learning course covering the fundamentals of the Common Domain Model. Including how it standardizes data for financial products, trades, and lifecycle events to improve interoperability across technologies. [Enroll here](https://training.linuxfoundation.org/training/introduction-to-the-common-domain-model-cdm-lfel1016/).
+-    **CDM Collateral Start-up Guide**: A set of short tutorials launched by ISDA, designed for business users to explore the CDM in the context of collateral management. This hands-on resource walks through features, tools, and implementation approaches. [Learn more](https://www.isda.org/2023/02/16/isda-collateral-initiatives/)
 
 ## Purpose
 
@@ -80,9 +91,6 @@ the development of the CDM in open source.
 The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
 
 ## CDM 2025 Roadmap
-Below is the full roadmap as ratified by the Steering WG in Feb 2025, subject to change as priorities evolve.
-![](/img/cdm-roadmap-2025-2.png)
-![](/img/cdm-roadmap-2025-1.png)
 
 - The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.

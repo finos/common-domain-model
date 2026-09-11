@@ -10,7 +10,7 @@ A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
 CDM [design principles](design-principles.md) and
 [agile development approach](development-approach.md) and submitted
-to FINOS staff and the Architecture & Review Committee for approval. In
+to FINOS staff and the relevant Working Group (such as the [CRWG](https://cdm.finos.org/docs/CDM-Contribution-Review-WG) or [TAWG](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)) for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
 reviewing, revising or extending the proposal.
@@ -18,19 +18,27 @@ reviewing, revising or extending the proposal.
 Once approved, the amendment will be scheduled to be merged with the
 CDM's main code branch by the CDM Maintainers.
 
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
+This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository. Each [Working Group](working-groups.md) must adhere to the requirements.
+
+Click [here](cdm-org-structure.md) to view the diagram showing the Working Groups' organisational structure. 
 
 ## 1. Roles
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
-* 1.1. [Maintainer](maintainers.md). “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.  More information about the appointment of a CDM Maintainer can be found [here](docs/maintainers.md).
+* 1.1. [Maintainer](maintainers.md). CDM Maintainers are responsible for the overall stewardship of the Common Domain Model, including guiding its development, maintenance, and evolution in accordance with agreed design principles, scope, and community objectives.
+
+   Maintainers approve contributions from participants and working groups, facilitate discussion and consensus building, and review, approve, and merge proposed changes to ensure technical soundness, internal consistency, and architectural integrity of the model.
+
+   Maintainers also provide technical oversight to preserve the quality, stability, and coherence of the CDM as an executable standard, and oversee the preparation and publication of releases so that approved changes are correctly incorporated and made available to the community.
+
+   More information about the appointment of a CDM Maintainer can be found here. More information about the appointment of a CDM Maintainer can be found [here](docs/maintainers.md).
 
 * 1.2. Editor. “Editors” help to alleviate the workload of maintainers, key contributors are granted Editor status. As Editors, they have the authority to label Pull Requests and issues. Presently, individuals from TradeHeader, Fragmos Chain, and FT Advisory hold Editor status. If you are affiliated with these organizations and are not yet designated as an Editor, please reach out to the [CDM maintainers via email](https://lists.finos.org/g/cdm-maintainers). If you belong to a different organization and wish to become a contributor, you can submit a proposal to the maintainers outlining your request for Editor status. Upon review, further steps will be communicated to facilitate your inclusion as an Editor.
   
 * 1.3. Participants. “Participants” are those that have made Contributions to the Working Group subject to the [Community Specification License](LICENSE.md). Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
 
-* 1.4. Discussion Groups. The Working Group may form one or more "Discussion Groups" to organize collaboration around a particular aspect of a specification. Discussion Groups are for discussion only -- Approval of all portions of a specification is subject to the consensus-based decision making process.
+* 1.4. Taskforces. The Working Group may form one or more "Taskforces" to organize collaboration around a particular aspect of a specification. Taskforces are for discussion only -- Approval of all portions of a specification is subject to the consensus-based decision making process.
 
 
 ## 2. Decision Making
@@ -79,13 +87,13 @@ The attached deck summarizes the governance guidelines discussed below.
 
 [CDM Release Guidelines Task Force Summary - July 15 2024  (1).pdf](https://github.com/user-attachments/files/16550591/CDM.Release.Guidelines.Task.Force.Summary.-.July.15.2024.1.pdf)
 
-The [Steering Working Group](docs/CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content. The [major release scheduling guidelines](major-release-scheduling-guidelines.md) page  discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
+The [Steering Working Group](docs/CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content. The [major release scheduling guidelines](docs/major-release-scheduling-guidelines.md) page  discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
 
 
 ## 7.0 Change Control Guidelines
 
-The [change control guidelines](change-control-guidelines.md) discusses how changes to the CDM are controlled within and between releases, in particular:
+The [change control guidelines](docs/change-control-guidelines.md) discusses how changes to the CDM are controlled within and between releases, in particular:
 
 * Principles
   * What we are trying to achieve with the change control guidelines; 
@@ -98,11 +106,6 @@ The [change control guidelines](change-control-guidelines.md) discusses how chan
 
 
 
-
-
-
-
 ## 9.0 Release Build Approval Guidelines
 
 The [Maintenance and Release](docs/maintenance-and-release.md) page covers scheduling of minor, development, patch releases, and approvals for all builds and releases.
-

@@ -10,7 +10,7 @@ in the following sections:
 - [legal-agreements](/docs/legal-agreements)
 - [process-model](/docs/process-model)
 - [reference-data-model](/docs/reference-data-model) 
-- [mapping](/docs/mapping)
+- [mapping](/docs/5.13.0/mapping)
 - [namespace](/docs/namespace)
 
 
