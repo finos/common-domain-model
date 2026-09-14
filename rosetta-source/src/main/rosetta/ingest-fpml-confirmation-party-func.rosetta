@@ -37,9 +37,7 @@ import cdm.ingest.fpml.confirmation.product.varianceswap.*
 import cdm.ingest.fpml.confirmation.product.varianceswaptransactionsupplement.*
 import cdm.ingest.fpml.confirmation.product.volatilityswap.*
 import cdm.ingest.fpml.confirmation.product.volatilityswaptransactionsupplement.*
-
 import com.rosetta.model.*
-
 import fpml.consolidated.* as fpml
 import fpml.consolidated.bond.option.* as fpml
 import fpml.consolidated.cd.* as fpml
@@ -539,12 +537,16 @@ func MapNaturalPerson:
 
     set cdmNaturalPerson:
         NaturalPerson {
-            personId: fpmlPerson -> personId
-                    extract
-                        MapPersonIdentifier(
-                                item,
-                                fpmlPerson -> contactInfo -> address -> country
-                            ),
+            personId: fpmlPerson
+                    extract person [
+                        person -> personId
+                            extract fpmlPersonId [
+                                MapPersonIdentifier(
+                                        fpmlPersonId,
+                                        person -> contactInfo -> address -> country
+                                    )
+                            ]
+                    ],
             honorific: fpmlPerson -> honorific,
             firstName: fpmlPerson -> firstName,
             middleName: fpmlPerson -> middleName,
@@ -574,11 +576,11 @@ func MapPersonIdentifier:
                         fpmlPersonId -> value,
                         fpmlPersonId -> personIdScheme
                     ),
+            identifierType: MapPersonIdentifierTypeEnum(fpmlPersonId -> personIdScheme),
             country: MapStringWithScheme(
                         fpmlCountryCode -> value,
                         fpmlCountryCode -> countryScheme
-                    ),
-            ...
+            ),
         }
 
 func MapNaturalPersonRoleList:

@@ -1,6 +1,6 @@
 
 # CDM Contribution Workflow
-![CDM Contribution Workflow](../website/static/img/cdm-contribution-workflow.png)
+![CDM Contribution Workflow](cdm-contribution-workflow.png)
 
 # Issues
 
