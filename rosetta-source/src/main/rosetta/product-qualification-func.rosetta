@@ -5,6 +5,7 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.mapping.config.*
+import cdm.margin.schedule.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
@@ -1163,15 +1164,35 @@ func Qualify_SubProduct_Basis: <"Qualifies a product as having the Sub Product c
                 and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification count = 1)
             or economicTerms -> payout -> InterestRatePayout -> rateSpecification -> InflationRateSpecification count = 2
 
-func Qualify_Transaction_ZeroCoupon: <"Qualifies a product as having the Transaction classification Zero Coupon">
+func Qualify_Transaction_ZeroCoupon: <"Qualifies a product as having the Transaction classification Zero Coupon. The determination of the qualification is based on the following criteria: 1) The interest rate payout has a payment frequency of term or 2) the maximum frequency period corresponds to the duration of the contract.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
         is_product boolean (1..1)
+
+    alias effectiveDate: <"Effective date of the contract.">
+        AuxiliarEffectiveDate(economicTerms)
+
+    alias maturityDate: <"Maturity date of the contract.">
+        AuxiliarTerminationDate(economicTerms)
+
     set is_product:
         economicTerms -> payout -> InterestRatePayout -> paymentDates -> paymentFrequency
             filter item -> periodMultiplier = 1 and item -> period = PeriodExtendedEnum -> T
             then exists
+                    or (effectiveDate exists
+                        and maturityDate exists
+                        and // The maturity date equals the effective date plus the longest payment frequency period
+                        AddPeriodToDate(
+                                effectiveDate,
+                                economicTerms -> payout -> InterestRatePayout -> paymentDates -> paymentFrequency
+                                    then max [
+                                        ConvertPeriodToNumberOfDays(
+                                                item -> period to-enum PeriodEnum,
+                                                item -> periodMultiplier
+                                            )
+                                    ]
+                            ) = maturityDate)
 
 func Qualify_Transaction_ZeroCoupon_KnownAmount: <"Qualifies a product as having the Transaction classification Zero Coupon with a Known Amount. This category applies to a Zero Coupon Swap in which the fixed leg pays a known amount at maturity.">
     inputs:
@@ -1621,6 +1642,21 @@ func Qualify_ForeignExchange_NDS: <"Qualifies a product as Foreign Exchange NDS 
             and SettlementPayoutOnlyExists(economicTerms -> payout)
             and economicTerms -> payout -> SettlementPayout count = 2
             and economicTerms -> payout -> SettlementPayout -> settlementTerms -> cashSettlementTerms exists
+
+func Qualify_ForeignExchange_NDO: <"Qualifies a product as FX Non Deliverable Option based on economic terms, which is defined as one where exercise style is European only.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDO"]
+            [synonym ISDA_Taxonomy_v2 value "ForeignExchange_NDO"]
+    alias optionPayout: economicTerms -> payout only-element as OptionPayout
+    set is_product:
+        Qualify_AssetClass_ForeignExchange(economicTerms)
+            and optionPayout exists
+            and (optionPayout -> exerciseTerms -> style = OptionExerciseStyleEnum -> European)
+            and optionPayout -> settlementTerms -> cashSettlementTerms exists
 
 func Qualify_ForeignExchange_ParameterReturnVariance: <"Qualifies a product as Foreign Exchange Swap for which the performance is based on the variance of a foreign exhange underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is a Foreign Exchange product (the underlier is foreign exchange) 2) with only one performance leg 3) which has variance return terms, 4) there are no option features.">
     [qualification Product]

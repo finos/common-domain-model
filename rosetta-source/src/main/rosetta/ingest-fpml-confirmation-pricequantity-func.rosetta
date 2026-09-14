@@ -676,6 +676,40 @@ func MapFxOptionQuantityWithAddress:
         then CreateQuantityWithAddress(CreateQuantityKey("putCurrencyAmount", empty))
         else CreateQuantityWithAddress(CreateQuantityKey("callCurrencyAmount", empty))
 
+func MapFxOptionResolvedQuantity:
+    inputs:
+        fpmlFxOption fpml.FxOption (1..1)
+    output:
+        quantity Quantity (0..1)
+    alias call:
+        MapCurrencyAmountToQuantity(
+                fpmlFxOption -> callCurrencyAmount -> amount,
+                empty,
+                fpmlFxOption -> callCurrencyAmount -> currency,
+                empty
+            )
+    alias put:
+        MapCurrencyAmountToQuantity(
+                fpmlFxOption -> putCurrencyAmount -> amount,
+                empty,
+                fpmlFxOption -> putCurrencyAmount -> currency,
+                empty
+            )
+    set quantity:
+        if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+        then Quantity {
+                value: call -> value,
+                datedValue: call -> datedValue,
+                unit: call -> unit,
+                ...
+            }
+        else Quantity {
+            value: put -> value,
+            datedValue: put -> datedValue,
+            unit: put -> unit,
+            ...
+        }
+
 func MapCommodityNotionalQuantityToQuantityListWithLocation:
     inputs:
         fpmlNotionalQuantity fpml.CommodityNotionalQuantity (0..1)
