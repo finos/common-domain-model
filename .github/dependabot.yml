@@ -1,0 +1,60 @@
+version: 2
+
+# No `registries:` block is needed. Every dependency resolves from Maven
+# Central.
+
+updates:
+  # ---------------------------------------------------------------- master --
+  # Maven: the root pom drives the whole reactor (rosetta-source, tests,
+  # examples), so one entry at "/" covers all four poms.
+  - package-ecosystem: maven
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/London
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - java
+    # Rune/CDM versions are bumped deliberately as part of release
+    # coordination, not by a bot.
+    # jackson-bom, xtext-dev-bom and guava are kept off minor/major bumps
+    # entirely - only patch updates are allowed through, and standalone
+    # rather than grouped.
+    ignore:
+      - dependency-name: com.regnosys*
+      - dependency-name: org.finos.rune*
+      - dependency-name: org.finos.cdm*
+      - dependency-name: com.fasterxml.jackson:jackson-bom
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: org.eclipse.xtext:xtext-dev-bom
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: com.google.guava:guava
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+    # One PR for routine minor/patch drift; majors still come through
+    # individually so they get read properly.
+    groups:
+      maven-minor-and-patch:
+        exclude-patterns:
+          - com.fasterxml.jackson:jackson-bom
+          - org.eclipse.xtext:xtext-dev-bom
+          - com.google.guava:guava
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
