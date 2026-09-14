@@ -551,3 +551,30 @@ func GetEffectiveDate:
         then MapZoneDateTimeToDate(fpmlTermination -> effectiveDate)
         else if fpmlNovation -> novationDate exists
         then MapZoneDateTimeToDate(fpmlNovation -> novationDate)
+
+func MapTradeToExecutionInstruction:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        fpmlPartyList fpml.Party (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
+    output:
+        executionInstruction ExecutionInstruction (0..1)
+
+    alias counterpartyList: MapCounterpartyList(fpmlTrade)
+
+    set executionInstruction:
+        ExecutionInstruction {
+            product: MapNonTransferableProduct(fpmlTrade, counterpartyList),
+            priceQuantity: MapTradeLotList(fpmlTrade, fpmlQuoteList) -> priceQuantity,
+            counterparty: counterpartyList,
+            ancillaryParty: MapAncillaryPartyList(fpmlTrade, counterpartyList),
+            parties: MapPartyList(
+                        fpmlPartyList,
+                        fpmlTrade -> tradeHeader -> partyTradeInformation
+                    ),
+            partyRoles: MapPartyRoleList(fpmlTrade),
+            executionDetails: MapExecutionDetails(fpmlTrade, fpmlQuoteList),
+            tradeDate: MapIdentifiedDate(fpmlTrade -> tradeHeader -> tradeDate),
+            tradeIdentifier: MapTradeIdentifierList(fpmlTrade -> tradeHeader, empty),
+            ...
+        }
