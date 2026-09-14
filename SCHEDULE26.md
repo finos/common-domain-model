@@ -1,16 +1,18 @@
 # 2026+ Release schedule
 
-This is a draft to be presented on the next Steering Working Group in September
+The Release schedule has been approved by the Steering WG on [CDM Steering Working Group - May 12th 2026](https://github.com/finos/common-domain-model/discussions/4702).
 
-## 2026/27 Timeline
+As of May 2026
 
-| Version | Jun 26 | Jul | Aug | Sep | Oct | Nov | Dec | Jan 27 | Feb | Mar | Apr | May | Jun | Jul |
-|--------------|--------|-----|-----|-----|-----|-----|-----|--------|-----|-----|-----|-----|-----|--------|
-| **CDM 5**    | ⬜      | | | | | | |        | | | | | |        | |
-| **CDM 6**    | 🟩     | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧     | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | ⬜      | 
-| **CDM 7**    | 🟦     | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩     | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟧     |
-| **CDM 8**    |        | 🟦 | 🟦 | 🟦| 🟦 | 🟦 | 🟦 | 🟦     | 🟦 | 🟦 | 🟦 | 🟦 | 🟦 | 🟩     |
-| **CDM 9**    |        | | |  |  |  |  |        |  |   |  |  |  | 🟦     |
+## 2026 Timeline
+
+| Version  | Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec | 1Q27 | 2Q27 
+|-------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+| **CDM 5** | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |     |
+| **CDM 6** | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 | 🟧 |🟧 | ⬜ | 
+| **CDM 7** | 🟦 | 🟦 | 🟦 | 🟦 | 🟦 | 🟦 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 | 🟩 |🟩 | 🟧 |
+| **CDM 8** | | |  |  |  |  | 🟦 | 🟦 | 🟦| 🟦 | 🟦 | 🟦 |🟦 | 🟩 |
+| **CDM 9** | | |  |  |  |  |  |  |   |  |  |  |  |🟦 |
 
 See definitions below.
 
