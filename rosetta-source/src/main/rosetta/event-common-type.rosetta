@@ -246,6 +246,9 @@ type TransferState: <"Defines the fundamental financial information associated w
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
+    condition PartyReferencePayerReceiverExists:  <"A Transfer that has been effected as part of a business or life-cycle event must resolve the parties to the transfer">
+        transfer ->> partyReferencePayerReceiver exists
+        
 choice Transfer: <"The type of transfer.">
     ScheduledTransfer <"A transfer created from a scheduled event on a contract, e.g. Coupon, Dividend Return, Fixed Rate Return">
     UnscheduledTransfer <"An ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
@@ -262,16 +265,34 @@ type ScheduledTransfer extends TransferBase: <"A scheduled transfer built into t
 type ContingentTransfer extends TransferBase: <"Specifies a transfer created from a trade contingent upon a specific, uncertain event on a contract">
     transferType ContingentTransferEnum (0..1) <"Specifies the type of contingent transfer.">
     payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+        [metadata reference]
     corporateActionTransferType CorporateActionTypeEnum (0..1) <" A transfer corresponding to a corporate action event">
 
     condition CorporateActionTransferTypeExists: <"When a Contingent Transfer is a Corporate Action the type of event must be specified.">
         if transferType = CorporateAction
         then corporateActionTransferType exists
 
-type TransferBase extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
+type TransferBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
         [metadata scheme]
-    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+    
+    quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred. The cashflow amount is always a positive number, as the cashflow direction is implied by the payer/receiver attribute.">
+    asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+    paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
+    partyReferencePayerReceiver PartyReferencePayerReceiver (0..1) <"Represents the parties to the transfer and their role.">
+    payerReceiver PayerReceiver (0..1) <"Specifies who pays/receives the transfer, through a normalised Party1 / Party2 enumerator.">
+    
+    condition PayerReceiverChoice: <"Required choice between a generic, unresolved payer/receiver and a party referenced payer/receiver.">
+        required choice partyReferencePayerReceiver, payerReceiver
+
+    condition QuantityUnitExists: <"Aligns the type of unit and the type of asset.">
+        if asset as Cash exists
+        then quantity -> unit -> currency exists
+        else if asset as Commodity exists
+        then quantity -> unit -> capacityUnit exists
+        else if asset as Instrument exists
+        then quantity -> unit -> financialUnit exists
 
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
     identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">
@@ -673,13 +694,13 @@ type BillingSummary: <"Specifies individual summaries within a billing invoice."
     condition ParentTotal:
         if summaryAmountType = RecordAmountTypeEnum -> ParentTotal
         then summaryTransfer ->> payerReceiver exists
-                and summaryTransfer ->> payerReceiver -> payerAccountReference is absent
-                and summaryTransfer ->> payerReceiver -> receiverAccountReference is absent
+                and summaryTransfer ->> partyReferencePayerReceiver -> payerAccountReference is absent
+                and summaryTransfer ->> partyReferencePayerReceiver -> receiverAccountReference is absent
 
     condition AccountTotal:
         if summaryAmountType = RecordAmountTypeEnum -> AccountTotal
-        then summaryTransfer ->> payerReceiver -> payerAccountReference exists
-                and summaryTransfer ->> payerReceiver -> receiverAccountReference exists
+        then summaryTransfer ->> partyReferencePayerReceiver -> payerAccountReference exists
+                and summaryTransfer ->> partyReferencePayerReceiver -> receiverAccountReference exists
 
 type TradePricingReport: <"The attributes that are specific for consensus based pricing reporting.">
     trade Trade (1..1) <"Represents the cosensus based pricing parameters on a trade basis.">
