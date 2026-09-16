@@ -5,9 +5,12 @@ import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.fx.* as fpml
 
 func MapFxDigitalOptionNonTransferableProduct:
@@ -102,6 +105,48 @@ func MapFxDigitalOptionPayout:
                                 fpmlFxDigitalOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
+                    feature: MapFxTouchListToOptionFeature(fpmlFxDigitalOption -> touch),
+                    ...
+                },
+            ...
+        }
+
+func MapFxTouchListToOptionFeature:
+    inputs:
+        fpmlTouches fpml.FxTouch (0..*)
+    output:
+        feature OptionFeature (0..1)
+
+    set feature:
+        OptionFeature {
+            barrier:
+                Barrier {
+                    knockIn: fpmlTouches
+                            then filter touchCondition = fpml.TouchConditionEnum -> Touch
+                            then extract MapFxTouchToTriggerEvent,
+                    knockOut: fpmlTouches
+                            then filter touchCondition = fpml.TouchConditionEnum -> Notouch
+                            then extract MapFxTouchToTriggerEvent
+                },
+            ...
+        }
+
+func MapFxTouchToTriggerEvent:
+    inputs:
+        fpmlTouch fpml.FxTouch (0..1)
+    output:
+        triggerEvent TriggerEvent (0..1)
+
+    set triggerEvent:
+        TriggerEvent {
+            trigger:
+                Trigger {
+                    level:
+                        PriceSchedule {
+                            value: fpmlTouch -> triggerRate,
+                            priceType: ExchangeRate,
+                            ...
+                        },
                     ...
                 },
             ...

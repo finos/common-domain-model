@@ -11,11 +11,13 @@ import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
+import cdm.observable.event.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.fx.* as fpml
 import fpml.consolidated.shared.* as fpml
 
@@ -129,6 +131,7 @@ func MapFxOptionPayout:
                                 cdmCounterpartyList
                             ),
                     strike: MapFxOptionStrikePrice(fpmlFxOption),
+                    feature: MapFxOptionFeaturesToOptionFeature(fpmlFxOption -> features),
                     ...
                 },
             ...
@@ -153,6 +156,71 @@ func MapFxOptionFeaturesToObservationTerms:
                     observationDates: MapObservationScheduleToObservationDates(
                                 observationSchedule
                             ),
+                    ...
+                }
+
+func MapFxOptionFeaturesToOptionFeature:
+    inputs:
+        fpmlFeatures fpml.FxOptionFeatures (0..1)
+    output:
+        feature OptionFeature (0..1)
+
+    set feature:
+        OptionFeature {
+            barrier: MapFxBarrierListToBarrier(fpmlFeatures -> barrier),
+            averagingFeature: MapFxAsianToAveragingFeature(fpmlFeatures -> asian),
+            ...
+        }
+
+func MapFxBarrierListToBarrier:
+    inputs:
+        fpmlBarriers fpml.FxBarrierFeature (0..*)
+    output:
+        barrier Barrier (0..1)
+
+    set barrier:
+        Barrier {
+            knockIn: fpmlBarriers
+                    then filter barrierType = fpml.FxBarrierTypeEnum -> Knockin
+                    then extract MapFxBarrierToTriggerEvent,
+            knockOut: fpmlBarriers
+                    then filter barrierType = fpml.FxBarrierTypeEnum -> Knockout
+                    then extract MapFxBarrierToTriggerEvent
+        }
+
+func MapFxBarrierToTriggerEvent:
+    inputs:
+        fpmlBarrier fpml.FxBarrierFeature (0..1)
+    output:
+        triggerEvent TriggerEvent (0..1)
+
+    set triggerEvent:
+        TriggerEvent {
+            trigger:
+                Trigger {
+                    level:
+                        PriceSchedule {
+                            value: fpmlBarrier -> triggerRate,
+                            priceType: ExchangeRate,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }
+
+func MapFxAsianToAveragingFeature:
+    inputs:
+        fpmlAsian fpml.FxAsianFeature (0..1)
+    output:
+        averagingFeature AveragingFeature (0..1)
+
+    set averagingFeature:
+        fpmlAsian
+            then extract
+                AveragingFeature {
+                    averagingCalculation: empty,
+                    averagingInOut: AveragingInOutEnum -> Out,
                     ...
                 }
 
