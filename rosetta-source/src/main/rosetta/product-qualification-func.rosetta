@@ -1733,6 +1733,38 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
             and (optionPayout -> feature is absent
                 or optionPayout -> feature -> averagingFeature only exists)
 
+func Qualify_ForeignExchange_SimpleExotic_Barrier: <"Qualifies a product as FX Simple Exotic Barrier Option based on economic terms, which is defined as an FX option with an underlier and strike that becomes active (knock-in) or is annulled (knock-out) when a predetermined trigger level is breached. Distinguished from a Digital option, which lacks an underlier and strike.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [synonym ISDA_Taxonomy_v1 value "ForeignExchange_SimpleExotic_Barrier"]
+            [synonym ISDA_Taxonomy_v2 value "ForeignExchange_SimpleExotic_Barrier"]
+    alias optionPayout: economicTerms -> payout only-element -> OptionPayout
+    set is_product:
+        Qualify_AssetClass_ForeignExchange(economicTerms)
+            and optionPayout exists
+            and optionPayout -> feature -> knock exists
+            and optionPayout -> underlier exists
+            and optionPayout -> strike exists
+
+func Qualify_ForeignExchange_SimpleExotic_Digital: <"Qualifies a product as FX Simple Exotic Digital Option based on economic terms, which is defined as an FX binary or digital option with a fixed payout that becomes payable when a touch/no-touch trigger event occurs.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [synonym ISDA_Taxonomy_v1 value "ForeignExchange_SimpleExotic_Digital"]
+            [synonym ISDA_Taxonomy_v2 value "ForeignExchange_SimpleExotic_Digital"]
+    alias optionPayout: economicTerms -> payout only-element -> OptionPayout
+    set is_product:
+        Qualify_AssetClass_ForeignExchange(economicTerms)
+            and optionPayout exists
+            and optionPayout -> feature -> knock exists
+            and optionPayout -> underlier is absent
+            and optionPayout -> strike is absent
+
 func Qualify_RepurchaseAgreement: <"Qualifies a product as a Repurchase Agreement based on the repo trate of the trade (ie the interest charges) being defined in an InterestRatePayout and the asset that is bought and sold being defined in an AssetPayout in a CollateralPosition.">
     [qualification Product]
     inputs:
