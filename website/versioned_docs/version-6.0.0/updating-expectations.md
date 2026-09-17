@@ -49,7 +49,7 @@ The same two environment variables can be set from an IDE's run configuration in
 
 ### Updating expectations with Rosetta
 
-Setting up a local Java and Maven development environment is not the only way to work with the CDM's expectations. Contributors editing the model in the [Rosetta Translate application](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/) can test mapping changes live against the Test Pack, as described in the [development guidelines](dev-guidelines.md). Rosetta, the modelling platform for the Rune DSL built by REGnosys, is available free of charge at its community tier.
+Setting up a local Java and Maven development environment is not the only way to work with the CDM's expectations. Contributors editing the model in the [Rosetta Translate application](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/) can test mapping changes live against the Test Pack, as described in the [development guidelines](dev-guidelines.md). Rosetta, the modelling platform for the Rune DSL, is available free of charge at its community tier.
 
 ---
 **Note:**
