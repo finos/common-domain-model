@@ -30,7 +30,7 @@ Updating expectations rewrites files rather than checking them. A Contributor sh
 
 From the root of the repository, run:
 
-```
+``` sourcecode
 mvn clean install -U -DskipTests -P format,update-expectations
 ```
 
