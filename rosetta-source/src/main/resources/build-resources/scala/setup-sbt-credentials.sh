@@ -18,15 +18,15 @@ PROBE_URL="https://europe-west1-maven.pkg.dev/production-208613/maven-central/or
 AR_REALM="$(curl --silent --show-error --location -D - -o /dev/null "$PROBE_URL" \
   | grep -i '^www-authenticate:' | sed -E 's/.*realm="([^"]*)".*/\1/i' | tr -d '\r\n')"
 
-SA_KEY_FLAT="$(printf '%s' "${ARTIFACT_REGISTRY_SA_KEY}" | tr -d '\n\r')"
+AR_TOKEN="$(printf '%s' "${GCP_ACCESS_TOKEN}" | tr -d '\n\r')"
 
 mkdir -p ~/.sbt ~/.config/coursier
 
-printf 'realm=%s\nhost=europe-west1-maven.pkg.dev\nuser=_json_key_base64\npassword=%s\n' \
-  "$AR_REALM" "$SA_KEY_FLAT" > ~/.sbt/.credentials
+printf 'realm=%s\nhost=europe-west1-maven.pkg.dev\nuser=oauth2accesstoken\npassword=%s\n' \
+  "$AR_REALM" "$AR_TOKEN" > ~/.sbt/.credentials
 
-printf 'artifactregistry.username=_json_key_base64\nartifactregistry.password=%s\nartifactregistry.host=europe-west1-maven.pkg.dev\nartifactregistry.realm=%s\n' \
-  "$SA_KEY_FLAT" "$AR_REALM" > ~/.config/coursier/credentials.properties
+printf 'artifactregistry.username=oauth2accesstoken\nartifactregistry.password=%s\nartifactregistry.host=europe-west1-maven.pkg.dev\nartifactregistry.realm=%s\n' \
+  "$AR_TOKEN" "$AR_REALM" > ~/.config/coursier/credentials.properties
 
-export COURSIER_CREDENTIALS="europe-west1-maven.pkg.dev(${AR_REALM}) _json_key_base64:$SA_KEY_FLAT"
+export COURSIER_CREDENTIALS="europe-west1-maven.pkg.dev(${AR_REALM}) oauth2accesstoken:$AR_TOKEN"
 export SBT_CREDENTIALS="$HOME/.sbt/.credentials"
