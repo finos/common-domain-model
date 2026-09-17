@@ -59,7 +59,7 @@ This is equivalent to running `mvn clean install -P format,update-expectations` 
 
 ### Updating expectations with Rosetta
 
-Setting up a local Java and Maven development environment is not the only way to work with the CDM's expectations. [Rosetta](https://rosetta-technology.io), the modelling platform for the Rune DSL built by REGnosys, is available free of charge at its community tier and provides testing and validation tooling for the CDM without requiring a local build.
+Setting up a local Java and Maven development environment is not the only way to work with the CDM's expectations. [Rosetta](https://rosetta-technology.io), the modelling platform for the Rune DSL, is available free of charge at its community tier and provides testing and validation tooling for the CDM without requiring a local build.
 
 ---
 **Note:**
