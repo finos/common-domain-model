@@ -61,6 +61,21 @@ steps:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="typescript,release,excel,json-schema"
 
+  # Exports GCP_ACCESS_TOKEN, which the Artifact Registry servers in settings.xml
+  # use as their Basic auth password, by workload identity federation rather than
+  # a service account key. Step definition lives in the REGnosys/scripts repo, at
+  # codefresh/step-types/gcp-oidc-auth.yml.
+  #
+  # Last of the setup steps on purpose: the token lasts an hour from here, and
+  # everything that spends it is below.
+  Authenticate:
+    stage: 'setup'
+    title: Federate into GCP
+    type: regnosysops/gcp-oidc-auth:1.0.1
+    arguments:
+      WIF_PROVIDER: ${{GCP_WIF_PROVIDER_CODEFRESH_AUDIENCE}}
+      SERVICE_ACCOUNT: ${{GCP_CODEFRESH_SERVICE_ACCOUNT}}
+
   Build:
     stage: 'build'
     title: Maven build
