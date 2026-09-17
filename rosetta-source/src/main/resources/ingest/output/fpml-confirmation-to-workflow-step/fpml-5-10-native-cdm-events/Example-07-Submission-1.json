@@ -2,13 +2,12 @@
   "@model" : "cdm",
   "@type" : "cdm.event.workflow.WorkflowStep",
   "@version" : "0.0.0.master-SNAPSHOT",
-  "@key" : "95b075d1",
+  "@key" : "a6aaf787",
   "proposedEvent" : {
-    "intent" : "ContractFormation",
     "eventDate" : "2018-04-01",
     "instruction" : [ {
-      "before" : {
-        "trade" : {
+      "primitiveInstruction" : {
+        "execution" : {
           "product" : {
             "taxonomy" : [ {
               "primaryAssetClass" : {
@@ -206,72 +205,70 @@
               "nonStandardisedTerms" : false
             }
           },
-          "tradeLot" : [ {
-            "priceQuantity" : [ {
-              "quantity" : {
-                "@key:scoped" : "quantity-1",
-                "value" : 10000.00,
-                "unit" : {
-                  "currency" : {
-                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
-                    "@data" : "USD"
-                  }
+          "priceQuantity" : [ {
+            "quantity" : {
+              "@key:scoped" : "quantity-1",
+              "value" : 10000.00,
+              "unit" : {
+                "currency" : {
+                  "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                  "@data" : "USD"
                 }
-              },
-              "observable" : {
-                "@key:scoped" : "observable-1",
+              }
+            },
+            "observable" : {
+              "@key:scoped" : "observable-1",
+              "@data" : {
+                "@type" : "cdm.observable.asset.InterestRateIndex",
+                "@key:scoped" : "InterestRateIndex-1",
                 "@data" : {
-                  "@type" : "cdm.observable.asset.InterestRateIndex",
-                  "@key:scoped" : "InterestRateIndex-1",
-                  "@data" : {
-                    "@type" : "cdm.observable.asset.FloatingRateIndex",
-                    "identifier" : [ {
-                      "identifier" : {
-                        "@data" : "USD-LIBOR-BBA"
-                      },
-                      "identifierType" : "Other"
-                    } ],
-                    "assetType" : "Other",
-                    "assetClass" : "InterestRate",
-                    "floatingRateIndex" : {
+                  "@type" : "cdm.observable.asset.FloatingRateIndex",
+                  "identifier" : [ {
+                    "identifier" : {
                       "@data" : "USD-LIBOR-BBA"
                     },
-                    "indexTenor" : {
-                      "periodMultiplier" : 3,
-                      "period" : "M"
-                    }
+                    "identifierType" : "Other"
+                  } ],
+                  "assetType" : "Other",
+                  "assetClass" : "InterestRate",
+                  "floatingRateIndex" : {
+                    "@data" : "USD-LIBOR-BBA"
+                  },
+                  "indexTenor" : {
+                    "periodMultiplier" : 3,
+                    "period" : "M"
                   }
                 }
               }
-            }, {
-              "price" : [ {
-                "@key:scoped" : "price-1",
-                "value" : 0.0253,
-                "unit" : {
-                  "currency" : {
-                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
-                    "@data" : "USD"
-                  }
-                },
-                "perUnitOf" : {
-                  "currency" : {
-                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
-                    "@data" : "USD"
-                  }
-                },
-                "priceType" : "InterestRate"
-              } ],
-              "quantity" : {
-                "@key:scoped" : "quantity-2",
-                "value" : 10000.00,
-                "unit" : {
-                  "currency" : {
-                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
-                    "@data" : "USD"
-                  }
+            }
+          }, {
+            "price" : [ {
+              "@key:scoped" : "price-1",
+              "value" : 0.0253,
+              "unit" : {
+                "currency" : {
+                  "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                  "@data" : "USD"
+                }
+              },
+              "perUnitOf" : {
+                "currency" : {
+                  "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                  "@data" : "USD"
+                }
+              },
+              "priceType" : "InterestRate"
+            } ],
+            "quantity" : {
+              "@key:scoped" : "quantity-2",
+              "value" : 10000.00,
+              "unit" : {
+                "currency" : {
+                  "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                  "@data" : "USD"
                 }
               }
-            } ]
+            }
           } ],
           "counterparty" : [ {
             "role" : "Party1",
@@ -284,23 +281,7 @@
               "@ref:external" : "party2"
             }
           } ],
-          "tradeIdentifier" : [ {
-            "issuer" : {
-              "@scheme" : "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier",
-              "@data" : "LEI1RPT0001"
-            },
-            "assignedIdentifier" : [ {
-              "identifier" : {
-                "@scheme" : "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier",
-                "@data" : "LEI1RPT0001EEE"
-              }
-            } ],
-            "identifierType" : "UniqueTransactionIdentifier"
-          } ],
-          "tradeDate" : {
-            "@data" : "2018-04-01"
-          },
-          "party" : [ {
+          "parties" : [ {
             "@key:external" : "party1",
             "partyId" : [ {
               "identifier" : {
@@ -369,7 +350,7 @@
               "@data" : "ClearItAll"
             }
           } ],
-          "partyRole" : [ {
+          "partyRoles" : [ {
             "partyReference" : {
               "@ref:external" : "clearing-svc"
             },
@@ -385,6 +366,22 @@
             "ownershipPartyReference" : {
               "@ref:external" : "party1"
             }
+          } ],
+          "tradeDate" : {
+            "@data" : "2018-04-01"
+          },
+          "tradeIdentifier" : [ {
+            "issuer" : {
+              "@scheme" : "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier",
+              "@data" : "LEI1RPT0001"
+            },
+            "assignedIdentifier" : [ {
+              "identifier" : {
+                "@scheme" : "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier",
+                "@data" : "LEI1RPT0001EEE"
+              }
+            } ],
+            "identifierType" : "UniqueTransactionIdentifier"
           } ]
         }
       }

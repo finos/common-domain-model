@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.event.common.*
 import cdm.event.workflow.*
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.ingest.fpml.confirmation.workflowstep.*
 
@@ -355,8 +356,51 @@ func MapExecutionNotificationToWorkflowStep:
     alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
     alias effectiveDate: GetEffectiveDate(empty, empty, empty)
 
+    alias executionInstruction:
+        MapTradeToExecutionInstruction(
+                fpmlTrade,
+                fpmlExecutionNotification -> party,
+                fpmlExecutionNotification -> quote
+            )
+
     set workflowStep:
-        MapWorkflowStep(
+        if fpmlTrade -> documentation is absent
+        then WorkflowStep {
+                proposedEvent:
+                    EventInstruction {
+                        eventDate: eventDate,
+                        effectiveDate: effectiveDate,
+                        instruction: [
+                                Instruction {
+                                    primitiveInstruction:
+                                        PrimitiveInstruction {
+                                            execution: executionInstruction,
+                                            ...
+                                        },
+                                    ...
+                                }
+                            ],
+                        ...
+                    },
+                timestamp: MapEventTimestamp(
+                            fpmlExecutionNotification -> header -> creationTimestamp,
+                            fpmlTrade
+                        ),
+                eventIdentifier: MapEventIdentifier(
+                            fpmlExecutionNotification -> header -> messageId,
+                            empty,
+                            fpmlTrade -> tradeHeader -> partyTradeIdentifier
+                        ),
+                messageInformation: MapMessageInformation(
+                            fpmlExecutionNotification -> header -> messageId,
+                            fpmlExecutionNotification -> header -> sentBy,
+                            fpmlExecutionNotification -> header -> sendTo
+                        ),
+                action: action,
+                nextEvent: MapNextEvent(fpmlTrade -> tradeHeader -> partyTradeInformation),
+                ...
+            }
+        else MapWorkflowStep(
                 fpmlExecutionNotification -> header -> messageId,
                 fpmlExecutionNotification -> header -> creationTimestamp,
                 fpmlExecutionNotification -> header -> sentBy,

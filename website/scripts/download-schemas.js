@@ -16,31 +16,16 @@ function downloadVersion({ version, urlPath }) {
   console.log(`\nDownloading CDM ${version} → /schemas/${urlPath}/`);
   
   const url = `${MAVEN_URL}/${version}/cdm-json-schema-${version}.zip`;
-  const archive = path.join(TEMP_DIR, `${version}.archive`);
+  const archive = path.join(TEMP_DIR, `${version}.tar.gz`);
   const extractDir = path.join(TEMP_DIR, version);
   const destDir = path.join(SCHEMAS_DIR, urlPath);
-
-  // Download. Despite the .zip name, the artifact's real format varies by
-  // version: <= 6.0.0 ships a gzipped tar, >= 7.0.0 ships a genuine ZIP.
+  
+  // Download (the .zip is actually a gzipped tar)
   execSync(`curl -fsSL "${url}" -o "${archive}"`, { stdio: 'pipe' });
-
-  // Extract based on the actual format (detected via magic bytes). macOS bsdtar
-  // reads both, but Linux GNU tar cannot read a real ZIP, so we must dispatch to
-  // the right extractor for the build to work on Netlify.
+  
+  // Extract
   fs.mkdirSync(extractDir, { recursive: true });
-  const magic = Buffer.alloc(2);
-  const fd = fs.openSync(archive, 'r');
-  fs.readSync(fd, magic, 0, 2, 0);
-  fs.closeSync(fd);
-  if (magic[0] === 0x50 && magic[1] === 0x4b) {
-    // "PK" → genuine ZIP archive
-    execSync(`unzip -q -o "${archive}" -d "${extractDir}"`, { stdio: 'pipe' });
-  } else if (magic[0] === 0x1f && magic[1] === 0x8b) {
-    // gzip → gzipped tar
-    execSync(`tar -xzf "${archive}" -C "${extractDir}"`, { stdio: 'pipe' });
-  } else {
-    throw new Error(`Unrecognised archive format (magic bytes: ${magic[0].toString(16)} ${magic[1].toString(16)})`);
-  }
+  execSync(`tar -xzf "${archive}" -C "${extractDir}"`, { stdio: 'pipe' });
   
   // Find and copy schema files
   const sourceDir = path.join(extractDir, 'jsonschema');
