@@ -21,6 +21,7 @@ import cdm.product.common.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 import cdm.product.template.*
+import cdm.event.common.*
 
 type ContractFormationInstruction: <"Specifies instructions to create a fully formed contract, with optional legal agreements.">
     legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
@@ -246,6 +247,9 @@ type TransferState: <"Defines the fundamental financial information associated w
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
+    condition PartyReferencePayerReceiverExists:  <"A Transfer that has been effected as part of a business or life-cycle event must resolve the parties to the transfer.">
+        transfer ->> partyReferencePayerReceiver exists
+        
 choice Transfer: <"The type of transfer.">
     ScheduledTransfer <"A transfer created from a scheduled event on a contract, e.g. Coupon, Dividend Return, Fixed Rate Return">
     UnscheduledTransfer <"An ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
@@ -254,24 +258,45 @@ choice Transfer: <"The type of transfer.">
 type UnscheduledTransfer extends TransferBase: <"An ad-hoc transfer instigated by a party to the contract.">
     transferType UnscheduledTransferEnum (0..1) <"Specifies the type of unscheduled transfer.">
 
-type ScheduledTransfer extends TransferBase: <"A scheduled transfer built into the contract.">
+    condition PartyReferencePayerReceiverExists: <"An Unscheduled Transfer must specify the resolved payer and receiver parties.">
+        partyReferencePayerReceiver exists 
+
+type ScheduledTransfer extends PayoutTransferBase: <"A scheduled transfer built into the contract.">
     transferType ScheduledTransferEnum (1..1) <"Specifies the type of scheduled transfer.">
-    payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
-        [metadata reference]
+    
 
-type ContingentTransfer extends TransferBase: <"Specifies a transfer created from a trade contingent upon a specific, uncertain event on a contract">
+type ContingentTransfer extends PayoutTransferBase: <"Specifies a transfer created from a trade contingent upon a specific, uncertain event on a contract">
     transferType ContingentTransferEnum (0..1) <"Specifies the type of contingent transfer.">
-    payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
     corporateActionTransferType CorporateActionTypeEnum (0..1) <" A transfer corresponding to a corporate action event">
-
+    
     condition CorporateActionTransferTypeExists: <"When a Contingent Transfer is a Corporate Action the type of event must be specified.">
         if transferType = CorporateAction
         then corporateActionTransferType exists
 
-type TransferBase extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
+type PayoutTransferBase extends TransferBase: <"Defines a transfer of an Asset associated with an economic payout.">
+    payerReceiver PayerReceiver (0..1) <"Specifies who pays/receives the transfer, through a normalised Party1 / Party2 enumerator.">
+    payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+        [metadata reference]
+
+    condition PayerReceiverChoice: <"Required choice between a generic, unresolved payer/receiver and a party referenced payer/receiver.">
+        required choice partyReferencePayerReceiver, payerReceiver
+
+type TransferBase: <"Defines the transfer of an Asset (eg cash, securities or commodities) between two parties on a date.">
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
-        [metadata scheme]
-    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+        [metadata scheme]    
+    quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred. The cashflow amount is always a positive number, as the cashflow direction is implied by the payer/receiver attribute.">
+    asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+    paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
+    partyReferencePayerReceiver PartyReferencePayerReceiver (0..1) <"Represents the parties to the transfer and their role.">
+    
+    condition QuantityUnitExists: <"Aligns the type of unit and the type of asset.">
+        if asset as Cash exists
+        then quantity -> unit -> currency exists
+        else if asset as Commodity exists
+        then quantity -> unit -> capacityUnit exists
+        else if asset as Instrument exists
+        then quantity -> unit -> financialUnit exists
 
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
     identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">
@@ -665,21 +690,21 @@ type BillingRecord: <"Specifies individual records within a billing invoice.">
 type BillingSummary: <"Specifies individual summaries within a billing invoice.">
     summaryTransfer Transfer (0..1) <"The settlement terms for the billing summary">
     summaryAmountType RecordAmountTypeEnum (1..1) <"The account level for the billing summary.">
-
+    
     condition GrandTotal:
         if summaryAmountType = RecordAmountTypeEnum -> GrandTotal
-        then summaryTransfer exists and summaryTransfer ->> payerReceiver is absent
+        then summaryTransfer exists and summaryTransfer ->> partyReferencePayerReceiver is absent
 
     condition ParentTotal:
         if summaryAmountType = RecordAmountTypeEnum -> ParentTotal
-        then summaryTransfer ->> payerReceiver exists
-                and summaryTransfer ->> payerReceiver -> payerAccountReference is absent
-                and summaryTransfer ->> payerReceiver -> receiverAccountReference is absent
+        then summaryTransfer ->> partyReferencePayerReceiver exists
+                    and summaryTransfer ->> partyReferencePayerReceiver -> payerAccountReference is absent
+                    and summaryTransfer ->> partyReferencePayerReceiver -> receiverAccountReference is absent
 
     condition AccountTotal:
         if summaryAmountType = RecordAmountTypeEnum -> AccountTotal
-        then summaryTransfer ->> payerReceiver -> payerAccountReference exists
-                and summaryTransfer ->> payerReceiver -> receiverAccountReference exists
+        then summaryTransfer ->> partyReferencePayerReceiver -> payerAccountReference exists
+                and summaryTransfer ->> partyReferencePayerReceiver -> receiverAccountReference exists
 
 type TradePricingReport: <"The attributes that are specific for consensus based pricing reporting.">
     trade Trade (1..1) <"Represents the cosensus based pricing parameters on a trade basis.">
