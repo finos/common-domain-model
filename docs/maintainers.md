@@ -4,7 +4,7 @@ title: Maintainers
 
 ## Maintainers
 
-This page provides detailed information about the CDM maintainers. A CDM maintainer is one of the different [roles](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE#1-roles) within the CDM community.
+This page provides detailed information about the CDM maintainers. A CDM maintainer is one of the different [roles](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md#1-roles) within the CDM community.
 
 **Appointment of CDM Maintainers:**
 
@@ -43,9 +43,10 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
-| Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
+| Minesh Patel         | Individual     | Individual                                  | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
+| Jayasri Radhakrishnan| Regnosys       | OrgRep                                      | JayasriR             | 
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
 | Nicholas Moger       | JPMorgan Chase & Co.|  OrgRep                                | nicholas-moger       | 

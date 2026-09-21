@@ -2,8 +2,12 @@ namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.codelist.*
 import cdm.event.instructioncomposition.*
+import cdm.observable.asset.*
+import cdm.observable.asset.calculatedrate.*
+import cdm.observable.asset.fro.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 
@@ -95,7 +99,6 @@ func Create_AdjustPeriodInstruction: <"This function generates the Instruction C
                     adjustedEndDate: adjustedCalculationPeriodEnd
         }}
 
-// COMPOSITION STATE CHANGES FOR RESET
 // Instruction Composition STEP 4 - Adjust the Reset Date
 func Create_AdjustDateInstruction: <"This function generates the Instruction Composition step instruction necessary to adjust the unadjusted reset date, and adding it to the AdjustResetDateInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
     inputs:
@@ -115,6 +118,58 @@ func Create_AdjustDateInstruction: <"This function generates the Instruction Com
     set adjustDateInstruction:
         AdjustDateInstruction {
             adjustedDate: adjustedResetDate
+        }
+
+// External call to fetch FRO metadata from the ISDA FRO Matrix
+func ExtractFloatingRateOptionData: <"This function, given a floating rate option, extracts the floating rate option's metadata from the ISDA FRO Matrix and returns that data in a CDM structured format. Additionally, it uses the reference date specified to select the relevant version of the FRO Matrix.">
+    [codeImplementation]
+    inputs:
+        tradeDate date (1..1) <"The Trade Date, used to reference the ISDA FRO Matrix version.">
+        floatingRateIndex FloatingRateIndexEnum (1..1) <"The Floating Rate Index for which to extract its metadata from the ISDA FRO Matrix.">
+    output:
+        floatingRateIndexData FloatingRateIndexDefinition (1..1) <"The Floating Rate Index data extracted from the ISDA FRO Matrix.">
+
+// Instruction Composition STEP 5 - Determine Unadjusted Observation Dates
+func Create_DetermineUnadjustedObservationDatesInstruction: <"This function generates the Instruction Composition step instruction necessary to generate the unadjusted observation dates, and adding them to the DetermineUnadjustedObservationDatesInstruction.">
+    inputs:
+        adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The adjusted calculation period.">
+        adjustedResetDate date (1..1) <"The adjusted reset date.">
+        floatingRateIndexData FloatingRateIndexDefinition (1..1) <"The Floating Rate Index data extracted from the ISDA FRO Matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"The calculation methodology applicable to the Floating Rate Index found in the Confirmation.">
+    output:
+        determineUnadjustedObservationDatesInstruction DetermineUnadjustedObservationDatesInstruction (1..1) <"The list of one or more Unadjusted Observation Dates.">
+
+    alias category: floatingRateIndexData -> calculationDefaults -> category
+
+    alias style: floatingRateIndexData -> calculationDefaults -> indexStyle
+
+    alias calculationMethodologyFromFloatingRateOption:
+        floatingRateIndexData -> calculationDefaults -> method
+
+    alias observationType:
+        DetermineObservationType(
+                category,
+                style,
+                calculationMethodologyFromFloatingRateOption,
+                calculationMethodologyFromConfirmation
+            )
+
+    condition MethodFromConfirmationExistsWhenOvernightRate: <"If the Floating Rate Index has a Style of Overnight, then the calculation methodology originating from the Workflow Step must be present.">
+        if style = Overnight
+        then calculationMethodologyFromConfirmation exists
+    set determineUnadjustedObservationDatesInstruction:
+        DetermineUnadjustedObservationDatesInstruction {
+            unadjustedObservationDates: if observationType = Single
+                    then adjustedResetDate
+                else if observationType = Multiple
+                then GenerateCalendarDateList(
+                            adjustedCalculationPeriod -> adjustedStartDate,
+                            adjustedCalculationPeriod -> adjustedEndDate,
+                            False
+                        )
+                else if observationType = CompoundedIndex
+                then [adjustedCalculationPeriod -> adjustedStartDate, adjustedCalculationPeriod -> adjustedEndDate],
+            floatingRateIndexData: floatingRateIndexData
         }
 
 // COMPOSITION STATE CHANGES FOR RESET
@@ -156,6 +211,12 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
         if nextStepToAdd -> adjustDate exists
         then nextStepToAdd -> adjustDate -> adjustedDate
         else currentResetCompositionState -> adjustedResetDate
+
+    // Step 5: Unadjusted Observation Dates & Index Definition
+    set updatedResetCompositionState -> unadjustedObservationDates:
+        if nextStepToAdd -> determineUnadjustedObservationDates exists
+        then nextStepToAdd -> determineUnadjustedObservationDates -> unadjustedObservationDates
+        else currentResetCompositionState -> unadjustedObservationDates
 
 // NEXT STEP FOR RESET
 func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
