@@ -54,7 +54,7 @@ Ways to interact with the CDM community:
   - [2026 CDM Schedule](SCHEDULE26.md):  outlines the plans for CDM releases 
   - [Prior Year's Roadmaps](ROADMAP.md).
 
-- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
+- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases) page.
 
 
 ## Contributing
