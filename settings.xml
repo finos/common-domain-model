@@ -1,13 +1,5 @@
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-    <mirrors>
-        <mirror>
-            <id>maven-central-proxy</id>
-            <name>Maven Central Proxy</name>
-            <url>https://europe-west1-maven.pkg.dev/production-208613/maven-central</url>
-            <mirrorOf>central</mirrorOf>
-        </mirror>
-    </mirrors>
     <servers>
         <server>
             <id>maven-central-proxy</id>
@@ -21,6 +13,50 @@
         </server>
     </servers>
     <profiles>
+        <!--
+        A <mirror> for central would hide Maven's built-in central repository
+        entirely, with no way to fall back to it: a PR built from a fork other
+        than finos's own (e.g. a community contributor's) has no WIF binding,
+        so GCP_ACCESS_TOKEN is empty and the proxy returns 401 with nothing
+        else to try.
+
+        A plain <repository> doesn't replace the built-in central the way a
+        mirror does - Maven still tries central too, just after this one - so
+        declaring the proxy here instead keeps it as the first, fast path
+        (avoiding the real Maven Central rate-limiting that made this proxy
+        necessary) while an unauthenticated build still falls through to
+        central per artifact instead of failing outright.
+        -->
+        <profile>
+            <id>maven-central-proxy</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>maven-central-proxy</id>
+                    <url>https://europe-west1-maven.pkg.dev/production-208613/maven-central</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>maven-central-proxy</id>
+                    <url>https://europe-west1-maven.pkg.dev/production-208613/maven-central</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
         <profile>
             <id>release</id>
             <activation>
