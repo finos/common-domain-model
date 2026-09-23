@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.base.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
+import cdm.legaldocumentation.clauselibrary.*
 import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.master.*
 import cdm.legaldocumentation.transaction.*
@@ -83,7 +84,7 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
                 or legalAgreementIdentification -> agreementName -> creditSupportAgreementType = CreditSupportAgreementTypeEnum -> CreditSupportDeed
         else if agreementTerms -> agreement -> collateralTransferAgreementElections exists
         then legalAgreementIdentification -> agreementName -> creditSupportAgreementType = CreditSupportAgreementTypeEnum -> CollateralTransferAgreement
-        else if agreementTerms -> agreement -> masterAgreementSchedule exists
+        else if agreementTerms -> agreement -> masterAgreementElections exists
         then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum -> MasterAgreement
 
     condition AgreementType: <"Either the Agreement Terms (i.e. a bilateral or one way agreement) or an Umbrella Agreement (i.e. an agreement where multiple parties and variations of terms are described within a single document but represent multiple agreements for operational purposes) should be included, but not both.">
@@ -222,7 +223,7 @@ type Agreement: <"Specification of the standard set of terms that define a legal
     creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
     collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
     securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
-    masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
+    clauseLibrarySchedule ClauseLibrarySchedule (0..1) <"Elections specified through a Clause Library.">
     transactionAdditionalTerms TransactionAdditionalTerms (0..1) <"Any additional terms which mainly intend to specify the extraordinary events that may affect a trade and the related contractual rights and obligation of the parties when this happens">
     masterAgreementElections MasterAgreementElections (0..1) <"A legal representation of the different possible master agreements">
     condition:
