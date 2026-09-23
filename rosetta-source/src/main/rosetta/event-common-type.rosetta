@@ -264,7 +264,7 @@ type ScheduledTransfer extends PayoutTransferBase: <"A scheduled transfer built 
 type ContingentTransfer extends PayoutTransferBase: <"Specifies a transfer created from a trade contingent upon a specific, uncertain event on a contract">
     transferType ContingentTransferEnum (0..1) <"Specifies the type of contingent transfer.">
     corporateActionTransferType CorporateActionTypeEnum (0..1) <" A transfer corresponding to a corporate action event">
-    
+
     condition CorporateActionTransferTypeExists: <"When a Contingent Transfer is a Corporate Action the type of event must be specified.">
         if transferType = CorporateAction
         then corporateActionTransferType exists
@@ -279,13 +279,13 @@ type PayoutTransferBase extends TransferBase: <"Defines a transfer of an Asset a
 
 type TransferBase: <"Defines the transfer of an Asset (eg cash, securities or commodities) between two parties on a date.">
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
-        [metadata scheme]    
+        [metadata scheme]
     quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred. The cashflow amount is always a positive number, as the cashflow direction is implied by the payer/receiver attribute.">
     asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
     paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
     partyReferencePayerReceiver PartyReferencePayerReceiver (0..1) <"Represents the parties to the transfer and their role.">
-    
+
     condition QuantityUnitExists: <"Aligns the type of unit and the type of asset.">
         if asset as Cash exists
         then quantity -> unit -> currency exists
@@ -686,7 +686,7 @@ type BillingRecord: <"Specifies individual records within a billing invoice.">
 type BillingSummary: <"Specifies individual summaries within a billing invoice.">
     summaryTransfer Transfer (0..1) <"The settlement terms for the billing summary">
     summaryAmountType RecordAmountTypeEnum (1..1) <"The account level for the billing summary.">
-    
+
     condition GrandTotal:
         if summaryAmountType = RecordAmountTypeEnum -> GrandTotal
         then summaryTransfer exists
