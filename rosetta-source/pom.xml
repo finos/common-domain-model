@@ -344,6 +344,34 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <!-- logback must stay out of rosetta-source's runtime -
+                    it is a logging backend, not something this module's
+                    production code should depend on directly or transitively.
+                    Test scope is fine (e.g. asserting on log output). -->
+                    <execution>
+                        <id>ban-logback-outside-test</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>ch.qos.logback:*:*:*:compile</exclude>
+                                        <exclude>ch.qos.logback:*:*:*:runtime</exclude>
+                                        <exclude>ch.qos.logback:*:*:*:provided</exclude>
+                                        <exclude>ch.qos.logback:*:*:*:system</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
                     <configLocation>checkstyle-for-deprecated-guice.xml</configLocation>
