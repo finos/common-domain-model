@@ -21,7 +21,6 @@ import cdm.product.common.*
 import cdm.product.common.settlement.*
 import cdm.product.qualification.*
 import cdm.product.template.*
-import cdm.event.common.*
 
 type ContractFormationInstruction: <"Specifies instructions to create a fully formed contract, with optional legal agreements.">
     legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
@@ -252,29 +251,29 @@ choice Transfer: <"The type of transfer.">
     UnscheduledTransfer <"An ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
     ContingentTransfer <"A transfer created from a contingent event on a contract, e.g. Corporate Action, Credit Event or Exercise">
 
-type UnscheduledTransfer extends TransferBase: <"An ad-hoc transfer instigated by a party to the contract.">
+type UnscheduledTransfer extends TransferBase: <"An ad-hoc transfer instigated by a party to the contract. Extends TransferBase rather than PayoutTransferBase because an Unscheduled Transfer is not derived from a Payout's terms - it is initiated by a party against a known counterparty, so it will always have a resolved payer/receiver.">
     transferType UnscheduledTransferEnum (0..1) <"Specifies the type of unscheduled transfer.">
 
-    condition PartyReferencePayerReceiverExists: <"An Unscheduled Transfer must specify the resolved payer and receiver parties.">
-        partyReferencePayerReceiver exists 
+    condition PartyReferencePayerReceiverExists: <"An Unscheduled Transfer must specify the resolved payer and receiver parties to the transfer.">
+        partyReferencePayerReceiver exists
 
-type ScheduledTransfer extends PayoutTransferBase: <"A scheduled transfer built into the contract.">
-    transferType ScheduledTransferEnum (1..1) <"Specifies the type of scheduled transfer.">
+type ScheduledTransfer extends PayoutTransferBase: <"A scheduled transfer built into the contract. Extends PayoutTransferBase because a Scheduled Transfer originates from a Payout.">
+    transferType ScheduledTransferEnum (1..1) <"Specifies the type of Scheduled Transfer.">
     
-type ContingentTransfer extends PayoutTransferBase: <"Specifies a transfer created from a trade contingent upon a specific, uncertain event on a contract">
-    transferType ContingentTransferEnum (0..1) <"Specifies the type of contingent transfer.">
-    corporateActionTransferType CorporateActionTypeEnum (0..1) <" A transfer corresponding to a corporate action event">
+type ContingentTransfer extends PayoutTransferBase: <"Specifies a transfer created from a trade contingent upon a specific, uncertain event on a contract. Extends PayoutTransferBase because a Contingent Transfer originates from a Payout.">
+    transferType ContingentTransferEnum (0..1) <"Specifies the type of Contingent Transfer.">
+    corporateActionTransferType CorporateActionTypeEnum (0..1) <"A transfer corresponding to a corporate action event">
     
     condition CorporateActionTransferTypeExists: <"When a Contingent Transfer is a Corporate Action the type of event must be specified.">
         if transferType = CorporateAction
         then corporateActionTransferType exists
 
-type PayoutTransferBase extends TransferBase: <"Defines a transfer of an Asset associated with an economic payout.">
-    payerReceiver PayerReceiver (0..1) <"Specifies who pays/receives the transfer, through a normalised Party1 / Party2 enumerator.">
+type PayoutTransferBase extends TransferBase: <"Defines a transfer of an Asset associated with an economic payout - either a payout's own scheduled terms or an outcome contingent on some other event. Carries a reference back to that Payout, and allows the transfer's payer/receiver to be expressed as a generic, unresolved Party1 / Party2 enumerator, since a transfer generated directly from a payout's terms may not yet be tied to resolved parties.">
+    payerReceiver PayerReceiver (0..1) <"Specifies who pays/receives the transfer, through a normalised Party1 / Party2 enumerator, for use before the transfer is resolved to actual parties.">
     payoutReference Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
         [metadata reference]
 
-    condition PayerReceiverChoice: <"Required choice between a generic, unresolved payer/receiver and a party referenced payer/receiver.">
+    condition PayerReceiverChoice: <"Required choice between a generic, unresolved payer/receiver and a party referenced payer/receiver for the transfer.">
         required choice partyReferencePayerReceiver, payerReceiver
 
 type TransferBase: <"Defines the transfer of an Asset (eg cash, securities or commodities) between two parties on a date.">
@@ -284,7 +283,7 @@ type TransferBase: <"Defines the transfer of an Asset (eg cash, securities or co
     asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
     paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
-    partyReferencePayerReceiver PartyReferencePayerReceiver (0..1) <"Represents the parties to the transfer and their role.">
+    partyReferencePayerReceiver PartyReferencePayerReceiver (0..1) <"Represents the resolved parties to the transfer and their role.">
     
     condition QuantityUnitExists: <"Aligns the type of unit and the type of asset.">
         if asset as Cash exists
