@@ -17,7 +17,7 @@ A single, digital processing standard for trade events and actions enhances fina
 - Accelerates financial technology innovation by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
 - Delivers better regulatory oversight, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
 
-The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://www.finos.org/), starting in February 2023. The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/1._Community_Specification_License-v1.md). To participate in the standard process and working group meetings, [enroll as a participant](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/participants.md#how-to-enroll-as-a-participant) by completing a [Community Specification Contributor License Agreement](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/0._CS_Contributor_License_Agreement.md) (CSL CLA).  All meetings are to be held [in accordance with the FINOS policies and procedures](https://community.finos.org/docs/governance/meeting-procedures).
+The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://www.finos.org/), starting in February 2023. The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/main/LICENSE). To participate in the standard process and working group meetings, [enroll as a participant](https://github.com/finos/standards-project-blueprint/blob/main/PARTICIPANTS.md#how-to-enroll-as-a-participant) by completing a [Community Specification Contributor License Agreement](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/CS_Contributor_License_Agreement.md) (CSL CLA).  All meetings are to be held [in accordance with the FINOS policies and procedures](https://community.finos.org/docs/governance/meeting-procedures).
 
 To subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
@@ -39,7 +39,7 @@ Ways to interact with the CDM community:
 
 * **GitHub**: CDM activity primarily happens in this [CDM GitHub repository](https://github.com/finos/common-domain-model). [Watch](https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository) the repository in order to be notified of new Pull Requests and issues.
 * **Email**: If you'd like to receive official updates, please send an email to help@finos.org. You can join the CDM mailing list by sending an email to [cdm+subscribe@lists.finos.org](mailto:cdm+subscribe@lists.finos.org). 
-* **Meetings**: Finally, another great way to interact with the community is to attend the Working Groups.  Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com).
+* **Meetings**: Finally, another great way to interact with the community is to attend the Working Groups.  You can register yourself for any of these meetings from its Working Group page, or find them in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org.
 * **CDM Training**: **Introduction to the CDM (LFEL1016)**: A 90-minute Express Learning course covering the fundamentals of the Common Domain Model - how it standardizes data for financial products, trades, and lifecycle events to improve interoperability across technologies. [Enroll here](https://training.linuxfoundation.org/training/introduction-to-the-common-domain-model-cdm-lfel1016/). **CDM Collateral Start-up Guide**: A set of short tutorials designed for business users to explore the CDM in the context of collateral management. This hands-on resource walks through features, tools, and implementation approaches. [Learn more](https://www.isda.org/2023/02/16/isda-collateral-initiatives/)
 
 
@@ -54,7 +54,7 @@ Ways to interact with the CDM community:
   - [2026 CDM Schedule](SCHEDULE26.md):  outlines the plans for CDM releases 
   - [Prior Year's Roadmaps](ROADMAP.md).
 
-- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
+- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases) page.
 
 
 ## Contributing
@@ -101,11 +101,11 @@ The CDM has extensive documentation which is kept up to date. Any change to the 
 
 ### Roles
 
-The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/5._Governance.md#1roles) for each specific Working Group:
+The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/main/GOVERNANCE.md#1roles) for each specific Working Group:
 
 * Maintainers - those who drive consensus within the working group
 * [Editors](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md#1-roles) - those who codify ideas into a formal specification
-* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/participants.md) file.
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/main/PARTICIPANTS.md) file.
 
 ### Active Working Groups
 
@@ -159,7 +159,7 @@ A list of Maintainers along with their type will be kept visible within the gove
 
 Proposals for an entity to be given maintainership status or to have maintainership rescinded should be made at a Steering Group, with final approval or rejection at the following Steering Group to ensure fair notice for all. Proposals should be sent to the Steering Group chair to add to the agenda.
 
-**CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
+**CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/main/GOVERNANCE.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
 
 **CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
 
@@ -173,15 +173,15 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | -------------------- | -------------- | ------------------------------------------- | -------------------- |           
 | Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
 | Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
-| Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
+| Tabish Ahmed         | ISDA           | OrgRep                                      | tabi5h               | 
 | Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
-| David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
 | Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
-| Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
+| Minesh Patel         | Individual     | Individual                                  | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
+| Jayasri Radhakrishnan| Regnosys       | OrgRep                                      | JayasriR             | 
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
 | Nicholas Moger       | JPMorgan Chase & Co.|  OrgRep                                | nicholas-moger         | 
