@@ -2,6 +2,8 @@ namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.codelist.*
 import cdm.event.instructioncomposition.*
@@ -9,6 +11,8 @@ import cdm.observable.asset.*
 import cdm.observable.asset.calculatedrate.*
 import cdm.observable.asset.fro.*
 import cdm.product.asset.*
+import cdm.product.asset.floatingrate.*
+import cdm.product.common.schedule.*
 import cdm.product.common.schedule.*
 
 // Instruction Composition  STEP 1 - Get Floating Rate Index Name
@@ -157,6 +161,7 @@ func Create_DetermineUnadjustedObservationDatesInstruction: <"This function gene
     condition MethodFromConfirmationExistsWhenOvernightRate: <"If the Floating Rate Index has a Style of Overnight, then the calculation methodology originating from the Workflow Step must be present.">
         if style = Overnight
         then calculationMethodologyFromConfirmation exists
+
     set determineUnadjustedObservationDatesInstruction:
         DetermineUnadjustedObservationDatesInstruction {
             unadjustedObservationDates: if observationType = Single
@@ -171,6 +176,182 @@ func Create_DetermineUnadjustedObservationDatesInstruction: <"This function gene
                 then [adjustedCalculationPeriod -> adjustedStartDate, adjustedCalculationPeriod -> adjustedEndDate],
             floatingRateIndexData: floatingRateIndexData
         }
+
+// Instruction Composition STEP 7 - Calculate Reset Value
+func Create_CalculateResetValueInstruction: <"This function generates the Instruction Composition step instruction necessary to calculate the final reset value and applicable calculation methodology, adding the resulting reset rate to the CalculateResetValueInstruction.">
+    inputs:
+        observedRateDates DatedValue (1..*)
+        adjustedCalculationPeriod CalculationPeriodBase (0..1)
+        rounding Rounding (0..1) <"The rounding to be applied to the reset value.">
+        currency string (1..1) <"The currency of the reset value.">
+        dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction.">
+        category FloatingRateIndexCategoryEnum (1..1) <"The category of the Floating Rate Index (e.g., Calculated, Screen).">
+        style FloatingRateIndexStyleEnum (0..1) <"The style of the Floating Rate Index (e.g., Term, Overnight Rate, Compounded FRO).">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the FRO Matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the Confirmation.">
+    output:
+        calculateResetValueInstruction CalculateResetValueInstruction (1..1) <"The instruction containing the final reset value and calculation methodology.">
+
+    alias observationType: <"Determines whether the reset relies on a Single observation, Compounded Index, or Multiple rate observations.">
+        DetermineObservationType(
+                category,
+                style,
+                calculationMethodologyFromFloatingRateOption,
+                calculationMethodologyFromConfirmation
+            )
+
+    alias calculatedResetRate: <"Delegates rate calculation and rounding to the specialized function corresponding to the observation type.">
+        if observationType = Single
+        then CalculateSingleResetRate(observedRateDates, rounding)
+        else if observationType = CompoundedIndex
+        then CalculateCompoundedIndexResetRate(
+                    observedRateDates,
+                    adjustedCalculationPeriod,
+                    dayCountFraction,
+                    rounding
+                )
+        else if observationType = Multiple
+        then CalculateMultipleObservationResetRate(
+                    observedRateDates,
+                    dayCountFraction,
+                    calculationMethodologyFromConfirmation,
+                    calculationMethodologyFromFloatingRateOption,
+                    rounding
+                )
+
+    alias finalCalculationMethod: <"Determines the final calculation method, prioritizing Floating Rate Option metadata over Confirmation metadata.">
+        if calculationMethodologyFromFloatingRateOption exists
+        then MapFloatingRateIndexCalculationMethodEnumToCalculationMethodEnum(
+                    calculationMethodologyFromFloatingRateOption
+                )
+        else calculationMethodologyFromConfirmation
+
+    alias resetPrice: <"Constructs the Price object containing the rounded reset value, currency unit, and rate type.">
+        Price {
+            value: calculatedResetRate,
+            priceType: InterestRate,
+            unit:
+                UnitType {
+                    currency: currency,
+                    ...
+                },
+            perUnitOf:
+                UnitType {
+                    currency: currency,
+                    ...
+                },
+            ...
+        }
+
+    condition MarketRatesEqualObservationDates: <"The number of observed market rates should match the number of observation dates.">
+        observedRateDates -> value count = observedRateDates -> date count
+
+    set calculateResetValueInstruction -> resetValue: resetPrice
+    set calculateResetValueInstruction -> calculationMethod: finalCalculationMethod
+    add calculateResetValueInstruction -> observedRateDates: observedRateDates
+
+func CalculateSingleResetRate: <"Calculates the reset rate for Single Observation FROs. Passes through the single market rate without default rounding unless explicitly specified.">
+    inputs:
+        observedRateDates DatedValue (1..*) <"The observed rate dates list, which must contain exactly one rate.">
+        rounding Rounding (0..1) <"Optional explicit rounding specification.">
+    output:
+        resetRate number (1..1) <"The final reset rate value for single observation.">
+
+    alias marketRate: <"Extracts the single observed market rate value.">
+        observedRateDates -> value only-element
+
+    alias roundedRate: <"Rounds to explicit specification if present, otherwise, retains the raw single observation rate without default rounding.">
+        if rounding exists and rounding -> precision exists
+        then RoundToPrecision(
+                    marketRate,
+                    rounding -> precision,
+                    rounding -> roundingDirection,
+                    True
+                )
+        else marketRate // No default rounding for single observation rates
+    condition SingleRateOnly: <"Single observation FROs must have exactly 1 market rate observation.">
+        observedRateDates count = 1
+
+    set resetRate: roundedRate
+
+func CalculateCompoundedIndexResetRate: <"Calculates the unrounded reset value for Compounded Index FROs using start and end index values, then applies standard rounding.">
+    inputs:
+        observedRateDates DatedValue (1..*) <"The observed rate dates list, which must contain exactly two index rates (start and end).">
+        adjustedCalculationPeriod CalculationPeriodBase (0..1) <"The calculation period defining start and end dates for day count calculations.">
+        dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction applied to the formula.">
+        rounding Rounding (0..1) <"Optional explicit rounding rules.">
+    output:
+        resetRate number (1..1) <"The final rounded compounded index rate.">
+
+    alias marketRates: <"Extracts the pair of market index rates.">
+        observedRateDates -> value
+
+    alias unroundedRate: <"Applies the ISDA Compounded Index formula to the first (start) and last (end) market rates over the calculated period length.">
+        ApplyCompoundedIndexFormula(
+                marketRates first,
+                marketRates last,
+                dayCountFraction,
+                DateDifference(
+                        adjustedCalculationPeriod -> adjustedStartDate,
+                        adjustedCalculationPeriod -> adjustedEndDate
+                    ) + 1
+            )
+
+    condition ExactlyTwoMarketRates: <"Compounded Index FROs require exactly 2 market rate observations (start and end values).">
+        observedRateDates count = 2
+
+    set resetRate: <"Rounds to explicit precision if specified; otherwise defaults to 7 decimal places for calculated rates.">
+        if rounding exists and rounding -> precision exists
+        then RoundToPrecision(
+                    unroundedRate,
+                    rounding -> precision,
+                    rounding -> roundingDirection,
+                    True
+                )
+        else RoundToPrecision(unroundedRate, 7, Nearest, True) // Default 7 decimal rounding for calculated rates
+
+func CalculateMultipleObservationResetRate: <"Calculates the unrounded reset value for Multiple Observation FROs using compounding methodology, then applies standard rounding.">
+    inputs:
+        observedRateDates DatedValue (1..*) <"The list of daily observed rates for the calculation period.">
+        dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction applied to determine the year fraction per day.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"Calculation method specified in the Confirmation (takes precedence).">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"Calculation method specified in the FRO Matrix (fallback).">
+        rounding Rounding (0..1) <"Optional explicit rounding rules.">
+    output:
+        resetRate number (1..1) <"The final rounded multiple observation reset rate.">
+
+    alias marketRates: <"Extracts all observed market rate values across the period.">
+        observedRateDates -> value
+
+    alias calendarDays: <"Total count of calendar day observations in the period.">
+        marketRates count
+
+    alias weights: <"Weighting array (1s) matching the number of calendar days in the period.">
+        RepeatNumber(1, calendarDays)
+
+    alias yearFraction: <"Calculates the single-day year fraction based on the day count fraction (1 / dayCountBasis).">
+        YearFractionForOneDay(dayCountFraction)
+
+    alias unroundedRate: <"Applies compounding logic if specified in Confirmation or FRO Matrix.">
+        if calculationMethodologyFromConfirmation exists
+                and calculationMethodologyFromConfirmation = Compounding
+        then ApplyCompoundingFormula(marketRates, weights, yearFraction) -> calculatedRate
+        else if calculationMethodologyFromFloatingRateOption exists
+                and calculationMethodologyFromFloatingRateOption = OISCompound
+        then ApplyCompoundingFormula(marketRates, weights, yearFraction) -> calculatedRate
+
+    condition MultipleMarketRates: <"Multiple observation FROs require 2 or more market rate observations.">
+        observedRateDates count > 1
+
+    set resetRate: <"Rounds to explicit precision if specified; otherwise defaults to 7 decimal places for calculated rates.">
+        if rounding exists and rounding -> precision exists
+        then RoundToPrecision(
+                    unroundedRate,
+                    rounding -> precision,
+                    rounding -> roundingDirection,
+                    True
+                )
+        else RoundToPrecision(unroundedRate, 7, Nearest, True)
 
 // COMPOSITION STATE CHANGES FOR RESET
 func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
@@ -218,6 +399,20 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
         then nextStepToAdd -> determineUnadjustedObservationDates -> unadjustedObservationDates
         else currentResetCompositionState -> unadjustedObservationDates
 
+    // Step 7: Final Calculation Results
+    set updatedResetCompositionState -> resetValue:
+        if nextStepToAdd -> calculateResetValue exists
+        then nextStepToAdd -> calculateResetValue -> resetValue
+        else currentResetCompositionState -> resetValue
+    set updatedResetCompositionState -> calculationMethod:
+        if nextStepToAdd -> calculateResetValue exists
+        then nextStepToAdd -> calculateResetValue -> calculationMethod
+        else currentResetCompositionState -> calculationMethod
+    set updatedResetCompositionState -> observedRateDates:
+        if nextStepToAdd -> calculateResetValue exists
+        then nextStepToAdd -> calculateResetValue -> observedRateDates
+        else currentResetCompositionState -> observedRateDates
+
 // NEXT STEP FOR RESET
 func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
     inputs:
@@ -225,3 +420,12 @@ func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process
         instructionCompositionOutput InstructionCompositionOutput (0..1)
     output:
         resetInstructionNextStep ResetInstructionSteps (0..1)
+
+// Function to fetch the market rates and observation dates key-value pairs
+func GetMarketRates: <"This function, given a floating rate index and a list of observation dates, fetches the corresponding market rate observations and returns the market rates and related observation dates in a key-value pair format.">
+    [codeImplementation]
+    inputs:
+        floatingRateIndex cdm.observable.asset.FloatingRateIndex (1..1) <"The floating rate index.">
+        observationDates date (1..*) <"The list of observation dates.">
+    output:
+        observedRateDates DatedValue (1..*) <"The list of market rate and observation dates key-value pairs.">
