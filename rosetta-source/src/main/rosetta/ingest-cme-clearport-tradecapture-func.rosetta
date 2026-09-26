@@ -1,0 +1,56 @@
+namespace cdm.ingest.cme.clearport: <"CME ClearPort FIXML 5.0 SP2 trade capture report mapping functions.">
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.math.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.party.*
+import cdm.event.common.*
+import cdm.event.workflow.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+func Ingest_CmeClearPortTradeCaptureToTradeState: <"Maps a CME ClearPort FIXML 5.0 SP2 TradeCaptureReport (<TrdCaptRpt>) into canonical CDM TradeState.">
+    inputs:
+        rptId string (1..1) <"Trade report identifier (RptID).">
+        trdId string (1..1) <"CME unique trade identifier (TrdID).">
+        execId string (0..1) <"Execution identifier (ExecID).">
+        symbol string (1..1) <"Contract symbol or instrument ticker (Sym).">
+        securityType string (0..1) <"Security type (SecTyp: FUT, OPT, SWP).">
+        tradeDate date (1..1) <"Trade execution date (TrdDt).">
+        lastPx number (1..1) <"Executed trade price (LastPx).">
+        lastQty number (1..1) <"Executed quantity / contract volume (LastQty).">
+        netMoney number (0..1) <"Notional net settlement money amount (NetMny).">
+        currency string (1..1) <"Settlement currency (Ccy/SettlCcy).">
+        buyerPartyId string (1..1) <"Buyer party identifier.">
+        sellerPartyId string (1..1) <"Seller party identifier.">
+        clearingFirmBuyer string (0..1) <"Clearing member firm or direct self-clearing identifier for buyer.">
+        clearingFirmSeller string (0..1) <"Clearing member firm or direct self-clearing identifier for seller.">
+    output:
+        tradeState TradeState (1..1)
+
+    set tradeState -> trade -> tradeIdentifier:
+        [
+            TradeIdentifier {
+                assignedIdentifier: [
+                    AssignedIdentifier {
+                        identifier: trdId asKey,
+                        version: 1
+                    }
+                ],
+                identifierType: TradeIdentifierTypeEnum -> UniqueTradeIdentifier
+            }
+        ]
+
+    set tradeState -> trade -> tradeDate -> date: tradeDate
+
+func Ingest_CmeClearPortTradeCaptureToWorkflowStep: <"Maps CME ClearPort FIXML 5.0 SP2 trade capture lifecycle confirmation into canonical CDM WorkflowStep.">
+    inputs:
+        rptId string (1..1) <"Trade report identifier (RptID).">
+        trdId string (1..1) <"CME unique trade identifier (TrdID).">
+        transType string (1..1) <"Transaction type: NEW, CANCEL, REPLACE.">
+        tradeState TradeState (1..1) <"The underlying CDM TradeState.">
+    output:
+        workflowStep WorkflowStep (1..1)
+
+    set workflowStep -> businessEvent -> after: [ tradeState ]
