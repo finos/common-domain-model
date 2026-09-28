@@ -583,9 +583,9 @@ func EquityCashSettlementAmount:
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
-    set equityCashSettlementAmount -> ScheduledTransfer -> partyReferencePayerReceiver -> payerPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> ScheduledTransfer -> partyReferencePayerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
     set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
