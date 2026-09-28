@@ -19,8 +19,12 @@ func MapFxDigitalOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlFxDigitalOption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlFxDigitalOption -> productModel),
+            identifier: MapProductIdentifierList(fpmlFxDigitalOption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlFxDigitalOption -> primaryAssetClass,
+                        fpmlFxDigitalOption -> secondaryAssetClass,
+                        fpmlFxDigitalOption -> productType
+                    ),
             economicTerms: MapFxDigitalOptionEconomicTerms(
                         fpmlFxDigitalOption,
                         cdmCounterpartyList
@@ -34,7 +38,10 @@ func MapFxDigitalOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlFxDigitalOption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlFxDigitalOption -> buyerPartyReference,
+                fpmlFxDigitalOption -> sellerPartyReference
+            )
 
 func MapFxDigitalOptionAncillaryPartyList:
     inputs:
@@ -74,14 +81,16 @@ func MapFxDigitalOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlFxDigitalOption -> buyerSellerModel,
+                                fpmlFxDigitalOption -> sellerPartyReference,
+                                fpmlFxDigitalOption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: MapFxDigitalOptionToSettlementTerms(
                                 fpmlFxDigitalOption
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlFxDigitalOption -> buyerSellerModel,
+                                fpmlFxDigitalOption -> buyerPartyReference,
+                                fpmlFxDigitalOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier: empty,
@@ -89,7 +98,8 @@ func MapFxDigitalOptionPayout:
                                 GetFpmlFxDigitalExercise(fpmlFxDigitalOption),
                                 fpmlFxDigitalOption -> exerciseProcedure,
                                 empty,
-                                fpmlFxDigitalOption -> buyerSellerModel,
+                                fpmlFxDigitalOption -> buyerPartyReference,
+                                fpmlFxDigitalOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     ...

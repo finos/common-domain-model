@@ -20,7 +20,10 @@ func MapCommoditySwaptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlCommoditySwaption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlCommoditySwaption -> buyerPartyReference,
+                fpmlCommoditySwaption -> sellerPartyReference
+            )
 
 func MapCommoditySwaptionAncillaryPartyList:
     inputs:
@@ -43,8 +46,12 @@ func MapCommoditySwaptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlCommoditySwaption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlCommoditySwaption -> productModel),
+            identifier: MapProductIdentifierList(fpmlCommoditySwaption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlCommoditySwaption -> primaryAssetClass,
+                        fpmlCommoditySwaption -> secondaryAssetClass,
+                        fpmlCommoditySwaption -> productType
+                    ),
             economicTerms: MapCommoditySwaptionEconomicTerms(
                         fpmlCommoditySwaption,
                         cdmCounterpartyList
@@ -76,14 +83,16 @@ func MapCommoditySwaptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlCommoditySwaption -> buyerSellerModel,
+                                fpmlCommoditySwaption -> sellerPartyReference,
+                                fpmlCommoditySwaption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: MapCommoditySwaptionSettlementTerms(
                                 fpmlCommoditySwaption
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlCommoditySwaption -> buyerSellerModel,
+                                fpmlCommoditySwaption -> buyerPartyReference,
+                                fpmlCommoditySwaption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -91,7 +100,10 @@ func MapCommoditySwaptionPayout:
                             Product:
                                 Product {
                                     NonTransferableProduct: MapUnderlierNonTransferableProduct(
-                                                fpmlCommoditySwaption -> commoditySwap -> commoditySwapDetailsModel,
+                                                fpmlCommoditySwaption -> commoditySwap -> commoditySwapLeg,
+                                                fpmlCommoditySwaption -> commoditySwap -> settlementCurrency,
+                                                fpmlCommoditySwaption -> commoditySwap -> effectiveDate,
+                                                fpmlCommoditySwaption -> commoditySwap -> terminationDate,
                                                 cdmCounterpartyList
                                             ),
                                     ...
@@ -105,7 +117,8 @@ func MapCommoditySwaptionPayout:
                                     ),
                                 empty,
                                 empty,
-                                fpmlCommoditySwaption -> buyerSellerModel,
+                                fpmlCommoditySwaption -> buyerPartyReference,
+                                fpmlCommoditySwaption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     strike: empty,
@@ -116,7 +129,10 @@ func MapCommoditySwaptionPayout:
 
 func MapUnderlierNonTransferableProduct:
     inputs:
-        fpmlCommoditySwapDetailsModel fpml.CommoditySwapDetailsModel (1..1)
+        fpmlCommoditySwapLegList fpml.CommodityLeg (0..*)
+        fpmlSettlementCurrency fpml.IdentifiedCurrency (0..1)
+        fpmlEffectiveDate fpml.AdjustableOrRelativeDate (0..1)
+        fpmlTerminationDate fpml.AdjustableOrRelativeDate (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         nonTransferableProduct NonTransferableProduct (0..1)
@@ -124,7 +140,10 @@ func MapUnderlierNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             economicTerms: commodityswap.MapCommoditySwapEconomicTerms(
-                        fpmlCommoditySwapDetailsModel,
+                        fpmlCommoditySwapLegList,
+                        fpmlSettlementCurrency,
+                        fpmlEffectiveDate,
+                        fpmlTerminationDate,
                         cdmCounterpartyList
                     ),
             ...
@@ -137,7 +156,7 @@ func MapCommoditySwaptionPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     alias fpmlCommoditySwaptionLegList:
-        fpmlCommoditySwaption -> commoditySwap -> commoditySwapDetailsModel -> commoditySwapLeg
+        fpmlCommoditySwaption -> commoditySwap -> commoditySwapLeg
 
     add priceQuantityList:
         fpmlCommoditySwaptionLegList
@@ -152,17 +171,3 @@ func MapCommoditySwaptionPriceQuantityList:
                 item switch
                     fpml.FloatingLeg then commodityswap.MapFloatingLegToPriceQuantity,
                     default empty
-
-func MapCommoditySwaptionAccountPartyReference:
-    inputs:
-        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlCommoditySwaption -> buyerSellerModel
-            )

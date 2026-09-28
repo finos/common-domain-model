@@ -11,7 +11,6 @@ import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.fx.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapFxSwapCounterpartyList:
     inputs:
@@ -21,7 +20,8 @@ func MapFxSwapCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlFxSwap -> nearLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1 -> payerPartyReference,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1 -> receiverPartyReference
             )
 
 func MapFxSwapNonTransferableProduct:
@@ -33,8 +33,12 @@ func MapFxSwapNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlFxSwap -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlFxSwap -> productModel),
+            identifier: MapProductIdentifierList(fpmlFxSwap -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlFxSwap -> primaryAssetClass,
+                        fpmlFxSwap -> secondaryAssetClass,
+                        fpmlFxSwap -> productType
+                    ),
             economicTerms: MapFxSwapEconomicTerms(fpmlFxSwap, cdmCounterpartyList)
         }
 
@@ -60,14 +64,22 @@ func MapFxSwapPayoutList:
 
     add payoutList:
         MapFxCoreDetailsModelToSettlementPayout(
-                fpmlFxSwap -> nearLeg -> fxCoreDetailsModel,
+                fpmlFxSwap -> nearLeg -> exchangeRate,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency2,
+                fpmlFxSwap -> nearLeg -> nonDeliverableSettlement,
+                fpmlFxSwap -> nearLeg -> valueDate,
                 fpmlFxSwap -> nearLeg,
                 cdmCounterpartyList
             )
 
     add payoutList:
         MapFxCoreDetailsModelToSettlementPayout(
-                fpmlFxSwap -> farLeg -> fxCoreDetailsModel,
+                fpmlFxSwap -> farLeg -> exchangeRate,
+                fpmlFxSwap -> farLeg -> exchangedCurrency1,
+                fpmlFxSwap -> farLeg -> exchangedCurrency2,
+                fpmlFxSwap -> farLeg -> nonDeliverableSettlement,
+                fpmlFxSwap -> farLeg -> valueDate,
                 fpmlFxSwap -> farLeg,
                 cdmCounterpartyList
             )
@@ -79,27 +91,17 @@ func MapFxSwapPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
-        MapFxCoreDetailsModelPriceQuantityList(
-                fpmlFxSwap -> nearLeg -> fxCoreDetailsModel,
+        MapFxCoreDetailsModelPriceQuantity(
+                fpmlFxSwap -> nearLeg -> exchangeRate,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency1,
+                fpmlFxSwap -> nearLeg -> exchangedCurrency2,
                 fpmlFxSwap -> nearLeg
             )
 
     add priceQuantityList:
-        MapFxCoreDetailsModelPriceQuantityList(
-                fpmlFxSwap -> farLeg -> fxCoreDetailsModel,
+        MapFxCoreDetailsModelPriceQuantity(
+                fpmlFxSwap -> farLeg -> exchangeRate,
+                fpmlFxSwap -> farLeg -> exchangedCurrency1,
+                fpmlFxSwap -> farLeg -> exchangedCurrency2,
                 fpmlFxSwap -> farLeg
-            )
-
-func MapFxSwapAccountPartyReference:
-    inputs:
-        fpmlFxSwap fpml.FxSwap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                [fpmlFxSwap -> nearLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel, fpmlFxSwap -> nearLeg -> fxCoreDetailsModel -> exchangedCurrency2 -> payerReceiverModel, fpmlFxSwap -> farLeg -> fxCoreDetailsModel -> exchangedCurrency1 -> payerReceiverModel, fpmlFxSwap -> farLeg -> fxCoreDetailsModel -> exchangedCurrency2 -> payerReceiverModel]
             )

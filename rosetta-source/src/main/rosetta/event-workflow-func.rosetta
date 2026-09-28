@@ -10,6 +10,7 @@ annotation creation: <"Annotation to describe the intent of a function">
 
     BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
     WorkflowStep WorkflowStep (0..1) <"Create a proposed, accepted or rejected WorkflowStep with details about the message, identifiers, event timestamps, parties and accounts involved in the step and allow the action to be set to New, Correct or Cancel.">
+    AgreementEvent AgreementEvent (0..1) <"An Agreement event function should take as its inputs the before state of the agreement, or in the case where there is no before state, all of the inputs required to produce the after agreement state.">
 
 func Create_WorkflowStep: <"Function to create a workflow step with a business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step. The function should be used when there is already a fully formed business event with the action set to signify that the step is new, or a correction/cancellation of a previous step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> New, New -> Correct, New -> Cancel, Correct -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
     [creation WorkflowStep]
@@ -141,8 +142,6 @@ func Create_AcceptedWorkflowStepFromInstruction: <"Represents the acceptance of 
 
     add acceptedWorkflowStep -> party:
         acceptedWorkflowStep -> businessEvent -> after -> trade -> party distinct
-    add acceptedWorkflowStep -> account:
-        acceptedWorkflowStep -> businessEvent -> after -> trade -> account distinct
 
 func Create_ProposedWorkflowStep: <"Represents the proposal to create a business event that results in a workflow step containing an instruction, message details, identifiers, event timestamps, parties and accounts. The optional previous workflow step input provides workflow lineage to where there has been a correction or cancellation to the proposed step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
     [creation WorkflowStep]
@@ -167,7 +166,10 @@ func Create_ProposedWorkflowStep: <"Represents the proposal to create a business
         if (previousWorkflowStep is absent or previousWorkflowStep -> businessEvent exists)
         then action = ActionEnum -> New
 
-    set proposedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
+    set proposedWorkflowStep -> action: <"Assign the workflowStep action.">
+        action
+
+    set proposedWorkflowStep -> messageInformation: <"Assign the workflowStep messageInformation.">
         messageInformation
 
     add proposedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">

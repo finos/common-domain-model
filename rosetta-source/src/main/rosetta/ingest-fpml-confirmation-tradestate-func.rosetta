@@ -50,7 +50,6 @@ import cdm.product.template.*
 
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.bond.option.* as fpml
-import fpml.consolidated.business.events.* as fpml
 import fpml.consolidated.cd.* as fpml
 import fpml.consolidated.com.* as fpml
 import fpml.consolidated.correlation.swaps.* as fpml
@@ -69,9 +68,10 @@ import fpml.consolidated.volatility.swaps.* as fpml
 func MapTradeState:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
-        fpmlEventValuationModel fpml.EventValuationModel (0..1)
-        fpmlAdditionalPartyTradeIdentifier fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
+        fpmlPartyList fpml.Party (0..*)
+        fpmlAccountList fpml.Account (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
+        fpmlAdditionalPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
     output:
         tradeState TradeState (0..1)
 
@@ -79,9 +79,10 @@ func MapTradeState:
         TradeState {
             trade: MapTrade(
                         fpmlTrade,
-                        fpmlPartiesAndAccountsModel,
-                        fpmlEventValuationModel,
-                        fpmlAdditionalPartyTradeIdentifier
+                        fpmlPartyList,
+                        fpmlAccountList,
+                        fpmlQuoteList,
+                        fpmlAdditionalPartyTradeIdentifierList
                     ),
             transferHistory: MapTransferStateList(fpmlTrade),
             ...
@@ -90,9 +91,10 @@ func MapTradeState:
 func MapTrade:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
-        fpmlEventValuationModel fpml.EventValuationModel (0..1)
-        fpmlAdditionalPartyTradeIdentifier fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
+        fpmlPartyList fpml.Party (0..*)
+        fpmlAccountList fpml.Account (0..*)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
+        fpmlAdditionalPartyTradeIdentifierList fpml.PartyTradeIdentifier (0..*) <"Additional PartyTradeIdentifier - i.e., not specified on the FpML trade.">
     output:
         trade Trade (0..1)
 
@@ -101,51 +103,46 @@ func MapTrade:
     set trade:
         Trade {
             product: MapNonTransferableProduct(fpmlTrade, counterpartyList),
-            tradeLot: MapTradeLotList(
-                        fpmlTrade,
-                        fpmlPartiesAndAccountsModel,
-                        fpmlEventValuationModel
-                    ),
+            tradeLot: MapTradeLotList(fpmlTrade, fpmlQuoteList),
             counterparty: counterpartyList,
             ancillaryParty: MapAncillaryPartyList(fpmlTrade, counterpartyList),
             adjustment: MapNotionalAdjustmentEnum(ExtractNotionalAdjustmentByLeg(fpmlTrade)),
             tradeIdentifier: MapTradeIdentifierList(
                         fpmlTrade -> tradeHeader,
-                        fpmlAdditionalPartyTradeIdentifier
+                        fpmlAdditionalPartyTradeIdentifierList
                     ),
             tradeDate: MapIdentifiedDate(fpmlTrade -> tradeHeader -> tradeDate),
             party: MapPartyList(
-                        fpmlPartiesAndAccountsModel -> party,
+                        fpmlPartyList,
                         fpmlTrade -> tradeHeader -> partyTradeInformation
                     ),
             partyRole: MapPartyRoleList(fpmlTrade),
             contractDetails: MapContractDetails(fpmlTrade, counterpartyList),
-            account: MapAccountList(fpmlTrade, fpmlPartiesAndAccountsModel),
             collateral: MapCollateral(fpmlTrade -> tradeHeader),
-            executionDetails: MapExecutionDetails(fpmlTrade, fpmlEventValuationModel),
+            executionDetails: MapExecutionDetails(fpmlTrade, fpmlQuoteList),
             ...
         }
 
 func MapExecutionDetails:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlEventValuationModel fpml.EventValuationModel (0..1)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
     output:
         executionDetails ExecutionDetails (0..1)
 
     alias quotationModel:
-        fpmlEventValuationModel -> quote -> quotationModel
+        fpmlQuoteList
             filter
-                quotationCharacteristicsModel -> measureType -> value = "PackagePrice"
-                    or quotationCharacteristicsModel -> measureType -> value = "PackageSpread"
+                measureType -> value = "PackagePrice"
+                    or measureType -> value = "PackageSpread"
             then only-element
 
     alias unitFromQuotation:
-        if quotationModel -> quotationCharacteristicsModel -> currency exists
-        then MapCurrency(quotationModel -> quotationCharacteristicsModel -> currency)
+        if quotationModel -> currency exists
+        then MapCurrency(quotationModel -> currency)
 
     alias arithmeticOp:
-        if quotationModel -> quotationCharacteristicsModel -> measureType -> value = "PackageSpread"
+        if quotationModel -> measureType -> value = "PackageSpread"
         then ArithmeticOperationEnum -> Add
         else empty
 
@@ -169,7 +166,8 @@ func MapExecutionDetails:
             packageReference:
                 IdentifiedList {
                     listId: MapIssuerTradeIdModelToIdentifier(
-                                fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> issuerTradeIdModel
+                                fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> issuer,
+                                fpmlTrade -> tradeHeader -> originatingPackage -> packageIdentifier -> tradeId
                             ),
                     price:
                         Price {
@@ -184,9 +182,9 @@ func MapExecutionDetails:
                                     currency: unitValue,
                                     ...
                                 },
-                            priceType: if quotationModel -> quotationCharacteristicsModel -> measureType -> value = "PackagePrice"
+                            priceType: if quotationModel -> measureType -> value = "PackagePrice"
                                     then AssetPrice
-                                else if quotationModel -> quotationCharacteristicsModel -> measureType -> value = "PackageSpread"
+                                else if quotationModel -> measureType -> value = "PackageSpread"
                                 then InterestRate,
                             arithmeticOperator: arithmeticOp,
                             ...
@@ -364,7 +362,10 @@ func MapNonTransferableProduct:
         }
 
     set nonTransferableProduct -> economicTerms -> calculationAgent:
-        MapCalculationAgent(fpmlTrade -> calculationAgentModel)
+        MapCalculationAgent(
+                fpmlTrade -> calculationAgent,
+                fpmlTrade -> calculationAgentBusinessCenter
+            )
 
     set nonTransferableProduct -> economicTerms -> nonStandardisedTerms:
         if fpmlTrade -> tradeHeader -> partyTradeInformation -> nonStandardTerms exists
@@ -372,31 +373,31 @@ func MapNonTransferableProduct:
 
 func MapCalculationAgent:
     inputs:
-        fpmlCalculationAgentModel fpml.CalculationAgentModel (0..1)
+        fpmlCalculationAgent fpml.CalculationAgent (0..1)
+        fpmlCalculationAgentBusinessCenter fpml.BusinessCenter (0..1)
     output:
         calculationAgent CalculationAgent (0..1)
 
     set calculationAgent:
         CalculationAgent {
-            calculationAgentParty: if fpmlCalculationAgentModel -> calculationAgent -> calculationAgentPartyReference -> href exists
+            calculationAgentParty: if fpmlCalculationAgent -> calculationAgentPartyReference -> href exists
                     then CalculationAgentIndependent,
             calculationAgentPartyEnum: empty,
             calculationAgentBusinessCenter: MapBusinessCenter(
-                        fpmlCalculationAgentModel -> calculationAgentBusinessCenter
+                        fpmlCalculationAgentBusinessCenter
             ),
         }
 
 func MapTradeLotList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
-        fpmlEventValuationModel fpml.EventValuationModel (0..1)
+        fpmlQuoteList fpml.BasicQuotation (0..*)
     output:
         tradeLotList TradeLot (0..*)
 
     alias quotationModel:
-        fpmlEventValuationModel -> quote -> quotationModel
-            filter quotationCharacteristicsModel -> measureType -> value = "PriceNotation"
+        fpmlQuoteList
+            filter measureType -> value = "PriceNotation"
             then only-element
 
     add tradeLotList:
@@ -408,7 +409,7 @@ func MapTradeLotList:
 func MapPriceQuantityList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
-        quotationModel fpml.QuotationModel (0..1)
+        fpmlQuotation fpml.BasicQuotation (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
@@ -437,7 +438,7 @@ func MapPriceQuantityList:
             fpml.FxVarianceSwap then MapFxVarianceSwapPriceQuantityList,
             fpml.FxVolatilitySwap then MapFxVolatilitySwapPriceQuantityList,
             fpml.GenericProduct then
-                MapGenericProductPriceQuantityList(item, quotationModel),
+                MapGenericProductPriceQuantityList(item, fpmlQuotation),
             fpml.ReturnSwap then MapReturnSwapPriceQuantityList,
             fpml.Swap then MapSwapPriceQuantityList,
             fpml.Swaption then MapSwaptionPriceQuantityList,

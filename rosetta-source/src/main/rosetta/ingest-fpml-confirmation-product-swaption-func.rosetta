@@ -4,7 +4,6 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
-import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.product.swap.* as swap
 import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
@@ -23,7 +22,10 @@ func MapSwaptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlSwaption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlSwaption -> buyerPartyReference,
+                fpmlSwaption -> sellerPartyReference
+            )
 
 func MapSwaptionAncillaryPartyList:
     inputs:
@@ -56,8 +58,12 @@ func MapSwaptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlSwaption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlSwaption -> productModel),
+            identifier: MapProductIdentifierList(fpmlSwaption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlSwaption -> primaryAssetClass,
+                        fpmlSwaption -> secondaryAssetClass,
+                        fpmlSwaption -> productType
+                    ),
             economicTerms: MapSwaptionEconomicTerms(fpmlSwaption, cdmCounterpartyList)
         }
 
@@ -92,7 +98,8 @@ func MapSwaptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> sellerPartyReference,
+                                fpmlSwaption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     settlementTerms: if fpmlSwaption -> cashSettlement exists
@@ -103,7 +110,8 @@ func MapSwaptionPayout:
                                 fpmlSwaption -> physicalSettlement
                             ),
                     buyerSeller: MapBuyerSeller(
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> buyerPartyReference,
+                                fpmlSwaption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     underlier:
@@ -126,7 +134,8 @@ func MapSwaptionPayout:
                                 fpmlSwaption -> exercise,
                                 fpmlSwaption -> exerciseProcedure,
                                 empty,
-                                fpmlSwaption -> buyerSellerModel,
+                                fpmlSwaption -> buyerPartyReference,
+                                fpmlSwaption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     ...
@@ -159,14 +168,3 @@ func MapSwaptionPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList: swap.MapSwapPriceQuantityList(fpmlSwaption -> swap)
-
-func MapSwaptionAccountPartyReference:
-    inputs:
-        fpmlSwaption fpml.Swaption (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(fpmlAccount, fpmlSwaption -> buyerSellerModel)

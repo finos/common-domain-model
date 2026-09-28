@@ -13,9 +13,9 @@ import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.doc.* as fpml
 import fpml.consolidated.generic.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapGenericProductCounterpartyList:
     inputs:
@@ -23,24 +23,31 @@ func MapGenericProductCounterpartyList:
     output:
         counterpartyList Counterparty (0..2)
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlGenericProduct -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlGenericProduct -> buyerPartyReference,
+                fpmlGenericProduct -> sellerPartyReference
+            )
 
 func MapGenericProductNonTransferableProduct:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
         cdmCounterpartyList Counterparty (0..2)
-        fpmlpartyTradeInformation fpml.PartyTradeInformation (0..*)
+        fpmlpartyTradeInformationList fpml.PartyTradeInformation (0..*)
     output:
         nonTransferableProduct NonTransferableProduct (0..1)
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlGenericProduct -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlGenericProduct -> productModel),
+            identifier: MapProductIdentifierList(fpmlGenericProduct -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlGenericProduct -> primaryAssetClass,
+                        fpmlGenericProduct -> secondaryAssetClass,
+                        fpmlGenericProduct -> productType
+                    ),
             economicTerms: MapGenericProductEconomicTerms(
                         fpmlGenericProduct,
                         cdmCounterpartyList,
-                        fpmlpartyTradeInformation
+                        fpmlpartyTradeInformationList
                     )
         }
 
@@ -48,7 +55,7 @@ func MapGenericProductEconomicTerms:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
         cdmCounterpartyList Counterparty (0..2)
-        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
+        fpmlPartyTradeInformationList fpml.PartyTradeInformation (0..*)
     output:
         economicTerms EconomicTerms (0..1)
 
@@ -67,7 +74,7 @@ func MapGenericProductEconomicTerms:
             dateAdjustments: empty, // MapBusinessDayAdjustments(fpmlTrade, fpmlPartiesAndAccountsModel),
             payout: MapGenericProductPayout(fpmlGenericProduct, cdmCounterpartyList),
             terminationProvision: empty, // MapTerminationProvision(fpmlTrade, fpmlPartiesAndAccountsModel),
-            nonStandardisedTerms: fpmlPartyTradeInformation
+            nonStandardisedTerms: fpmlPartyTradeInformationList
                     filter nonStandardTerms exists
                     then extract nonStandardTerms
                     then distinct only-element,
@@ -89,7 +96,8 @@ func MapGenericProductPayout:
                     SettlementPayout:
                         SettlementPayout {
                             payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                        buyerSellerModel,
+                                        sellerPartyReference,
+                                        buyerPartyReference,
                                         cdmCounterpartyList
                                     ),
                             priceQuantity:
@@ -120,15 +128,14 @@ func MapGenericProductPayout:
 func MapGenericProductPriceQuantityList:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
-        quotationModel fpml.asset.QuotationModel (0..1)
+        fpmlQuotation fpml.BasicQuotation (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    alias quotationModelValue: quotationModel -> value / 100
+    alias quotationModelValue: fpmlQuotation -> value / 100
     alias unitFromQuotation:
-        if quotationModel -> quotationCharacteristicsModel -> currency exists
-        then quotationModel -> quotationCharacteristicsModel
-            then extract MapCurrency(if currency exists then currency)
+        if fpmlQuotation -> currency exists
+        then MapCurrency(fpmlQuotation -> currency)
 
     alias unitFromNotional:
         fpmlGenericProduct -> notional
@@ -162,26 +169,13 @@ func MapGenericProductPriceQuantityList:
                                 empty,
                                 currency,
                                 empty
-                            ),
+                            )
+                    then only-element,
             observable: fpmlGenericProduct -> underlyer -> underlyingAsset
                     first
                     then extract MapAssetToObservableWithLocation,
             ...
         }
-
-func MapGenericProductAccountPartyReference:
-    inputs:
-        fpmlGenericProduct fpml.GenericProduct (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlGenericProduct -> buyerSellerModel
-            )
 
 func MapGenericProductBaseQuantityListWithAddress:
     inputs:

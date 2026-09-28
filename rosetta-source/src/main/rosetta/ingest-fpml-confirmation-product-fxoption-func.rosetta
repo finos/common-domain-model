@@ -26,7 +26,10 @@ func MapFxOptionCounterpartyList:
         counterpartyList Counterparty (0..2)
 
     add counterpartyList:
-        MapBuyerSellerModelToCounterpartyList(fpmlFxOption -> buyerSellerModel)
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlFxOption -> buyerPartyReference,
+                fpmlFxOption -> sellerPartyReference
+            )
 
 func MapFxOptionAncillaryPartyList:
     inputs:
@@ -50,8 +53,12 @@ func MapFxOptionNonTransferableProduct:
 
     set nonTransferableProduct:
         NonTransferableProduct {
-            identifier: MapProductIdentifierList(fpmlFxOption -> productModel),
-            taxonomy: MapProductTaxonomyList(fpmlFxOption -> productModel),
+            identifier: MapProductIdentifierList(fpmlFxOption -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlFxOption -> primaryAssetClass,
+                        fpmlFxOption -> secondaryAssetClass,
+                        fpmlFxOption -> productType
+                    ),
             economicTerms: MapFxOptionEconomicTerms(fpmlFxOption, cdmCounterpartyList)
         }
 
@@ -83,7 +90,8 @@ func MapFxOptionPayout:
             OptionPayout:
                 OptionPayout {
                     payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                fpmlFxOption -> buyerSellerModel,
+                                fpmlFxOption -> sellerPartyReference,
+                                fpmlFxOption -> buyerPartyReference,
                                 cdmCounterpartyList
                             ),
                     priceQuantity:
@@ -93,7 +101,8 @@ func MapFxOptionPayout:
                         },
                     settlementTerms: MapFxOptionToSettlementTerms(fpmlFxOption),
                     buyerSeller: MapBuyerSeller(
-                                fpmlFxOption -> buyerSellerModel,
+                                fpmlFxOption -> buyerPartyReference,
+                                fpmlFxOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     observationTerms: MapFxOptionFeaturesToObservationTerms(
@@ -115,7 +124,8 @@ func MapFxOptionPayout:
                                 GetFpmlFxExercise(fpmlFxOption),
                                 fpmlFxOption -> exerciseProcedure,
                                 empty,
-                                fpmlFxOption -> buyerSellerModel,
+                                fpmlFxOption -> buyerPartyReference,
+                                fpmlFxOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
                     strike: MapFxOptionStrikePrice(fpmlFxOption),
@@ -131,7 +141,7 @@ func MapFxOptionFeaturesToObservationTerms:
         observationTerms ObservationTerms (0..1)
 
     set observationTerms:
-        fpmlFeatures -> fxOptionFeaturesSequence -> asian
+        fpmlFeatures -> asian
             then extract
                 ObservationTerms {
                     observationTime: MapBusinessCenterTime(fixingTime),
@@ -141,7 +151,7 @@ func MapFxOptionFeaturesToObservationTerms:
                             ...
                         },
                     observationDates: MapObservationScheduleToObservationDates(
-                                fxAsianFeatureSequence -> observationSchedule
+                                observationSchedule
                             ),
                     ...
                 }
@@ -185,8 +195,9 @@ func GetExchangedCurrencyAmount:
     inputs:
         fpmlFxOption fpml.FxOption (0..1)
     output:
-        nonNegativeMoney fpml.NonNegativeMoney (0..1)
-    set nonNegativeMoney:
+        fpmlNonNegativeMoney fpml.NonNegativeMoney (0..1)
+
+    set fpmlNonNegativeMoney:
         if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
         then fpmlFxOption -> putCurrencyAmount
         else fpmlFxOption -> callCurrencyAmount
@@ -246,19 +257,58 @@ func MapFxOptionPriceQuantityList:
     alias exchangeCurrency: GetExchangedCurrencyAmount(fpmlFxOption) -> currency
 
     add priceQuantityList:
-        PriceQuantity {
-            quantity: MapFxOptionToQuantityListWithLocation(fpmlFxOption),
+        if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+        then PriceQuantity {
+                price:
+                    PriceSchedule {
+                        priceType: empty,
+                        derivedQuantity: CreateQuantityWithLocation(
+                                    MapCurrencyAmountToQuantity(
+                                            fpmlFxOption -> callCurrencyAmount -> amount,
+                                            empty,
+                                            fpmlFxOption -> callCurrencyAmount -> currency,
+                                            empty
+                                        ),
+                                    CreateQuantityKey("callCurrencyAmount", empty)
+                                ),
+                        ...
+                    },
+                quantity: CreateQuantityWithLocation(
+                            MapCurrencyAmountToQuantity(
+                                    fpmlFxOption -> putCurrencyAmount -> amount,
+                                    empty,
+                                    fpmlFxOption -> putCurrencyAmount -> currency,
+                                    empty
+                                ),
+                            CreateQuantityKey("putCurrencyAmount", empty)
+                        ),
+                observable: MapCurrencyToObservableCashWithLocation(exchangeCurrency, empty),
+                ...
+            }
+        else PriceQuantity {
+            price:
+                PriceSchedule {
+                    priceType: empty,
+                    derivedQuantity: CreateQuantityWithLocation(
+                                MapCurrencyAmountToQuantity(
+                                        fpmlFxOption -> putCurrencyAmount -> amount,
+                                        empty,
+                                        fpmlFxOption -> putCurrencyAmount -> currency,
+                                        empty
+                                    ),
+                                CreateQuantityKey("putCurrencyAmount", empty)
+                            ),
+                    ...
+                },
+            quantity: CreateQuantityWithLocation(
+                        MapCurrencyAmountToQuantity(
+                                fpmlFxOption -> callCurrencyAmount -> amount,
+                                empty,
+                                fpmlFxOption -> callCurrencyAmount -> currency,
+                                empty
+                            ),
+                        CreateQuantityKey("callCurrencyAmount", empty)
+                    ),
             observable: MapCurrencyToObservableCashWithLocation(exchangeCurrency, empty),
             ...
         }
-
-func MapFxOptionAccountPartyReference:
-    inputs:
-        fpmlFxOption fpml.FxOption (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(fpmlAccount, fpmlFxOption -> buyerSellerModel)

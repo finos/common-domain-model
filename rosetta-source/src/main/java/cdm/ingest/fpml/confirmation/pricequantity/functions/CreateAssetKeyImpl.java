@@ -9,7 +9,7 @@ public class CreateAssetKeyImpl extends CreateAssetKey {
 
     @Override
     protected String doEvaluate(String keyPrefix, Asset fpmlAsset) {
-        int index = Optional.ofNullable(fpmlAsset).map(Objects::hashCode).orElse(2) % 1000;
+        int index = Optional.ofNullable(fpmlAsset).map(Objects::hashCode).orElse(2) % 10000;
         return String.format("%s-$%d",
                 Optional.ofNullable(keyPrefix).orElse("empty"),
                 Math.abs(index));

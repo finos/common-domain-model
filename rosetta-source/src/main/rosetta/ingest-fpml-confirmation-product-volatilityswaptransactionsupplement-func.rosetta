@@ -9,7 +9,6 @@ import cdm.observable.asset.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.shared.* as fpml
 import fpml.consolidated.volatility.swaps.* as fpml
 
 func MapVolatilitySwapTransactionSupplementCounterpartyList:
@@ -20,7 +19,8 @@ func MapVolatilitySwapTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg first -> payerReceiverModel
+                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg first -> payerPartyReference,
+                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg first -> receiverPartyReference
             )
 
 func MapVolatilitySwapTransactionSupplementNonTransferableProduct:
@@ -33,10 +33,12 @@ func MapVolatilitySwapTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlVolatilitySwapTransactionSupplement -> productModel
+                        fpmlVolatilitySwapTransactionSupplement -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlVolatilitySwapTransactionSupplement -> productModel
+                        fpmlVolatilitySwapTransactionSupplement -> primaryAssetClass,
+                        fpmlVolatilitySwapTransactionSupplement -> secondaryAssetClass,
+                        fpmlVolatilitySwapTransactionSupplement -> productType
                     ),
             economicTerms: MapVolatilitySwapTransactionSupplementEconomicTerms(
                         fpmlVolatilitySwapTransactionSupplement,
@@ -67,17 +69,3 @@ func MapVolatilitySwapTransactionSupplementPriceQuantityList:
     add priceQuantityList:
         fpmlVolatilitySwapTransactionSupplement -> volatilityLeg
             extract MapVolatilityLegToPriceQuantity
-
-func MapVolatilitySwapTransactionSupplementAccountPartyReference:
-    inputs:
-        fpmlVolatilitySwapTransactionSupplement fpml.VolatilitySwapTransactionSupplement (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlVolatilitySwapTransactionSupplement -> volatilityLeg -> payerReceiverModel
-            )

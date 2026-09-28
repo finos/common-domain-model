@@ -9,7 +9,6 @@ import cdm.observable.asset.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.shared.* as fpml
 import fpml.consolidated.variance.swaps.* as fpml
 
 func MapVarianceSwapTransactionSupplementCounterpartyList:
@@ -20,7 +19,8 @@ func MapVarianceSwapTransactionSupplementCounterpartyList:
 
     add counterpartyList:
         MapPayerReceiverModelToCounterpartyList(
-                fpmlVarianceSwapTransactionSupplement -> varianceLeg first -> payerReceiverModel
+                fpmlVarianceSwapTransactionSupplement -> varianceLeg first -> payerPartyReference,
+                fpmlVarianceSwapTransactionSupplement -> varianceLeg first -> receiverPartyReference
             )
 
 func MapVarianceSwapTransactionSupplementNonTransferableProduct:
@@ -33,10 +33,12 @@ func MapVarianceSwapTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                        fpmlVarianceSwapTransactionSupplement -> productModel
+                        fpmlVarianceSwapTransactionSupplement -> productId
                     ),
             taxonomy: MapProductTaxonomyList(
-                        fpmlVarianceSwapTransactionSupplement -> productModel
+                        fpmlVarianceSwapTransactionSupplement -> primaryAssetClass,
+                        fpmlVarianceSwapTransactionSupplement -> secondaryAssetClass,
+                        fpmlVarianceSwapTransactionSupplement -> productType
                     ),
             economicTerms: MapVarianceSwapTransactionSupplementEconomicTerms(
                         fpmlVarianceSwapTransactionSupplement,
@@ -67,17 +69,3 @@ func MapVarianceSwapTransactionSupplementPriceQuantityList:
     add priceQuantityList:
         fpmlVarianceSwapTransactionSupplement -> varianceLeg
             extract MapVarianceLegToPriceQuantity
-
-func MapVarianceSwapTransactionSupplementAccountPartyReference:
-    inputs:
-        fpmlVarianceSwapTransactionSupplement fpml.VarianceSwapTransactionSupplement (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapPayerReceiverToAccountPartyReference(
-                fpmlAccount,
-                fpmlVarianceSwapTransactionSupplement -> varianceLeg -> payerReceiverModel
-            )
