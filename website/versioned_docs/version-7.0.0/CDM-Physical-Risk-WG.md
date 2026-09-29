@@ -16,7 +16,7 @@ As physical risks intensify, leading to increased insurance premiums and the pot
 
 ## Meetings
 
-Join us every second Tuesday at 2 PM EST / 9 AM BST. Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+**Join us on the second Tuesday of every month at 2 PM EST / 9 AM BST.** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/93988274402?password=cc529a12-6925-413d-a7a8-19ec7a37cfdc&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
 
 ## Subscribe
 
