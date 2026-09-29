@@ -6,9 +6,11 @@ title: Updating Expectations
 
 When a contribution changes the CDM model, the recorded results that the CDM's regression tests check against usually need to be regenerated to match. This process is referred to as *updating expectations*, and it is a required step before most Pull Requests can be contributed to the CDM.
 
+**NOTE: The editor being used/supported in the examples in IntelliJ**
+
 ### What are expectations?
 
-The CDM follows a test-driven development approach: a set of sample data, organised into *Test Packs*, is run through the model's translation, validation, qualification and function logic, and the results produced are captured as *expected results* (or *expectations*). These expectations are stored as JSON files alongside the samples, under `rosetta-source/src/main/resources`, and are compared against the model's actual output every time the CDM is built.
+All CDM model changes are covered by tests: a set of sample data, organised into *Test Packs*, is run through the model's translation, validation, qualification and function logic, and the results produced are captured as *expected results* (or *expectations*). These expectations are stored as JSON files alongside the samples, under `rosetta-source/src/main/resources`, and are compared against the model's actual output every time the CDM is built.
 
 - Test Pack samples include FpML documents and other industry data used to exercise the model's mapping (translation) logic.
 - Function input and output samples exercise the CDM's standardised functions.
