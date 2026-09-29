@@ -4,10 +4,14 @@ import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.event.instructioncomposition.CompositionStepInstructions;
 import cdm.event.instructioncomposition.reset.AdjustPeriodInstruction;
 import cdm.event.instructioncomposition.reset.AdjustDateInstruction;
+import cdm.event.instructioncomposition.reset.AdjustObservationDatesInstruction;
 import cdm.event.instructioncomposition.reset.CollectFloatingRateOptionInstruction;
 import cdm.event.instructioncomposition.reset.DetermineUnadjustedCalculationPeriodInstruction;
+import cdm.event.instructioncomposition.reset.DetermineUnadjustedObservationDatesInstruction;
 import cdm.event.instructioncomposition.reset.ResetInstructionState;
 import cdm.product.common.schedule.CalculationPeriodBase;
+import cdm.observable.asset.fro.FloatingRateIndexDefinition;
+import cdm.observable.asset.fro.FloatingRateIndexIdentification;
 import com.rosetta.model.lib.records.Date;
 import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +19,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -234,6 +240,110 @@ class UpdateResetCompositionStateTest extends AbstractFunctionTest {
 
             assertNull(result.getAdjustedResetDate(),
                     "adjustedResetDate must be null when both current state and step instruction are absent");
+        }
+    }
+
+    @Nested
+    @DisplayName("Step 5 - Determine Unadjusted Observation Dates")
+    class DetermineUnadjustedObservationDatesTest {
+
+        @Test
+        @DisplayName("Sets unadjustedObservationDates from the step instruction when determineUnadjustedObservationDates is present")
+        void shouldSetUnadjustedObservationDatesFromStepWhenDetermineUnadjustedObservationDatesIsPresent() {
+            List<Date> observationDates = Arrays.asList(Date.of(2024, 1, 15), Date.of(2024, 1, 16));
+
+            CompositionStepInstructions nextStep = CompositionStepInstructions.builder()
+                    .setDetermineUnadjustedObservationDates(DetermineUnadjustedObservationDatesInstruction.builder()
+                            .setUnadjustedObservationDates(observationDates)
+                            .setFloatingRateIndexData(buildFloatingRateIndexDefinition())
+                            .build())
+                    .build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, nextStep);
+
+            assertEquals(observationDates, result.getUnadjustedObservationDates(),
+                    "unadjustedObservationDates must be taken from the step instruction");
+        }
+
+        @Test
+        @DisplayName("Carries forward unadjustedObservationDates from the current state when determineUnadjustedObservationDates is absent")
+        void shouldCarryForwardUnadjustedObservationDatesFromCurrentStateWhenDetermineUnadjustedObservationDatesIsAbsent() {
+            List<Date> observationDates = Arrays.asList(Date.of(2024, 1, 15), Date.of(2024, 1, 16));
+            ResetInstructionState currentState = ResetInstructionState.builder()
+                    .setUnadjustedObservationDates(observationDates)
+                    .build();
+            CompositionStepInstructions nextStepWithoutDetermineUnadjustedObservationDates = CompositionStepInstructions.builder().build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(currentState, nextStepWithoutDetermineUnadjustedObservationDates);
+
+            assertEquals(observationDates, result.getUnadjustedObservationDates(),
+                    "unadjustedObservationDates must be carried forward from the current state");
+        }
+
+        @Test
+        @DisplayName("Produces null unadjustedObservationDates when determineUnadjustedObservationDates is absent and current state is absent")
+        void shouldProduceEmptyUnadjustedObservationDatesWhenDetermineUnadjustedObservationDatesAndCurrentStateAreBothAbsent() {
+            CompositionStepInstructions nextStepWithoutDetermineUnadjustedObservationDates = CompositionStepInstructions.builder().build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, nextStepWithoutDetermineUnadjustedObservationDates);
+
+            assertNull(result.getUnadjustedObservationDates(),
+                    "unadjustedObservationDates must be null when both current state and step instruction are absent");
+        }
+    }
+
+    // -------- Helper methods -----------
+
+    private static FloatingRateIndexDefinition buildFloatingRateIndexDefinition() {
+        return FloatingRateIndexDefinition.builder()
+                .setFro(FloatingRateIndexIdentification.builder().build())
+                .build();
+    }
+
+    @Nested
+    @DisplayName("Step 6 - Adjusted Observation Dates")
+    class AdjustObservationDatesTests {
+
+        @Test
+        @DisplayName("Takes adjusted observation dates from the next step when present")
+        void shouldTakeAdjustedObservationDatesFromNextStepWhenPresent() {
+            List<Date> observationDates = Arrays.asList(Date.of(2024, 1, 15), Date.of(2024, 1, 16), Date.of(2024, 1, 17));
+
+            CompositionStepInstructions nextStep = CompositionStepInstructions.builder()
+                    .setAdjustObservationDates(AdjustObservationDatesInstruction.builder()
+                            .setAdjustedObservationDates(observationDates))
+                    .build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, nextStep);
+
+            assertEquals(observationDates, result.getAdjustedObservationDates(),
+                    "adjustedObservationDates must be taken from the step instruction");
+        }
+
+        @Test
+        @DisplayName("Carries forward adjusted observation dates from current state when absent from next step")
+        void shouldCarryForwardAdjustedObservationDatesFromCurrentStateWhenAbsentFromNextStep() {
+            List<Date> existingDates = Arrays.asList(Date.of(2023, 6, 1), Date.of(2023, 6, 2));
+
+            ResetInstructionState currentState = ResetInstructionState.builder()
+                    .setAdjustedObservationDates(existingDates)
+                    .build();
+
+            CompositionStepInstructions nextStepWithoutStep6 = CompositionStepInstructions.builder().build();
+
+            ResetInstructionState result = updateResetCompositionState.evaluate(currentState, nextStepWithoutStep6);
+
+            assertEquals(existingDates, result.getAdjustedObservationDates(),
+                    "adjustedObservationDates must be carried forward from the current state");
+        }
+
+        @Test
+        @DisplayName("Returns null adjusted observation dates when absent from both next step and current state")
+        void shouldReturnNullAdjustedObservationDatesWhenAbsentFromBothNextStepAndCurrentState() {
+            ResetInstructionState result = updateResetCompositionState.evaluate(null, CompositionStepInstructions.builder().build());
+
+            assertNull(result.getAdjustedObservationDates(),
+                    "adjustedObservationDates must be null when both current state and step instruction are absent");
         }
     }
 }
