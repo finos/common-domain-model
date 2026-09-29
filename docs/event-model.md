@@ -282,7 +282,7 @@ is in, from instruction to settlement or rejection.
 
 :::tip Definition: Transfer
 
-Defines the transfer of an Asset (eg cash, securities or commodities)
+Defines the movement of an Asset (eg cash, securities or commodities)
 between two parties on a date.
 
 :::
@@ -298,30 +298,21 @@ type TransferState:
 ``` Haskell
 choice Transfer:
     ScheduledTransfer
-    UnscheduledTransfer
-    ContingentTransfer
+    UnscheduledTransfer 
+    ContingentTransfer   
 
-type UnscheduledTransfer extends TransferBase:
-    transferType UnscheduledTransferEnum (0..1)
+type UnscheduledTransfer extends TransferBase: 
+    transferType UnscheduledTransferEnum (0..1) 
 
-    condition PartyReferencePayerReceiverExists:
-        partyReferencePayerReceiver exists
-
-type ScheduledTransfer extends PayoutTransferBase:
+type ScheduledTransfer extends TransferBase:
     transferType ScheduledTransferEnum (1..1)
-
-type ContingentTransfer extends PayoutTransferBase:
-    transferType ContingentTransferEnum (0..1)
-    corporateActionTransferType CorporateActionTypeEnum (0..1)
-
-    condition CorporateActionTransferTypeExists:
-        if transferType = CorporateAction
-        then corporateActionTransferType exists
-
-type PayoutTransferBase extends TransferBase:
-    payerReceiver PayerReceiver (0..1)
     payoutReference Payout (0..1)
         [metadata reference]
+        
+type ContingentTransfer extends TransferBase:
+    transferType ContingentTransferEnum (0..1)
+    payoutReference Payout (0..1) 
+    corporateActionTransferType CorporateActionTypeEnum (0..1)
 ```
 
 ## Primitive Events {#primitive-event}

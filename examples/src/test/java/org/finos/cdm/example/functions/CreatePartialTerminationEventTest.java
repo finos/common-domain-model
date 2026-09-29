@@ -95,7 +95,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                         .setTransfer(Transfer.builder()
                                 .setUnscheduledTransfer(UnscheduledTransfer.builder()
                                         .setTransferType(UnscheduledTransferEnum.PARTIAL_TERMINATION)
-                                        .setPartyReferencePayerReceiver(PartyReferencePayerReceiver.builder()
+                                        .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                                 .setPayerPartyReference(payerPartyReference)
                                                 .setReceiverPartyReference(receiverPartyReference))
                                         .setQuantity(NonNegativeQuantity.builder()
