@@ -24,6 +24,9 @@ type DetermineUnadjustedObservationDatesInstruction: <"Instruction that holds th
     unadjustedObservationDates date (1..*)
     floatingRateIndexData FloatingRateIndexDefinition (1..1)
 
+type AdjustObservationDatesInstruction: <"Instruction that holds the adjusted observation dates.">
+    adjustedObservationDates date (1..*)
+
 type ResetInstructionState: <"The definitive state object for the Reset process. It acts as a cumulative 'Golden Record,' storing every data point captured from Step 1 (Index Collection) through Step 7 (Final Calculation) to ensure deterministic processing.">
 
     // Step 1 - CollectFloatingRateOptionInstruction
@@ -39,6 +42,8 @@ type ResetInstructionState: <"The definitive state object for the Reset process.
     // Step 5 - DetermineUnadjustedObservationDatesInstruction
     unadjustedObservationDates date (0..*) <"The raw dates on which the market rate should be observed according to the index definition.">
     floatingRateOptionData FloatingRateIndexDefinition (0..1) <"The specific day count fraction, fixings, and lookback parameters associated with the chosen index.">
+    // Step 6 - AdjustObservationDatesInstruction
+    adjustedObservationDates date (0..*) <"The final set of observation dates adjusted for bank holidays and index-specific calendars.">
 
 type ResetInstructionSteps: <"A wrapper that encapsulates the specific ResetInstructionCompositionStepsEnum, allowing the engine to identify the exact phase of the Reset lifecycle currently being processed.">
     resetInstructionCompositionSteps ResetInstructionCompositionStepsEnum (1..1)
