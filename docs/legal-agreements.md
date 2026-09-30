@@ -334,7 +334,7 @@ type Agreement:
   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
   securityAgreementElections SecurityAgreementElections (0..1)
-  masterAgreementSchedule MasterAgreementSchedule (0..1)
+  clauseLibrarySchedule ClauseLibrarySchedule (0..1)
   transactionAdditionalTerms TransactionAdditionalTerms (0..1)
   masterAgreementElections MasterAgreementElections (0..1)
   condition: one-of
@@ -378,7 +378,7 @@ type of information such as an amount, date or city).
 ## Master Agreement Schedule
 
 Legal documentation is required to describe the contract between parties on 
-every transaction. Specific master agreement types are available under the master namespace, and include the standard terms of ISDA, ISLA, and ICMA Master Agreements. The structures under the `MasterAgreementSchedule` have been
+every transaction. Specific master agreement types are available under the master namespace, and include the standard terms of ISDA, ISLA, and ICMA Master Agreements. The structures under the `ClauseLibrarySchedule` have been
 created to be domain agnostic, and generic enough to describe any industry 
 standard or bespoke master agreement.
 
@@ -398,13 +398,13 @@ the publisher of a legal document.
 
 ### Clause
 
-The `MasterAgreementSchedule` is where the details of the master agreement are 
+The `ClauseLibrarySchedule` is where the details of the master agreement are 
 defined. This is made up of a list of the clauses that make up that agreement. 
 Each clause must have at least one variant associated to it.
 
 ``` Haskell
-type MasterAgreementSchedule:
-	clause MasterAgreementClause (1..*)
+type ClauseLibrarySchedule:
+	clause ClauseLibraryClause (1..*)
 ```
 
 The `clause` allows a list of clauses to be represented, with each element in 
@@ -412,12 +412,12 @@ the list representing a single clause in the agreement. Each clause has the
 following data that can be defined for it.
 
 ``` Haskell
-type MasterAgreementClause:
-	identifer MasterAgreementClauseIdentifierEnum (1..1)
+type ClauseLibraryClause:
+	identifer AssignedIdentifier (1..1)
     name string (0..1)
     counterparty CounterpartyRoleEnum (0..2) 
     otherParty PartyRoleEnum (0..*) 
-    variant MasterAgreementClauseVariant (1..*)
+    variant ClauseLibraryClauseVariant (1..*)
 ```
 
 ---
@@ -436,12 +436,12 @@ for the variant that has been selected for this clause. Note that it is also
 possible that a clause can reference multiple variants.
 
 ``` Haskell
-type MasterAgreementClauseVariant: 
-    identifier MasterAgreementVariantIdentifierEnum (1..1) 
+type ClauseLibraryClauseVariant: 
+    identifier AssignedIdentifier (1..1) 
     name string (0..1) 
     counterparty CounterpartyRoleEnum (0..2) 
     otherParty PartyRoleEnum (0..*) 
-    variableSet MasterAgreementVariableSet (0..*)
+    variableSet ClauseLibraryVariableSet (0..*)
 ```
 
 ---
@@ -464,13 +464,13 @@ defined in the agreement documentation or Clause Library that represents that
 agreement.
 
 ``` Haskell
-type MasterAgreementVariableSet: 
-    variableSet MasterAgreementVariableSet (0..*) 
+type ClauseLibraryVariableSet: 
+    variableSet ClauseLibraryVariableSet (0..*) 
     name string (0..1) 
     value string (0..1) 
 ```
 
-The `MasterAgreementVariableSet` also includes a reference to itself. This 
+The `ClauseLibraryVariableSet` also includes a reference to itself. This 
 allows tables of values rather than just single values to be entered for a 
 clause variant. To prevent anything deeper than a table of data to be 
 represented (i.e. columns and rows) a condition has been added to only allow two
