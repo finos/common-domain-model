@@ -10,9 +10,9 @@ When a contribution changes the CDM model, the expected results that the CDM's r
 
 ### What are expectations?
 
-All CDM model changes are covered by tests: a set of sample data, organised into *Test Packs*, is run through the model's translation, validation, qualification and function logic, and the results produced are captured as *expected results* (or *expectations*). These expectations are stored as JSON files alongside the samples, under `rosetta-source/src/main/resources`, and are compared against the model's actual output every time the CDM is built.
+All CDM model changes are covered by tests: a set of sample data, organised into *Test Packs*, is run through the model's ingestion, validation, qualification and function logic, and the results produced are captured as *expected results* (or *expectations*). These expectations are stored as JSON files alongside the samples, under `rosetta-source/src/main/resources`, and are compared against the model's actual output every time the CDM is built.
 
-- Test Pack samples include FpML documents and other industry data used to exercise the model's mapping (translation) logic.
+- Test Pack samples include FpML documents and other industry data used to exercise the model's mapping (ingestion) logic.
 - Function input and output samples exercise the CDM's standardised functions.
 - Every regression test compares the current, actual output for a given sample against its stored expectation, and fails the build if the two differ.
 
