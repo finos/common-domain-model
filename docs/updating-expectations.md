@@ -4,7 +4,7 @@ title: Updating Expectations
 
 ## Updating expectations
 
-When a contribution changes the CDM model, the recorded results that the CDM's regression tests check against usually need to be regenerated to match. This process is referred to as *updating expectations*, and it is a required step before most Pull Requests can be contributed to the CDM.
+When a contribution changes the CDM model, the expected results that the CDM's regression tests check against usually need to be regenerated to match. This process is referred to as *updating expectations*, and it is a required step before most Pull Requests can be contributed to the CDM.
 
 **NOTE: The editor being used/supported in the examples in IntelliJ**
 
