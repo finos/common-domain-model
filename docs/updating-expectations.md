@@ -20,7 +20,7 @@ All CDM model changes are covered by tests: a set of sample data, organised into
 
 Editing a data type, a mapping, a validation rule, a qualification rule or a function changes the output the model produces for the existing samples. Once that happens, the expectations recorded against the previous version of the model no longer match, and the regression tests fail, even when the model change is correct and intended.
 
-Updating expectations regenerates those expected results from the current state of the model and its samples, so the Test Pack reflects the intended behaviour rather than the previous one. This is why the [development guidelines](dev-guidelines.md) require that all translate regression test expectations for mapping, validation and qualification are maintained or improved before a change is contributed.
+Updating expectations regenerates those expected results from the current state of the model and its samples, so the Test Pack reflects the intended behaviour rather than the previous one. This is why the [development guidelines](dev-guidelines.md) require that all ingestion regression test expectations for mapping, validation and qualification are maintained or improved before a change is contributed.
 
 ---
 **Note:**
@@ -38,8 +38,8 @@ mvn clean install -U -DskipTests -P format,update-expectations
 
 This command combines two Maven profiles:
 
-- `format`, defined in the `rosetta-source` module, runs at the `validate` phase and reformats the `.rosetta` model source files.
-- `update-expectations`, defined in the `tests` module, runs at the `process-test-classes` phase and executes `CdmTestPackCreator`, which re-ingests the Test Pack samples and rewrites the corresponding expectation and function sample files under `rosetta-source/src/main/resources`.
+- `format`, defined in the `rosetta-source` module, formats the `.rosetta` model source files.
+- `update-expectations`, defined in the `tests` module, executes `CdmTestPackCreator`, which re-ingests the Test Pack samples and rewrites the corresponding expectation and function sample files under `rosetta-source/src/main/resources`.
 
 The remaining options serve the following purpose:
 
