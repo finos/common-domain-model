@@ -19,10 +19,17 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                 PriceQuantity {
                     price: priceQuantity -> price
                             extract
-                                UpdatePriceAmountForEachMatchingQuantity(
-                                        item,
-                                        change, // -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
-                                        direction
+                                RescaleDerivedQuantity(
+                                        UpdatePriceAmountForEachMatchingQuantity(
+                                                item,
+                                                change,
+                                                direction
+                                            ),
+                                        UpdateQuantityAmountForEachMatchingQuantity(
+                                                priceQuantity -> quantity,
+                                                change,
+                                                direction
+                                            )
                                     ),
                     quantity: priceQuantity -> quantity
                             extract
@@ -36,6 +43,27 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                     effectiveDate: priceQuantity -> effectiveDate
                 }
             ]
+
+func RescaleDerivedQuantity: <"Keeps price.derivedQuantity consistent with its sibling quantity after a QuantityChange. When derivedQuantity is populated and price.perUnitOf matches the sibling quantity's unit (e.g. an equity-swap AssetPrice priced per Share, where derivedQuantity is the USD notional), the derivedQuantity value is rescaled to siblingQuantity * price. Prices without derivedQuantity, or where perUnitOf does not match the sibling unit (e.g. spread on an interest-rate payout, or currency-only PriceQuantity rows), are returned unchanged.">
+    inputs:
+        price PriceSchedule (0..1)
+            [metadata location]
+        siblingQuantity NonNegativeQuantitySchedule (0..1)
+    output:
+        rescaledPrice PriceSchedule (0..1)
+            [metadata location]
+
+    alias shouldRescale:
+        price -> derivedQuantity exists
+            and siblingQuantity exists
+            and price -> perUnitOf exists
+            and UnitEquals(price -> perUnitOf, siblingQuantity -> unit)
+
+    set rescaledPrice: price
+    set rescaledPrice -> derivedQuantity -> value:
+        if shouldRescale
+        then siblingQuantity -> value * price -> value
+        else price -> derivedQuantity -> value
 
 // TODO uncomment usage to support matching on PriceQuantity observable
 func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match on Observable if present.">
