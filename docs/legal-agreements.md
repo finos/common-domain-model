@@ -413,7 +413,7 @@ following data that can be defined for it.
 
 ``` Haskell
 type ClauseLibraryClause:
-	identifer AssignedIdentifier (1..1)
+	identifier AssignedIdentifier (1..1)
     name string (0..1)
     counterparty CounterpartyRoleEnum (0..2) 
     otherParty PartyRoleEnum (0..*) 
