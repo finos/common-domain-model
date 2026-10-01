@@ -1764,8 +1764,7 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
         Qualify_AssetClass_ForeignExchange(economicTerms)
             and optionPayout exists
             and (optionPayout -> exerciseTerms -> style <> OptionExerciseStyleEnum -> Bermuda)
-            and (optionPayout -> feature is absent
-                or optionPayout -> feature -> averagingFeature only exists)
+            and optionPayout -> feature is absent
             and optionPayout -> settlementTerms -> cashSettlementTerms is absent
 
 func Qualify_ForeignExchange_SimpleExotic_Barrier: <"Qualifies a product as FX Simple Exotic Barrier Option based on economic terms, which is defined as an FX option with an underlier and strike that becomes active (knock-in) or is annulled (knock-out) when a predetermined trigger level is breached. Distinguished from a Digital option, which lacks an underlier and strike.">
@@ -1799,6 +1798,22 @@ func Qualify_ForeignExchange_SimpleExotic_Digital: <"Qualifies a product as FX S
             and optionPayout -> feature -> barrier exists
             and optionPayout -> underlier is absent
             and optionPayout -> strike is absent
+
+func Qualify_ForeignExchange_SimpleExotic_Asian: <"Qualifies a product as FX Simple Exotic Asian Option (also known as Average Rate Option) based on economic terms, which is defined as an FX option whose payoff is determined by the average of an exchange rate observed over a specified period, rather than the rate at expiry.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [docReference ISDA Taxonomy_v1 namingConvention "ForeignExchange_SimpleExotic_Asian"]
+            [docReference ISDA Taxonomy_v2 namingConvention "ForeignExchange_SimpleExotic_Asian"]
+    alias optionPayout: economicTerms -> payout only-element as OptionPayout
+    set is_product:
+        Qualify_AssetClass_ForeignExchange(economicTerms)
+            and optionPayout exists
+            and optionPayout -> feature -> averagingFeature exists
+            and optionPayout -> underlier exists
+            and optionPayout -> strike exists
 
 func Qualify_ForeignExchange_NDO: <"Qualifies a product as FX Non Deliverable Option based on economic terms, which is defined as one where exercise style is European only.">
     [qualification Product]
