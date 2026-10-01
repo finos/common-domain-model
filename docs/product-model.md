@@ -274,7 +274,7 @@ It can be used as the underlier of a basic Payout that describes the buying and 
 type TransferableProduct:
     asset Asset (1..1)
     economicTerms EconomicTerms (1..1)
-    productPartyRole CounterpartyRoleEnum (1..1)
+    productPartyRole CounterpartyRoleEnum (0..1)
 ```
 #### NonTransferableProduct
 
