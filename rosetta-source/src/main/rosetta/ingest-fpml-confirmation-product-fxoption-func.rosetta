@@ -194,6 +194,8 @@ func MapFxBarrierToTriggerEvent:
     output:
         triggerEvent TriggerEvent (0..1)
 
+    alias fpmlQuotedCurrencyPair: fpmlBarrier -> quotedCurrencyPair
+
     set triggerEvent:
         TriggerEvent {
             trigger:
@@ -201,6 +203,22 @@ func MapFxBarrierToTriggerEvent:
                     level:
                         PriceSchedule {
                             value: fpmlBarrier -> triggerRate,
+                            unit:
+                                UnitType {
+                                    currency: if fpmlQuotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+                                            then fpmlQuotedCurrencyPair -> currency1 -> value
+                                        else if fpmlQuotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+                                        then fpmlQuotedCurrencyPair -> currency2 -> value,
+                                    ...
+                                },
+                            perUnitOf:
+                                UnitType {
+                                    currency: if fpmlQuotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+                                            then fpmlQuotedCurrencyPair -> currency2 -> value
+                                        else if fpmlQuotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+                                        then fpmlQuotedCurrencyPair -> currency1 -> value,
+                                    ...
+                                },
                             priceType: ExchangeRate,
                             ...
                         },
@@ -219,7 +237,18 @@ func MapFxAsianToAveragingFeature:
         fpmlAsian
             then extract
                 AveragingFeature {
-                    averagingCalculation: empty,
+                    averagingCalculation:
+                        AveragingCalculation {
+                            averagingMethod:
+                                AveragingCalculationMethod {
+                                    isWeighted: rateObservation -> averageRateWeightingFactor exists,
+                                    calculationMethod: AveragingCalculationMethodEnum -> Arithmetic
+                                },
+                            precision:
+                                Rounding {
+                                    roundingDirection: RoundingDirectionEnum -> Nearest,
+                                    ...
+                    }},
                     averagingInOut: AveragingInOutEnum -> Out,
                     ...
                 }
