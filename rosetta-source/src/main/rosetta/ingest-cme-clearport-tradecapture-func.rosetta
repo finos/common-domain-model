@@ -32,13 +32,14 @@ func Ingest_CmeClearPortTradeCaptureToTradeState: <"Maps a CME ClearPort FIXML 5
     set tradeState -> trade -> tradeIdentifier:
         [
             TradeIdentifier {
+                issuer: "CME",
                 assignedIdentifier: [
                     AssignedIdentifier {
-                        identifier: trdId asKey,
+                        identifier: trdId,
                         version: 1
                     }
                 ],
-                identifierType: TradeIdentifierTypeEnum -> UniqueTradeIdentifier
+                identifierType: TradeIdentifierTypeEnum -> UniqueTransactionIdentifier
             }
         ]
 
@@ -53,4 +54,38 @@ func Ingest_CmeClearPortTradeCaptureToWorkflowStep: <"Maps CME ClearPort FIXML 5
     output:
         workflowStep WorkflowStep (1..1)
 
-    set workflowStep -> businessEvent -> after: [ tradeState ]
+    alias tradeDate: tradeState -> trade -> tradeDate -> date
+
+    set workflowStep -> businessEvent:
+        BusinessEvent {
+            eventDate: tradeDate,
+            after: [ tradeState ]
+        }
+
+    set workflowStep -> eventIdentifier:
+        [
+            Identifier {
+                issuer: "CME",
+                assignedIdentifier: [
+                    AssignedIdentifier {
+                        identifier: rptId,
+                        version: 1
+                    }
+                ]
+            }
+        ]
+
+    set workflowStep -> timestamp:
+        [
+            EventTimestamp {
+                dateTime: ToDateTime(tradeDate),
+                qualification: EventTimestampQualificationEnum -> eventCreationDateTime
+            }
+        ]
+
+    set workflowStep -> action:
+        if transType = "CANCEL"
+        then ActionEnum -> Cancel
+        else if transType = "REPLACE"
+        then ActionEnum -> Correct
+        else ActionEnum -> New
