@@ -46,4 +46,4 @@ As a consequence, the generated CDM output under `output/fpml-confirmation-to-tr
 
 ## Note on placement
 
-This README lives at `ingest/README.md` rather than inside each `incomplete-*` folder because the test-pack writer (`CdmTestPackCreator` → `PipelineConfigWriter`) scans every file inside `input/<folder>/` and attempts to parse it as FpML XML. A `README.md` inside those folders would break `mvn -P update-expectations`.
+This README lives at `ingest/README-INCOMPLETE-SAMPLES.md` rather than inside each `incomplete-*` folder because the test-pack writer (`CdmTestPackCreator` → `PipelineConfigWriter`) scans every file inside `input/<folder>/` and attempts to parse it as FpML XML. A `README.md` inside those folders would break `mvn -P update-expectations`.
