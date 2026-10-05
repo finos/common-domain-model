@@ -670,7 +670,7 @@ public class FunctionInputCreator {
                         .setTransfer(Transfer.builder()
                                 .setUnscheduledTransfer(UnscheduledTransfer.builder()
                                         .setTransferType(feeType)
-                                        .setPayerReceiver(PartyReferencePayerReceiver.builder()
+                                        .setPartyReferencePayerReceiver(PartyReferencePayerReceiver.builder()
                                                 .setPayerPartyReference(counterparties.get(0).getPartyReference())
                                                 .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
                                         .setQuantity(NonNegativeQuantity.builder()
@@ -1322,7 +1322,7 @@ public class FunctionInputCreator {
 
     private static void getOrCreateTransfer(TransferBase.TransferBaseBuilder transfer) {
 
-        transfer.getOrCreatePayerReceiver()
+        transfer.getOrCreatePartyReferencePayerReceiver()
                 .setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
                 .setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2").build());
 
