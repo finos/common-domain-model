@@ -1,0 +1,72 @@
+version: 2
+
+# No `registries:` block is needed. Every dependency resolves from Maven
+# Central.
+
+updates:
+  # ---------------------------------------------------------------- master --
+  # Maven: the root pom drives the whole reactor (rosetta-source, tests,
+  # examples), so one entry at "/" covers all four poms.
+  - package-ecosystem: maven
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/London
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - java
+    # Rune/CDM versions are bumped deliberately as part of release
+    # coordination, not by a bot.
+    # jackson-bom, xtext-dev-bom and guava are kept off minor/major bumps
+    # entirely - only patch updates are allowed through, and standalone
+    # rather than grouped.
+    ignore:
+      - dependency-name: com.regnosys*
+      - dependency-name: org.finos.rune*
+      - dependency-name: com.fasterxml.jackson*
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: org.eclipse.xtext:xtext-dev-bom
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: com.google.guava:guava
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      # Guice stays on major version 6 - minor/patch updates are fine.
+      - dependency-name: com.google.inject*
+        update-types:
+          - version-update:semver-major
+      # plexus-utils.version overrides the version transitively pulled in via
+      # rune-maven-plugin's maven-plugin-api dependency, to fix
+      # CVE-2025-67030 - a major bump needs a human to confirm the fix still
+      # applies, not a bot.
+      - dependency-name: org.codehaus.plexus:plexus-utils
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+    # One PR for routine minor/patch drift; majors still come through
+    # individually so they get read properly.
+    groups:
+      maven-minor-and-patch:
+        exclude-patterns:
+          - com.fasterxml.jackson*
+          - org.eclipse.xtext:xtext-dev-bom
+          - com.google.guava:guava
+          - org.codehaus.plexus:plexus-utils
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
