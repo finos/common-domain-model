@@ -19,10 +19,10 @@
 | fpml-5-10-incomplete-products-equity-options | equityOptionTransactionSupplement | 8 | 96% |
 | fpml-5-10-incomplete-products-equity-swaps | equitySwapTransactionSupplement | 4 | 98% |
 | fpml-5-10-incomplete-products-equity-swaps | returnSwap | 10 | 97% |
-| fpml-5-10-incomplete-products-fx-derivatives | fxDigitalOption | 6 | 100% |
+| fpml-5-10-incomplete-products-fx-derivatives | fxDigitalOption | 6 | 118% |
 | fpml-5-10-incomplete-products-fx-derivatives | fxFlexibleForward | 1 | 100% |
 | fpml-5-10-incomplete-products-fx-derivatives | fxForwardVolatilityAgreement | 1 | 100% |
-| fpml-5-10-incomplete-products-fx-derivatives | fxOption | 4 | 97% |
+| fpml-5-10-incomplete-products-fx-derivatives | fxOption | 4 | 103% |
 | fpml-5-10-incomplete-products-fx-derivatives | fxSingleLeg | 1 | 100% |
 | fpml-5-10-incomplete-products-fx-derivatives | fxSwap | 2 | 103% |
 | fpml-5-10-incomplete-products-fx-derivatives | fxVarianceSwap | 1 | 101% |
@@ -46,7 +46,7 @@
 | fpml-5-10-products-equity | equityOption | 3 | 101% |
 | fpml-5-10-products-equity | equitySwapTransactionSupplement | 6 | 100% |
 | fpml-5-10-products-equity | returnSwap | 3 | 100% |
-| fpml-5-10-products-fx | fxOption | 6 | 94% |
+| fpml-5-10-products-fx | fxOption | 6 | 97% |
 | fpml-5-10-products-fx | fxSingleLeg | 8 | 101% |
 | fpml-5-10-products-fx | fxSwap | 1 | 105% |
 | fpml-5-10-products-inflation-swaps | swap | 5 | 97% |
@@ -70,7 +70,7 @@
 | fpml-5-12-products-equity | equityOption | 2 | 100% |
 | fpml-5-12-products-equity | equitySwapTransactionSupplement | 10 | 99% |
 | fpml-5-12-products-equity | returnSwap | 7 | 102% |
-| fpml-5-12-products-fx | fxOption | 6 | 94% |
+| fpml-5-12-products-fx | fxOption | 6 | 97% |
 | fpml-5-12-products-fx | fxSingleLeg | 8 | 101% |
 | fpml-5-12-products-fx | fxSwap | 1 | 105% |
 | fpml-5-12-products-rates | bondOption | 3 | 98% |
@@ -92,10 +92,10 @@
 | fpml-5-13-incomplete-products-equity-options | equityOption | 12 | 102% |
 | fpml-5-13-incomplete-products-equity-options | equityOptionTransactionSupplement | 8 | 96% |
 | fpml-5-13-incomplete-products-equity-swaps | returnSwap | 3 | 98% |
-| fpml-5-13-incomplete-products-fx-derivatives | fxDigitalOption | 6 | 100% |
+| fpml-5-13-incomplete-products-fx-derivatives | fxDigitalOption | 6 | 118% |
 | fpml-5-13-incomplete-products-fx-derivatives | fxFlexibleForward | 1 | 100% |
 | fpml-5-13-incomplete-products-fx-derivatives | fxForwardVolatilityAgreement | 1 | 100% |
-| fpml-5-13-incomplete-products-fx-derivatives | fxOption | 4 | 101% |
+| fpml-5-13-incomplete-products-fx-derivatives | fxOption | 4 | 110% |
 | fpml-5-13-incomplete-products-fx-derivatives | fxSingleLeg | 3 | 103% |
 | fpml-5-13-incomplete-products-fx-derivatives | termDeposit | 1 | 100% |
 | fpml-5-13-incomplete-products-repo | securityLending | 2 | 106% |
@@ -115,7 +115,7 @@
 | fpml-5-13-products-equity-options | equityOption | 4 | 84% |
 | fpml-5-13-products-equity-swaps | equitySwapTransactionSupplement | 10 | 99% |
 | fpml-5-13-products-equity-swaps | returnSwap | 12 | 96% |
-| fpml-5-13-products-fx-derivatives | fxOption | 6 | 93% |
+| fpml-5-13-products-fx-derivatives | fxOption | 6 | 94% |
 | fpml-5-13-products-fx-derivatives | fxSingleLeg | 6 | 100% |
 | fpml-5-13-products-fx-derivatives | fxSwap | 3 | 104% |
 | fpml-5-13-products-fx-derivatives | fxVarianceSwap | 1 | 101% |
