@@ -1,548 +1,430 @@
 {
-  "agreementDate": "2022-03-21",
-  "agreementTerms": {
-    "agreement": {
-      "creditSupportAgreementElections": {
-        "CreditSupportAgreementVariationMarginElections": {
-          "additionalRepresentations": {
-            "additionalRepresentation": {
-              "partyElection": [
-                {
-                  "isApplicable": false,
-                  "party": "PARTY_1"
-                },
-                {
-                  "isApplicable": false,
-                  "party": "PARTY_2"
-                }
-              ]
+  "@model" : "cdm",
+  "@type" : "cdm.legaldocumentation.common.LegalAgreement",
+  "@version" : "0.0.0.master-SNAPSHOT",
+  "agreementDate" : "2022-03-21",
+  "legalAgreementIdentification" : {
+    "governingLaw" : "USNY",
+    "agreementName" : {
+      "agreementType" : "CreditSupportAgreement",
+      "creditSupportAgreementType" : {
+        "@data" : "CreditSupportAnnex"
+      },
+      "creditSupportAgreementMarginType" : "VariationMargin"
+    },
+    "publisher" : "ISDA",
+    "vintage" : 2016
+  },
+  "contractualParty" : [ {
+    "partyId" : [ {
+      "identifier" : {
+        "@data" : "ABCD1234"
+      },
+      "identifierType" : "LEI"
+    } ],
+    "name" : {
+      "@data" : "Sterling Bank Ltd"
+    }
+  }, {
+    "partyId" : [ {
+      "identifier" : {
+        "@data" : "1234ABCD"
+      },
+      "identifierType" : "LEI"
+    } ],
+    "name" : {
+      "@data" : "Crestpoint Investment Fund LP"
+    }
+  } ],
+  "agreementTerms" : {
+    "agreement" : {
+      "creditSupportAgreementElections" : {
+        "@type" : "cdm.legaldocumentation.csa.CreditSupportAgreementVariationMarginElections",
+        "baseAndEligibleCurrency" : {
+          "baseCurrency" : "USD",
+          "baseCurrencyTerminationCurrency" : false,
+          "eligibleCurrencyInclBaseCurrency" : true
+        },
+        "conditionsPrecedent" : {
+          "specifiedConditionOrAccessCondition" : {
+            "isApplicable" : true,
+            "partyElection" : [ {
+              "party" : "Party1",
+              "specifiedOrAccessCondition" : [ "Illegality", "ForceMajeureEvent", "TaxEvent" ]
+            }, {
+              "party" : "Party2",
+              "specifiedOrAccessCondition" : [ "Illegality", "ForceMajeureEvent", "TaxEvent" ]
+            } ]
+          }
+        },
+        "substitution" : {
+          "partyElection" : [ {
+            "party" : "Party1",
+            "needsConsent" : true,
+            "substitutionDateLanguage" : "Standard"
+          }, {
+            "party" : "Party2",
+            "needsConsent" : true,
+            "substitutionDateLanguage" : "Standard"
+          } ]
+        },
+        "disputeResolution" : {
+          "resolutionTime" : {
+            "hourMinuteTime" : "01:00:00",
+            "businessCenter" : {
+              "@data" : "USNY"
             }
           },
-          "baseAndEligibleCurrency": {
-            "baseCurrency": "USD",
-            "baseCurrencyTerminationCurrency": false,
-            "eligibleCurrencyInclBaseCurrency": true
+          "legacyAlternative" : {
+            "resolutionAlternative" : "NoAlternative"
           },
-          "calculationAndTiming": {
-            "notificationTime": {
-              "partyElections": [
-                {
-                  "localBusinessDay": true,
-                  "notificationTime": {
-                    "businessCenter": {
-                      "value": "USNY"
-                    },
-                    "hourMinuteTime": "10:00:00"
-                  },
-                  "party": "PARTY_1"
+          "value" : {
+            "cash" : "Cash - Amount Thereof multiplied by (Valuation Percentage - FX Haircut)"
+          }
+        },
+        "holdingAndUsingPostedCollateral" : {
+          "partyElection" : [ {
+            "party" : "Party1",
+            "eligibilityToHoldCollateral" : {
+              "custodianEligibility" : false
+            },
+            "useOfPostedCollateral" : true
+          }, {
+            "party" : "Party2",
+            "eligibilityToHoldCollateral" : {
+              "custodianEligibility" : false
+            },
+            "useOfPostedCollateral" : true
+          } ]
+        },
+        "distributionAndInterestPayment" : {
+          "interestParameters" : [ {
+            "marginType" : "VariationMargin",
+            "currency" : "USD",
+            "interestCalculationParameters" : {
+              "floatingRate" : {
+                "rateOption" : {
+                  "@data" : {
+                    "@type" : "cdm.observable.asset.FloatingRateIndex",
+                    "identifier" : [ {
+                      "identifier" : {
+                        "@data" : "USD"
+                      },
+                      "identifierType" : "CurrencyCode"
+                    } ],
+                    "assetType" : "Other",
+                    "assetClass" : "InterestRate",
+                    "floatingRateIndex" : {
+                      "@data" : "USD-Federal Funds"
+                    }
+                  }
                 },
-                {
-                  "localBusinessDay": true,
-                  "notificationTime": {
-                    "businessCenter": {
-                      "value": "USNY"
-                    },
-                    "hourMinuteTime": "10:00:00"
-                  },
-                  "party": "PARTY_2"
-                }
-              ]
+                "negativeInterest" : true,
+                "compressibleSpread" : false
+              },
+              "inBaseCurrency" : false,
+              "compoundingType" : "None",
+              "dayCountFraction" : "ACT/360"
             },
-            "valuationAgent": {
-              "party": "PARTY_2"
-            },
-            "valuationDate": {
-              "date": "EACH",
-              "day": "LOCAL_BUSINESS_DAY",
-              "frequency": "DAILY"
-            },
-            "valuationDateLocation": {
-              "partyElection": [
-                {
-                  "businessCenter": {
-                    "value": "USNY"
-                  },
-                  "party": "PARTY_1"
-                },
-                {
-                  "businessCenter": {
-                    "value": "KYGE"
-                  },
-                  "party": "PARTY_2"
-                }
-              ]
-            },
-            "valuationTime": {
-              "day": "PREVIOUS_LOCAL_BUSINESS_DAY",
-              "time": "CLOSE_OF_BUSINESS"
+            "interestHandlingParameters" : {
+              "interestPaymentHandling" : "Transfer_or_Adjust",
+              "netPostedAndHeldInterest" : true,
+              "netInterestWithMarginCalls" : true,
+              "includeAccrualInMarginCalc" : false,
+              "onFullReturn" : false,
+              "onPartialReturn" : false,
+              "alternativeToInterestAmount" : "Standard"
             }
-          },
-          "conditionsPrecedent": {
-            "specifiedConditionOrAccessCondition": {
-              "isApplicable": true,
-              "partyElection": [
-                {
-                  "party": "PARTY_1",
-                  "specifiedOrAccessCondition": [
-                    "ILLEGALITY",
-                    "FORCE_MAJEURE_EVENT",
-                    "TAX_EVENT"
-                  ]
+          } ]
+        },
+        "otherEligibleAndPostedSupport" : {
+          "applicableValue" : false,
+          "applicableTransfer" : false
+        },
+        "demandsAndNotices" : {
+          "partyElection" : [ {
+            "partyReference" : "Party1",
+            "primaryContactInformation" : {
+              "telephone" : [ {
+                "telephoneNumberType" : "Work",
+                "number" : "+44 20 7946 8800"
+              }, {
+                "telephoneNumberType" : "Fax",
+                "number" : "+44 20 7946 8899"
+              } ],
+              "address" : [ {
+                "street" : [ "10 Lombard Street" ],
+                "city" : "London",
+                "country" : {
+                  "@data" : "United Kingdom"
                 },
-                {
-                  "party": "PARTY_2",
-                  "specifiedOrAccessCondition": [
-                    "ILLEGALITY",
-                    "FORCE_MAJEURE_EVENT",
-                    "TAX_EVENT"
-                  ]
-                }
-              ]
+                "postalCode" : "EC3V 9AA"
+              } ],
+              "email" : [ "abc@xyz.com" ],
+              "additionalInformation" : "Senior Vice President, Collateral Management"
             }
-          },
-          "coveredTransactions": {
-            "bespokeCoveredTransactions": [
-              "Fx Spot Transactions & Physically Settled Fx Forward Transactions"
-            ],
-            "exposure": {
-              "partyElection": [
-                {
-                  "excludedProducts": [
-                    {
-                      "excluded": false,
-                      "product": [
-                        "FX_SETTLEMENT_DATE"
-                      ]
-                    }
-                  ],
-                  "excludedTransactions": true,
-                  "party": "PARTY_1"
-                },
-                {
-                  "excludedProducts": [
-                    {
-                      "excluded": false,
-                      "product": [
-                        "FX_SETTLEMENT_DATE"
-                      ]
-                    }
-                  ],
-                  "excludedTransactions": true,
-                  "party": "PARTY_2"
+          }, {
+            "partyReference" : "Party2",
+            "primaryContactInformation" : {
+              "telephone" : [ {
+                "telephoneNumberType" : "Work",
+                "number" : "+1 (345) 623-9100"
+              }, {
+                "telephoneNumberType" : "Fax",
+                "number" : "+1 (345) 623-9101"
+              } ],
+              "address" : [ {
+                "street" : [ "Harbor View Centre, 4th Floor, 129 Seaview Road" ],
+                "country" : {
+                  "@data" : "Cayman Island"
                 }
-              ]
+              } ],
+              "email" : [ "colmgmt@Nexus.com" ],
+              "additionalInformation" : "Margining Officer"
             }
+          } ],
+          "deemedEffectiveNextLBD" : false
+        },
+        "additionalRepresentations" : {
+          "additionalRepresentation" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "isApplicable" : false
+            }, {
+              "party" : "Party2",
+              "isApplicable" : false
+            } ]
+          }
+        },
+        "masterAgreementDatedAsOfDate" : {
+          "masterAgreementDatedAsOfDate" : "2022-03-21"
+        },
+        "finalReturns" : {
+          "applicable" : false
+        },
+        "coveredTransactions" : {
+          "bespokeCoveredTransactions" : [ "Fx Spot Transactions & Physically Settled Fx Forward Transactions" ],
+          "exposure" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "excludedTransactions" : true,
+              "excludedProducts" : [ {
+                "product" : [ "FX Transaction with Settlement Date" ],
+                "excluded" : false
+              } ]
+            }, {
+              "party" : "Party2",
+              "excludedTransactions" : true,
+              "excludedProducts" : [ {
+                "product" : [ "FX Transaction with Settlement Date" ],
+                "excluded" : false
+              } ]
+            } ]
+          }
+        },
+        "creditSupportOffsets" : false,
+        "otherAgreements" : {
+          "otherCSA" : {
+            "isSpecified" : false
+          }
+        },
+        "securityInterestForObligations" : {
+          "party" : [ "Party1", "Party2" ],
+          "obligations" : "NotApplicable",
+          "obligee" : "Other",
+          "other" : "Not applicable"
+        },
+        "creditSupportObligations" : {
+          "deliveryAmount" : {
+            "deliveryAmount" : "Standard"
           },
-          "creditSupportObligations": {
-            "collateralTransferTiming": {
-              "transferSettlementTiming": {
-                "cashCollateralTransferSettlementTime": "SAME"
-              }
-            },
-            "deliveryAmount": {
-              "deliveryAmount": "STANDARD"
-            },
-            "eligibleCreditSupport": {
-              "partyElection": [
-                {
-                  "asPermitted": false,
-                  "eligibleCollateral": [
-                    {
-                      "collateralCriteria": {
-                        "AssetType": {
-                          "assetType": "CASH"
-                        }
-                      },
-                      "treatment": {
-                        "isIncluded": true,
-                        "valuationTreatment": {
-                          "marginPercentage": 100
-                        }
-                      }
-                    }
-                  ],
-                  "otherEligibleSupport": "Not Applicable",
-                  "party": "PARTY_1"
-                },
-                {
-                  "asPermitted": false,
-                  "eligibleCollateral": [
-                    {
-                      "collateralCriteria": {
-                        "AssetType": {
-                          "assetType": "CASH"
-                        }
-                      },
-                      "treatment": {
-                        "isIncluded": true,
-                        "valuationTreatment": {
-                          "marginPercentage": 100
-                        }
-                      }
-                    }
-                  ],
-                  "otherEligibleSupport": "Not Applicable",
-                  "party": "PARTY_2"
-                }
-              ]
-            },
-            "fxHaircut": "Standard",
-            "ineligibleCreditSupport": {
-              "specifiedParty": [
-                "PARTY_1"
-              ],
-              "totalIneligibilityDate": "Standard",
-              "transferIneligibilityDate": "Standard"
-            },
-            "majorCurrency": [
-              {
-                "value": "USD"
-              },
-              {
-                "value": "CAD"
-              },
-              {
-                "value": "EUR"
-              },
-              {
-                "value": "GBP"
-              },
-              {
-                "value": "JPY"
-              },
-              {
-                "value": "CHF"
-              },
-              {
-                "value": "NZD"
-              },
-              {
-                "value": "AUD"
-              },
-              {
-                "value": "SEK"
-              },
-              {
-                "value": "DKK"
-              },
-              {
-                "value": "NOK"
-              }
-            ],
-            "minimumTransferAmount": {
-              "partyElection": [
-                {
-                  "fixedAmount": {
-                    "amount": {
-                      "unit": {
-                        "currency": {
-                          "value": "USD"
-                        }
-                      },
-                      "value": 150000
-                    },
-                    "event": [
-                      "EVENT_OF_DEFAULT"
-                    ],
-                    "zeroEvent": true
-                  },
-                  "party": "PARTY_1"
-                },
-                {
-                  "fixedAmount": {
-                    "amount": {
-                      "unit": {
-                        "currency": {
-                          "value": "USD"
-                        }
-                      },
-                      "value": 150000
-                    },
-                    "event": [
-                      "EVENT_OF_DEFAULT"
-                    ],
-                    "zeroEvent": true
-                  },
-                  "party": "PARTY_2"
-                }
-              ]
-            },
-            "returnAmount": {
-              "returnAmount": "STANDARD"
-            },
-            "rounding": {
-              "currency": "USD",
-              "deliveryAmount": 10000,
-              "deliveryDirection": "UP",
-              "returnAmount": 10000,
-              "returnDirection": "DOWN"
-            }
+          "returnAmount" : {
+            "returnAmount" : "Standard"
           },
-          "creditSupportOffsets": false,
-          "demandsAndNotices": {
-            "deemedEffectiveNextLBD": false,
-            "partyElection": [
-              {
-                "partyReference": "PARTY_1",
-                "primaryContactInformation": {
-                  "additionalInformation": "Senior Vice President, Collateral Management",
-                  "address": [
-                    {
-                      "city": "London",
-                      "country": {
-                        "value": "United Kingdom"
-                      },
-                      "postalCode": "EC3V 9AA",
-                      "street": [
-                        "10 Lombard Street"
-                      ]
+          "minimumTransferAmount" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "fixedAmount" : {
+                "zeroEvent" : true,
+                "event" : [ "EventOfDefault" ],
+                "amount" : {
+                  "value" : 150000,
+                  "unit" : {
+                    "currency" : {
+                      "@data" : "USD"
                     }
-                  ],
-                  "email": [
-                    "abc@xyz.com"
-                  ],
-                  "telephone": [
-                    {
-                      "number": "+44 20 7946 8800",
-                      "telephoneNumberType": "WORK"
-                    },
-                    {
-                      "number": "+44 20 7946 8899",
-                      "telephoneNumberType": "FAX"
-                    }
-                  ]
-                }
-              },
-              {
-                "partyReference": "PARTY_2",
-                "primaryContactInformation": {
-                  "additionalInformation": "Margining Officer",
-                  "address": [
-                    {
-                      "country": {
-                        "value": "Cayman Island"
-                      },
-                      "street": [
-                        "Harbor View Centre, 4th Floor, 129 Seaview Road"
-                      ]
-                    }
-                  ],
-                  "email": [
-                    "colmgmt@Nexus.com"
-                  ],
-                  "telephone": [
-                    {
-                      "number": "+1 (345) 623-9100",
-                      "telephoneNumberType": "WORK"
-                    },
-                    {
-                      "number": "+1 (345) 623-9101",
-                      "telephoneNumberType": "FAX"
-                    }
-                  ]
+                  }
                 }
               }
-            ]
-          },
-          "disputeResolution": {
-            "legacyAlternative": {
-              "resolutionAlternative": "NO_ALTERNATIVE"
-            },
-            "resolutionTime": {
-              "businessCenter": {
-                "value": "USNY"
-              },
-              "hourMinuteTime": "01:00:00"
-            },
-            "value": {
-              "cash": "CASH_PERCENTAGE_LESS_HAIRCUT"
-            }
-          },
-          "distributionAndInterestPayment": {
-            "interestParameters": [
-              {
-                "currency": "USD",
-                "interestCalculationParameters": {
-                  "compoundingType": "NONE",
-                  "dayCountFraction": "ACT_360",
-                  "floatingRate": {
-                    "compressibleSpread": false,
-                    "negativeInterest": true,
-                    "rateOption": {
-                      "value": {
-                        "FloatingRateIndex": {
-                          "assetClass": "INTEREST_RATE",
-                          "floatingRateIndex": {
-                            "value": "USD_FEDERAL_FUNDS"
-                          },
-                          "identifier": [
-                            {
-                              "identifier": {
-                                "value": "USD"
-                              },
-                              "identifierType": "CURRENCY_CODE"
-                            }
-                          ],
-                          "assetType": "Other"
-                        }
-                      }
+            }, {
+              "party" : "Party2",
+              "fixedAmount" : {
+                "zeroEvent" : true,
+                "event" : [ "EventOfDefault" ],
+                "amount" : {
+                  "value" : 150000,
+                  "unit" : {
+                    "currency" : {
+                      "@data" : "USD"
                     }
-                  },
-                  "inBaseCurrency": false
-                },
-                "interestHandlingParameters": {
-                  "alternativeToInterestAmount": "STANDARD",
-                  "includeAccrualInMarginCalc": false,
-                  "interestPaymentHandling": "TRANSFER_OR_ADJUST",
-                  "netInterestWithMarginCalls": true,
-                  "netPostedAndHeldInterest": true,
-                  "onFullReturn": false,
-                  "onPartialReturn": false
-                },
-                "marginType": "VARIATION_MARGIN"
+                  }
+                }
               }
-            ]
+            } ]
           },
-          "finalReturns": {
-            "applicable": false
-          },
-          "holdingAndUsingPostedCollateral": {
-            "partyElection": [
-              {
-                "eligibilityToHoldCollateral": {
-                  "custodianEligibility": false
-                },
-                "party": "PARTY_1",
-                "useOfPostedCollateral": true
-              },
-              {
-                "eligibilityToHoldCollateral": {
-                  "custodianEligibility": false
-                },
-                "party": "PARTY_2",
-                "useOfPostedCollateral": true
-              }
-            ]
-          },
-          "masterAgreementDatedAsOfDate": {
-            "masterAgreementDatedAsOfDate": "2022-03-21"
-          },
-          "otherAgreements": {
-            "otherCSA": {
-              "isSpecified": false
+          "collateralTransferTiming" : {
+            "transferSettlementTiming" : {
+              "cashCollateralTransferSettlementTime" : "Same"
             }
           },
-          "otherEligibleAndPostedSupport": {
-            "applicableTransfer": false,
-            "applicableValue": false
+          "ineligibleCreditSupport" : {
+            "totalIneligibilityDate" : "Standard",
+            "transferIneligibilityDate" : "Standard",
+            "specifiedParty" : [ "Party1" ]
           },
-          "securityInterestForObligations": {
-            "obligations": "NOT_APPLICABLE",
-            "obligee": "OTHER",
-            "other": "Not applicable",
-            "party": [
-              "PARTY_1",
-              "PARTY_2"
-            ]
+          "majorCurrency" : [ {
+            "@data" : "USD"
+          }, {
+            "@data" : "CAD"
+          }, {
+            "@data" : "EUR"
+          }, {
+            "@data" : "GBP"
+          }, {
+            "@data" : "JPY"
+          }, {
+            "@data" : "CHF"
+          }, {
+            "@data" : "NZD"
+          }, {
+            "@data" : "AUD"
+          }, {
+            "@data" : "SEK"
+          }, {
+            "@data" : "DKK"
+          }, {
+            "@data" : "NOK"
+          } ],
+          "fxHaircut" : "Standard",
+          "rounding" : {
+            "deliveryAmount" : 10000,
+            "deliveryDirection" : "Up",
+            "returnAmount" : 10000,
+            "returnDirection" : "Down",
+            "currency" : "USD"
           },
-          "substitution": {
-            "partyElection": [
-              {
-                "needsConsent": true,
-                "party": "PARTY_1",
-                "substitutionDateLanguage": "Standard"
+          "eligibleCreditSupport" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "asPermitted" : false,
+              "eligibleCollateral" : [ {
+                "collateralCriteria" : {
+                  "@type" : "cdm.base.staticdata.asset.common.AssetType",
+                  "assetType" : "Cash"
+                },
+                "treatment" : {
+                  "valuationTreatment" : {
+                    "marginPercentage" : 100
+                  },
+                  "isIncluded" : true
+                }
+              } ],
+              "otherEligibleSupport" : "Not Applicable"
+            }, {
+              "party" : "Party2",
+              "asPermitted" : false,
+              "eligibleCollateral" : [ {
+                "collateralCriteria" : {
+                  "@type" : "cdm.base.staticdata.asset.common.AssetType",
+                  "assetType" : "Cash"
+                },
+                "treatment" : {
+                  "valuationTreatment" : {
+                    "marginPercentage" : 100
+                  },
+                  "isIncluded" : true
+                }
+              } ],
+              "otherEligibleSupport" : "Not Applicable"
+            } ]
+          }
+        },
+        "calculationAndTiming" : {
+          "notificationTime" : {
+            "partyElections" : [ {
+              "party" : "Party1",
+              "notificationTime" : {
+                "hourMinuteTime" : "10:00:00",
+                "businessCenter" : {
+                  "@data" : "USNY"
+                }
               },
-              {
-                "needsConsent": true,
-                "party": "PARTY_2",
-                "substitutionDateLanguage": "Standard"
+              "localBusinessDay" : true
+            }, {
+              "party" : "Party2",
+              "notificationTime" : {
+                "hourMinuteTime" : "10:00:00",
+                "businessCenter" : {
+                  "@data" : "USNY"
+                }
+              },
+              "localBusinessDay" : true
+            } ]
+          },
+          "valuationDate" : {
+            "date" : "Each",
+            "day" : "LocalBusinessDay",
+            "frequency" : "Daily"
+          },
+          "valuationTime" : {
+            "day" : "Previous Local Business Day",
+            "time" : "CloseOfBusiness"
+          },
+          "valuationAgent" : {
+            "party" : "Party 2"
+          },
+          "valuationDateLocation" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "businessCenter" : {
+                "@data" : "USNY"
               }
-            ]
+            }, {
+              "party" : "Party2",
+              "businessCenter" : {
+                "@data" : "KYGE"
+              }
+            } ]
           }
         }
       }
     },
-    "counterparty": [
-      {
-        "partyReference": {
-          "value": {
-            "name": {
-              "value": "Sterling Bank Ltd"
-            },
-            "partyId": [
-              {
-                "identifier": {
-                  "value": "ABCD1234"
-                },
-                "identifierType": "LEI"
-              }
-            ]
-          }
-        },
-        "role": "PARTY_1"
-      },
-      {
-        "partyReference": {
-          "value": {
-            "name": {
-              "value": "Crestpoint Investment Fund LP"
-            },
-            "partyId": [
-              {
-                "identifier": {
-                  "value": "1234ABCD"
-                },
-                "identifierType": "LEI"
-              }
-            ]
-          }
-        },
-        "role": "PARTY_2"
+    "counterparty" : [ {
+      "role" : "Party1",
+      "partyReference" : {
+        "partyId" : [ {
+          "identifier" : {
+            "@data" : "ABCD1234"
+          },
+          "identifierType" : "LEI"
+        } ],
+        "name" : {
+          "@data" : "Sterling Bank Ltd"
+        }
       }
-    ]
-  },
-  "contractualParty": [
-    {
-      "value": {
-        "name": {
-          "value": "Sterling Bank Ltd"
-        },
-        "partyId": [
-          {
-            "identifier": {
-              "value": "ABCD1234"
-            },
-            "identifierType": "LEI"
-          }
-        ]
+    }, {
+      "role" : "Party2",
+      "partyReference" : {
+        "partyId" : [ {
+          "identifier" : {
+            "@data" : "1234ABCD"
+          },
+          "identifierType" : "LEI"
+        } ],
+        "name" : {
+          "@data" : "Crestpoint Investment Fund LP"
+        }
       }
-    },
-    {
-      "value": {
-        "name": {
-          "value": "Crestpoint Investment Fund LP"
-        },
-        "partyId": [
-          {
-            "identifier": {
-              "value": "1234ABCD"
-            },
-            "identifierType": "LEI"
-          }
-        ]
-      }
-    }
-  ],
-  "legalAgreementIdentification": {
-    "agreementName": {
-      "agreementType": "CREDIT_SUPPORT_AGREEMENT",
-      "creditSupportAgreementMarginType": "VARIATION_MARGIN",
-      "creditSupportAgreementType": {
-        "value": "CREDIT_SUPPORT_ANNEX"
-      }
-    },
-    "governingLaw": "USNY",
-    "publisher": "ISDA",
-    "vintage": 2016
+    } ]
   }
 }

@@ -1,473 +1,380 @@
 {
-  "agreementTerms": {
-    "agreement": {
-      "creditSupportAgreementElections": {
-        "CreditSupportAgreementLegacyElections": {
-          "baseAndEligibleCurrency": {
-            "baseCurrency": "GBP",
-            "baseCurrencyTerminationCurrency": true,
-            "eligibleCurrencyInclBaseCurrency": true
-          },
-          "calculationAndTiming": {
-            "notificationTime": {
-              "partyElections": [
-                {
-                  "localBusinessDay": true,
-                  "notificationTime": {
-                    "businessCenter": {
-                      "value": "SGSI"
-                    },
-                    "hourMinuteTime": "17:00:00"
-                  },
-                  "party": "PARTY_1"
-                },
-                {
-                  "notificationTime": {
-                    "businessCenter": {
-                      "value": "SGSI"
-                    },
-                    "hourMinuteTime": "17:00:00"
-                  },
-                  "party": "PARTY_2"
-                }
-              ]
-            },
-            "valuationAgent": {
-              "party": "PARTY_1",
-              "valuationAgent": "SOLE_VALUATION_AGENT"
-            },
-            "valuationDate": {
-              "date": "EACH",
-              "day": "LOCAL_BUSINESS_DAY",
-              "frequency": "AS_SELECTED"
-            },
-            "valuationTime": {
-              "additionalLanguage": "means any time determined as such by Party A. For the avoidance of doubt, there may be more than one Valuation Time on any Valuation Date.",
-              "day": "PREVIOUS_LOCAL_BUSINESS_DAY_CITY_OF_AGENT",
-              "time": "CLOSE_OF_BUSINESS"
+  "@model" : "cdm",
+  "@type" : "cdm.legaldocumentation.common.LegalAgreement",
+  "@version" : "0.0.0.master-SNAPSHOT",
+  "legalAgreementIdentification" : {
+    "governingLaw" : "GBEN",
+    "agreementName" : {
+      "agreementType" : "CreditSupportAgreement",
+      "creditSupportAgreementType" : {
+        "@data" : "CreditSupportAnnex"
+      }
+    },
+    "publisher" : "ISDA",
+    "vintage" : 1995
+  },
+  "contractualParty" : [ {
+    "partyId" : [ {
+      "identifier" : {
+        "@data" : "1234ABCD"
+      },
+      "identifierType" : "LEI"
+    } ],
+    "name" : {
+      "@data" : "Everstead Capital Ltd"
+    }
+  }, {
+    "partyId" : [ {
+      "identifier" : {
+        "@data" : "ABCD1234"
+      },
+      "identifierType" : "LEI"
+    } ],
+    "name" : {
+      "@data" : "Granite Ridge Investments LLC"
+    }
+  } ],
+  "agreementTerms" : {
+    "agreement" : {
+      "creditSupportAgreementElections" : {
+        "@type" : "cdm.legaldocumentation.csa.CreditSupportAgreementLegacyElections",
+        "baseAndEligibleCurrency" : {
+          "baseCurrency" : "GBP",
+          "baseCurrencyTerminationCurrency" : true,
+          "eligibleCurrencyInclBaseCurrency" : true
+        },
+        "conditionsPrecedent" : {
+          "specifiedConditionOrAccessCondition" : {
+            "isApplicable" : true,
+            "partyElection" : [ {
+              "party" : "Party1",
+              "specifiedOrAccessCondition" : [ "Illegality", "ForceMajeureEvent", "TaxEvent", "AdditionalTerminationEvents" ],
+              "additionalTerminationEvent" : [ "AsSpecified" ],
+              "specifiedAdditionalTerminationEvent" : [ "AsSpecified" ]
+            }, {
+              "party" : "Party2",
+              "specifiedOrAccessCondition" : [ "Illegality", "ForceMajeureEvent", "TaxEvent", "AdditionalTerminationEvents" ],
+              "additionalTerminationEvent" : [ "AsSpecified" ],
+              "specifiedAdditionalTerminationEvent" : [ "AsSpecified" ]
+            } ]
+          }
+        },
+        "substitution" : {
+          "partyElection" : [ {
+            "party" : "Party1",
+            "needsConsent" : true
+          }, {
+            "party" : "Party2",
+            "needsConsent" : true
+          } ]
+        },
+        "disputeResolution" : {
+          "resolutionTime" : {
+            "hourMinuteTime" : "13:00:00",
+            "businessCenter" : {
+              "@data" : "GBLO"
             }
           },
-          "conditionsPrecedent": {
-            "specifiedConditionOrAccessCondition": {
-              "isApplicable": true,
-              "partyElection": [
-                {
-                  "additionalTerminationEvent": [
-                    "AS_SPECIFIED"
-                  ],
-                  "party": "PARTY_1",
-                  "specifiedAdditionalTerminationEvent": [
-                    "AsSpecified"
-                  ],
-                  "specifiedOrAccessCondition": [
-                    "ILLEGALITY",
-                    "FORCE_MAJEURE_EVENT",
-                    "TAX_EVENT",
-                    "ADDITIONAL_TERMINATION_EVENTS"
-                  ]
+          "legacyAlternative" : {
+            "resolutionAlternative" : "NoAlternative"
+          },
+          "value" : {
+            "cash" : "Cash - Amount Thereof multiplied by Valuation Percentage",
+            "securities" : "Securities - Bid Price multiplied by Valuation Percentage"
+          }
+        },
+        "distributionAndInterestPayment" : {
+          "interestParameters" : [ {
+            "interestCalculationParameters" : {
+              "fixedRate" : 0,
+              "inBaseCurrency" : true,
+              "dayCountFraction" : "ACT/365.FIXED"
+            },
+            "interestHandlingParameters" : {
+              "interestPaymentHandling" : "Transfer",
+              "netPostedAndHeldInterest" : false,
+              "netInterestWithMarginCalls" : false,
+              "includeAccrualInMarginCalc" : false,
+              "onFullReturn" : false,
+              "onPartialReturn" : false,
+              "alternativeToInterestAmount" : "Standard"
+            }
+          }, {
+            "postingParty" : "Party1"
+          } ]
+        },
+        "otherEligibleAndPostedSupport" : {
+          "applicableValue" : false,
+          "applicableTransfer" : false
+        },
+        "demandsAndNotices" : {
+          "partyElection" : [ {
+            "partyReference" : "Party1",
+            "primaryContactInformation" : {
+              "telephone" : [ {
+                "telephoneNumberType" : "Work",
+                "number" : "+44 20 7654 3210"
+              }, {
+                "telephoneNumberType" : "Fax",
+                "number" : "+44 20 7654 3211"
+              } ],
+              "address" : [ {
+                "street" : [ "125 Bishopsgate" ],
+                "city" : "London",
+                "country" : {
+                  "@data" : "United Kingdom"
                 },
-                {
-                  "additionalTerminationEvent": [
-                    "AS_SPECIFIED"
-                  ],
-                  "party": "PARTY_2",
-                  "specifiedAdditionalTerminationEvent": [
-                    "AsSpecified"
-                  ],
-                  "specifiedOrAccessCondition": [
-                    "ILLEGALITY",
-                    "FORCE_MAJEURE_EVENT",
-                    "TAX_EVENT",
-                    "ADDITIONAL_TERMINATION_EVENTS"
-                  ]
+                "postalCode" : "EC2N 4AY"
+              } ],
+              "email" : [ "jwhitmore@eversteadcapital.com" ],
+              "naturalPerson" : [ {
+                "firstName" : "James",
+                "surname" : "Whitmore"
+              } ]
+            }
+          }, {
+            "partyReference" : "Party2",
+            "primaryContactInformation" : {
+              "telephone" : [ {
+                "telephoneNumberType" : "Work",
+                "number" : "+1 212 456 7890"
+              }, {
+                "telephoneNumberType" : "Fax",
+                "number" : "+1 212 456 7891"
+              } ],
+              "address" : [ {
+                "street" : [ "200 Park Avenue" ],
+                "city" : "New York",
+                "state" : "NY",
+                "country" : {
+                  "@data" : "USA"
+                },
+                "postalCode" : "10166"
+              } ],
+              "email" : [ "lmitchell@graniteridgeinv.com" ],
+              "naturalPerson" : [ {
+                "firstName" : "Laura",
+                "surname" : "Mitchell"
+              } ]
+            }
+          } ],
+          "deemedEffectiveNextLBD" : true
+        },
+        "masterAgreementDatedAsOfDate" : {
+          "masterAgreementDatedAsOfDate" : "2005-06-16"
+        },
+        "finalReturns" : {
+          "applicable" : false
+        },
+        "creditSupportObligations" : {
+          "deliveryAmount" : {
+            "deliveryAmount" : "Standard"
+          },
+          "returnAmount" : {
+            "returnAmount" : "Standard"
+          },
+          "minimumTransferAmount" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "fixedAmount" : {
+                "zeroEvent" : false,
+                "amount" : {
+                  "value" : 0,
+                  "unit" : {
+                    "currency" : {
+                      "@data" : "USD"
+                    }
+                  }
                 }
-              ]
+              }
+            }, {
+              "party" : "Party2",
+              "fixedAmount" : {
+                "zeroEvent" : false,
+                "amount" : {
+                  "value" : 0,
+                  "unit" : {
+                    "currency" : {
+                      "@data" : "USD"
+                    }
+                  }
+                }
+              }
+            } ]
+          },
+          "collateralTransferTiming" : {
+            "transferSettlementTiming" : {
+              "cashCollateralTransferSettlementTime" : "Next",
+              "securititesCollateralTransferSettlementTime" : "Next"
+            },
+            "collateralTransferTimingDefinition" : {
+              "isApplicable" : true
             }
           },
-          "creditSupportObligations": {
-            "collateralTransferTiming": {
-              "collateralTransferTimingDefinition": {
-                "isApplicable": true
-              },
-              "transferSettlementTiming": {
-                "cashCollateralTransferSettlementTime": "NEXT",
-                "securititesCollateralTransferSettlementTime": "NEXT"
-              }
-            },
-            "creditSupportAmount": {
-              "creditSupportAmount": "STANDARD"
-            },
-            "deliveryAmount": {
-              "deliveryAmount": "STANDARD"
-            },
-            "eligibleCreditSupport": {
-              "partyElection": [
-                {
-                  "asPermitted": false,
-                  "eligibleCollateral": [
-                    {
-                      "collateralCriteria": {
-                        "AssetType": {
-                          "assetType": "CASH"
-                        }
-                      },
-                      "treatment": {
-                        "isIncluded": true,
-                        "valuationTreatment": {
-                          "marginPercentage": 100
-                        }
-                      }
+          "threshold" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "fixedAmount" : {
+                "zeroEvent" : false,
+                "amount" : {
+                  "value" : 2000000,
+                  "unit" : {
+                    "currency" : {
+                      "@data" : "USD"
                     }
-                  ],
-                  "otherEligibleSupport": "Not Applicable",
-                  "party": "PARTY_1"
-                },
-                {
-                  "asPermitted": false,
-                  "eligibleCollateral": [
-                    {
-                      "collateralCriteria": {
-                        "AssetType": {
-                          "assetType": "CASH"
-                        }
-                      },
-                      "treatment": {
-                        "isIncluded": true,
-                        "valuationTreatment": {
-                          "marginPercentage": 100
-                        }
-                      }
-                    }
-                  ],
-                  "otherEligibleSupport": "Not Applicable",
-                  "party": "PARTY_1"
-                }
-              ]
-            },
-            "independentAmount": {
-              "partyElection": [
-                {
-                  "fixedAmount": {
-                    "unit": {
-                      "currency": {
-                        "value": "GBP"
-                      }
-                    },
-                    "value": 0
-                  },
-                  "isApplicable": false,
-                  "party": "PARTY_1"
-                },
-                {
-                  "fixedAmount": {
-                    "unit": {
-                      "currency": {
-                        "value": "GBP"
-                      }
-                    },
-                    "value": 0
-                  },
-                  "isApplicable": false,
-                  "party": "PARTY_2"
-                }
-              ]
-            },
-            "minimumTransferAmount": {
-              "partyElection": [
-                {
-                  "fixedAmount": {
-                    "amount": {
-                      "unit": {
-                        "currency": {
-                          "value": "USD"
-                        }
-                      },
-                      "value": 0
-                    },
-                    "zeroEvent": false
-                  },
-                  "party": "PARTY_1"
-                },
-                {
-                  "fixedAmount": {
-                    "amount": {
-                      "unit": {
-                        "currency": {
-                          "value": "USD"
-                        }
-                      },
-                      "value": 0
-                    },
-                    "zeroEvent": false
-                  },
-                  "party": "PARTY_2"
-                }
-              ]
-            },
-            "returnAmount": {
-              "returnAmount": "STANDARD"
-            },
-            "rounding": {
-              "currency": "GBP",
-              "deliveryAmount": 10000,
-              "deliveryDirection": "UP",
-              "returnAmount": 10000,
-              "returnDirection": "DOWN"
-            },
-            "threshold": {
-              "partyElection": [
-                {
-                  "fixedAmount": {
-                    "amount": {
-                      "unit": {
-                        "currency": {
-                          "value": "USD"
-                        }
-                      },
-                      "value": 2000000
-                    },
-                    "zeroEvent": false
-                  },
-                  "party": "PARTY_1"
-                },
-                {
-                  "fixedAmount": {
-                    "amount": {
-                      "unit": {
-                        "currency": {
-                          "value": "USD"
-                        }
-                      },
-                      "value": 2000000
-                    },
-                    "zeroEvent": false
-                  },
-                  "party": "PARTY_2"
-                }
-              ]
-            }
-          },
-          "demandsAndNotices": {
-            "deemedEffectiveNextLBD": true,
-            "partyElection": [
-              {
-                "partyReference": "PARTY_1",
-                "primaryContactInformation": {
-                  "address": [
-                    {
-                      "city": "London",
-                      "country": {
-                        "value": "United Kingdom"
-                      },
-                      "postalCode": "EC2N 4AY",
-                      "street": [
-                        "125 Bishopsgate"
-                      ]
-                    }
-                  ],
-                  "email": [
-                    "jwhitmore@eversteadcapital.com"
-                  ],
-                  "naturalPerson": [
-                    {
-                      "firstName": "James",
-                      "surname": "Whitmore"
-                    }
-                  ],
-                  "telephone": [
-                    {
-                      "number": "+44 20 7654 3210",
-                      "telephoneNumberType": "WORK"
-                    },
-                    {
-                      "number": "+44 20 7654 3211",
-                      "telephoneNumberType": "FAX"
-                    }
-                  ]
-                }
-              },
-              {
-                "partyReference": "PARTY_2",
-                "primaryContactInformation": {
-                  "address": [
-                    {
-                      "city": "New York",
-                      "country": {
-                        "value": "USA"
-                      },
-                      "postalCode": "10166",
-                      "state": "NY",
-                      "street": [
-                        "200 Park Avenue"
-                      ]
-                    }
-                  ],
-                  "email": [
-                    "lmitchell@graniteridgeinv.com"
-                  ],
-                  "naturalPerson": [
-                    {
-                      "firstName": "Laura",
-                      "surname": "Mitchell"
-                    }
-                  ],
-                  "telephone": [
-                    {
-                      "number": "+1 212 456 7890",
-                      "telephoneNumberType": "WORK"
-                    },
-                    {
-                      "number": "+1 212 456 7891",
-                      "telephoneNumberType": "FAX"
-                    }
-                  ]
+                  }
                 }
               }
-            ]
+            }, {
+              "party" : "Party2",
+              "fixedAmount" : {
+                "zeroEvent" : false,
+                "amount" : {
+                  "value" : 2000000,
+                  "unit" : {
+                    "currency" : {
+                      "@data" : "USD"
+                    }
+                  }
+                }
+              }
+            } ]
           },
-          "disputeResolution": {
-            "legacyAlternative": {
-              "resolutionAlternative": "NO_ALTERNATIVE"
-            },
-            "resolutionTime": {
-              "businessCenter": {
-                "value": "GBLO"
-              },
-              "hourMinuteTime": "13:00:00"
-            },
-            "value": {
-              "cash": "CASH_PERCENTAGE",
-              "securities": "BID_PRICE_PERCENTAGE"
-            }
+          "rounding" : {
+            "deliveryAmount" : 10000,
+            "deliveryDirection" : "Up",
+            "returnAmount" : 10000,
+            "returnDirection" : "Down",
+            "currency" : "GBP"
           },
-          "distributionAndInterestPayment": {
-            "interestParameters": [
-              {
-                "interestCalculationParameters": {
-                  "dayCountFraction": "ACT_365_FIXED",
-                  "fixedRate": 0,
-                  "inBaseCurrency": true
+          "independentAmount" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "isApplicable" : false,
+              "fixedAmount" : {
+                "value" : 0,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "GBP"
+                  }
+                }
+              }
+            }, {
+              "party" : "Party2",
+              "isApplicable" : false,
+              "fixedAmount" : {
+                "value" : 0,
+                "unit" : {
+                  "currency" : {
+                    "@data" : "GBP"
+                  }
+                }
+              }
+            } ]
+          },
+          "creditSupportAmount" : {
+            "creditSupportAmount" : "Standard"
+          },
+          "eligibleCreditSupport" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "asPermitted" : false,
+              "eligibleCollateral" : [ {
+                "collateralCriteria" : {
+                  "@type" : "cdm.base.staticdata.asset.common.AssetType",
+                  "assetType" : "Cash"
                 },
-                "interestHandlingParameters": {
-                  "alternativeToInterestAmount": "STANDARD",
-                  "includeAccrualInMarginCalc": false,
-                  "interestPaymentHandling": "TRANSFER",
-                  "netInterestWithMarginCalls": false,
-                  "netPostedAndHeldInterest": false,
-                  "onFullReturn": false,
-                  "onPartialReturn": false
+                "treatment" : {
+                  "valuationTreatment" : {
+                    "marginPercentage" : 100
+                  },
+                  "isIncluded" : true
+                }
+              } ],
+              "otherEligibleSupport" : "Not Applicable"
+            }, {
+              "party" : "Party1",
+              "asPermitted" : false,
+              "eligibleCollateral" : [ {
+                "collateralCriteria" : {
+                  "@type" : "cdm.base.staticdata.asset.common.AssetType",
+                  "assetType" : "Cash"
+                },
+                "treatment" : {
+                  "valuationTreatment" : {
+                    "marginPercentage" : 100
+                  },
+                  "isIncluded" : true
+                }
+              } ],
+              "otherEligibleSupport" : "Not Applicable"
+            } ]
+          }
+        },
+        "calculationAndTiming" : {
+          "notificationTime" : {
+            "partyElections" : [ {
+              "party" : "Party1",
+              "notificationTime" : {
+                "hourMinuteTime" : "17:00:00",
+                "businessCenter" : {
+                  "@data" : "SGSI"
                 }
               },
-              {
-                "postingParty": "PARTY_1"
+              "localBusinessDay" : true
+            }, {
+              "party" : "Party2",
+              "notificationTime" : {
+                "hourMinuteTime" : "17:00:00",
+                "businessCenter" : {
+                  "@data" : "SGSI"
+                }
               }
-            ]
+            } ]
           },
-          "finalReturns": {
-            "applicable": false
+          "valuationDate" : {
+            "date" : "Each",
+            "day" : "LocalBusinessDay",
+            "frequency" : "AsSelected"
           },
-          "masterAgreementDatedAsOfDate": {
-            "masterAgreementDatedAsOfDate": "2005-06-16"
+          "valuationTime" : {
+            "day" : "Previous Local Business Day (City of Valuation Agent)",
+            "time" : "CloseOfBusiness",
+            "additionalLanguage" : "means any time determined as such by Party A. For the avoidance of doubt, there may be more than one Valuation Time on any Valuation Date."
           },
-          "otherEligibleAndPostedSupport": {
-            "applicableTransfer": false,
-            "applicableValue": false
-          },
-          "substitution": {
-            "partyElection": [
-              {
-                "needsConsent": true,
-                "party": "PARTY_1"
-              },
-              {
-                "needsConsent": true,
-                "party": "PARTY_2"
-              }
-            ]
+          "valuationAgent" : {
+            "party" : "Party 1",
+            "valuationAgent" : "SoleValuationAgent"
           }
         }
       }
     },
-    "counterparty": [
-      {
-        "partyReference": {
-          "value": {
-            "name": {
-              "value": "Everstead Capital Ltd"
-            },
-            "partyId": [
-              {
-                "identifier": {
-                  "value": "1234ABCD"
-                },
-                "identifierType": "LEI"
-              }
-            ]
-          }
-        },
-        "role": "PARTY_1"
-      },
-      {
-        "partyReference": {
-          "value": {
-            "name": {
-              "value": "Granite Ridge Investments LLC"
-            },
-            "partyId": [
-              {
-                "identifier": {
-                  "value": "ABCD1234"
-                },
-                "identifierType": "LEI"
-              }
-            ]
-          }
-        },
-        "role": "PARTY_2"
+    "counterparty" : [ {
+      "role" : "Party1",
+      "partyReference" : {
+        "partyId" : [ {
+          "identifier" : {
+            "@data" : "1234ABCD"
+          },
+          "identifierType" : "LEI"
+        } ],
+        "name" : {
+          "@data" : "Everstead Capital Ltd"
+        }
       }
-    ]
-  },
-  "contractualParty": [
-    {
-      "value": {
-        "name": {
-          "value": "Everstead Capital Ltd"
-        },
-        "partyId": [
-          {
-            "identifier": {
-              "value": "1234ABCD"
-            },
-            "identifierType": "LEI"
-          }
-        ]
+    }, {
+      "role" : "Party2",
+      "partyReference" : {
+        "partyId" : [ {
+          "identifier" : {
+            "@data" : "ABCD1234"
+          },
+          "identifierType" : "LEI"
+        } ],
+        "name" : {
+          "@data" : "Granite Ridge Investments LLC"
+        }
       }
-    },
-    {
-      "value": {
-        "name": {
-          "value": "Granite Ridge Investments LLC"
-        },
-        "partyId": [
-          {
-            "identifier": {
-              "value": "ABCD1234"
-            },
-            "identifierType": "LEI"
-          }
-        ]
-      }
-    }
-  ],
-  "legalAgreementIdentification": {
-    "agreementName": {
-      "agreementType": "CREDIT_SUPPORT_AGREEMENT",
-      "creditSupportAgreementType": {
-        "value": "CREDIT_SUPPORT_ANNEX"
-      }
-    },
-    "governingLaw": "GBEN",
-    "publisher": "ISDA",
-    "vintage": 1995
+    } ]
   }
 }
