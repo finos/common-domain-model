@@ -19,10 +19,18 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                 PriceQuantity {
                     price: priceQuantity -> price
                             extract
-                                UpdatePriceAmountForEachMatchingQuantity(
+                                RescaleDerivedQuantity(
                                         item,
-                                        change, // -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
-                                        direction
+                                        UpdatePriceAmountForEachMatchingQuantity(
+                                                item,
+                                                change,
+                                                direction
+                                            ),
+                                        UpdateQuantityAmountForEachMatchingQuantity(
+                                                priceQuantity -> quantity,
+                                                change,
+                                                direction
+                                            )
                                     ),
                     quantity: priceQuantity -> quantity
                             extract
@@ -36,6 +44,32 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                     effectiveDate: priceQuantity -> effectiveDate
                 }
             ]
+
+func RescaleDerivedQuantity: <"Keeps price.derivedQuantity consistent with its sibling quantity after a QuantityChange. Rescales derivedQuantity.value to siblingQuantity * updatedPrice only when derivedQuantity is populated, updatedPrice.perUnitOf matches the sibling quantity's unit, AND the price value itself did not change (e.g. an equity partial termination that only shrinks the number of shares). When the price value also changed - as in a stock split, where quantity and price both scale by inverse factors so the total notional is preserved by construction - the existing derivedQuantity is retained to avoid reintroducing rounding error from division. Prices without derivedQuantity, or where perUnitOf does not match the sibling unit (e.g. spread on an interest-rate payout, or currency-only PriceQuantity rows), are returned unchanged.">
+    inputs:
+        originalPrice PriceSchedule (0..1)
+        updatedPrice PriceSchedule (0..1)
+            [metadata location]
+        siblingQuantity NonNegativeQuantitySchedule (0..1)
+    output:
+        rescaledPrice PriceSchedule (0..1)
+            [metadata location]
+
+    alias priceValueUnchanged:
+        originalPrice -> value = updatedPrice -> value
+
+    alias shouldRescale:
+        updatedPrice -> derivedQuantity exists
+            and siblingQuantity exists
+            and updatedPrice -> perUnitOf exists
+            and UnitEquals(updatedPrice -> perUnitOf, siblingQuantity -> unit)
+            and priceValueUnchanged
+
+    set rescaledPrice: updatedPrice
+    set rescaledPrice -> derivedQuantity -> value:
+        if shouldRescale
+        then siblingQuantity -> value * updatedPrice -> value
+        else updatedPrice -> derivedQuantity -> value
 
 // TODO uncomment usage to support matching on PriceQuantity observable
 func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match on Observable if present.">
