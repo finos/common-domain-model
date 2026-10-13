@@ -24,7 +24,7 @@ Updating expectations regenerates those expected results from the current state 
 
 ---
 **Note:**
-Updating expectations rewrites files rather than checking them. A Contributor should always review the resulting diff (`git status` and `git diff`) to confirm the changes are the ones expected, and note in the contribution whether the mapping, validation or qualification success numbers have changed, since these numbers should not decrease.
+Updating expectations rewrites files rather than checking them. A Contributor should always review the resulting diff (`git status` and `git diff`) to confirm the changes are the ones expected, and note in the contribution whether the mapping, validation or qualification success numbers have changed, as contributions should not break the current model.
 
 ---
 
@@ -61,7 +61,7 @@ This is equivalent to running `mvn clean install -P format,update-expectations` 
 
 ### Updating expectations with Rosetta
 
-Setting up a local Java and Maven development environment is not the only way to work with the CDM's expectations. [Rosetta](https://rosetta-technology.io), the modelling platform for the Rune DSL, is available free of charge at its community tier and provides testing and validation tooling for the CDM without requiring a local build.
+Setting up a local Java and Maven development environment is not the only way to work with the CDM's expectations. [Rosetta](https://rosetta-technology.io), the modelling platform for the Rune DSL, is available free of charge at its community tier and provides testing and validation tooling for the CDM without requiring a local build. Users can create a read-write workspace to edit files, contribute their changes, and Rosetta will create an update-expectations PR with updated expectations. They will also have access to the 'Validation' tab to test.JSON files for validation errors.
 
 ---
 **Note:**
