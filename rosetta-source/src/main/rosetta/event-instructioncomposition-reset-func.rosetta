@@ -415,6 +415,62 @@ func Create_CalculateResetValueInstruction: <"This function generates the Instru
     set calculateResetValueInstruction -> calculationMethod: finalCalculationMethod
     add calculateResetValueInstruction -> observedRateDates: observedRateDates
 
+// Instruction Composition STEP 8 - Record Reset Instruction Output
+func Create_ResetInstruction: <"This function generates the Reset Instruction necessary to finalize the Reset Instruction Composition process.">
+    inputs:
+        resetValue number (1..1)
+        resetValueCurrency string (1..1)
+        resetDate date (1..1)
+        observable Observable (1..1) <"The Observable object, required by the Reset instruction, and found in the Confirmation. It specifies the Floating Rate Index that applies to the Reset process.">
+    output:
+        resetInstruction ResetInstruction (1..1) <"The Reset Instruction containing the final Instruction Composition Output required.">
+
+    alias observation:
+        Observation {
+            observedValue:
+                Price {
+                    value: resetValue,
+                    unit:
+                        UnitType {
+                            currency: resetValueCurrency,
+                            ...
+                        },
+                    perUnitOf:
+                        UnitType {
+                            currency: resetValueCurrency,
+                            ...
+                        },
+                    priceType: InterestRate,
+                    ...
+                },
+            observationIdentifier:
+                ObservationIdentifier {
+                    observable: observable,
+                    observationDate: resetDate,
+                    ...
+        }}
+
+    alias finalResetValue:
+        Price {
+            value: resetValue,
+            unit:
+                UnitType {
+                    currency: resetValueCurrency,
+                    ...
+                },
+            perUnitOf:
+                UnitType {
+                    currency: resetValueCurrency,
+                    ...
+                },
+            priceType: InterestRate,
+            ...
+        }
+
+    set resetInstruction -> reset -> resetDate: resetDate
+    set resetInstruction -> reset -> resetValue: finalResetValue
+    add resetInstruction -> reset -> observations: observation
+
 func CalculateSingleResetRate: <"Calculates the reset rate for Single Observation FROs. Passes through the single market rate without default rounding unless explicitly specified.">
     inputs:
         observedRateDates DatedValue (1..*) <"The observed rate dates list, which must contain exactly one rate.">
@@ -517,62 +573,6 @@ func CalculateMultipleObservationResetRate: <"Calculates the unrounded reset val
                     True
                 )
         else RoundToPrecision(unroundedRate, 7, Nearest, True)
-
-// Instruction Composition STEP 8 - Record Reset Instruction Output
-func Create_ResetInstruction: <"This function generates the Reset Instruction necessary to finalize the Reset Instruction Composition process.">
-    inputs:
-        resetValue number (1..1)
-        resetValueCurrency string (1..1)
-        resetDate date (1..1)
-        observable Observable (1..1) <"The Observable object, required by the Reset instruction, and found in the Confirmation. It specifies the Floating Rate Index that applies to the Reset process.">
-    output:
-        resetInstruction ResetInstruction (1..1) <"The Reset Instruction containing the final Instruction Composition Output required.">
-
-    alias observation:
-        Observation {
-            observedValue:
-                Price {
-                    value: resetValue,
-                    unit:
-                        UnitType {
-                            currency: resetValueCurrency,
-                            ...
-                        },
-                    perUnitOf:
-                        UnitType {
-                            currency: resetValueCurrency,
-                            ...
-                        },
-                    priceType: InterestRate,
-                    ...
-                },
-            observationIdentifier:
-                ObservationIdentifier {
-                    observable: observable,
-                    observationDate: resetDate,
-                    ...
-        }}
-
-    alias finalResetValue:
-        Price {
-            value: resetValue,
-            unit:
-                UnitType {
-                    currency: resetValueCurrency,
-                    ...
-                },
-            perUnitOf:
-                UnitType {
-                    currency: resetValueCurrency,
-                    ...
-                },
-            priceType: InterestRate,
-            ...
-        }
-
-    set resetInstruction -> reset -> resetDate: resetDate
-    set resetInstruction -> reset -> resetValue: finalResetValue
-    add resetInstruction -> reset -> observations: observation
 
 // COMPOSITION STATE CHANGES FOR RESET
 func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
