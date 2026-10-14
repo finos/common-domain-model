@@ -4,13 +4,13 @@ title: Updating Expectations
 
 ## Updating expectations
 
-When a contribution changes the CDM model, the recorded results that the CDM's regression tests check against usually need to be regenerated to match. This process is referred to as *updating expectations*, and it is a required step before most Pull Requests can be contributed to the CDM.
+When a contribution changes the CDM model, the expected results that the CDM's regression tests check against usually need to be regenerated to match. This process is referred to as *updating expectations*, and it is a required step before most Pull Requests can be contributed to the CDM.
 
 **NOTE: The editor being used/supported in the examples in IntelliJ**
 
 ### What are expectations?
 
-The CDM follows a test-driven development approach: a set of sample data, organised into a *Test Pack*, is run through the model's `synonym` mappings, validation and qualification logic, and the results produced are captured as *expected results* (or *expectations*). These expectations are stored as JSON files alongside the samples, mainly under `rosetta-source/src/main/resources`, and are compared against the model's actual output every time the relevant tests are run.
+All CDM model changes are covered by tests: a set of sample data, organised into a *Test Pack*, is run through the model's `synonym` mappings, validation and qualification logic, and the results produced are captured as *expected results* (or *expectations*). These expectations are stored as JSON files alongside the samples, mainly under `rosetta-source/src/main/resources`, and are compared against the model's actual output every time the relevant tests are run.
 
 - Test Pack samples include FpML documents and other industry data used to exercise the model's synonym-based mapping (translation) logic.
 - Function input and output samples exercise the CDM's standardised functions.
@@ -20,11 +20,11 @@ The CDM follows a test-driven development approach: a set of sample data, organi
 
 Editing a data type, a `synonym` mapping, a validation rule, a qualification rule or a function changes the output the model produces for the existing samples. Once that happens, the expectations recorded against the previous version of the model no longer match, and the affected tests fail, even when the model change is correct and intended.
 
-Updating expectations regenerates those recorded results from the current state of the model and its samples, so the Test Pack reflects the intended behaviour rather than the previous one. This is why the [development guidelines](dev-guidelines.md) require that synonyms are updated and mapping, validation and qualification levels are maintained or improved before a change is contributed.
+Updating expectations regenerates those expected results from the current state of the model and its samples, so the Test Pack reflects the intended behaviour rather than the previous one. This is why the [development guidelines](dev-guidelines.md) require that synonyms are updated and mapping, validation and qualification levels are maintained or improved before a change is contributed.
 
 ---
 **Note:**
-Updating expectations rewrites files rather than checking them. A Contributor should always review the resulting diff (`git status` and `git diff`) to confirm the changes are the ones expected, and note in the contribution whether the mapping, validation or qualification success numbers have changed, since these numbers should not decrease.
+Updating expectations rewrites files rather than checking them. A Contributor should always review the resulting diff (`git status` and `git diff`) to confirm the changes are the ones expected, and note in the contribution whether the mapping, validation or qualification success numbers have changed, as contributions should not break the current model.
 
 ---
 
@@ -51,11 +51,11 @@ The same two environment variables can be set from an IDE's run configuration in
 
 ### Updating expectations with Rosetta
 
-Setting up a local Java and Maven development environment is not the only way to work with the CDM's expectations. Contributors editing the model in the [Rosetta Translate application](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/) can test mapping changes live against the Test Pack, as described in the [development guidelines](dev-guidelines.md). Rosetta, the modelling platform for the Rune DSL, is available free of charge at its community tier.
+Setting up a local Java and Maven development environment is not the only way to work with the CDM's expectations. Contributors editing the model in the [Rosetta Translate application](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/) can test mapping changes live against the Test Pack, as described in the [development guidelines](dev-guidelines.md). Rosetta, the modelling platform for the Rune DSL, is available free of charge at its community tier. Users can create a read-write workspace to edit files, contribute their changes, and Rosetta will create an update-expectations PR with updated expectations. They will also have access to the 'Validation' tab to test.JSON files for validation errors.
 
 ---
 **Note:**
-As with any CDM application component, FINOS encourages the adoption of CDM by software providers but does not endorse any CDM application component.
+As with any CDM application component, FINOS encourages the adoption of CDM by software providers but does not endorse any CDM application component. Please refer to the [Rosetta Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/) for details of its current testing and validation capabilities.
 
 ---
 
