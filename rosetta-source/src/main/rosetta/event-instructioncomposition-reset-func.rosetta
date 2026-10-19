@@ -650,6 +650,61 @@ func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process
     output:
         resetInstructionNextStep ResetInstructionSteps (0..1)
 
+    // Step 1 - CollectFloatingRateOptionInstruction
+    alias resetStep1exists:
+        (resetInstructionState -> floatingRateIndex exists)
+        and (resetInstructionState -> tradeDate exists)
+    // Step 2 - DetermineUnadjustedCalculationPeriodInstruction
+    alias resetStep2exists:
+        (resetInstructionState -> unadjustedCalculationPeriod exists)
+        and (resetInstructionState -> unadjustedResetDate exists)
+    // Step 3 - AdjustPeriodInstruction
+    alias resetStep3exists:
+        resetInstructionState -> adjustedCalculationPeriod exists
+    // Step 4 - AdjustDateInstruction
+    alias resetStep4exists:
+        resetInstructionState -> adjustedResetDate exists
+    // Step 5 - DetermineUnadjustedObservationDatesInstruction
+    alias resetStep5exists:
+        (resetInstructionState -> unadjustedObservationDates exists)
+        and (resetInstructionState -> floatingRateOptionData exists)
+    // Step 6 - AdjustObservationDatesInstruction
+    alias resetStep6exists:
+        resetInstructionState -> adjustedObservationDates exists
+    // Step 7 - CalculateResetValueInstruction
+    alias resetStep7exists:
+        (resetInstructionState -> resetValue exists)
+        and (resetInstructionState -> observedRateDates exists)
+
+    set resetInstructionNextStep -> resetInstructionCompositionSteps:
+        // Next Step = Step 1
+        if resetStep1exists = False or resetInstructionState is absent
+        then ResetInstructionCompositionStepsEnum -> CollectFloatingRateOptionInstruction
+        // Next Step = Step 2
+        else if resetStep1exists and resetStep2exists = False
+        then ResetInstructionCompositionStepsEnum -> DetermineUnadjustedCalculationPeriodInstruction
+        // Next Step = Step 3
+        else if resetStep1exists and resetStep2exists and resetStep3exists = False
+        then ResetInstructionCompositionStepsEnum -> AdjustPeriodInstruction
+        // Next Step = Step 4
+        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists = False
+        then ResetInstructionCompositionStepsEnum -> AdjustDateInstruction
+        // Next Step = Step 5
+        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists and resetStep5exists = False
+        then ResetInstructionCompositionStepsEnum -> DetermineUnadjustedObservationDatesInstruction
+        // Next Step = Step 6
+        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists and resetStep5exists and resetStep6exists = False
+        then ResetInstructionCompositionStepsEnum -> AdjustObservationDatesInstruction
+        // Next Step = Step 7
+        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists and resetStep5exists and resetStep6exists and resetStep7exists = False
+        then ResetInstructionCompositionStepsEnum -> CalculateResetValueInstruction
+        // Next Step = Generating the Instruction for the Output
+        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists and resetStep5exists and resetStep6exists and resetStep7exists
+            and (instructionCompositionOutput -> resetInstruction is absent
+                or instructionCompositionOutput -> resetInstruction -> reset is absent)
+        then ResetInstructionCompositionStepsEnum -> ResetInstructionOutput
+        else empty
+
 // External call to fetch the list of non business dates
 func GetNonBusinessDates: <"This function, given the list of business centers applicable and a period or a list of dates, extracts the list of non business dates for the given period or list of dates and returns the corresponding list of non business dates. The function should receive as input a list of dates or a period, but not both at the same time. That is, given either a list of periods or a period (start date + end date), the function will return their non business days.">
     [codeImplementation]
