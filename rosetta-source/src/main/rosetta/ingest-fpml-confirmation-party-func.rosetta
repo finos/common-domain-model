@@ -29,6 +29,7 @@ import cdm.ingest.fpml.confirmation.product.fxswap.*
 import cdm.ingest.fpml.confirmation.product.fxvarianceswap.*
 import cdm.ingest.fpml.confirmation.product.fxvolatilityswap.*
 import cdm.ingest.fpml.confirmation.product.genericproduct.*
+import cdm.ingest.fpml.confirmation.product.instrumenttradedetails.*
 import cdm.ingest.fpml.confirmation.product.returnswap.*
 import cdm.ingest.fpml.confirmation.product.swap.*
 import cdm.ingest.fpml.confirmation.product.swaption.*
@@ -89,6 +90,7 @@ func MapCounterpartyList:
             fpml.FxVarianceSwap then MapFxVarianceSwapCounterpartyList,
             fpml.FxVolatilitySwap then MapFxVolatilitySwapCounterpartyList,
             fpml.GenericProduct then MapGenericProductCounterpartyList,
+            fpml.InstrumentTradeDetails then MapInstrumentTradeDetailsCounterpartyList,
             fpml.ReturnSwap then MapReturnSwapCounterpartyList,
             fpml.Swap then MapSwapCounterpartyList,
             fpml.Swaption then MapSwaptionCounterpartyList,
@@ -685,6 +687,12 @@ func MapPartyRoleList:
         fpmlTrade -> tradeHeader -> partyTradeInformation
             extract MapRelatedPartyToPartyRole
             then flatten
+
+    add partyRoleList:
+        fpmlTrade -> product switch
+            fpml.InstrumentTradeDetails then
+                MapInstrumentTradeDetailsPartyRoleList(item),
+            default empty
 
 func MapRelatedPartyToPartyRole:
     inputs:
