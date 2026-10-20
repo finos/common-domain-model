@@ -84,7 +84,10 @@ func MapInstrumentTradeDetailsEconomicTerms: <"Maps an FpML InstrumentTradeDetai
 
     set economicTerms:
         EconomicTerms {
-            payout: MapInstrumentTradeDetailsPayout(fpmlInstrumentTradeDetails, cdmCounterpartyList),
+            payout: MapInstrumentTradeDetailsPayout(
+                        fpmlInstrumentTradeDetails,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -107,8 +110,7 @@ func MapInstrumentTradeDetailsPayout: <"Maps an FpML InstrumentTradeDetails to a
                     priceQuantity:
                         ResolvablePriceQuantity {
                             quantitySchedule: MapNotionalAmountWithIdToQuantityWithAddress(
-                                        fpmlInstrumentTradeDetails -> quantity -> nominal -> amount
-                                            default fpmlInstrumentTradeDetails -> quantity -> number,
+                                        fpmlInstrumentTradeDetails -> quantity -> nominal -> amount default fpmlInstrumentTradeDetails -> quantity -> number,
                                         "quantity",
                                         empty
                                     ),
@@ -249,7 +251,8 @@ func MapInstrumentTradeDetailsAsset: <"Maps the FpML underlying asset of an Inst
                         empty,
                         empty
                     ),
-            fpml.Loan then MapIdentifiedAssetToAssetLoan(item, exchangeId, empty),
+            fpml.Loan then
+                MapIdentifiedAssetToAssetLoan(item, exchangeId, empty),
             fpml.Mortgage then
                 CreateInstrumentTradeDetailsSecurity(
                         MapAssetIdentifierList(item),
@@ -317,7 +320,8 @@ func CreateInstrumentTradeDetailsSecurity: <"Creates an Asset of type Security w
                     Security:
                         Security {
                             identifier: identifierList,
-                            isExchangeListed: if fpmlExchangeId exists then True,
+                            isExchangeListed: if fpmlExchangeId exists
+                                    then True,
                             party: assetParty,
                             ancillaryPartyRole: assetParty
                                     extract
@@ -328,22 +332,21 @@ func CreateInstrumentTradeDetailsSecurity: <"Creates an Asset of type Security w
                             securityType: securityType,
                             debtType: if redemptionType exists or assetBacked exists
                                     then DebtType {
-                                            debtEconomics:
-                                                DebtEconomics {
-                                                    secured: if assetBacked exists
-                                                            then SecuredDebt {
-                                                                    securedType: SecuredTypeEnum -> AssetBacked,
-                                                                    assetBacked: assetBacked,
-                                                                    ...
-                                                                },
-                                                    redemption: if redemptionType exists
-                                                            then DebtRedemption {
-                                                                    redemptionType: redemptionType,
-                                                                    ...
-                                                                },
-                                                    ...
-                                                }
-                                        },
+                                        debtEconomics:
+                                            DebtEconomics {
+                                                secured: if assetBacked exists
+                                                        then SecuredDebt {
+                                                            securedType: SecuredTypeEnum -> AssetBacked,
+                                                            assetBacked: assetBacked,
+                                                            ...
+                                                        },
+                                                redemption: if redemptionType exists
+                                                        then DebtRedemption {
+                                                            redemptionType: redemptionType,
+                                                            ...
+                                                        },
+                                                ...
+                            }},
                             fundType: fundType,
                             assetType: AssetTypeEnum -> Security,
                             ...
@@ -373,10 +376,15 @@ func CreateInstrumentTradeDetailsListedDerivative: <"Creates an Asset of type Li
                     ListedDerivative:
                         ListedDerivative {
                             identifier: identifierList,
-                            isExchangeListed: if fpmlExchangeId exists then True,
+                            isExchangeListed: if fpmlExchangeId exists
+                                    then True,
                             party: assetParty,
                             partyRole: assetParty
-                                    extract MapAssetPartyRole(item, AssetPartyRoleEnum -> Exchange),
+                                    extract
+                                        MapAssetPartyRole(
+                                                item,
+                                                AssetPartyRoleEnum -> Exchange
+                                            ),
                             deliveryTerm: deliveryTerm,
                             optionType: optionType,
                             strike: strike,
@@ -416,14 +424,14 @@ func MapInstrumentTradeDetailsPriceQuantityList: <"Maps the price, quantity and 
     alias assetFinancialUnit: <"The unit of a quantity expressed as a number of units, as implied by the type of instrument: Contract for a listed future, a listed option or a warrant, which FpML defines as exchange-traded contracts, Share for an equity or a fund, and IndexUnit for an index. No unit is set for any other type of instrument.">
         if fpmlNumber exists
         then fpmlUnderlyingAsset switch
-                fpml.Future then FinancialUnitEnum -> Contract,
-                fpml.Option then FinancialUnitEnum -> Contract,
-                fpml.Warrant then FinancialUnitEnum -> Contract,
-                fpml.Equity then FinancialUnitEnum -> Share,
-                fpml.ExchangeTradedFund then FinancialUnitEnum -> Share,
-                fpml.MutualFund then FinancialUnitEnum -> Share,
-                fpml.Index then FinancialUnitEnum -> IndexUnit,
-                default empty
+            fpml.Future then FinancialUnitEnum -> Contract,
+            fpml.Option then FinancialUnitEnum -> Contract,
+            fpml.Warrant then FinancialUnitEnum -> Contract,
+            fpml.Equity then FinancialUnitEnum -> Share,
+            fpml.ExchangeTradedFund then FinancialUnitEnum -> Share,
+            fpml.MutualFund then FinancialUnitEnum -> Share,
+            fpml.Index then FinancialUnitEnum -> IndexUnit,
+            default empty
 
     alias quotationModelValue: <"The price value, taken as provided in FpML without rescaling, since FpML does not prescribe whether a price is expressed as a decimal or as a percentage.">
         fpmlQuote -> value
@@ -458,17 +466,16 @@ func MapInstrumentTradeDetailsPriceQuantityList: <"Maps the price, quantity and 
                     },
                 multiplier: if fpmlMultiplier exists
                         then NonNegativeMeasure {
-                                value: fpmlMultiplier,
-                                ...
-                            },
+                            value: fpmlMultiplier,
+                            ...
+                        },
                 ...
             }
 
     add priceQuantityList: <"Creates the price only when FpML provides a price value. The quantity location uses the key 'quantity' and the observable location uses the observable key of the instrument, matching the addresses set in MapInstrumentTradeDetailsPayout.">
         PriceQuantity {
-            price:
-                if quotationModelValue exists
-                then PriceSchedule {
+            price: if quotationModelValue exists
+                    then PriceSchedule {
                         value: quotationModelValue,
                         unit:
                             UnitType {
