@@ -2,15 +2,93 @@ namespace cdm.event.instructioncomposition.reset
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
+import cdm.base.math.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.codelist.*
+import cdm.event.common.*
 import cdm.event.instructioncomposition.*
 import cdm.observable.asset.*
 import cdm.observable.asset.calculatedrate.*
 import cdm.observable.asset.fro.*
+import cdm.observable.event.*
 import cdm.product.asset.*
+import cdm.product.asset.floatingrate.*
+import cdm.product.common.schedule.*
 import cdm.product.common.schedule.*
 
+/*
+ * This namespace defines the functional logic for the Interest Rate Reset Instruction Composition process. In the lifecycle of a derivative, a "Reset" occurs when a floating rate option (e.g., SOFR, EURIBOR, Term rates) is observed from the market and applied to a trade to calculate the next payment.
+
+ * The Reset Instruction Composition automates this by:
+ *    1. Bridging the gap between the legal trade confirmation and external market data.
+ *    2. Executing an 8-step deterministic workflow to sequence data extraction, date adjustments, market observations, and compounding calculations.
+
+ * CURRENT FUNCTIONAL SCOPE
+ * -------------------------------------------------------------------------------
+
+ * - Supported Business Day Conventions:
+ *      - Following
+ *      - Preceding
+ *      - Modified Following
+
+ * - Out-of-Scope Business Day Conventions:
+ *      - Modified Preceding
+ *      - Nearest
+ *      - Not Adjusted
+
+ * - Supported Observation Shifts and Offsets:
+ *      - Fixing Day Offset (applicable to Single and Multiple Observations)
+ *      - Lookback Shift (applicable to Multiple Observations)
+
+ *  - Out-of-Scope Observation Mechanisms:
+ *      - Observation Period Shift
+ *      - Lockout Shift
+ *      - Lookback Shift for Compounded Index Observations
+
+ *  - Supported Calculation Methodologies (Step 7):
+ *      - Single Observation (direct pass-through)
+ *      - Compounded Index (formula evaluation)
+ *      - Multiple Observation Compounding (Compounding / OISCompound)
+
+ *  WORKFLOW OVERVIEW
+ * -------------------------------------------------------------------------------
+
+ * - [Placeholder Function] ExtractFloatingRateOptionData
+ * - STEP 1: Collect Floating Rate Option Data
+ * - [Placeholder Function] GetNonBusinessDates
+ * - STEP 2: Determine Unadjusted Calculation Period
+ * - [Placeholder Function] GetNonBusinessDates
+ * - STEP 3: Adjust Calculation Period
+ * - STEP 4: Adjust Reset Date
+ * - [Placeholder Function] GetNonBusinessDates
+ * - STEP 5: Determine Unadjusted Observation Dates
+ * - [Placeholder Function] GetMarketRates
+ * - STEP 6: Adjust Observation Dates
+ * - STEP 7: Calculate Reset Value
+ * - STEP 8: Record Reset Instruction Output
+
+ *  STATE MANAGEMENT & TRANSITION LOGIC
+ *  -------------------------------------------------------------------------------
+ *  - STATE OVERLAY
+ *    [func] UpdateResetCompositionState:
+ *      - Implements deterministic state persistence across individual step milestones:
+ *          • Step 1: Floating Rate Index & Trade Date (Create_CollectFloatingRateOptionInstruction)
+ *          • Step 2: Unadjusted Calculation Period & Reset Date (Create_DetermineUnadjustedCalculationPeriodInstruction)
+ *          • Step 3: Adjusted Calculation Period (Create_AdjustPeriodInstruction)
+ *          • Step 4: Adjusted Reset Date
+ *          • Step 5: Unadjusted Observation Dates & Floating Rate Option Data
+ *          • Step 6: Adjusted Observation Dates
+ *          • Step 7: Final Calculation Results & Observed Rate Dates
+ *      - Field Resolution Rule:
+ *          - If the incoming step provides a value -> that value updates the state.
+ *          - Otherwise -> the previous state value is carried forward (preserved).
+ *  - NEXT STEP EVALUATION
+ *    [func] ResetInstructionNextStep:
+ *      - Evaluates the accumulated ResetInstructionState against mandatory milestone data requirements across the process lifecycle.
+ *      - Identifies the specific step enum (ResetInstructionSteps) required to resolve missing data gaps or generate the final output.
+ */
 // Instruction Composition  STEP 1 - Get Floating Rate Index Name
 func Create_CollectFloatingRateOptionInstruction: <"This function generates the Instruction Composition step instruction necessary to collect the Floating Rate Option data by extracting the floating rate index name from the floating leg.">
     inputs:
@@ -51,22 +129,6 @@ func Create_DetermineUnadjustedCalculationPeriodInstruction: <"This function gen
 
     set determineUnadjustedCalculationPeriodInstruction -> unadjustedResetDate: <"Sets the unadjusted reset date to the output.">
         unadjustedResetDate
-
-// Code Implementation Function - External call to fetch the list of non business dates
-func GetNonBusinessDates: <"This function, given the list of business centers applicable and a period or a list of dates, extracts the list of non business dates for the given period or list of dates and returns the corresponding list of non business dates. The function should receive as input a list of dates or a period, but not both at the same time. That is, given either a list of periods or a period (start date + end date), the function will return their non business days.">
-    [codeImplementation]
-    inputs:
-        businessCenters BusinessCenter (0..*) <"The business centers related to a period or a list of one or more dates.">
-        period CalculationPeriodBase (0..1) <"The period from which the list of non business dates are generated.">
-        dates date (0..*) <"The list of dates from which the list of non business dates are generated.">
-    output:
-        nonBusinessDates date (1..*) <"The list of non business dates.">
-
-    condition PeriodOrDates: <"There can only be a period or a list of dates specified as input to this function. The function then fetches the non business dates of the given period OR list of dates and returns them.">
-        if period is absent
-        then dates exists
-        else if dates is absent
-        then period exists
 
 // Instruction Composition STEP 3 - Adjust Calculation Period
 func Create_AdjustPeriodInstruction: <"This function generates the Instruction Composition step instruction necessary to adjust the unadjusted period, and adding it to the AdjustPeriodInstruction. Supported business day conventions in this version are: {Following, Preceding, ModFollowing}. Other conventions (e.g., ModPreceding, Nearest) are currently out-of-scope.">
@@ -120,15 +182,6 @@ func Create_AdjustDateInstruction: <"This function generates the Instruction Com
             adjustedDate: adjustedResetDate
         }
 
-// External call to fetch FRO metadata from the ISDA FRO Matrix
-func ExtractFloatingRateOptionData: <"This function, given a floating rate option, extracts the floating rate option's metadata from the ISDA FRO Matrix and returns that data in a CDM structured format. Additionally, it uses the reference date specified to select the relevant version of the FRO Matrix.">
-    [codeImplementation]
-    inputs:
-        tradeDate date (1..1) <"The Trade Date, used to reference the ISDA FRO Matrix version.">
-        floatingRateIndex FloatingRateIndexEnum (1..1) <"The Floating Rate Index for which to extract its metadata from the ISDA FRO Matrix.">
-    output:
-        floatingRateIndexData FloatingRateIndexDefinition (1..1) <"The Floating Rate Index data extracted from the ISDA FRO Matrix.">
-
 // Instruction Composition STEP 5 - Determine Unadjusted Observation Dates
 func Create_DetermineUnadjustedObservationDatesInstruction: <"This function generates the Instruction Composition step instruction necessary to generate the unadjusted observation dates, and adding them to the DetermineUnadjustedObservationDatesInstruction.">
     inputs:
@@ -157,6 +210,7 @@ func Create_DetermineUnadjustedObservationDatesInstruction: <"This function gene
     condition MethodFromConfirmationExistsWhenOvernightRate: <"If the Floating Rate Index has a Style of Overnight, then the calculation methodology originating from the Workflow Step must be present.">
         if style = Overnight
         then calculationMethodologyFromConfirmation exists
+
     set determineUnadjustedObservationDatesInstruction:
         DetermineUnadjustedObservationDatesInstruction {
             unadjustedObservationDates: if observationType = Single
@@ -171,6 +225,356 @@ func Create_DetermineUnadjustedObservationDatesInstruction: <"This function gene
                 then [adjustedCalculationPeriod -> adjustedStartDate, adjustedCalculationPeriod -> adjustedEndDate],
             floatingRateIndexData: floatingRateIndexData
         }
+
+// Instruction Composition STEP 6 - Adjust Observation Dates
+func Create_AdjustObservationDatesInstruction: <"This function generates the Instruction Composition step instruction necessary to make the necessary adjustments to the observation dates, and adding the resulting adjusted dates to the AdjustObservationDatesInstruction. Supported shifts and offsets in this version are: {Fixing Day Offset, Lookback Shift (only for Multiple Observations)}. The following mechanisms are currently out-of-scope: {Observation Period Shift, Lockout Shift, Lookback Shift (for Compounded Index Observations)}.">
+    inputs:
+        unadjustedObservationDates date (0..*) <"The list of unadjusted observation dates. For Single Observation, this contains one date. For Multiple Observation, it is a list of daily calendar dates, and for Index Observation it contains the first and last dates of the calculation period.">
+        fixingDayOffset Offset (0..1) <"The offset to apply to obtain the fixing date or fixing period.">
+        lookbackShift OffsetCalculation (0..1) <"The lookback shift offset to apply for Multiple Observation (e.g., 5 business days lag). This should be absent for Single and Index observations.">
+        category FloatingRateIndexCategoryEnum (1..1) <"The ISDA category of the floating rate index (e.g., Screen Rate, Calculated Rate).">
+        style FloatingRateIndexStyleEnum (0..1) <"The ISDA style of the index (e.g., CompoundedFRO).">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the FRO Matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the Confirmation.">
+        nonBusinessDatesObservationDates date (0..*) <"The list of non business dates applicable to the observation period (used for Lookback Shifts).">
+        nonBusinessDatesAdjustedResetDate date (0..*) <"The list of non business dates applicable to the reset date (used for Fixing Day Offsets).">
+    output:
+        adjustObservationDatesInstruction AdjustObservationDatesInstruction (1..1) <"The instruction containing the final list of adjusted observation dates.">
+
+    // --- Observation Distinctions ---
+    alias observationType:
+        DetermineObservationType(
+                category,
+                style,
+                calculationMethodologyFromFloatingRateOption,
+                calculationMethodologyFromConfirmation
+            )
+
+    // --- Calculations ---
+    // SINGLE OBSERVATION
+    alias singleAdjusted: <"Applies the Fixing Day Offset (if present) to the single observation date using the Reset Date holiday calendar.">
+        if observationType = Single
+        then ShiftBusinessDays(
+                    unadjustedObservationDates only-element,
+                    if fixingDayOffset exists
+                    then fixingDayOffset -> periodMultiplier
+                    else 0,
+                    nonBusinessDatesAdjustedResetDate
+                )
+
+    // MULTIPLE OBSERVATION
+    alias multipleStartFixingOffset: <"Applies the Fixing Day Offset (if present) to the start date of the period using the Observation Dates holiday calendar.">
+        if observationType = Multiple
+        then ShiftBusinessDays(
+                    unadjustedObservationDates first,
+                    if fixingDayOffset exists
+                    then fixingDayOffset -> periodMultiplier
+                    else 0,
+                    nonBusinessDatesObservationDates
+                )
+
+    alias multipleStartLookbackShift: <"Applies the Lookback Shift (if present) to the fixing day offset-adjusted start date of the period using the Observation Dates holiday calendar.">
+        if observationType = Multiple
+        then ShiftBusinessDays(
+                    multipleStartFixingOffset,
+                    if lookbackShift exists
+                    then lookbackShift -> offsetDays * -1
+                    else 0,
+                    nonBusinessDatesObservationDates
+                )
+
+    alias multipleEndFixingOffset: <"Applies the Fixing Day Offset (if present) to the end date of the period using the Observation Dates holiday calendar.">
+        if observationType = Multiple
+        then ShiftBusinessDays(
+                    unadjustedObservationDates last,
+                    if fixingDayOffset exists
+                    then fixingDayOffset -> periodMultiplier
+                    else 0,
+                    nonBusinessDatesObservationDates
+                )
+
+    alias multipleEndLookbackShift: <"Applies the Lookback Shift (if present) to the fixing day offset-adjusted end date of the period using the Observation Dates holiday calendar.">
+        if observationType = Multiple
+        then ShiftBusinessDays(
+                    multipleEndFixingOffset,
+                    if lookbackShift exists
+                    then lookbackShift -> offsetDays * -1
+                    else 0,
+                    nonBusinessDatesObservationDates
+                )
+
+    alias unadjustedMiddleDates: <"Regenerates the full list of calendar dates between the new shifted start and end dates. This ensures we account for every calendar day in the new shifted period before applying adjustments.">
+        GenerateCalendarDateList(
+                multipleStartLookbackShift,
+                multipleEndLookbackShift,
+                False
+            )
+
+    alias uniqueMiddleAdjustedDates: <"Adjusts every date in the shifted calendar period to the Preceding Business Day. Sorts and removes duplicates to prepare for gap filling.">
+        unadjustedMiddleDates
+            extract
+                AdjustDateToBusinessDayConvention(
+                        item,
+                        nonBusinessDatesObservationDates,
+                        BusinessDayConventionEnum -> PRECEDING
+                    )
+            then sort
+            then distinct
+
+    alias multipleAdjustedDateList: <"Expands the list of valid business days to fill any gaps. Repeats the previous business day for any missing calendar days to maintain the correct weightings.">
+        ExpandMissingObservationDates(uniqueMiddleAdjustedDates)
+
+    // COMPOUNDED INDEX
+    alias compoundedIndexList: <"For Compounded indices, returns the start and end date of the unadjusted period without modification.">
+        [unadjustedObservationDates first, unadjustedObservationDates last]
+
+    condition FixingOffsetDaysOnly: <"Validates that the Fixing Day Offset period is defined in Days.">
+        if fixingDayOffset exists
+        then fixingDayOffset -> period = D
+        else if fixingDayOffset is absent
+        then True
+
+    set adjustObservationDatesInstruction: <"Constructs the instruction with the correct calculated list of dates based on the identified observation route.">
+        AdjustObservationDatesInstruction {
+            adjustedObservationDates: if observationType = Single
+                    then singleAdjusted
+                else if observationType = CompoundedIndex
+                then compoundedIndexList
+                else if observationType = Multiple
+                then multipleAdjustedDateList
+        }
+
+// Instruction Composition STEP 7 - Calculate Reset Value
+func Create_CalculateResetValueInstruction: <"This function generates the Instruction Composition step instruction necessary to calculate the final reset value and applicable calculation methodology, adding the resulting reset rate to the CalculateResetValueInstruction.">
+    inputs:
+        observedRateDates DatedValue (1..*)
+        adjustedCalculationPeriod CalculationPeriodBase (0..1)
+        rounding Rounding (0..1) <"The rounding to be applied to the reset value.">
+        currency string (1..1) <"The currency of the reset value.">
+        dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction.">
+        category FloatingRateIndexCategoryEnum (1..1) <"The category of the Floating Rate Index (e.g., Calculated, Screen).">
+        style FloatingRateIndexStyleEnum (0..1) <"The style of the Floating Rate Index (e.g., Term, Overnight Rate, Compounded FRO).">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the FRO Matrix.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"The ISDA calculation method applicable to the Floating Rate Index found in the Confirmation.">
+    output:
+        calculateResetValueInstruction CalculateResetValueInstruction (1..1) <"The instruction containing the final reset value and calculation methodology.">
+
+    alias observationType: <"Determines whether the reset relies on a Single observation, Compounded Index, or Multiple rate observations.">
+        DetermineObservationType(
+                category,
+                style,
+                calculationMethodologyFromFloatingRateOption,
+                calculationMethodologyFromConfirmation
+            )
+
+    alias calculatedResetRate: <"Delegates rate calculation and rounding to the specialized function corresponding to the observation type.">
+        if observationType = Single
+        then CalculateSingleResetRate(observedRateDates, rounding)
+        else if observationType = CompoundedIndex
+        then CalculateCompoundedIndexResetRate(
+                    observedRateDates,
+                    adjustedCalculationPeriod,
+                    dayCountFraction,
+                    rounding
+                )
+        else if observationType = Multiple
+        then CalculateMultipleObservationResetRate(
+                    observedRateDates,
+                    dayCountFraction,
+                    calculationMethodologyFromConfirmation,
+                    calculationMethodologyFromFloatingRateOption,
+                    rounding
+                )
+
+    alias finalCalculationMethod: <"Determines the final calculation method, prioritizing Floating Rate Option metadata over Confirmation metadata.">
+        if calculationMethodologyFromFloatingRateOption exists
+        then MapFloatingRateIndexCalculationMethodEnumToCalculationMethodEnum(
+                    calculationMethodologyFromFloatingRateOption
+                )
+        else calculationMethodologyFromConfirmation
+
+    alias resetPrice: <"Constructs the Price object containing the rounded reset value, currency unit, and rate type.">
+        Price {
+            value: calculatedResetRate,
+            priceType: InterestRate,
+            unit:
+                UnitType {
+                    currency: currency,
+                    ...
+                },
+            perUnitOf:
+                UnitType {
+                    currency: currency,
+                    ...
+                },
+            ...
+        }
+
+    condition MarketRatesEqualObservationDates: <"The number of observed market rates should match the number of observation dates.">
+        observedRateDates -> value count = observedRateDates -> date count
+
+    set calculateResetValueInstruction -> resetValue: resetPrice
+    set calculateResetValueInstruction -> calculationMethod: finalCalculationMethod
+    add calculateResetValueInstruction -> observedRateDates: observedRateDates
+
+// Instruction Composition STEP 8 - Record Reset Instruction Output
+func Create_ResetInstruction: <"This function generates the Reset Instruction necessary to finalize the Reset Instruction Composition process.">
+    inputs:
+        resetValue number (1..1)
+        resetValueCurrency string (1..1)
+        resetDate date (1..1)
+        observable Observable (1..1) <"The Observable object, required by the Reset instruction, and found in the Confirmation. It specifies the Floating Rate Index that applies to the Reset process.">
+    output:
+        resetInstruction ResetInstruction (1..1) <"The Reset Instruction containing the final Instruction Composition Output required.">
+
+    alias observation:
+        Observation {
+            observedValue:
+                Price {
+                    value: resetValue,
+                    unit:
+                        UnitType {
+                            currency: resetValueCurrency,
+                            ...
+                        },
+                    perUnitOf:
+                        UnitType {
+                            currency: resetValueCurrency,
+                            ...
+                        },
+                    priceType: InterestRate,
+                    ...
+                },
+            observationIdentifier:
+                ObservationIdentifier {
+                    observable: observable,
+                    observationDate: resetDate,
+                    ...
+        }}
+
+    alias finalResetValue:
+        Price {
+            value: resetValue,
+            unit:
+                UnitType {
+                    currency: resetValueCurrency,
+                    ...
+                },
+            perUnitOf:
+                UnitType {
+                    currency: resetValueCurrency,
+                    ...
+                },
+            priceType: InterestRate,
+            ...
+        }
+
+    set resetInstruction -> reset -> resetDate: resetDate
+    set resetInstruction -> reset -> resetValue: finalResetValue
+    add resetInstruction -> reset -> observations: observation
+
+func CalculateSingleResetRate: <"Calculates the reset rate for Single Observation FROs. Passes through the single market rate without default rounding unless explicitly specified.">
+    inputs:
+        observedRateDates DatedValue (1..*) <"The observed rate dates list, which must contain exactly one rate.">
+        rounding Rounding (0..1) <"Optional explicit rounding specification.">
+    output:
+        resetRate number (1..1) <"The final reset rate value for single observation.">
+
+    alias marketRate: <"Extracts the single observed market rate value.">
+        observedRateDates -> value only-element
+
+    alias roundedRate: <"Rounds to explicit specification if present, otherwise, retains the raw single observation rate without default rounding.">
+        if rounding exists and rounding -> precision exists
+        then RoundToPrecision(
+                    marketRate,
+                    rounding -> precision,
+                    rounding -> roundingDirection,
+                    True
+                )
+        else marketRate // No default rounding for single observation rates
+    condition SingleRateOnly: <"Single observation FROs must have exactly 1 market rate observation.">
+        observedRateDates count = 1
+
+    set resetRate: roundedRate
+
+func CalculateCompoundedIndexResetRate: <"Calculates the unrounded reset value for Compounded Index FROs using start and end index values, then applies standard rounding.">
+    inputs:
+        observedRateDates DatedValue (1..*) <"The observed rate dates list, which must contain exactly two index rates (start and end).">
+        adjustedCalculationPeriod CalculationPeriodBase (0..1) <"The calculation period defining start and end dates for day count calculations.">
+        dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction applied to the formula.">
+        rounding Rounding (0..1) <"Optional explicit rounding rules.">
+    output:
+        resetRate number (1..1) <"The final rounded compounded index rate.">
+
+    alias marketRates: <"Extracts the pair of market index rates.">
+        observedRateDates -> value
+
+    alias unroundedRate: <"Applies the ISDA Compounded Index formula to the first (start) and last (end) market rates over the calculated period length.">
+        ApplyCompoundedIndexFormula(
+                marketRates first,
+                marketRates last,
+                dayCountFraction,
+                DateDifference(
+                        adjustedCalculationPeriod -> adjustedStartDate,
+                        adjustedCalculationPeriod -> adjustedEndDate
+                    ) + 1
+            )
+
+    condition ExactlyTwoMarketRates: <"Compounded Index FROs require exactly 2 market rate observations (start and end values).">
+        observedRateDates count = 2
+
+    set resetRate: <"Rounds to explicit precision if specified; otherwise defaults to 7 decimal places for calculated rates.">
+        if rounding exists and rounding -> precision exists
+        then RoundToPrecision(
+                    unroundedRate,
+                    rounding -> precision,
+                    rounding -> roundingDirection,
+                    True
+                )
+        else RoundToPrecision(unroundedRate, 7, Nearest, True) // Default 7 decimal rounding for calculated rates
+
+func CalculateMultipleObservationResetRate: <"Calculates the unrounded reset value for Multiple Observation FROs using compounding methodology, then applies standard rounding.">
+    inputs:
+        observedRateDates DatedValue (1..*) <"The list of daily observed rates for the calculation period.">
+        dayCountFraction DayCountFractionEnum (1..1) <"The day count fraction applied to determine the year fraction per day.">
+        calculationMethodologyFromConfirmation CalculationMethodEnum (0..1) <"Calculation method specified in the Confirmation (takes precedence).">
+        calculationMethodologyFromFloatingRateOption FloatingRateIndexCalculationMethodEnum (0..1) <"Calculation method specified in the FRO Matrix (fallback).">
+        rounding Rounding (0..1) <"Optional explicit rounding rules.">
+    output:
+        resetRate number (1..1) <"The final rounded multiple observation reset rate.">
+
+    alias marketRates: <"Extracts all observed market rate values across the period.">
+        observedRateDates -> value
+
+    alias calendarDays: <"Total count of calendar day observations in the period.">
+        marketRates count
+
+    alias weights: <"Weighting array (1s) matching the number of calendar days in the period. Rather than calculating multi-day weights via date-subtraction logic (e.g., weighting a Friday rate as 3 to cover a weekend per standard ISDA definitions), the input array explicitly expands the rate data into individual daily (date, rate) pairs. Consequently, each observation carries a weight of 1 (represented as an array of 1s), enabling clean, vectorized calculations downstream while producing a mathematically identical result to the standard ISDA compounding formula.">
+        RepeatNumber(1, calendarDays)
+
+    alias yearFraction: <"Calculates the single-day year fraction based on the day count fraction (1 / dayCountBasis).">
+        YearFractionForOneDay(dayCountFraction)
+
+    alias unroundedRate: <"Applies compounding logic if specified in Confirmation or FRO Matrix.">
+        if calculationMethodologyFromConfirmation exists
+                and calculationMethodologyFromConfirmation = Compounding
+        then ApplyCompoundingFormula(marketRates, weights, yearFraction) -> calculatedRate
+        else if calculationMethodologyFromFloatingRateOption exists
+                and calculationMethodologyFromFloatingRateOption = OISCompound
+        then ApplyCompoundingFormula(marketRates, weights, yearFraction) -> calculatedRate
+
+    condition MultipleMarketRates: <"Multiple observation FROs require 2 or more market rate observations.">
+        observedRateDates count > 1
+
+    set resetRate: <"Rounds to explicit precision if specified; otherwise defaults to 7 decimal places for calculated rates.">
+        if rounding exists and rounding -> precision exists
+        then RoundToPrecision(
+                    unroundedRate,
+                    rounding -> precision,
+                    rounding -> roundingDirection,
+                    True
+                )
+        else RoundToPrecision(unroundedRate, 7, Nearest, True)
 
 // COMPOSITION STATE CHANGES FOR RESET
 func UpdateResetCompositionState: <"Handles the field-by-field overlay for the Reset process state.">
@@ -218,6 +622,26 @@ func UpdateResetCompositionState: <"Handles the field-by-field overlay for the R
         then nextStepToAdd -> determineUnadjustedObservationDates -> unadjustedObservationDates
         else currentResetCompositionState -> unadjustedObservationDates
 
+    // Step 6: Adjusted Observation Dates
+    set updatedResetCompositionState -> adjustedObservationDates:
+        if nextStepToAdd -> adjustObservationDates exists
+        then nextStepToAdd -> adjustObservationDates -> adjustedObservationDates
+        else currentResetCompositionState -> adjustedObservationDates
+
+    // Step 7: Final Calculation Results
+    set updatedResetCompositionState -> resetValue:
+        if nextStepToAdd -> calculateResetValue exists
+        then nextStepToAdd -> calculateResetValue -> resetValue
+        else currentResetCompositionState -> resetValue
+    set updatedResetCompositionState -> calculationMethod:
+        if nextStepToAdd -> calculateResetValue exists
+        then nextStepToAdd -> calculateResetValue -> calculationMethod
+        else currentResetCompositionState -> calculationMethod
+    set updatedResetCompositionState -> observedRateDates:
+        if nextStepToAdd -> calculateResetValue exists
+        then nextStepToAdd -> calculateResetValue -> observedRateDates
+        else currentResetCompositionState -> observedRateDates
+
 // NEXT STEP FOR RESET
 func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process that identifies the next required instruction by checking for the presence of mandatory data fields across the seven-step lifecycle.">
     inputs:
@@ -225,3 +649,37 @@ func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process
         instructionCompositionOutput InstructionCompositionOutput (0..1)
     output:
         resetInstructionNextStep ResetInstructionSteps (0..1)
+
+// External call to fetch the list of non business dates
+func GetNonBusinessDates: <"This function, given the list of business centers applicable and a period or a list of dates, extracts the list of non business dates for the given period or list of dates and returns the corresponding list of non business dates. The function should receive as input a list of dates or a period, but not both at the same time. That is, given either a list of periods or a period (start date + end date), the function will return their non business days.">
+    [codeImplementation]
+    inputs:
+        businessCenters BusinessCenter (0..*) <"The business centers related to a period or a list of one or more dates.">
+        period CalculationPeriodBase (0..1) <"The period from which the list of non business dates are generated.">
+        dates date (0..*) <"The list of dates from which the list of non business dates are generated.">
+    output:
+        nonBusinessDates date (1..*) <"The list of non business dates.">
+
+    condition PeriodOrDates: <"There can only be a period or a list of dates specified as input to this function. The function then fetches the non business dates of the given period OR list of dates and returns them.">
+        if period is absent
+        then dates exists
+        else if dates is absent
+        then period exists
+
+// External call to fetch FRO metadata from the ISDA FRO Matrix
+func ExtractFloatingRateOptionData: <"This function, given a floating rate option, extracts the floating rate option's metadata from the ISDA FRO Matrix and returns that data in a CDM structured format. Additionally, it uses the reference date specified to select the relevant version of the FRO Matrix.">
+    [codeImplementation]
+    inputs:
+        tradeDate date (1..1) <"The Trade Date, used to reference the ISDA FRO Matrix version.">
+        floatingRateIndex FloatingRateIndexEnum (1..1) <"The Floating Rate Index for which to extract its metadata from the ISDA FRO Matrix.">
+    output:
+        floatingRateIndexData FloatingRateIndexDefinition (1..1) <"The Floating Rate Index data extracted from the ISDA FRO Matrix.">
+
+// External call to fetch the market rates and observation dates key-value pairs
+func GetMarketRates: <"This function, given a floating rate index and a list of observation dates, fetches the corresponding market rate observations and returns the market rates and related observation dates in a key-value pair format.">
+    [codeImplementation]
+    inputs:
+        floatingRateIndex cdm.observable.asset.FloatingRateIndex (1..1) <"The floating rate index.">
+        observationDates date (1..*) <"The list of observation dates.">
+    output:
+        observedRateDates DatedValue (1..*) <"The list of market rate and observation dates key-value pairs.">
