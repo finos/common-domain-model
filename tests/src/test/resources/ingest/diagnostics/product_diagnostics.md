@@ -2,6 +2,7 @@
 
 | FpML Product | Samples | Completeness |
 |:-----------------------------------------------|:-------:|:-------:|
+| fxDigitalOption | 12 | 118% |
 | securityLending | 4 | 106% |
 | commoditySwap | 46 | 105% |
 | fxSwap | 7 | 104% |
@@ -11,7 +12,6 @@
 | varianceSwap | 8 | 101% |
 | fxVarianceSwap | 2 | 101% |
 | commodityForward | 8 | 101% |
-| fxDigitalOption | 12 | 100% |
 | brokerEquityOption | 6 | 100% |
 | fra | 5 | 100% |
 | termDeposit | 4 | 100% |
@@ -26,6 +26,7 @@
 | equitySwapTransactionSupplement | 30 | 99% |
 | swap | 166 | 98% |
 | varianceSwapTransactionSupplement | 6 | 98% |
+| fxOption | 26 | 98% |
 | swaption | 25 | 98% |
 | bondOption | 12 | 98% |
 | commodityPerformanceSwap | 8 | 98% |
@@ -34,7 +35,6 @@
 | creditDefaultSwapOption | 18 | 97% |
 | equityOption | 37 | 97% |
 | equityOptionTransactionSupplement | 16 | 96% |
-| fxOption | 26 | 95% |
 | commoditySwaption | 11 | 93% |
 | commodityOption | 26 | 92% |
 | instrumentTradeDetails | 2 | 91% |
