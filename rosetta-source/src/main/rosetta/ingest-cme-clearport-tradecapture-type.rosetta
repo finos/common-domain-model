@@ -1,0 +1,60 @@
+namespace cdm.ingest.cme.clearport.tradecapture: <"CME ClearPort FIXML 5.0 SP2 trade capture report and IRS submission XML model types.">
+version "${project.version}"
+
+type CmeClearPortFixmlDocument: <"Root FIXML 5.0 SP2 document wrapper (<FIXML>) for CME ClearPort trade capture and CME IRS submission messages.">
+    [rootType]
+    schemaVersion string (0..1) <"FIXML protocol version (@v), e.g., '5.0'.">
+    customVersion string (0..1) <"CME custom schema version (@cv), e.g., 'CME.0001'.">
+    schemaRelease string (0..1) <"FIXML schema release date (@s), e.g., '20090815'.">
+    extensionVersion string (0..1) <"CME extension pack version (@xv), e.g., '109'.">
+    tradeCaptureReport CmeClearPortTradeCaptureReport (1..1) <"CME ClearPort TradeCaptureReport payload (<TrdCaptRpt>).">
+
+type CmeClearPortTradeCaptureReport: <"CME ClearPort FIXML 5.0 SP2 TradeCaptureReport (<TrdCaptRpt>) element.">
+    rptId string (0..1) <"Trade report identifier (@RptID, Tag 571).">
+    trdId string (0..1) <"CME ClearPort assigned unique trade identifier (@TrdID, Tag 1003).">
+    execId string (0..1) <"Execution venue or platform identifier (@ExecID, Tag 17).">
+    execId2 string (0..1) <"Secondary execution identifier (@ExecID2, Tag 1040).">
+    transTyp string (0..1) <"Trade report transaction type (@TransTyp, Tag 487: 0=New, 1=Cancel, 2=Replace).">
+    rptTyp string (0..1) <"Trade report type (@RptTyp, Tag 856: 0=Submit, 2=Accept).">
+    trdTyp string (0..1) <"Type of trade (@TrdTyp, Tag 828: 0=Regular, 22=PrivatelyNegotiated).">
+    trdDt date (1..1) <"Trade execution date (@TrdDt, Tag 75).">
+    txnTm zonedDateTime (0..1) <"Transaction execution timestamp (@TxnTm, Tag 60).">
+    lastPx number (0..1) <"Executed trade price or fixed rate (@LastPx, Tag 31).">
+    lastQty number (0..1) <"Executed contract volume or notional quantity (@LastQty, Tag 32).">
+    netMny number (0..1) <"Notional net settlement money amount (@NetMny, Tag 118).">
+    ccy string (0..1) <"Settlement currency ISO 4217 code (@Ccy, Tag 15).">
+    venuTyp string (0..1) <"Execution venue type (@VenuTyp, Tag 1430: E=Electronic, O=Off-Facility).">
+    header CmeClearPortHeader (0..1) <"FIXML message header (<Hdr>).">
+    instrument CmeClearPortInstrument (0..1) <"Traded instrument identification (<Instrmt>).">
+    regulatoryTimestamp CmeClearPortRegulatoryTimestamp (0..*) <"Regulatory execution or clearing timestamps (<TrdRegTS>).">
+    reportSide CmeClearPortReportSide (0..*) <"Trade report sides (<RptSide>) representing buyer/payer and seller/receiver legs.">
+
+type CmeClearPortHeader: <"FIXML 5.0 SP2 message header (<Hdr>) for CME ClearPort and IRS submission messages.">
+    sentTimestamp zonedDateTime (0..1) <"Message transmission timestamp (@Snt, Tag 52).">
+    senderId string (0..1) <"Sender CompID (@SID, Tag 49), e.g., 'MKSA' or 'CME'.">
+    targetId string (0..1) <"Target CompID (@TID, Tag 56), e.g., 'CME'.">
+    senderSubId string (0..1) <"Sender SubID (@SSub, Tag 50), e.g., 'MARKITWIRE'.">
+    targetSubId string (0..1) <"Target SubID (@TSub, Tag 57), e.g., 'CPAPI'.">
+
+type CmeClearPortInstrument: <"FIXML 5.0 SP2 instrument component (<Instrmt>).">
+    symbol string (0..1) <"Contract symbol or product ticker (@Sym, Tag 55), e.g., 'ES_FUT' or 'USD_SOFR_IRS'.">
+    securityType string (0..1) <"Security classification (@SecTyp, Tag 167: FUT, OPT, SWP, IRS).">
+    id string (0..1) <"Security identifier (@ID, Tag 48).">
+    exchange string (0..1) <"Security exchange MIC or code (@Exch, Tag 207), e.g., 'CME'.">
+
+type CmeClearPortRegulatoryTimestamp: <"FIXML 5.0 SP2 regulatory timestamp component (<TrdRegTS>).">
+    timestamp zonedDateTime (0..1) <"Regulatory timestamp value (@TS, Tag 769).">
+    timestampType string (0..1) <"Regulatory timestamp type (@Typ, Tag 770: 1=ExecutionTime).">
+
+type CmeClearPortReportSide: <"FIXML 5.0 SP2 trade report side component (<RptSide>).">
+    side string (1..1) <"Order/trade side (@Side, Tag 54: 1=Buy/Payer, 2=Sell/Receiver).">
+    clOrdId string (0..1) <"Client order identifier (@ClOrdID, Tag 11).">
+    inputSource string (0..1) <"Trade input source (@InptSrc, Tag 578), e.g., 'MKSA'.">
+    origTradeId string (0..1) <"Original bilateral or platform trade identifier (@OrigTrdID, Tag 1126).">
+    party CmeClearPortParty (0..*) <"Parties associated with this report side (<Pty>).">
+    regulatoryTimestamp CmeClearPortRegulatoryTimestamp (0..*) <"Side-level regulatory timestamps (<TrdRegTS>).">
+
+type CmeClearPortParty: <"FIXML 5.0 SP2 party component (<Pty>).">
+    partyId string (1..1) <"Party identifier (@ID, Tag 448).">
+    role string (0..1) <"Party role code (@R, Tag 452: 1=ExecutingFirm, 4=ClearingFirm, 7=TradingFirm, 24=CustomerAccount).">
+    source string (0..1) <"Party ID source code (@Src, Tag 447: N=LEI, C=GenerallyAcceptedMarketParticipantIdentifier).">
