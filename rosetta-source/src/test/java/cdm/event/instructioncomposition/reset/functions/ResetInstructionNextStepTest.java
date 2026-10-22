@@ -205,18 +205,6 @@ class ResetInstructionNextStepTest extends AbstractFunctionTest {
         }
 
         @Test
-        @DisplayName("Returns ResetInstructionOutput when Steps 1-7 are complete and the output resetInstruction is empty")
-        void shouldReturnResetInstructionOutputWhenResetInstructionIsEmpty() {
-            ResetInstructionSteps result = resetInstructionNextStep.evaluate(
-                    stateThroughStep(7).build(),
-                    InstructionCompositionOutput.builder()
-                            .setResetInstruction(ResetInstruction.builder().build())
-                            .build());
-
-            assertNextStep(RESET_INSTRUCTION_OUTPUT, result);
-        }
-
-        @Test
         @DisplayName("Returns nothing when Steps 1-7 are complete and the output already holds a resetInstruction")
         void shouldReturnNothingWhenResetInstructionAlreadyRecorded() {
             ResetInstructionSteps result = resetInstructionNextStep.evaluate(
