@@ -31,7 +31,7 @@ class NextCompositionStepToExecuteTest extends AbstractFunctionTest {
         mockResetInstructionSteps = ResetInstructionSteps.builder()
                 .setResetInstructionCompositionSteps(ResetInstructionCompositionStepsEnum.values()[0])
                 .build();
-        binder.bind(ResetInstructionNextStep.class).toInstance(new ResetInstructionNextStep() {
+        binder.bind(ResetInstructionNextStep.class).toInstance(new ResetInstructionNextStep.ResetInstructionNextStepDefault() {
             @Override
             protected ResetInstructionSteps.ResetInstructionStepsBuilder doEvaluate(
                     ResetInstructionState resetInstructionState,
