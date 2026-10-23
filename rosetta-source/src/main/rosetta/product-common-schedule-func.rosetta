@@ -42,3 +42,50 @@ func CalculationPeriodRange:
         dateAdjustments BusinessDayAdjustments (0..1)
     output:
         result CalculationPeriodData (1..1)
+
+func AdjustableDateResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
+    inputs:
+        adjustableDate AdjustableDate (1..1)
+    output:
+        date date (0..1)
+
+    set date:
+        if adjustableDate -> unadjustedDate exists
+        then adjustableDate -> unadjustedDate
+        else adjustableDate -> adjustedDate
+
+func AuxiliaryEffectiveDate: <"Extracts the effective date of specific products such as interest rate swaps and swaptions.">
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        effectiveDate date (0..1)
+
+    set effectiveDate:
+        // interestRatePayout
+        if economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
+        then (economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate
+            extract AdjustableDateResolution
+            then min)
+        // interestRateSwaptions
+        else if economicTerms -> payout -> optionPayout only-element -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
+        then (economicTerms -> payout -> optionPayout only-element -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate
+            extract AdjustableDateResolution
+            then min)
+
+func AuxiliaryTerminationDate: <"Extracts the termination date of specific products such as interest rate swaps and swaptions.">
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        terminationDate date (0..1)
+        
+    set terminationDate:
+        // interestRatePayout
+        if economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
+        then (economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
+            extract AdjustableDateResolution
+            then max)
+        // interestRateSwaptions
+        else if economicTerms -> payout -> optionPayout only-element -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
+        then (economicTerms -> payout -> optionPayout only-element -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
+            extract AdjustableDateResolution
+            then max)
