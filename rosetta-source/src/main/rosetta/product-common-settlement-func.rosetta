@@ -21,15 +21,14 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                             extract
                                 UpdatePriceAmountForEachMatchingQuantity(
                                         item,
-                                        change, // -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
+                                        FilterPriceByLocation(priceQuantity, change),
                                         direction
                                     ),
                     quantity: priceQuantity -> quantity
                             extract
                                 UpdateQuantityAmountForEachMatchingQuantity(
                                         item,
-                                        change, // FilterChangePriceQuantity(priceQuantity, change),
-                                        // PriceQuantity used as input to keep the quantity and effectiveDate linked
+                                        FilterQuantityByLocation(priceQuantity, change),
                                         direction
                                     ),
                     observable: priceQuantity -> observable,
@@ -37,23 +36,39 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                 }
             ]
 
-// TODO uncomment usage to support matching on PriceQuantity observable
-func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match on Observable if present.">
+func FilterPriceByLocation: <"Filter the change PriceQuantity list to match on price location if present.">
     inputs:
         priceQuantity PriceQuantity (0..1) <"List of PriceQuantity to update.">
         change PriceQuantity (0..*) <"List of new PriceQuantity to use where the units match.">
     output:
         filteredChange PriceQuantity (0..*)
 
-    alias changeWithMatchingObservable:
-        change
-            filter
-                // match on observable is absent
-                (item -> observable is absent and priceQuantity -> observable is absent)
-                        // or, match on observable
-                    or item -> observable = priceQuantity -> observable
+    alias locations: priceQuantity -> price -> location
 
-    add filteredChange: changeWithMatchingObservable default change
+    set filteredChange:
+        change
+            filter pq [
+                pq -> price
+                    filter p [
+                        p -> location is absent
+                        or locations contains p -> location
+                    ]
+                    then exists
+            ]
+
+func FilterQuantityByLocation: <"Filter the change PriceQuantity list to match on price location if present.">
+    inputs:
+        priceQuantity PriceQuantity (0..1) <"List of PriceQuantity to update.">
+        change PriceQuantity (0..*) <"List of new PriceQuantity to use where the units match.">
+    output:
+        filteredChange PriceQuantity (0..*)
+
+    set filteredChange:
+        change
+            filter pq [
+                pq -> quantity -> location is absent
+                or pq -> quantity -> location = priceQuantity -> quantity -> location
+            ]
 
 func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the PriceSchedule list if the unit of amount matches.">
     inputs:
