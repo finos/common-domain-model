@@ -5,6 +5,40 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.observable.asset.*
 
+func UpdateQuantityMatchingReference: <"Updates the price(s) and/or quantity(ies) whose location matches the given values, leaving every other price, quantity and PriceQuantity in the lot unchanged.">
+    inputs:
+        priceQuantityList PriceQuantity (1..*)
+        priceLocations string (0..*) <"Location values of the PriceSchedule entries to update.">
+        quantityLocations string (0..*) <"Location values of the NonNegativeQuantitySchedule entries to update.">
+        change PriceQuantity (1..1) <"The single new PriceQuantity to apply to the matched entries.">
+        direction QuantityChangeDirectionEnum (1..1)
+    output:
+        updatedPriceQuantity PriceQuantity (1..*)
+
+    condition AtLeastOneLocationSpecified:
+        priceLocations exists or quantityLocations exists
+
+    add updatedPriceQuantity:
+        priceQuantityList
+            extract priceQuantity [
+                PriceQuantity {
+                    price: priceQuantity -> price
+                        extract [
+                            if priceLocations contains item -> location
+                            then UpdatePriceAmountForEachMatchingQuantity(item, change, direction)
+                            else item
+                        ],
+                    quantity: priceQuantity -> quantity
+                        extract [
+                            if quantityLocations contains item -> location
+                            then UpdateQuantityAmountForEachMatchingQuantity(item, change, direction)
+                            else item
+                        ],
+                    observable: priceQuantity -> observable,
+                    effectiveDate: priceQuantity -> effectiveDate
+                }
+            ]
+
 func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from the list of PriceQuantity if the unit of amount matches.">
     inputs:
         priceQuantityList PriceQuantity (1..*) <"List of PriceQuantity to update.">
