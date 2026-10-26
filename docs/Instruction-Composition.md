@@ -111,4 +111,4 @@ The terminal builder gathers accumulated state parameters to yield the final Bus
 
 ---
 
-*See also: [Reset Instruction Composition](instruction-composition-reset.md)*
+*See also: [Reset Instruction Composition](Instruction-Composition-Reset.md)*
