@@ -10,7 +10,7 @@ The Reset Instruction Composition workflow builds a standard CDM `Reset` instruc
 
 The final `Reset` instruction (`InstructionCompositionOutput`) is supplied to the CDM Reset `BusinessEvent` workflow. This document describes the instruction-composition path and does not replace standard event-creation functions.
 
-For the generic pattern, see [Instruction Composition Model](instruction-composition.md).
+For the generic pattern, see [Instruction Composition Model](Instruction-Composition.md).
 
 ## Scope
 
@@ -136,4 +136,4 @@ The orchestration function:
 
 ---
 
-Click [here](instruction-composition.md) to return to the generic Instruction Composition Model page.
+Click [here](Instruction-Composition.md) to return to the generic Instruction Composition Model page.
