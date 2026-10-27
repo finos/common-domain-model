@@ -1,0 +1,512 @@
+namespace cdm.ingest.fpml.confirmation.product.instrumenttradedetails: <"Mapping functions that translate an FpML InstrumentTradeDetails product, i.e. a trade in a multiply-traded instrument such as a security or a listed derivative, into the CDM.">
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.observable.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.asset.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.shared.* as fpml
+
+func MapInstrumentTradeDetailsCounterpartyList: <"Maps the buyer and seller of an FpML InstrumentTradeDetails to the trade counterparties, with the buyer as Party1 and the seller as Party2.">
+    inputs:
+        fpmlInstrumentTradeDetails fpml.InstrumentTradeDetails (0..1) <"The FpML InstrumentTradeDetails product.">
+    output:
+        counterpartyList Counterparty (0..2) <"The two counterparties of the trade.">
+
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlInstrumentTradeDetails -> buyerPartyReference,
+                fpmlInstrumentTradeDetails -> sellerPartyReference
+            )
+
+func MapInstrumentTradeDetailsPartyRoleList: <"Maps the buyer and seller of an FpML InstrumentTradeDetails to the Buyer and Seller trade party roles, which the Trade condition SettlementPayout requires. Invoked from MapPartyRoleList.">
+    inputs:
+        fpmlInstrumentTradeDetails fpml.InstrumentTradeDetails (0..1) <"The FpML InstrumentTradeDetails product.">
+    output:
+        partyRoleList PartyRole (0..*) <"The Buyer and Seller party roles.">
+
+    add partyRoleList: <"Assigns the Buyer role to the party referenced by buyerPartyReference.">
+        if fpmlInstrumentTradeDetails -> buyerPartyReference exists
+        then PartyRole {
+                partyReference: MapPartyReference(
+                            fpmlInstrumentTradeDetails -> buyerPartyReference -> href
+                        ),
+                role: PartyRoleEnum -> Buyer,
+                ...
+            }
+
+    add partyRoleList: <"Assigns the Seller role to the party referenced by sellerPartyReference.">
+        if fpmlInstrumentTradeDetails -> sellerPartyReference exists
+        then PartyRole {
+                partyReference: MapPartyReference(
+                            fpmlInstrumentTradeDetails -> sellerPartyReference -> href
+                        ),
+                role: PartyRoleEnum -> Seller,
+                ...
+            }
+
+func MapInstrumentTradeDetailsNonTransferableProduct: <"Maps an FpML InstrumentTradeDetails to the traded product, including its identifiers, taxonomy and economic terms.">
+    inputs:
+        fpmlInstrumentTradeDetails fpml.InstrumentTradeDetails (0..1) <"The FpML InstrumentTradeDetails product.">
+        cdmCounterpartyList Counterparty (0..2) <"The trade counterparties, used to resolve the payer and receiver.">
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1) <"The traded product.">
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlInstrumentTradeDetails -> productId),
+            taxonomy: MapProductTaxonomyList(
+                        fpmlInstrumentTradeDetails -> primaryAssetClass,
+                        fpmlInstrumentTradeDetails -> secondaryAssetClass,
+                        fpmlInstrumentTradeDetails -> productType
+                    ),
+            economicTerms: MapInstrumentTradeDetailsEconomicTerms(
+                        fpmlInstrumentTradeDetails,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapInstrumentTradeDetailsEconomicTerms: <"Maps an FpML InstrumentTradeDetails to economic terms composed of a single settlement payout.">
+    inputs:
+        fpmlInstrumentTradeDetails fpml.InstrumentTradeDetails (0..1) <"The FpML InstrumentTradeDetails product.">
+        cdmCounterpartyList Counterparty (0..2) <"The trade counterparties, used to resolve the payer and receiver.">
+    output:
+        economicTerms EconomicTerms (0..1) <"The economic terms of the traded product.">
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapInstrumentTradeDetailsPayout(
+                        fpmlInstrumentTradeDetails,
+                        cdmCounterpartyList
+                    ),
+            ...
+        }
+
+func MapInstrumentTradeDetailsPayout: <"Maps an FpML InstrumentTradeDetails to a settlement payout in which the seller delivers the underlying instrument to the buyer. The quantity and the underlier are addresses that resolve to the quantity and the observable of the trade lot price quantity.">
+    inputs:
+        fpmlInstrumentTradeDetails fpml.InstrumentTradeDetails (0..1) <"The FpML InstrumentTradeDetails product.">
+        cdmCounterpartyList Counterparty (0..2) <"The trade counterparties, used to resolve the payer and receiver.">
+    output:
+        payout Payout (0..1) <"The settlement payout.">
+
+    set payout: <"Sets the seller as payer and the buyer as receiver. Settlement terms are not set, as FpML InstrumentTradeDetails carries no settlement information. The quantity address uses the key 'quantity', shared by the nominal and number alternatives since FpML allows only one of them. The underlier address uses the same observable key as the trade lot price quantity.">
+        Payout {
+            SettlementPayout:
+                SettlementPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlInstrumentTradeDetails -> sellerPartyReference,
+                                fpmlInstrumentTradeDetails -> buyerPartyReference,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapNotionalAmountWithIdToQuantityWithAddress(
+                                        fpmlInstrumentTradeDetails -> quantity -> nominal -> amount default fpmlInstrumentTradeDetails -> quantity -> number,
+                                        "quantity",
+                                        empty
+                                    ),
+                            ...
+                        },
+                    underlier:
+                        Underlier {
+                            Observable: MapAssetToObservableWithAddress(
+                                        fpmlInstrumentTradeDetails -> underlyingAsset
+                                    ),
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }
+
+func MapInstrumentTradeDetailsObservable: <"Maps the FpML underlying asset of an InstrumentTradeDetails to an observable: a basket to a Basket, an index to an Index, and any other asset to an Asset. The expiration date of a listed option is not represented, as ListedDerivative has no attribute for it.">
+    inputs:
+        fpmlAsset fpml.Asset (0..1) <"The FpML underlying asset.">
+    output:
+        observable Observable (0..1) <"The observable representing the traded instrument.">
+
+    set observable:
+        fpmlAsset switch
+            fpml.Basket then
+                Observable {
+                    Basket: MapInstrumentTradeDetailsBasket(item),
+                    ...
+                },
+            fpml.Index then
+                Observable {
+                    Index: MapEquityIndex(item),
+                    ...
+                },
+            default
+                if MapInstrumentTradeDetailsAsset(fpmlAsset) exists
+                then Observable {
+                        Asset: MapInstrumentTradeDetailsAsset(fpmlAsset),
+                        ...
+                    }
+
+func MapInstrumentTradeDetailsBasket: <"Maps an FpML basket to a Basket, including its constituents and its identifiers. The identifier is required on Basket and is built from the basket identifier and the basket name.">
+    inputs:
+        fpmlBasket fpml.Basket (0..1) <"The FpML basket.">
+    output:
+        basket Basket (0..1) <"The basket and its constituents.">
+
+    set basket: <"Creates the basket only when the FpML basket has constituents.">
+        if fpmlBasket -> basketConstituent exists
+        then Basket {
+                identifier: MapInstrumentTradeDetailsBasketIdentifierList(fpmlBasket),
+                basketConstituent: fpmlBasket -> basketConstituent
+                        extract MapBasketConstituentWithLocation,
+                assetType: Security,
+                ...
+            }
+
+func MapInstrumentTradeDetailsBasketIdentifierList: <"Maps the identifiers and the name of an FpML basket to asset identifiers.">
+    inputs:
+        fpmlBasket fpml.Basket (0..1) <"The FpML basket.">
+    output:
+        identifierList AssetIdentifier (0..*) <"The basket identifiers.">
+
+    add identifierList: <"Adds each basket identifier, with the identifier type set to Other.">
+        fpmlBasket -> basketId
+            extract
+                AssetIdentifier {
+                    identifier: MapStringWithScheme(value, basketIdScheme),
+                    identifierType: Other
+                }
+
+    add identifierList: <"Adds the basket name, with the identifier type set to Name.">
+        if fpmlBasket -> basketName exists
+        then AssetIdentifier {
+                identifier: MapStringWithScheme(
+                            fpmlBasket -> basketName -> value,
+                            fpmlBasket -> basketName -> basketNameScheme
+                        ),
+                identifierType: Name
+            }
+
+func MapInstrumentTradeDetailsAsset: <"Maps the FpML underlying asset of an InstrumentTradeDetails to an Asset. Bonds, convertible bonds and mortgages map to a Security of type Debt, with a Convertible redemption type and a Mortgage asset-backed type respectively for the latter two. Equities map to a Security of type Equity, exchange-traded funds and mutual funds to a Security of type Fund with the corresponding fund type, and warrants to a Security of type Warrant. A security of implicit type maps to a Security without a security type, as FpML does not specify it. Futures and listed options map to a ListedDerivative, with the contract month as delivery term and, for options, the option type and strike. Cash maps to Cash identified by its currency code, while commodities and loans map to Commodity and Loan. Specific FpML subtypes are matched before their parent type.">
+    inputs:
+        fpmlAsset fpml.Asset (0..1) <"The FpML underlying asset.">
+    output:
+        asset Asset (0..1) <"The traded asset.">
+
+    set asset:
+        fpmlAsset switch
+            fpml.ConvertibleBond then
+                CreateInstrumentTradeDetailsSecurity(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        SecurityTypeEnum -> Debt,
+                        empty,
+                        RedemptionTypeEnum -> Convertible,
+                        empty
+                    ),
+            fpml.Bond then
+                CreateInstrumentTradeDetailsSecurity(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        SecurityTypeEnum -> Debt,
+                        empty,
+                        empty,
+                        empty
+                    ),
+            fpml.Cash then
+                Asset {
+                    Cash:
+                        Cash {
+                            identifier:
+                                AssetIdentifier {
+                                    identifier: MapCurrency(currency),
+                                    identifierType: AssetIdTypeEnum -> CurrencyCode
+                                },
+                            assetType: AssetTypeEnum -> Cash,
+                            ...
+                        },
+                    ...
+                },
+            fpml.Commodity then MapAssetCommodity(item),
+            fpml.Equity then
+                CreateInstrumentTradeDetailsSecurity(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        SecurityTypeEnum -> Equity,
+                        empty,
+                        empty,
+                        empty
+                    ),
+            fpml.ExchangeTradedFund then
+                CreateInstrumentTradeDetailsSecurity(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        SecurityTypeEnum -> Fund,
+                        FundProductTypeEnum -> ExchangeTradedFund,
+                        empty,
+                        empty
+                    ),
+            fpml.Future then
+                CreateInstrumentTradeDetailsListedDerivative(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        contractYearMonth,
+                        empty,
+                        empty
+                    ),
+            fpml.Loan then
+                MapIdentifiedAssetToAssetLoan(item, exchangeId, empty),
+            fpml.Mortgage then
+                CreateInstrumentTradeDetailsSecurity(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        SecurityTypeEnum -> Debt,
+                        empty,
+                        empty,
+                        AssetBackedEnum -> Mortgage
+                    ),
+            fpml.MutualFund then
+                CreateInstrumentTradeDetailsSecurity(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        SecurityTypeEnum -> Fund,
+                        FundProductTypeEnum -> MutualFund,
+                        empty,
+                        empty
+                    ),
+            fpml.Option then
+                CreateInstrumentTradeDetailsListedDerivative(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        empty,
+                        optionType to-enum PutCallEnum,
+                        strike
+                    ),
+            fpml.Warrant then
+                CreateInstrumentTradeDetailsSecurity(
+                        MapAssetIdentifierList(item),
+                        exchangeId,
+                        SecurityTypeEnum -> Warrant,
+                        empty,
+                        empty,
+                        empty
+                    ),
+            fpml.Security then
+                CreateInstrumentTradeDetailsSecurity(
+                        MapAssetIdentifierList(item),
+                        empty,
+                        empty,
+                        empty,
+                        empty,
+                        empty
+                    ),
+            default empty
+
+func CreateInstrumentTradeDetailsSecurity: <"Creates an Asset of type Security with its identifiers, listing exchange, security type and, where applicable, its fund type and debt economics.">
+    inputs:
+        identifierList AssetIdentifier (0..*) <"The identifiers of the security.">
+        fpmlExchangeId fpml.ExchangeId (0..1) <"The FpML identifier of the exchange on which the security is listed.">
+        securityType SecurityTypeEnum (0..1) <"The type of the security, when FpML specifies it.">
+        fundType FundProductTypeEnum (0..1) <"The type of fund, for a security of type Fund.">
+        redemptionType RedemptionTypeEnum (0..1) <"The redemption type, for a security of type Debt.">
+        assetBacked AssetBackedEnum (0..1) <"The type of assets backing the debt, for an asset-backed security of type Debt.">
+    output:
+        asset Asset (0..1) <"The security.">
+
+    alias assetParty: <"The exchange on which the security is listed, represented as a party.">
+        fpmlExchangeId extract MapExchangeIdToAssetParty
+
+    set asset: <"Sets the listing exchange with the Exchange ancillary party role only. The exchange is not added to the asset parties, which hold the parties obliged to pay dividends, coupons or other payouts to the holder, i.e. the issuer, and the party role of a security is reserved for its issuer. The debt economics are built only when a redemption type or an asset-backed type is provided.">
+        Asset {
+            Instrument:
+                Instrument {
+                    Security:
+                        Security {
+                            identifier: identifierList,
+                            isExchangeListed: if fpmlExchangeId exists
+                                    then True,
+                            ancillaryPartyRole: assetParty
+                                    extract
+                                        MapAssetAncillaryPartyRole(
+                                                item,
+                                                AssetAncillaryPartyRoleEnum -> Exchange
+                                            ),
+                            securityType: securityType,
+                            debtType: if redemptionType exists or assetBacked exists
+                                    then DebtType {
+                                        debtEconomics:
+                                            DebtEconomics {
+                                                secured: if assetBacked exists
+                                                        then SecuredDebt {
+                                                            securedType: SecuredTypeEnum -> AssetBacked,
+                                                            assetBacked: assetBacked,
+                                                            ...
+                                                        },
+                                                redemption: if redemptionType exists
+                                                        then DebtRedemption {
+                                                            redemptionType: redemptionType,
+                                                            ...
+                                                        },
+                                                ...
+                            }},
+                            fundType: fundType,
+                            assetType: AssetTypeEnum -> Security,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }
+
+func CreateInstrumentTradeDetailsListedDerivative: <"Creates an Asset of type ListedDerivative with its identifiers, listing exchange, delivery term and, for an option, its option type and strike.">
+    inputs:
+        identifierList AssetIdentifier (0..*) <"The identifiers of the listed derivative.">
+        fpmlExchangeId fpml.ExchangeId (0..1) <"The FpML identifier of the exchange on which the contract is listed.">
+        deliveryTerm string (0..1) <"The contract month of a future.">
+        optionType PutCallEnum (0..1) <"The option type of a listed option.">
+        strike number (0..1) <"The strike price of a listed option.">
+    output:
+        asset Asset (0..1) <"The listed derivative.">
+
+    alias assetParty: <"The exchange on which the contract is listed, represented as a party.">
+        fpmlExchangeId extract MapExchangeIdToAssetParty
+
+    set asset: <"Sets the listing exchange with the Exchange party role.">
+        Asset {
+            Instrument:
+                Instrument {
+                    ListedDerivative:
+                        ListedDerivative {
+                            identifier: identifierList,
+                            isExchangeListed: if fpmlExchangeId exists
+                                    then True,
+                            party: assetParty,
+                            partyRole: assetParty
+                                    extract
+                                        MapAssetPartyRole(
+                                                item,
+                                                AssetPartyRoleEnum -> Exchange
+                                            ),
+                            deliveryTerm: deliveryTerm,
+                            optionType: optionType,
+                            strike: strike,
+                            assetType: AssetTypeEnum -> ListedDerivative,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }
+
+func MapInstrumentTradeDetailsPriceQuantityList: <"Maps the price, quantity and traded instrument of an FpML InstrumentTradeDetails to the trade lot price quantity. The quantity and the observable are locations referenced by the addresses in the settlement payout.">
+    inputs:
+        fpmlInstrumentTradeDetails fpml.InstrumentTradeDetails (0..1) <"The FpML InstrumentTradeDetails product.">
+        fpmlQuotation fpml.BasicQuotation (0..1) <"The trade-level FpML quotation, used when the instrument carries no price of its own.">
+    output:
+        priceQuantityList PriceQuantity (0..*) <"The price, quantity and observable of the trade lot.">
+
+    alias fpmlUnderlyingAsset: <"The FpML traded instrument.">
+        fpmlInstrumentTradeDetails -> underlyingAsset
+
+    alias fpmlNominal: <"The traded amount, when expressed as a monetary nominal, e.g. for a bond.">
+        fpmlInstrumentTradeDetails -> quantity -> nominal
+
+    alias fpmlNumber: <"The traded amount, when expressed as a number of units, e.g. shares or contracts.">
+        fpmlInstrumentTradeDetails -> quantity -> number
+
+    alias fpmlQuote: <"The price of the trade: the first quote carried by the instrument pricing or, when absent, the trade-level quotation. The measure type of the quote is not taken into account.">
+        fpmlInstrumentTradeDetails -> pricing -> quote first default fpmlQuotation
+
+    alias fpmlMultiplier: <"The contract multiplier of a listed future or option.">
+        fpmlUnderlyingAsset switch
+            fpml.Future then multiplier,
+            fpml.Option then multiplier,
+            default empty
+
+    alias assetFinancialUnit: <"The unit of a quantity expressed as a number of units, as implied by the type of instrument: Contract for a listed future, a listed option or a warrant, which FpML defines as exchange-traded contracts, Share for an equity or a fund, and IndexUnit for an index. No unit is set for any other type of instrument.">
+        if fpmlNumber exists
+        then fpmlUnderlyingAsset switch
+            fpml.Future then FinancialUnitEnum -> Contract,
+            fpml.Option then FinancialUnitEnum -> Contract,
+            fpml.Warrant then FinancialUnitEnum -> Contract,
+            fpml.Equity then FinancialUnitEnum -> Share,
+            fpml.ExchangeTradedFund then FinancialUnitEnum -> Share,
+            fpml.MutualFund then FinancialUnitEnum -> Share,
+            fpml.Index then FinancialUnitEnum -> IndexUnit,
+            default empty
+
+    alias quotationModelValue: <"The price value, taken as provided in FpML without rescaling, since FpML does not prescribe whether a price is expressed as a decimal or as a percentage.">
+        fpmlQuote -> value
+
+    alias fpmlAssetCurrency: <"The currency of the instrument.">
+        fpmlUnderlyingAsset switch
+            fpml.UnderlyingAsset then currency,
+            fpml.Security then currency,
+            default empty
+
+    alias currencyFromNotional: <"The currency of the nominal.">
+        if fpmlNominal -> currency exists
+        then MapCurrency(fpmlNominal -> currency)
+
+    alias priceCurrency: <"The currency of the price: the quote currency, then the nominal currency, then the currency of the instrument.">
+        if fpmlQuote -> currency exists
+        then MapCurrency(fpmlQuote -> currency)
+        else if fpmlNominal -> currency exists
+        then MapCurrency(fpmlNominal -> currency)
+        else if fpmlAssetCurrency exists
+        then MapCurrency(fpmlAssetCurrency)
+
+    alias cdmQuantity: <"The traded quantity, in units of the nominal currency or of the instrument, with the contract multiplier where applicable.">
+        if fpmlNominal -> amount exists or fpmlNumber exists
+        then NonNegativeQuantitySchedule {
+                value: fpmlNominal -> amount default fpmlNumber,
+                unit:
+                    UnitType {
+                        currency: currencyFromNotional,
+                        financialUnit: assetFinancialUnit,
+                        ...
+                    },
+                multiplier: if fpmlMultiplier exists
+                        then NonNegativeMeasure {
+                            value: fpmlMultiplier,
+                            ...
+                        },
+                ...
+            }
+
+    add priceQuantityList: <"Creates the price only when FpML provides a price value. The quantity location uses the key 'quantity' and the observable location uses the observable key of the instrument, matching the addresses set in MapInstrumentTradeDetailsPayout.">
+        PriceQuantity {
+            price: if quotationModelValue exists
+                    then PriceSchedule {
+                        value: quotationModelValue,
+                        unit:
+                            UnitType {
+                                currency: priceCurrency,
+                                ...
+                            },
+                        perUnitOf:
+                            UnitType {
+                                currency: currencyFromNotional,
+                                financialUnit: assetFinancialUnit,
+                                ...
+                            },
+                        priceType: AssetPrice,
+                        ...
+                    },
+            quantity: CreateQuantityWithLocation(
+                        cdmQuantity,
+                        CreateQuantityKey("quantity", empty)
+                    ),
+            observable: if fpmlUnderlyingAsset exists
+                    then CreateObservableWithLocation(
+                            MapInstrumentTradeDetailsObservable(fpmlUnderlyingAsset),
+                            ObservableKeyValue(fpmlUnderlyingAsset)
+                        ),
+            ...
+        }
