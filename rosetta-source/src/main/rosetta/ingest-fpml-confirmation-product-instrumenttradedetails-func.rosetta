@@ -157,22 +157,31 @@ func MapInstrumentTradeDetailsBasket: <"Maps an FpML basket to a Basket, includi
     output:
         basket Basket (0..1) <"The basket and its constituents.">
 
-    set basket: <"Maps the constituents and each basket identifier, with the identifier type set to Other.">
-        if fpmlBasket exists
+    set basket: <"Creates the basket only when the FpML basket has constituents.">
+        if fpmlBasket -> basketConstituent exists
         then Basket {
-                identifier: fpmlBasket -> basketId
-                        extract
-                            AssetIdentifier {
-                                identifier: MapStringWithScheme(value, basketIdScheme),
-                                identifierType: Other
-                            },
+                identifier: MapInstrumentTradeDetailsBasketIdentifierList(fpmlBasket),
                 basketConstituent: fpmlBasket -> basketConstituent
                         extract MapBasketConstituentWithLocation,
                 assetType: Security,
                 ...
             }
 
-    add basket -> identifier: <"Adds the basket name as an identifier, with the identifier type set to Name.">
+func MapInstrumentTradeDetailsBasketIdentifierList: <"Maps the identifiers and the name of an FpML basket to asset identifiers.">
+    inputs:
+        fpmlBasket fpml.Basket (0..1) <"The FpML basket.">
+    output:
+        identifierList AssetIdentifier (0..*) <"The basket identifiers.">
+
+    add identifierList: <"Adds each basket identifier, with the identifier type set to Other.">
+        fpmlBasket -> basketId
+            extract
+                AssetIdentifier {
+                    identifier: MapStringWithScheme(value, basketIdScheme),
+                    identifierType: Other
+                }
+
+    add identifierList: <"Adds the basket name, with the identifier type set to Name.">
         if fpmlBasket -> basketName exists
         then AssetIdentifier {
                 identifier: MapStringWithScheme(
@@ -310,7 +319,7 @@ func CreateInstrumentTradeDetailsSecurity: <"Creates an Asset of type Security w
     alias assetParty: <"The exchange on which the security is listed, represented as a party.">
         fpmlExchangeId extract MapExchangeIdToAssetParty
 
-    set asset: <"Sets the listing exchange with the Exchange ancillary party role, since the party role of a security is reserved for its issuer, and builds the debt economics only when a redemption type or an asset-backed type is provided.">
+    set asset: <"Sets the listing exchange with the Exchange ancillary party role only. The exchange is not added to the asset parties, which hold the parties obliged to pay dividends, coupons or other payouts to the holder, i.e. the issuer, and the party role of a security is reserved for its issuer. The debt economics are built only when a redemption type or an asset-backed type is provided.">
         Asset {
             Instrument:
                 Instrument {
@@ -318,7 +327,6 @@ func CreateInstrumentTradeDetailsSecurity: <"Creates an Asset of type Security w
                         Security {
                             identifier: identifierList,
                             isExchangeListed: if fpmlExchangeId exists then True,
-                            party: assetParty,
                             ancillaryPartyRole: assetParty
                                     extract
                                         MapAssetAncillaryPartyRole(
@@ -428,17 +436,17 @@ func MapInstrumentTradeDetailsPriceQuantityList: <"Maps the price, quantity and 
     alias quotationModelValue: <"The price value, taken as provided in FpML without rescaling, since FpML does not prescribe whether a price is expressed as a decimal or as a percentage.">
         fpmlQuote -> value
 
-    alias fpmlAssetCurrency: <"The trading currency of the instrument, e.g. the currency of a future, an option or a security.">
+    alias fpmlAssetCurrency: <"The currency of the instrument.">
         fpmlUnderlyingAsset switch
             fpml.UnderlyingAsset then currency,
             fpml.Security then currency,
             default empty
 
-    alias currencyFromNotional: <"The currency of the nominal. The existence test is applied to the FpML currency rather than to the mapped value, because MapCurrency returns a metadata wrapper even when no currency is provided.">
+    alias currencyFromNotional: <"The currency of the nominal.">
         if fpmlNominal -> currency exists
         then MapCurrency(fpmlNominal -> currency)
 
-    alias priceCurrency: <"The currency of the price: the quote currency, then the nominal currency, then the trading currency of the instrument. Each existence test is applied to the FpML currency, for the same reason as for the nominal currency.">
+    alias priceCurrency: <"The currency of the price: the quote currency, then the nominal currency, then the currency of the instrument.">
         if fpmlQuote -> currency exists
         then MapCurrency(fpmlQuote -> currency)
         else if fpmlNominal -> currency exists

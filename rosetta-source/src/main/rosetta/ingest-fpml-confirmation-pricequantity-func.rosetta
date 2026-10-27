@@ -1625,18 +1625,6 @@ func CreateObservableWithAddress:
             address: keyValue
         }
 
-func CreateProductWithAddress:
-    inputs:
-        keyValue string (0..1)
-    output:
-        productWithAddress Product (0..1)
-            [metadata address]
-
-    set productWithAddress:
-        empty with-meta {
-            address: keyValue
-        }
-
 func CreateInterestRateIndexWithLocation:
     inputs:
         interestRateIndex InterestRateIndex (0..1)
@@ -1890,11 +1878,6 @@ func MapAssetToObservableWithLocation:
 
     alias observableWithoutLocation:
         fpmlAsset switch
-            fpml.Future then
-                Observable {
-                    Basket: MapFuture,
-                    ...
-                },
             fpml.Basket then
                 Observable {
                     Basket: MapBasket,
@@ -1936,25 +1919,6 @@ func ObservableKeyValue:
 
     set keyValue: CreateAssetKey("observable", fpmlAsset)
 
-func MapAssetToProductWithAddress:
-    inputs:
-        fpmlAsset fpml.Asset (0..1)
-    output:
-        product Product (0..1)
-            [metadata address]
-
-    set product:
-        if fpmlAsset exists
-        then CreateProductWithAddress(ProductKeyValue(fpmlAsset))
-
-func ProductKeyValue:
-    inputs:
-        fpmlAsset fpml.Asset (0..1)
-    output:
-        keyValue string (1..1)
-
-    set keyValue: CreateAssetKey("product", fpmlAsset)
-
 func CreateAssetKey:
     [codeImplementation]
     inputs:
@@ -1993,6 +1957,8 @@ func MapAsset:
                         Equity
                     ),
             fpml.Commodity then MapAssetCommodity,
+            fpml.Future then
+                MapIdentifiedAssetToAssetListedDerivative(item, exchangeId, relatedExchangeId),
             // TODO: add condition for ExchangeTradedContract when fpml version is updated to 0.13.5
             default empty
 
@@ -2210,20 +2176,6 @@ func MapBasket:
             identifier: empty,
             basketConstituent: fpmlBasket -> basketConstituent
                     extract MapBasketConstituentWithLocation,
-            assetType: Security,
-            ...
-        }
-
-func MapFuture:
-    inputs:
-        fpmlFutue fpml.Future (0..1)
-    output:
-        basket Basket (0..1)
-
-    set basket:
-        Basket {
-            identifier: empty,
-            basketConstituent: empty,
             assetType: Security,
             ...
         }
