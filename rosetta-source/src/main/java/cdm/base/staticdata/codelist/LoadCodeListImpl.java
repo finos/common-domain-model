@@ -23,10 +23,10 @@ import java.util.regex.Pattern;
 public class LoadCodeListImpl extends LoadCodeList {
 
     /** Directory path where JSON CodeLists are stored inside the resources. */
-    private final String CODELIST_COLLECTION_PATH = "codelist/json";
+    private static final String CODELIST_COLLECTION_PATH = "codelist/json";
 
-    private final Logger logger = LoggerFactory.getLogger(LoadCodeListImpl.class);
-    private final ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+    private static final Logger logger = LoggerFactory.getLogger(LoadCodeListImpl.class);
+    private static final ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
 
     /** Cache to store loaded CodeLists to avoid redundant file reads. */
     private static final Cache<String, CodeList> cache = CacheBuilder.newBuilder()
@@ -49,12 +49,13 @@ public class LoadCodeListImpl extends LoadCodeList {
      * @return The deserialized CodeList object.
      * @throws IOException If an error occurs while reading the file.
      */
-    private CodeList loadCodeList(String domain) throws IOException {
+    private static synchronized CodeList loadCodeList(String domain) throws IOException {
 
         CodeList codeList = cache.getIfPresent(domain);
         if (codeList != null) return codeList;
 
-        // Retrieve the list of available CodeList JSON files
+        // Retrieve the list of available CodeList JSON files. Scanning the class path opens the jar file system
+        // the resources are read from, which throws when two threads reach it at once, hence synchronized.
         List<Path> codeListPaths = ClassPathUtils.findPathsFromClassPath(Collections.singletonList(CODELIST_COLLECTION_PATH), ".*\\.json", Optional.empty(), LoadCodeListImpl.class.getClassLoader());
 
         // Find the first JSON file whose name contains the given domain
