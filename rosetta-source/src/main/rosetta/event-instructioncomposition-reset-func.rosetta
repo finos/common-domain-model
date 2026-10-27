@@ -653,28 +653,25 @@ func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process
     // Step 1 - CollectFloatingRateOptionInstruction
     alias resetStep1exists:
         (resetInstructionState -> floatingRateIndex exists)
-        and (resetInstructionState -> tradeDate exists)
+            and (resetInstructionState -> tradeDate exists)
     // Step 2 - DetermineUnadjustedCalculationPeriodInstruction
     alias resetStep2exists:
         (resetInstructionState -> unadjustedCalculationPeriod exists)
-        and (resetInstructionState -> unadjustedResetDate exists)
+            and (resetInstructionState -> unadjustedResetDate exists)
     // Step 3 - AdjustPeriodInstruction
-    alias resetStep3exists:
-        resetInstructionState -> adjustedCalculationPeriod exists
+    alias resetStep3exists: resetInstructionState -> adjustedCalculationPeriod exists
     // Step 4 - AdjustDateInstruction
-    alias resetStep4exists:
-        resetInstructionState -> adjustedResetDate exists
+    alias resetStep4exists: resetInstructionState -> adjustedResetDate exists
     // Step 5 - DetermineUnadjustedObservationDatesInstruction
     alias resetStep5exists:
         (resetInstructionState -> unadjustedObservationDates exists)
-        and (resetInstructionState -> floatingRateOptionData exists)
+            and (resetInstructionState -> floatingRateOptionData exists)
     // Step 6 - AdjustObservationDatesInstruction
-    alias resetStep6exists:
-        resetInstructionState -> adjustedObservationDates exists
+    alias resetStep6exists: resetInstructionState -> adjustedObservationDates exists
     // Step 7 - CalculateResetValueInstruction
     alias resetStep7exists:
         (resetInstructionState -> resetValue exists)
-        and (resetInstructionState -> observedRateDates exists)
+            and (resetInstructionState -> observedRateDates exists)
 
     set resetInstructionNextStep -> resetInstructionCompositionSteps:
         // Next Step = Step 1
@@ -687,20 +684,44 @@ func ResetInstructionNextStep: <"A state-machine evaluator for the Reset process
         else if resetStep1exists and resetStep2exists and resetStep3exists = False
         then ResetInstructionCompositionStepsEnum -> AdjustPeriodInstruction
         // Next Step = Step 4
-        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists = False
+        else if resetStep1exists
+                and resetStep2exists
+                and resetStep3exists
+                and resetStep4exists = False
         then ResetInstructionCompositionStepsEnum -> AdjustDateInstruction
         // Next Step = Step 5
-        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists and resetStep5exists = False
+        else if resetStep1exists
+                and resetStep2exists
+                and resetStep3exists
+                and resetStep4exists
+                and resetStep5exists = False
         then ResetInstructionCompositionStepsEnum -> DetermineUnadjustedObservationDatesInstruction
         // Next Step = Step 6
-        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists and resetStep5exists and resetStep6exists = False
+        else if resetStep1exists
+                and resetStep2exists
+                and resetStep3exists
+                and resetStep4exists
+                and resetStep5exists
+                and resetStep6exists = False
         then ResetInstructionCompositionStepsEnum -> AdjustObservationDatesInstruction
         // Next Step = Step 7
-        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists and resetStep5exists and resetStep6exists and resetStep7exists = False
+        else if resetStep1exists
+                and resetStep2exists
+                and resetStep3exists
+                and resetStep4exists
+                and resetStep5exists
+                and resetStep6exists
+                and resetStep7exists = False
         then ResetInstructionCompositionStepsEnum -> CalculateResetValueInstruction
         // Next Step = Generating the Instruction for the Output
-        else if resetStep1exists and resetStep2exists and resetStep3exists and resetStep4exists and resetStep5exists and resetStep6exists and resetStep7exists
-            and (instructionCompositionOutput -> resetInstruction is absent)
+        else if resetStep1exists
+                and resetStep2exists
+                and resetStep3exists
+                and resetStep4exists
+                and resetStep5exists
+                and resetStep6exists
+                and resetStep7exists
+                and (instructionCompositionOutput -> resetInstruction is absent)
         then ResetInstructionCompositionStepsEnum -> ResetInstructionOutput
         else empty
 
