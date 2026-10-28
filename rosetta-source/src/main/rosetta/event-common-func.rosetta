@@ -429,7 +429,8 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
         QuantityChangeInstruction {
             change: postSplitPriceQuantity,
             direction: QuantityChangeDirectionEnum -> Replace,
-            lotIdentifier: empty
+            lotIdentifier: empty,
+            ...
         }
     alias primitiveInstruction:
         PrimitiveInstruction {
@@ -984,6 +985,13 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
     alias newPriceQuantity: <"Update the PriceQuantity based on the change and direction inputs. For an increase, if the trade lot exists, apply the changes to the existing PriceQuantity; otherwise, add the changed PriceQuantity to the list of TradeLots. For a decrease or replace, apply the changes to the existing PriceQuantity.">
         if instruction -> direction = Increase and tradeLotExists = False
         then instruction -> change
+        else if instruction -> priceLocations exists or instruction -> quantityLocations exists
+        then UpdateQuantityMatchingReference(
+                tradeLot -> priceQuantity,
+                instruction -> priceLocations,
+                instruction -> quantityLocations,
+                instruction -> change only-element,
+                instruction -> direction)
         else UpdateAmountForEachMatchingQuantity(
                 tradeLot -> priceQuantity,
                 instruction -> change,
@@ -1423,7 +1431,8 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
                 QuantityChangeInstruction {
                     change: changePriceQuantity,
                     direction: QuantityChangeDirectionEnum -> Decrease,
-                    lotIdentifier: empty
+                    lotIdentifier: empty,
+                    ...
                 },
                 tradeState
             )
@@ -1463,7 +1472,8 @@ func ResolveRepurchaseTransferInstruction: <"Resolves an instruction for settlem
         QuantityChangeInstruction {
             change: changePriceQuantity,
             direction: QuantityChangeDirectionEnum -> Replace,
-            lotIdentifier: empty
+            lotIdentifier: empty,
+            ...
         }
 
 func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a trade roll. A trade roll consists in closing an existing trade and entering into a new one which has the same characteristics as the old one, except with an extended termination date and (possibly) a different price.">
@@ -1485,7 +1495,8 @@ func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a
                     QuantityChangeInstruction {
                         change: priceQuantity,
                         direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
+                        lotIdentifier: empty,
+                        ...
                     },
                 termsChange: Create_RollTermChangeInstruction(
                             tradeState -> trade -> product,
@@ -1602,7 +1613,8 @@ func Create_OnDemandRateChangePriceChangeInstruction: <"Creates a price change i
         QuantityChangeInstruction {
             change: newPriceQuantity,
             direction: QuantityChangeDirectionEnum -> Replace,
-            lotIdentifier: empty
+            lotIdentifier: empty,
+            ...
         }
 
 func Create_OnDemandRateChangeTermsChangeInstruction: <"Creates a terms change instruction for an on-demand rate change, based on a new rate provided as a single number. This instruction only updates the effective date but keeps other details of the trade unchanged.">
@@ -1635,7 +1647,8 @@ func Create_CancellationPrimitiveInstruction: <"Creates a primitive instruction 
                     QuantityChangeInstruction {
                         change: tradeState -> trade -> tradeLot -> priceQuantity,
                         direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
+                        lotIdentifier: empty,
+                        ...
                     },
                 termsChange: Create_CancellationTermChangeInstruction(
                             tradeState -> trade -> product,
@@ -1741,7 +1754,8 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
                         QuantityChangeInstruction {
                             change: item,
                             direction: QuantityChangeDirectionEnum -> Replace,
-                            lotIdentifier: empty
+                            lotIdentifier: empty,
+                            ...
                         },
                     ...
                 }
@@ -1763,7 +1777,8 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
                     QuantityChangeInstruction {
                         change: deliveredPriceQuantity,
                         direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: tradeState -> trade -> tradeLot -> lotIdentifier
+                        lotIdentifier: tradeState -> trade -> tradeLot -> lotIdentifier,
+                        ...
                     },
                 ...
             }
@@ -1832,7 +1847,8 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
                     QuantityChangeInstruction {
                         change: [newPriceQuantity],
                         direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
+                        lotIdentifier: empty,
+                        ...
                     },
                 termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
                             tradeState -> trade -> product,
@@ -1908,7 +1924,8 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
                     QuantityChangeInstruction {
                         change: [newPriceQuantity],
                         direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
+                        lotIdentifier: empty,
+                        ...
                     },
                 termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
                             tradeState -> trade -> product,
@@ -1937,7 +1954,8 @@ func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructio
                 QuantityChangeInstruction {
                     change: priceQuantity,
                     direction: QuantityChangeDirectionEnum -> Replace,
-                    lotIdentifier: empty
+                    lotIdentifier: empty,
+                    ...
                 },
             termsChange: Create_SubstitutionInstruction(
                         tradeState -> trade -> product,
@@ -2107,7 +2125,8 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
         QuantityChangeInstruction {
             change: changePriceQuantity,
             direction: QuantityChangeDirectionEnum -> Replace,
-            lotIdentifier: empty
+            lotIdentifier: empty,
+            ...
         }
 
 func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
