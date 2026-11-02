@@ -73,7 +73,11 @@ func MapWorkflowStep:
                     ...
                 },
             timestamp: MapEventTimestamp(creationTimestamp, fpmlTrade),
-            eventIdentifier: MapEventIdentifier(fpmlMessageId, fpmlTradingEvents),
+            eventIdentifier: MapEventIdentifier(
+                        fpmlMessageId,
+                        fpmlTradingEvents,
+                        fpmlTrade -> tradeHeader -> partyTradeIdentifier
+                    ),
             messageInformation: MapMessageInformation(
                         fpmlMessageId,
                         fpmlSentBy,
@@ -108,8 +112,12 @@ func MapEventIdentifier:
     inputs:
         fpmlMessageId fpml.MessageId (0..1)
         fpmlTradeEvent fpml.TradingEventSummary (0..1)
+        fpmlPartyTradeIdentifier fpml.PartyTradeIdentifier (0..*)
     output:
         eventIdentifier Identifier (0..*)
+
+    alias linkIdSchemes:
+        ["http://www.fpml.org/coding-scheme/external/esma-ptrr-compression", "http://www.fpml.org/coding-scheme/external/esma-ptrr-portfolio-rebalancing", "http://www.fpml.org/coding-scheme/external/esma-ptrr-margin-management"]
 
     add eventIdentifier:
         Identifier {
@@ -131,6 +139,22 @@ func MapEventIdentifier:
                             ...
                         },
                     issuerReference: MapPartyReference(partyReference -> href),
+                    ...
+                }
+
+    add eventIdentifier:
+        fpmlPartyTradeIdentifier
+            extract
+                Identifier {
+                    assignedIdentifier: linkId
+                            extract
+                                AssignedIdentifier {
+                                    identifier: if linkIdSchemes any = linkIdScheme
+                                            then value with-meta {
+                                            scheme: linkIdScheme
+                                        },
+                                    ...
+                                },
                     ...
                 }
 
@@ -227,11 +251,12 @@ func MapBreakdown:
         then PrimitiveInstruction {
                 quantityChange:
                     QuantityChangeInstruction {
-                        change:
-                            PriceQuantity {
-                                quantity: newTradeAmount,
-                                ...
-                            },
+                        change: newTradeAmount
+                                extract
+                                    PriceQuantity {
+                                        quantity: item,
+                                        ...
+                                    },
                         direction: Replace,
                         ...
                     },
@@ -245,11 +270,12 @@ func MapBreakdown:
         then PrimitiveInstruction {
                 quantityChange:
                     QuantityChangeInstruction {
-                        change:
-                            PriceQuantity {
-                                quantity: oldTradeAmount default newTradeAmount,
-                                ...
-                            },
+                        change: (oldTradeAmount default newTradeAmount)
+                                extract
+                                    PriceQuantity {
+                                        quantity: item,
+                                        ...
+                                    },
                         direction: if oldTradeAmount exists
                                 then Replace
                             else Decrease,

@@ -1,4 +1,4 @@
-# 2026 CDM Community Roadmap 
+# 2026 CDM Community Roadmap
 
 Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Steering WG oversees the process and the integration across Working Groups.
 
@@ -12,7 +12,7 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
   </tr>
   <tr>
     <td><b>Steering WG</b><br>David Shone</td>
-    　<td><ul>
+    <td><ul>
         <li>Annual Review of governance</li>
         <li>Establish release schedule</li>
        <li>Agree 2026 roadmap</li>
@@ -24,7 +24,7 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
       </ul></td>
       <td><ul>
         <li>BAU </li>
-        <li>Nominations for Chair from Jan 2027 </li>
+        <li>September: Open up Nominations for Chair and vice-chair from Jan 2027 </li>
       </ul></td>
       <td><ul>
         <li>BAU </li>
@@ -33,9 +33,9 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
       </ul></td>
      </tr>
   <tr>
-    <td><b>Technical Architecture WG</b><br>tba</td>
-    　<td><ul>
-       <li>Python generator upgrade to handle functions
+    <td><b>Technical Architecture WG</b><br>Rotating</td>
+    <td><ul>
+       <li>Python generator upgrade to handle functions</li>
        <li>Prioritised items from SWG November 2025</li>
       </ul></td>
       <td><ul>
@@ -51,10 +51,9 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
         <li>Prioritised items from SWG November 2025</li>
       </ul></td>
      </tr>
-  </tr>
     <tr>
     <td><b>Contribution Review WG</b><br>Rotating</td>
-    　<td><ul>
+    <td><ul>
        <li>CDM7.0 Release- end Feb</li> 
        <li>Interest Rate Swap reset design **</li>
        <li>Continued managed release service</li>
@@ -77,45 +76,42 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
        <li>BAU </li>
       </ul></td>
      </tr>
-  </tr>
     <tr>
     <td><b>Collateral WG</b><br>Vernon Alden-Smith</td>
-    　<td><ul>
+    <td><ul>
        <li>Deliver outstanding test packs for IM/VM</li>
        <li>Contribute CSA amendments</li>
        <li>ECS extensions identified by community</li>
       </ul></td>
       <td><ul>
-        <li>Develop CSA implementation guide for compkles causes</li>
+        <li>Develop CSA implementation guide for compkles causes. </li>
+        <li>Develop CDM Collateral handbook for CSA elections and eligible collateral</li>
       </ul></td>
       <td><ul>
         <li>Develop functions for collateral workflows</li>
+        <li>Deliver and promote CDM Collateral handbook</li>
       </ul></td>
       <td><ul>
         <li>BAU</li>
-      </ul></td>
-     </tr>
-  </tr>
+       <li>BAU and plan for Collateral extensions 2027</li>
     <tr>
     <td><b>Securities Lending WG</b><br>Chris Rayner</td>
-    　<td colspan="4" ><ul>
+    <td colspan="4" ><ul>
        <li>Lifecycle development & contributions</li>
        <li>DRR dependencies for SFTR</li>
        <li>CDM Best Practices for Securities Lending</li>
       </ul></td>
      </tr>
-  </tr>
     <tr>
     <td><b>Derivatives WG</b><br>Lyteck Lynhiavu</td>
-    　<td colspan="4" ><ul>
+    <td colspan="4" ><ul>
         <li>Member modelling proposals</li>
         <li>Product expansion for DRR</li>
       </ul></td>
      </tr>
-  </tr>
     <tr>
     <td><b>ICMA Repo & Bonds WG</b><br>Gabriel Callsen</td>
-    　<td colspan="4" ><ul>
+    <td colspan="4" ><ul>
         <li>Develop SFTR reporting model and functions</li>
         <li>Expand bond/debt/security coverage and related events</li>
         <li>Expand domain specific helper functions</li>
@@ -123,31 +119,26 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
         <li>On-going support and adoption projects</li>
       </ul></td>
      </tr>
-  </tr>
     <tr>
     <td><b>ISDA Legal Technology WG</b><br>Heather Smith</td>
-    　<td colspan="4" ><ul>
+    <td colspan="4" ><ul>
        <li>ISDA Document contributions (Community led)</li>
       </ul></td>
      </tr>
-  </tr>
     <tr>
     <td><b>ISDA DRR WG</b><br>Tabish Ahmed</td>
-    　<td><ul>
-       <li>SEC</li>
-       <li>SFTR (led by ISLA & ICMA)</li>     
+    <td><ul>
+       <li>SEC</li> 
        <li>Traceability Tool, RFQ decision</li>
        <li>ReportableInformation improvements</li>
        <li>DRR 7 production</li>       
       </ul></td>
       <td><ul>
-        <li>SFTR (led by ISLA & ICMA)</li>
         <li>Traceability Tool build</li>
         <li>ReportableInformation improvements</li>
         <li>MiFID II RTS 22 build</li>
       </ul></td>
       <td><ul>
-        <li>SFTR (led by ISLA & ICMA)</li>
         <li>MiFID II RTS 1 & 2 build</li>
         <li>Strate</li>
         <li>Traceability Tool</li>
@@ -156,11 +147,9 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
         <li>MiFID II test</li>
       </ul></td>
      </tr>
-  </tr>
-  </tr>
     <tr>
     <td><b>Tokenised Assets WG</b><br>Ciaran McGonagle</td>
-    　<td><ul>
+    <td><ul>
        <li>DTI schema for tokenised assets and ledgers</li>
        <li>Intra-day trading</li>       
       </ul></td>
@@ -174,11 +163,9 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
         <li>Expand lifecycle events</li>
       </ul></td>
      </tr>
-  </tr>
-    </tr>
     <tr>
     <td><b>Physical Risk WG</b><br>Johnny Mattimore</td>
-    　<td><ul>
+    <td><ul>
        <li>Asset Attributes</li>
        <li>Risk time series and Distrubtions data</li>       
       </ul></td>
@@ -196,8 +183,8 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
         <li>Wider adoption</li>        
         <li>Interbank and client integration</li>           
       </ul></td>
+      </ul>
      </tr>
-  </tr>
 </table>
 
 \* Items sponsored by ISDA for cross-product modelling
@@ -224,9 +211,9 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
       <td><ul>
         <li>CDM Release Management Service</li>        
         <li>Ongoing maintenance</li>
-        <li>AI Bot: document assistance, user query tool</li>
       </ul></td>
       <td><ul>
+        <li>AI Bot: document assistance, user query tool</li>
         <li>CDM Release Management Service</li>        
         <li>Ongoing maintenance</li>            
       </ul></td>
@@ -255,7 +242,8 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
       </ul></td>
       <td><ul>
         <li>ISLA Post Trade </li>
+        <li>FINOS Workshop</li>
+        <li>DRR Training NY</li>
       </ul></td>
      </tr>
 </table>
-  

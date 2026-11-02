@@ -19,7 +19,9 @@ The following Working Groups are currently active for this project:
 
 **FINOS Domain WGs:**
 * [CDM Derivatives Working Group](CDM-Derivatives-WG.md) - bi-weekly
-* [CDM Collateral Working Group](CDM-Collateral-WG.md) - -monthly
+* [CDM Collateral Working Group](CDM-Collateral-WG.md) - monthly
+* [CDM Tokenized Assets Working Group](CDM-Tokenized-Assets-WG.md) - monthly
+* [CDM Physical Risk Working Group](CDM-Physical-Risk-WG.md) - monthly
 
 **Domain WGs run outside of FINOS:**
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
@@ -29,4 +31,4 @@ The following Working Groups are currently active for this project:
 * [ISDA CDM Legal Agreement Working Group](https://www.isda.org/committees?ccode=CDMLA) - This working group will be used to extend the CDM for the CSA and Master Agreements and is open to ISDA members only. - bi-monthly 
 
 
-Email help@finos.org to be added to the meeting invites directly, or find the the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+You can register yourself for any of these meetings from its Working Group page, or find them in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 

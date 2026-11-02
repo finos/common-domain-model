@@ -11,8 +11,6 @@ import cdm.ingest.fpml.confirmation.product.commodityoption.functions.CalculateC
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
-import cdm.product.template.functions.FpmlIrd8;
-import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
@@ -42,9 +40,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
         // Requires DSL remove-item(index)
         bind(PopOffDateList.class).to(bindPopOffDateList());
-
-        // Access to reference metadata (not supported in DSL)
-        bind(FpmlIrd8.class).to(bindFpmlIrd8());
 
         // Rounding (not supported in DSL)
         bind(RoundToNearest.class).to(bindRoundToNearest());
@@ -138,10 +133,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
     protected Class<? extends RoundToSignificantFigures> bindRoundToSignificantFigures() {
         return RoundToSignificantFiguresImpl.class;
-    }
-
-    protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
-        return FpmlIrd8Impl.class;
     }
 
     protected Class<? extends Now> bindNow() {

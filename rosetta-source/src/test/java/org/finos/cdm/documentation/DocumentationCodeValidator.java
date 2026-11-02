@@ -37,9 +37,9 @@ public class DocumentationCodeValidator {
     private final Pattern illegalSyntaxRegex = Pattern.compile(annotationRegex + "|" + definitionRegex + "|" + lineCommentRegex, Pattern.MULTILINE);
     private static final PatternStreamer codeBlockRegex = new PatternStreamer("```.*?```");
 
-    private String modelPath;
-    private String docPath;
-    private String snippetPath;
+    private final String modelPath;
+    private final String docPath;
+    private final String snippetPath;
 
 
     public DocumentationCodeValidator(String docPath, String snippetPath, String modelPath) {
@@ -59,7 +59,7 @@ public class DocumentationCodeValidator {
         Stream<String> illegalSnippets = extractInvalidCode(snippets, "code-snippets")
                 .peek(LOGGER::info);
 
-        if (Streams.concat(illegalCodeBlocks, illegalSnippets).count() > 0) {
+        if (Streams.concat(illegalCodeBlocks, illegalSnippets).findAny().isPresent()) {
             LOGGER.error("ERROR found illegal syntax in code block/snippet. Run this script with --fix-up flag to sanitise.");
             System.exit(1);
         }
@@ -68,10 +68,10 @@ public class DocumentationCodeValidator {
         long invalidSnippets = validate(snippets, model);
 
         if (invalidCodeBlocks > 0) {
-            LOGGER.error("Found " + invalidCodeBlocks + " code-blocks that don't match model text.");
+            LOGGER.error("Found {} code-blocks that don't match model text.", invalidCodeBlocks);
         }
         if (invalidSnippets > 0) {
-            LOGGER.error("Found [" + invalidSnippets + "] code-snippets that don't match model text.");
+            LOGGER.error("Found [{}] code-snippets that don't match model text.", invalidSnippets);
         }
         if (invalidCodeBlocks + invalidSnippets != 0) {
             System.exit(1);
@@ -82,9 +82,8 @@ public class DocumentationCodeValidator {
         Stream<String> invalidCode = code.stream()
                 .filter(_code -> !_code.contains("``` sourcecode"))
                 .filter(_code -> !_code.contains("``` MD"))
-                .filter(_code -> !_code.contains("``` Javascript"))
                 .filter(_code -> !_code.contains("``` Java"))
-                .filter(_code -> !_code.contains("``` JSON"))
+                .filter(_code -> !_code.contains("``` json"))
                 .filter(_code -> !_code.contains("``` xml"))
                 .filter(_code -> {
                     String cleaned = _code
@@ -98,13 +97,10 @@ public class DocumentationCodeValidator {
     }
 
     private Stream<String> getCodeBlocks() throws IOException {
-        Stream<String> docs = loadFiles(docPath, ".md").stream().map(f -> f.content);
-
-        Stream<String> codeBlocks = docs.flatMap(codeBlockRegex::results)
+        return loadFiles(docPath, ".md").stream()
+                .map(f -> f.content)
+                .flatMap(codeBlockRegex::results)
                 .map(MatchResult::group);
-        //.ifEmpty { throw IllegalStateException("No code blocks found in documentation file [$docPath]. Doesn't sound right! Go check.") }
-
-        return codeBlocks;
     }
 
     private Stream<String> getSnippets() throws IOException {
@@ -113,7 +109,7 @@ public class DocumentationCodeValidator {
     }
 
     private String getModel() throws IOException {
-        String s = loadFiles(modelPath, ".rosetta").stream().map(f -> f.toString()).collect(Collectors.joining());
+        String s = loadFiles(modelPath, ".rosetta").stream().map(MyFile::toString).collect(Collectors.joining());
         s = illegalSyntaxRegex.matcher(s).replaceAll("");
         s = s.replaceAll(whitespaceRegex, "");
         return s;
@@ -155,8 +151,8 @@ public class DocumentationCodeValidator {
 
     private static class MyFile {
 
-        private Path path;
-        private String content;
+        private final Path path;
+        private final String content;
 
         public MyFile(Path path, String content) {
             this.path = path;

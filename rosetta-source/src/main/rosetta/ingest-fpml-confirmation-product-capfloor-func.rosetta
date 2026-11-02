@@ -96,7 +96,7 @@ func MapCapfloorPriceQuantity:
                         calculationPeriodAmount,
                         fpmlCapFloorStream
                     ),
-            quantity: swap.MapCalculationPeriodAmountToQuantityList(
+            quantity: swap.MapCalculationPeriodAmountToQuantity(
                         calculationPeriodAmount,
                         fpmlCapFloorStream
                     ),
@@ -132,22 +132,3 @@ func MapCapfloorCalculationPeriodAmountToPriceList:
         MapCapRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
     add priceSchedules:
         MapFloorRateScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
-
-func MapCapFloorAccountPartyReference:
-    inputs:
-        fpmlCapFloor fpml.CapFloor (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        fpmlCapFloor -> capFloorStream
-            extract
-                MapPayerReceiverToAccountPartyReference(
-                        fpmlAccount,
-                        payerAccountReference,
-                        receiverAccountReference,
-                        payerPartyReference,
-                        receiverPartyReference
-                    )

@@ -3,13 +3,11 @@ version "${project.version}"
 
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
-import cdm.ingest.fpml.confirmation.party.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.eqd.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapEquityForwardCounterpartyList:
     inputs:
@@ -68,18 +66,3 @@ func MapEquityForwardPriceQuantityList:
         fpmlEquityForward fpml.EquityForward (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
-
-func MapEquityForwardAccountPartyReference:
-    inputs:
-        fpmlEquityForward fpml.EquityForward (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlEquityForward -> buyerAccountReference,
-                fpmlEquityForward -> sellerAccountReference
-            )

@@ -605,7 +605,7 @@ func MapCreditDefaultSwapPriceQuantityList:
         fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
-
+    alias protectionTermsList: fpmlCreditDefaultSwap -> protectionTerms count = 1
     add priceQuantityList:
         MapFeeLegToPriceQuantity(
                 fpmlCreditDefaultSwap -> feeLeg,
@@ -613,7 +613,11 @@ func MapCreditDefaultSwapPriceQuantityList:
             )
 
     add priceQuantityList:
-        MapProtectionTermsToPriceQuantity(fpmlCreditDefaultSwap -> protectionTerms)
+        if fpmlCreditDefaultSwap -> protectionTerms count > 1
+        then MapProtectionTermsToBasket(fpmlCreditDefaultSwap -> protectionTerms)
+        else MapProtectionTermsToQuantity(
+                fpmlCreditDefaultSwap -> protectionTerms only-element
+            )
 
 func MapFeeLegToPriceQuantity:
     inputs:
@@ -634,7 +638,8 @@ func MapFeeLegToPriceQuantity:
                         fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount,
                         fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> calculationAmount,
                         fpmlFeeLeg
-                    ),
+                    )
+                    only-element,
             observable: MapRateOptionToObservableWithLocation(
                         fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate,
                         fpmlFeeLeg
@@ -667,15 +672,15 @@ func MapFixedOrFloatingAmountCalculationToPriceListWithLocation:
                     fpmlLeg
                 )
 
-func MapProtectionTermsToPriceQuantity:
+func MapProtectionTermsToQuantity:
     inputs:
-        fpmlProtectionTermsList fpml.ProtectionTerms (0..*)
+        fpmlProtectionTerms fpml.ProtectionTerms (0..1)
     output:
         priceQuantity PriceQuantity (0..1)
 
     set priceQuantity:
         PriceQuantity {
-            quantity: fpmlProtectionTermsList
+            quantity: fpmlProtectionTerms
                     extract
                         MapNotionalAmountToQuantityWithLocation(
                                 calculationAmount -> amount,
@@ -686,17 +691,37 @@ func MapProtectionTermsToPriceQuantity:
             ...
         }
 
-func MapCreditDefaultSwapAccountPartyReference:
+func MapProtectionTermsToBasket:
     inputs:
-        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
-        fpmlAccount fpml.Account (0..1)
+        fpmlProtectionTermsList fpml.ProtectionTerms (0..*)
     output:
-        partyReference Party (0..1)
-            [metadata reference]
+        priceQuantity PriceQuantity (0..1)
 
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlCreditDefaultSwap -> generalTerms -> buyerAccountReference,
-                fpmlCreditDefaultSwap -> generalTerms -> sellerAccountReference
-            )
+    set priceQuantity:
+        PriceQuantity {
+            quantity: empty,
+            observable:
+                Observable {
+                    Basket:
+                        Basket {
+                            identifier: empty,
+                            assetType: empty,
+                            basketConstituent:
+                                BasketConstituent {
+                                    observable: empty,
+                                    quantity: fpmlProtectionTermsList
+                                            extract
+                                                MapCurrencyAmountToQuantity(
+                                                        calculationAmount -> amount,
+                                                        empty,
+                                                        calculationAmount -> currency,
+                                                        empty
+                                                    ),
+                                    ...
+                                },
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }

@@ -150,7 +150,7 @@ type TradeLot:
   priceQuantity PriceQuantity (1..*)
 ```
 
-The `pricequantity` attribute is represented as an array of the
+The `priceQuantity` attribute is represented as an array of the
 `PriceQuantity` data type. For composite financial products that are
 made of different legs, each leg may require its own price and quantity
 attributes, and each instance of a `PriceQuantity` data type identifies
@@ -1085,25 +1085,25 @@ type ProductTaxonomy extends Taxonomy:
 ``` Javascript
 "productTaxonomy": [
   {
-    "primaryAssetClass": {
-      "meta": {
-        "scheme": "http://www.fpml.org/coding-scheme/asset-class-simple"
+    "primaryAssetClass" : {
+      "meta" : {
+        "scheme" : "http://www.fpml.org/coding-scheme/asset-class-simple"
       },
       "value": "INTEREST_RATE"
     },
   },
   {
     "taxonomyValue": {
-      "meta": {
-        "scheme": "http://www.fpml.org/coding-scheme/product-taxonomy"
+        "meta" : {
+          "scheme" : "http://www.fpml.org/coding-scheme/product-taxonomy"
       },
       "value": "InterestRate:IRSwap:FixedFloat"
     }
     "taxonomySource": "ISDA"
-  },
+    },
   {
     "productQualifier": "InterestRate_IRSwap_FixedFloat",
     "taxonomySource": "ISDA"
-  }
+  } 
 ]
 ```

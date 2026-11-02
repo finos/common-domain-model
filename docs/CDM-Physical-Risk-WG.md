@@ -12,11 +12,11 @@ The Physical Risk Working Group is focused on integrating physical risk into the
 
 As physical risks intensify, leading to increased insurance premiums and the potential for widespread market withdrawal of insurance, this group will outline how the financial system can swiftly adopt an open-source framework. This framework will accelerate the scalable and cost-effective integration of physical risk, helping to manage regional exposures to major hazards.
 
-You can find more information about the Working Group proposal here: https://github.com/finos/common-domain-model/issues/3432.
+[View Physical Risk Working Group Terms of Reference](https://github.com/finos/common-domain-model/issues/3432)
 
 ## Meetings
 
-Join us every second Tuesday at 2 PM EST / 9 AM BST. Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+**Join us on the second Tuesday of every month at 2 PM EST / 9 AM BST.** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/93988274402?password=cc529a12-6925-413d-a7a8-19ec7a37cfdc&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
 
 ## Subscribe
 

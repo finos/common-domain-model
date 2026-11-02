@@ -14,7 +14,6 @@ import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.shared.* as fpml
 import fpml.consolidated.variance.swaps.* as fpml
 
 func MapVarianceSwapCounterpartyList:
@@ -221,24 +220,3 @@ func MapVarianceLegToPriceQuantity:
             observable: MapUnderlyerToObservableWithLocation(fpmlVarianceLeg -> underlyer),
             ...
         }
-
-func MapVarianceSwapAccountPartyReference:
-    inputs:
-        fpmlVarianceSwap fpml.VarianceSwap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        fpmlVarianceSwap -> varianceLeg
-            extract
-                MapPayerReceiverToAccountPartyReference(
-                        fpmlAccount,
-                        payerAccountReference,
-                        receiverAccountReference,
-                        payerPartyReference,
-                        receiverPartyReference
-                    )
-            then filter reference exists
-            then first

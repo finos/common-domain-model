@@ -13,18 +13,18 @@ The CSL specifies three different contribution roles for each specific [working 
 
 * [Maintainers](maintainers.md) - those who drive consensus within the working group
 * Editors - those who codify ideas into a formal specification
-* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [participants](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [participants](https://github.com/finos/standards-project-blueprint/blob/master/PARTICIPANTS.md) file. 
 
 
 ## CDM Design Principles
 
 Contributions to the CDM have to comply with the set of [design principles](design-principles.md) that include the following concepts:
 
-* **Normalisation** through abstraction of common components
-* **Composability** where objects are composed and qualified from the bottom up
-* **Mapping** to existing industry messaging formats
-* **Embedded logic** to represent industry processes
-* **Modularisation** into logical layers, using namespace organisation
+* **Normalisation** through abstraction of common components
+* **Composability** where objects are composed and qualified from the bottom up
+* **Mapping** to existing industry messaging formats
+* **Embedded logic** to represent industry processes
+* **Modularisation** into logical layers, using namespace organisation
 
 ## Version Management
 
@@ -87,8 +87,7 @@ reviewing and releasing changes to the CDM contributed by the wider
 industry community including market participants, trade associations and
 technology or service vendors. It describes:
 
--   What a Contributor should do to edit and contribute changes to the
-    CDM
+-   What a Contributor should do to edit and contribute changes to the CDM
 -   What a Maintainer should do to review the changes
 -   How to release a new CDM version once changes have been approved
 
@@ -325,7 +324,7 @@ once it is approved:
     Maintainer should adjust or include any code snippets by editing the
     *documentation.rst* file on GitHub.
 -   **Code generation**: Model changes may cause code generator failures
-    (e.g., Java, C#, Scala, Kotlin etc.). In the unlikely event of code
+    (e.g., Java, Typescript etc.). In the unlikely event of code
     generation failures, these will need to be addressed by the
     Maintainer.
 
@@ -413,7 +412,7 @@ one-off branch in the source-control repository. Please refer to the
 
 1. Fork it (https://github.com/finos/common-domain-model)
 2. Create your feature branch (`git checkout -b feature/my-new-feature`)
-3. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
+3. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rune VS Code plugin](https://github.com/finos/rune-dsl/tree/main/rune-ide/vscode)
 4. Read our contribution guidelines and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
 5. Commit your changes (`git commit -am 'My New Feature'`)
 6. Push to the branch (`git push origin feature/my-new-feature`)

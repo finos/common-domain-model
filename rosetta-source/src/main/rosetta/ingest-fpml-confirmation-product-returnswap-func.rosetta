@@ -556,49 +556,36 @@ func MapReturnLegToPriceQuantity:
         priceQuantity PriceQuantity (0..1)
 
     alias notionalAmount: fpmlReturnLeg -> notional -> notionalAmount
-
+    alias financialUnit:
+        if (MapUnderlyerToObservableWithLocation(fpmlReturnLeg -> underlyer)
+                as Security
+                exists
+                and fpmlReturnLeg -> underlyer -> singleUnderlyer -> underlyingAsset
+                    as fpml.Equity
+                    exists)
+        then FinancialUnitEnum -> Share
+        else if MapUnderlyerToObservableWithLocation(fpmlReturnLeg -> underlyer)
+            as Index
+            exists
+        then IndexUnit
     set priceQuantity:
         PriceQuantity {
-            price: MapNetPriceToPriceListWithLocation(
-                        fpmlReturnLeg -> rateOfReturn -> initialPrice,
-                        fpmlReturnLeg
-                    ),
-            quantity: [
-                    MapNotionalAmountWithIdToQuantityWithLocation(
-                            fpmlReturnLeg -> underlyer -> singleUnderlyer -> openUnits,
-                            empty,
-                            fpmlReturnLeg -> notional -> notionalAmount -> currency,
-                            "openUnits",
-                            fpmlReturnLeg
-                        ),
-                    MapNotionalAmountToQuantityWithLocation(
-                            fpmlReturnLeg -> notional -> notionalAmount -> amount,
-                            empty,
-                            fpmlReturnLeg -> notional -> notionalAmount -> currency,
-                            fpmlReturnLeg
+            price: [
+                    MapNetPriceToPriceWithLocation(
+                            fpmlReturnLeg -> rateOfReturn -> initialPrice,
+                            fpmlReturnLeg,
+                            financialUnit
                         )
                 ],
+            quantity: if fpmlReturnLeg -> underlyer -> singleUnderlyer -> openUnits exists
+                    then MapNotionalAmountWithIdToQuantityWithLocation(
+                            fpmlReturnLeg -> underlyer -> singleUnderlyer -> openUnits,
+                            empty,
+                            empty,
+                            "openUnits",
+                            empty,
+                            financialUnit
+                        ),
             observable: MapUnderlyerToObservableWithLocation(fpmlReturnLeg -> underlyer),
             ...
         }
-
-func MapReturnSwapAccountPartyReference:
-    inputs:
-        fpmlReturnSwap fpml.ReturnSwap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        fpmlReturnSwap -> returnSwapLeg
-            extract
-                MapPayerReceiverToAccountPartyReference(
-                        fpmlAccount,
-                        payerAccountReference,
-                        receiverAccountReference,
-                        payerPartyReference,
-                        receiverPartyReference
-                    )
-            then filter reference exists
-            then first
