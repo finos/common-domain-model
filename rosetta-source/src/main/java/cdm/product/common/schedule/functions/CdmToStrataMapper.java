@@ -5,7 +5,6 @@ import cdm.product.common.schedule.StubPeriodTypeEnum;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 
