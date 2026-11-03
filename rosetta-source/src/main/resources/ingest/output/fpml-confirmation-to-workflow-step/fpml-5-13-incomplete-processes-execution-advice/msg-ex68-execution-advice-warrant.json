@@ -2,13 +2,106 @@
   "@model" : "cdm",
   "@type" : "cdm.event.workflow.WorkflowStep",
   "@version" : "0.0.0.master-SNAPSHOT",
-  "@key" : "9ddb9a57",
+  "@key" : "5b75075c",
   "proposedEvent" : {
     "intent" : "ContractFormation",
     "eventDate" : "2016-08-25",
     "instruction" : [ {
       "before" : {
         "trade" : {
+          "product" : {
+            "taxonomy" : [ {
+              "source" : "Other",
+              "value" : {
+                "name" : {
+                  "@scheme" : "http://www.abcbank.com/coding-scheme/back-office/calypso/product-type",
+                  "@data" : "Warrant"
+                }
+              }
+            }, {
+              "source" : "ISDA",
+              "value" : {
+                "name" : {
+                  "@data" : "EquityForward_PriceReturnBasicPerformance_SingleName"
+                }
+              },
+              "calculated" : true
+            } ],
+            "economicTerms" : {
+              "payout" : [ {
+                "@type" : "cdm.product.template.SettlementPayout",
+                "payerReceiver" : {
+                  "payer" : "Party2",
+                  "receiver" : "Party1"
+                },
+                "priceQuantity" : {
+                  "quantitySchedule" : {
+                    "@ref:scoped" : "quantity-1"
+                  }
+                },
+                "underlier" : {
+                  "@type" : "cdm.observable.asset.Observable",
+                  "@ref:scoped" : "observable-1"
+                }
+              } ]
+            }
+          },
+          "tradeLot" : [ {
+            "priceQuantity" : [ {
+              "price" : [ {
+                "value" : 73.36,
+                "unit" : {
+                  "currency" : {
+                    "@scheme" : "http://www.fpml.org/coding-scheme/external/iso4217",
+                    "@data" : "EUR"
+                  }
+                },
+                "perUnitOf" : {
+                  "financialUnit" : "Contract"
+                },
+                "priceType" : "AssetPrice"
+              } ],
+              "quantity" : {
+                "@key:scoped" : "quantity-1",
+                "value" : 80,
+                "unit" : {
+                  "financialUnit" : "Contract"
+                }
+              },
+              "observable" : {
+                "@key:scoped" : "observable-1",
+                "@data" : {
+                  "@type" : "cdm.base.staticdata.asset.common.Security",
+                  "identifier" : [ {
+                    "identifier" : {
+                      "@scheme" : "http://www.fpml.org/coding-scheme/external/instrument-id-ISIN",
+                      "@data" : "NL0000729614"
+                    },
+                    "identifierType" : "ISIN"
+                  }, {
+                    "identifier" : {
+                      "@scheme" : "http://www.abcbank.com/coding-scheme/abcbank/instrument-id",
+                      "@data" : "ABCBANK_INSTRUMENT_ID"
+                    },
+                    "identifierType" : "Other"
+                  } ],
+                  "assetType" : "Security",
+                  "securityType" : "Warrant"
+                }
+              }
+            } ]
+          } ],
+          "counterparty" : [ {
+            "role" : "Party1",
+            "partyReference" : {
+              "@ref:external" : "COUNTERPARTY"
+            }
+          }, {
+            "role" : "Party2",
+            "partyReference" : {
+              "@ref:external" : "ABC"
+            }
+          } ],
           "tradeIdentifier" : [ {
             "issuerReference" : {
               "@ref:external" : "ABC"
@@ -95,6 +188,16 @@
             "ownershipPartyReference" : {
               "@ref:external" : "ABC"
             }
+          }, {
+            "partyReference" : {
+              "@ref:external" : "COUNTERPARTY"
+            },
+            "role" : "Buyer"
+          }, {
+            "partyReference" : {
+              "@ref:external" : "ABC"
+            },
+            "role" : "Seller"
           } ]
         }
       }
