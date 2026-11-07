@@ -1,8 +1,11 @@
 package org.finos.cdm.example;
 
+import cdm.base.datetime.AdjustableDate;
 import cdm.base.datetime.AdjustableOrAdjustedDate;
+import cdm.base.datetime.AdjustableOrRelativeDate;
 import cdm.base.datetime.BusinessCenterTime;
 import cdm.base.math.FinancialUnitEnum;
+import cdm.base.math.NonNegativeDatedValue;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
@@ -26,9 +29,12 @@ import cdm.legaldocumentation.common.LegalAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.legaldocumentation.master.metafields.FieldWithMetaMasterAgreementTypeEnum;
 import cdm.observable.asset.PriceQuantity;
+import cdm.observable.asset.PriceSchedule;
+import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.common.NotionalAdjustmentEnum;
+import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
 import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.OptionPayout;
 import cdm.product.template.Payout;
@@ -87,6 +93,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     @Inject
     CalculateReset calculateResetFunc;
+
+    @Inject
+    UpdateAmountForEachMatchingQuantity updateAmountForEachMatchingQuantityFunc;
 
     /**
      * Contract Formation
@@ -532,6 +541,108 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         FinancialUnitEnum afterFinancialUnit = ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getPrice().get(0).getValue().getPerUnitOf().getFinancialUnit();
         assertEquals(beforeFinancialUnit, FinancialUnitEnum.SHARE, "The before trade must contain a share financial unit");
         assertEquals(afterFinancialUnit, FinancialUnitEnum.SHARE, "The after trade must contain a share financial unit");
+    }
+
+    @Test
+    void mustRescaleDerivedQuantityOnPriceOnlyChange() {
+        UnitType shareUnit = UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build();
+        UnitType usdUnit = UnitType.builder().setCurrencyValue("USD").build();
+
+        PriceSchedule initialPrice = PriceSchedule.builder()
+                .setValue(new BigDecimal("10.00"))
+                .setUnit(usdUnit)
+                .setPerUnitOf(shareUnit)
+                .setPriceType(PriceTypeEnum.ASSET_PRICE)
+                .setDerivedQuantity(NonNegativeQuantitySchedule.builder()
+                        .setValue(new BigDecimal("1000.00"))
+                        .setUnit(usdUnit)
+                        .build())
+                .build();
+
+        NonNegativeQuantitySchedule shareQty = NonNegativeQuantitySchedule.builder()
+                .setValue(new BigDecimal("100"))
+                .setUnit(shareUnit)
+                .build();
+
+        PriceQuantity initialPq = PriceQuantity.builder()
+                .addPriceValue(initialPrice)
+                .setQuantityValue(shareQty)
+                .build();
+
+        PriceSchedule updatedPriceInstruction = PriceSchedule.builder()
+                .setValue(new BigDecimal("12.00"))
+                .setUnit(usdUnit)
+                .setPerUnitOf(shareUnit)
+                .setPriceType(PriceTypeEnum.ASSET_PRICE)
+                .build();
+
+        PriceQuantity changePq = PriceQuantity.builder()
+                .addPriceValue(updatedPriceInstruction)
+                .build();
+
+        List<? extends PriceQuantity> updated = updateAmountForEachMatchingQuantityFunc.evaluate(
+                List.of(initialPq),
+                List.of(changePq),
+                QuantityChangeDirectionEnum.REPLACE);
+
+        assertEquals(1, updated.size());
+        PriceSchedule resultPrice = updated.get(0).getPrice().get(0).getValue();
+        assertEquals(0, new BigDecimal("12.00").compareTo(resultPrice.getValue()));
+        assertEquals(0, new BigDecimal("1200.00").compareTo(resultPrice.getDerivedQuantity().getValue()));
+    }
+
+    @Test
+    void mustRescaleDerivedQuantityDatedValuesOnScheduledQuantityChange() {
+        UnitType shareUnit = UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE).build();
+        UnitType usdUnit = UnitType.builder().setCurrencyValue("USD").build();
+        Date stepDate1 = Date.parse("2025-01-01");
+        Date stepDate2 = Date.parse("2025-06-01");
+
+        PriceSchedule initialPrice = PriceSchedule.builder()
+                .setValue(new BigDecimal("10.00"))
+                .setUnit(usdUnit)
+                .setPerUnitOf(shareUnit)
+                .setPriceType(PriceTypeEnum.ASSET_PRICE)
+                .setDerivedQuantity(NonNegativeQuantitySchedule.builder()
+                        .setValue(new BigDecimal("1000.00"))
+                        .setUnit(usdUnit)
+                        .addDatedValue(NonNegativeDatedValue.builder().setDate(stepDate1).setValue(new BigDecimal("1000.00")).build())
+                        .addDatedValue(NonNegativeDatedValue.builder().setDate(stepDate2).setValue(new BigDecimal("2000.00")).build())
+                        .build())
+                .build();
+
+        NonNegativeQuantitySchedule shareQty = NonNegativeQuantitySchedule.builder()
+                .setValue(new BigDecimal("100"))
+                .setUnit(shareUnit)
+                .addDatedValue(NonNegativeDatedValue.builder().setDate(stepDate1).setValue(new BigDecimal("100")).build())
+                .addDatedValue(NonNegativeDatedValue.builder().setDate(stepDate2).setValue(new BigDecimal("200")).build())
+                .build();
+
+        PriceQuantity initialPq = PriceQuantity.builder()
+                .addPriceValue(initialPrice)
+                .setQuantityValue(shareQty)
+                .build();
+
+        PriceQuantity datedChangePq = PriceQuantity.builder()
+                .setQuantityValue(NonNegativeQuantitySchedule.builder()
+                        .setValue(new BigDecimal("50"))
+                        .setUnit(shareUnit)
+                        .build())
+                .setEffectiveDate(AdjustableOrRelativeDate.builder()
+                        .setAdjustableDate(AdjustableDate.builder().setUnadjustedDate(stepDate2).build())
+                        .build())
+                .build();
+
+        List<? extends PriceQuantity> updated = updateAmountForEachMatchingQuantityFunc.evaluate(
+                List.of(initialPq),
+                List.of(datedChangePq),
+                QuantityChangeDirectionEnum.DECREASE);
+
+        PriceSchedule resultPrice = updated.get(0).getPrice().get(0).getValue();
+        List<? extends NonNegativeDatedValue> derivedDatedValues = resultPrice.getDerivedQuantity().getDatedValue();
+        assertEquals(2, derivedDatedValues.size());
+        assertEquals(0, new BigDecimal("1000.00").compareTo(derivedDatedValues.get(0).getValue()));
+        assertEquals(0, new BigDecimal("1500.00").compareTo(derivedDatedValues.get(1).getValue()));
     }
 
     /**
