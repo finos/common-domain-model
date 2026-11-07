@@ -19,10 +19,19 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                 PriceQuantity {
                     price: priceQuantity -> price
                             extract
-                                UpdatePriceAmountForEachMatchingQuantity(
+                                RescaleDerivedQuantity(
                                         item,
-                                        change, // -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
-                                        direction
+                                        UpdatePriceAmountForEachMatchingQuantity(
+                                                item,
+                                                change,
+                                                direction
+                                            ),
+                                        UpdateQuantityAmountForEachMatchingQuantity(
+                                                priceQuantity -> quantity,
+                                                change,
+                                                direction
+                                            ),
+                                        change
                                     ),
                     quantity: priceQuantity -> quantity
                             extract
@@ -36,6 +45,92 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                     effectiveDate: priceQuantity -> effectiveDate
                 }
             ]
+
+func RescaleDerivedQuantity: <"Keeps price.derivedQuantity consistent with its sibling quantity and updated price after a QuantityChange. Rescales derivedQuantity.value and derivedQuantity.datedValue when derivedQuantity is populated, updatedPrice.perUnitOf matches the sibling quantity's unit, and the change instruction did not explicitly supply an override for derivedQuantity (such as in Create_StockSplit, where total notional is preserved across the split ratio by construction).">
+    inputs:
+        originalPrice PriceSchedule (0..1)
+        updatedPrice PriceSchedule (0..1)
+            [metadata location]
+        siblingQuantity NonNegativeQuantitySchedule (0..1)
+        change PriceQuantity (0..*)
+    output:
+        rescaledPrice PriceSchedule (0..1)
+            [metadata location]
+
+    alias changeMatchingPrice:
+        change
+            filter c [
+                c -> price
+                    extract PriceUnitEquals(item, originalPrice)
+                    then only-element
+            ]
+            then first
+
+    alias explicitDerivedQuantityProvided:
+        changeMatchingPrice -> price only-element -> derivedQuantity exists
+
+    alias shouldRescale:
+        updatedPrice -> derivedQuantity exists
+            and siblingQuantity exists
+            and updatedPrice -> perUnitOf exists
+            and UnitEquals(updatedPrice -> perUnitOf, siblingQuantity -> unit)
+            and explicitDerivedQuantityProvided = False
+
+    alias effectiveQuantityValue:
+        if siblingQuantity -> multiplier -> value exists
+        then siblingQuantity -> value * siblingQuantity -> multiplier -> value
+        else siblingQuantity -> value
+
+    set rescaledPrice: updatedPrice
+    set rescaledPrice -> derivedQuantity -> value:
+        if shouldRescale and effectiveQuantityValue exists and updatedPrice -> value exists
+        then effectiveQuantityValue * updatedPrice -> value
+        else updatedPrice -> derivedQuantity -> value
+    set rescaledPrice -> derivedQuantity -> datedValue:
+        if shouldRescale
+        then updatedPrice -> derivedQuantity -> datedValue
+                extract
+                    RescaleDerivedDatedValue(
+                            item,
+                            updatedPrice,
+                            siblingQuantity
+                        )
+        else updatedPrice -> derivedQuantity -> datedValue
+
+func RescaleDerivedDatedValue: <"Rescales a single datedValue entry of price.derivedQuantity using the effective sibling quantity and price on that step date.">
+    inputs:
+        derivedDatedValue NonNegativeDatedValue (0..1)
+        updatedPrice PriceSchedule (0..1)
+        siblingQuantity NonNegativeQuantitySchedule (0..1)
+    output:
+        rescaledDatedValue NonNegativeDatedValue (0..1)
+
+    alias matchingQuantityDatedValue:
+        siblingQuantity -> datedValue
+            filter date = derivedDatedValue -> date
+            then last
+
+    alias matchingPriceDatedValue:
+        updatedPrice -> datedValue
+            filter date = derivedDatedValue -> date
+            then last
+
+    alias baseQuantityForDate:
+        matchingQuantityDatedValue -> value default siblingQuantity -> value
+
+    alias effectiveQuantityForDate:
+        if siblingQuantity -> multiplier -> value exists
+        then baseQuantityForDate * siblingQuantity -> multiplier -> value
+        else baseQuantityForDate
+
+    alias effectivePriceForDate:
+        matchingPriceDatedValue -> value default updatedPrice -> value
+
+    set rescaledDatedValue: derivedDatedValue
+    set rescaledDatedValue -> value:
+        if effectiveQuantityForDate exists and effectivePriceForDate exists
+        then effectiveQuantityForDate * effectivePriceForDate
+        else derivedDatedValue -> value
 
 // TODO uncomment usage to support matching on PriceQuantity observable
 func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match on Observable if present.">
@@ -107,6 +202,7 @@ func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the Pric
     set updatedPrice: price
     set updatedPrice -> value: changedAmount default price -> value
     set updatedPrice -> datedValue: updatedDatedValues default price -> datedValue
+    set updatedPrice -> derivedQuantity: changeMatching -> price only-element -> derivedQuantity default price -> derivedQuantity
 
 func UpdateQuantityAmountForEachMatchingQuantity: <"Updates any quantity from the NonNegativeQuantitySchedule list if the unit of amount matches.">
     inputs:
