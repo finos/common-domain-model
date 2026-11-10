@@ -94,6 +94,8 @@ documentation.
 The CDM [governance framework](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) regulates
 the development of the CDM in open source.
 
+To contribute to the CDM, please refer to the [contribution guidelines](https://github.com/finos/common-domain-model/blob/master/CONTRIBUTING.md).
+
 ## Scope
 
 CDM applies to financial products broadly, represented through a generic and extensible canonical framework. CDM spans activity across the lifecycle of financial products, without hard boundaries between pre-trade, execution, and post-trade.

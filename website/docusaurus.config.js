@@ -122,11 +122,6 @@ module.exports = {
               to: '/schemas/',
             },
             {
-              label: 'What Is The CDM?',
-              to: '/pdfs/Why-CDM.pdf',
-              target: '_blank'
-            },
-            {
               label: 'Frequently Asked Questions',
               to: '/pdfs/FAQ-CDM.pdf',
               target: '_blank'
