@@ -10,10 +10,9 @@ title: Overview of the FINOS CDM
 
 # What is the FINOS CDM?
 
-The FINOS Common Domain Model (CDM) is a standardised, machine-readable
-and machine-executable blueprint for how financial products are traded
-and managed across the transaction lifecycle. It is represented as a
-[domain model](https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353) and distributed in open source.
+The Common Domain Model (CDM) is a canonical, industry-maintained model for representing financial products and the events that occur across their lifecycle, expressed through standardised, machine-executable technology.
+
+For more on what the CDM is, what it is not, and answers to frequently asked questions, see the [CDM FAQ](/pdfs/FAQ-CDM.pdf).
 
 For an overview of the Common Domain Model, a comparative analysis with FpML, an exploration of the CDM's historical development and events, as well as insights into its further applications, including its role in the ecosystem and support for smart contract technology, we recommend reviewing the [CDM Overview deck](/pdfs/CDM-General-Overview.pdf). 
 
@@ -29,6 +28,14 @@ ISDA’s Digital Regulatory Reporting (DRR) solution leverages the open-source C
 
 
 If you’re interested in the Common Domain Model (CDM), please complete the [CDM Interest Form](https://www.finos.org/common-domain-model) to join our mailing list. By signing up, you’ll receive updates on CDM initiatives, meeting agendas, and other working group activities.
+
+## CDM Vision
+
+To enable consistent, interoperable representation of financial products and their lifecycle activity across the industry through a shared, executable foundation.
+
+## CDM Maintainer’s Mission
+
+To provide, maintain, and govern the CDM as a canonical industry standard, ensuring clarity, consistency, and evolution in line with market practice.
 
 ## CDM Training
 
@@ -89,7 +96,7 @@ the development of the CDM in open source.
 
 ## Scope
 
-The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
+CDM applies to financial products broadly, represented through a generic and extensible canonical framework. CDM spans activity across the lifecycle of financial products, without hard boundaries between pre-trade, execution, and post-trade.
 
 ## CDM Roadmap
 
