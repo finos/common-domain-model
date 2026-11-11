@@ -4,17 +4,18 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - 6.x.x
     paths:
-      - 'pom.xml'
+      - '**/pom.xml'
+      - '.github/license-scanning/**'
       - '.github/workflows/license-scanning.yml'
   pull_request:
     paths:
-      - 'pom.xml'
+      - '**/pom.xml'
+      - '.github/license-scanning/**'
       - '.github/workflows/license-scanning.yml'
 
 env:
-  ALLOW_LICENSES: "'The Apache Software License, Version 2.0' and licenses/license/name!='BSD' and licenses/license/name!='BSD-style license' and licenses/license/name!='Apache License, Version 2.0'"
   REPORT_PATH: "target/generated-resources/licenses.xml"
 
 concurrency:
@@ -24,38 +25,29 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        module-folder: ["./", "./examples", "./rosetta-source"]
     steps:
-    - uses: actions/checkout@v3
-    - name: Install XQ
-      run: pip install xq
+    - uses: actions/checkout@v7
     - name: Set up JDK 21 for x64
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         java-version: '21'
         distribution: 'temurin'
         architecture: x64
         cache: maven
-    # Build and scan in one reactor so modules resolve each other's freshly built jars
+    # Install first so the report resolves the modules' freshly built jars
     # instead of falling back to (expired) snapshots on Sonatype.
+    - name: Build
+      run: mvn -B clean install -DskipTests
     - name: License XML report
-      run: mvn -B clean package -DskipTests org.codehaus.mojo:license-maven-plugin:2.0.0:download-licenses
+      run: >
+        mvn -B org.codehaus.mojo:license-maven-plugin:2.7.1:aggregate-download-licenses
+        -DlicensesConfigFile=.github/license-scanning/license-overrides.xml
+        -Dlicense.excludedGroups=org.finos.cdm
     - name: Validate XML report
-      run: |
-        LICENSE_REPORT=`xq "//dependency[licenses/license/name!=${{ env.ALLOW_LICENSES }}]" ./${{ env.REPORT_PATH }}`
-        LINES_FOUND=`echo $LICENSE_REPORT | wc -l`
-        echo "License issues found ..."
-        if [ $LINES_FOUND -gt 1 ]; then echo $LICENSE_REPORT ; exit -1; fi
-      working-directory: ${{ matrix.module-folder }}
+      run: python3 .github/license-scanning/check_licenses.py ${{ env.REPORT_PATH }} .github/license-scanning/allowed-licenses.txt
     - name: Upload license reports
-      uses: actions/upload-artifact@v4
+      if: always()
+      uses: actions/upload-artifact@v7
       with:
-        name: license-reports-${{ strategy.job-index }}
-        path: '**/dependencies.html'
-    - name: Upload license XML reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: license-xml-report-${{ strategy.job-index }}
-        path: '**/${{ env.REPORT_PATH }}'
+        name: license-reports
+        path: target/generated-resources/
