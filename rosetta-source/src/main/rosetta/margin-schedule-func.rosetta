@@ -393,7 +393,7 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
     post-condition ValidCurrency: <"Ensure Currency is an ISO 3-Letter Currency Code ">
         notionalCurrency to-enum ISOCurrencyCodeEnum exists
 
-func AuxiliarEffectiveDate: <"Extracts the effective date of specific products such as interest rate swaps and swaptions.">
+func AuxiliaryEffectiveDate: <"Extracts the effective date of specific products such as interest rate swaps and swaptions.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
@@ -411,7 +411,7 @@ func AuxiliarEffectiveDate: <"Extracts the effective date of specific products s
             extract AdjustableDateResolution
             then min)
 
-func AuxiliarTerminationDate: <"Extracts the termination date of specific products such as interest rate swaps and swaptions.">
+func AuxiliaryTerminationDate: <"Extracts the termination date of specific products such as interest rate swaps and swaptions.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
@@ -522,15 +522,15 @@ func StandardizedScheduleDuration: <"Extracts the duration of a trade, according
             then timeToOptionExpiryInYears // IR Exotic swap with an exotic coupon against a floating leg not supported
                 // Credit Total return swap on a bond not supported
             )
-    alias auxiliarDurationInYears:
+    alias auxiliaryDurationInYears:
         DateDifferenceYears(
-                AuxiliarEffectiveDate(trade -> product -> economicTerms),
-                AuxiliarTerminationDate(trade -> product -> economicTerms)
+                AuxiliaryEffectiveDate(trade -> product -> economicTerms),
+                AuxiliaryTerminationDate(trade -> product -> economicTerms)
             )
     set durationInYears:
         if genericDurationInYears exists
         then genericDurationInYears
-        else auxiliarDurationInYears
+        else auxiliaryDurationInYears
 
     post-condition PositiveDuration: <"Ensure duration is greater than 0.">
         durationInYears > 0

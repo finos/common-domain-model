@@ -31,11 +31,17 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install XQ
       run: pip install xq
-    - uses: ./.github/actions/maven-build
+    - name: Set up JDK 21 for x64
+      uses: actions/setup-java@v4
       with:
-        run-tests: false
+        java-version: '21'
+        distribution: 'temurin'
+        architecture: x64
+        cache: maven
+    # Build and scan in one reactor so modules resolve each other's freshly built jars
+    # instead of falling back to (expired) snapshots on Sonatype.
     - name: License XML report
-      run: mvn org.codehaus.mojo:license-maven-plugin:2.0.0:download-licenses
+      run: mvn -B clean package -DskipTests org.codehaus.mojo:license-maven-plugin:2.0.0:download-licenses
     - name: Validate XML report
       run: |
         LICENSE_REPORT=`xq "//dependency[licenses/license/name!=${{ env.ALLOW_LICENSES }}]" ./${{ env.REPORT_PATH }}`
