@@ -76,6 +76,34 @@ steps:
       WIF_PROVIDER: ${{GCP_WIF_PROVIDER_CODEFRESH_AUDIENCE}}
       SERVICE_ACCOUNT: ${{GCP_CODEFRESH_SERVICE_ACCOUNT}}
 
+  # Prints the IP addresses Maven Central sees from this build, for a Sonatype
+  # support request about 429s. See https://central.sonatype.org/faq/find-your-egress-ip/
+  # Never fails the build.
+  PrintEgressIp:
+    stage: 'setup'
+    title: Print egress IP seen by Maven Central
+    fail_fast: false
+    image: maven:3.9.11-eclipse-temurin-21-alpine
+    working_directory: ./
+    shell: bash
+    commands:
+      - apk add --no-cache curl > /dev/null
+      - |
+        echo "== Direct from the Codefresh runner (repeated: egress may be a pool) =="
+        for i in 1 2 3; do
+          curl -sL https://repo1.maven.org/cdn-cgi/trace | grep -E '^(ip|uag|colo|ts)=' || echo "curl attempt $i failed"
+          echo "--"
+        done
+        echo "== Through the Maven mirror in settings.xml (GCP Artifact Registry) =="
+        # The version is only a cache key: a fresh one per build forces a new reading.
+        WHOAMI_VERSION="cf-${{CF_BUILD_ID}}"
+        mvn -q -B -s settings.xml -Dmaven.repo.local=/tmp/whoami-m2 \
+          dependency:copy -Dartifact=com.sonatype.central.whoami:trace:${WHOAMI_VERSION}:txt \
+          -DoutputDirectory=/tmp/whoami \
+          && cat /tmp/whoami/trace-${WHOAMI_VERSION}.txt \
+          || echo "whoami fetch through the mirror failed"
+        true
+
   Build:
     stage: 'build'
     title: Maven build
