@@ -556,6 +556,9 @@ func MapReturnLegToPriceQuantity:
         priceQuantity PriceQuantity (0..1)
 
     alias notionalAmount: fpmlReturnLeg -> notional -> notionalAmount
+    alias singleBasketConstituentAsset:
+        if fpmlReturnLeg -> underlyer -> basket -> basketConstituent count = 1
+        then fpmlReturnLeg -> underlyer -> basket -> basketConstituent only-element -> underlyingAsset
     alias financialUnit:
         if (MapUnderlyerToObservableWithLocation(fpmlReturnLeg -> underlyer)
                 as Security
@@ -567,6 +570,10 @@ func MapReturnLegToPriceQuantity:
         else if MapUnderlyerToObservableWithLocation(fpmlReturnLeg -> underlyer)
             as Index
             exists
+        then IndexUnit
+        else if singleBasketConstituentAsset as fpml.Equity exists
+        then Share
+        else if singleBasketConstituentAsset as fpml.Index exists
         then IndexUnit
     set priceQuantity:
         PriceQuantity {
@@ -585,7 +592,13 @@ func MapReturnLegToPriceQuantity:
                             "openUnits",
                             empty,
                             financialUnit
-                        ),
+                        )
+                else MapNotionalAmountToQuantityWithLocation(
+                        notionalAmount -> amount,
+                        empty,
+                        notionalAmount -> currency,
+                        fpmlReturnLeg
+                    ),
             observable: MapUnderlyerToObservableWithLocation(fpmlReturnLeg -> underlyer),
             ...
         }
