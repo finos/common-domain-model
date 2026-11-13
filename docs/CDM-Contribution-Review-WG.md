@@ -6,6 +6,8 @@ title: CDM Contribution Review Working Group
 
 The CDM Contribution Review Working Group (CRWG) plays a crucial role in the CDM ecosystem. We [review](maintenance-and-release.md), approve, and implement [contribution](dev-guidelines.md) proposals to the CDM, ensuring the integrity and quality of the project. Additionally, we serve as arbitrators for any disputes arising from contributions, and we uphold the [design principles](design-principles.md), [change control guidelines](change-control-guidelines.md) and the [documentation style guidelines](documentation-style-guide.md) that govern the CDM.
 
+[View CRWG Terms of Reference](https://github.com/finos/common-domain-model/blob/master/website/static/pdfs/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf)
+
 ### Responsibilities
 
 - Reviews, approves, and implements contribution proposals to the CDM.
@@ -16,7 +18,7 @@ The CDM Contribution Review Working Group (CRWG) plays a crucial role in the CDM
 
 ## Meetings
 
-**Join us on the First and Third Tuesday at 10 AM EST (3 PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+**Join us every two weeks on Tuesday at 10 AM EST (3 PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/94584131804?password=b7edff0a-9cc6-426f-b0d9-28eb4fb0de71&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
 
 
 ## Subscribe

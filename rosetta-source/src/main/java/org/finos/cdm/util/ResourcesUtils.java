@@ -14,6 +14,7 @@ import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.process.PostProcessStep;
 import org.finos.cdm.reference.CdmReferenceConfig;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,18 +28,25 @@ public class ResourcesUtils {
 
 	public static <T extends RosettaModelObject> T getObject(Class<T> clazz, String resourceName) throws IOException {
 		String json = getJson(resourceName);
-		return RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, clazz);
+		ObjectMapper newRosettaObjectMapper = new RuneJsonObjectMapper();
+		return newRosettaObjectMapper.readValue(json, clazz);
 	}
 
 	public static <T extends RosettaModelObject> List<T> getObjectList(Class<T> clazz, String resourceName) throws IOException {
 		String json = getJson(resourceName);
-		ObjectMapper rosettaObjectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+		ObjectMapper rosettaObjectMapper = new RuneJsonObjectMapper();
 		CollectionType collectionType = rosettaObjectMapper.getTypeFactory().constructCollectionType(ArrayList.class, clazz);
 		return rosettaObjectMapper.readValue(json, collectionType);
 	}
 	public static <T extends RosettaModelObject> T getObjectAndResolveReferences(Class<T> clazz, String resourceName) throws IOException {
 		T object = getObject(clazz, resourceName);
 		return resolveReferences(object);
+	}
+
+	public static <T extends RosettaModelObject> T getObjectReKeyAndResolveReferences(Class<T> clazz, String resourceName) throws IOException {
+		T object = getObject(clazz, resourceName);
+		RosettaModelObjectBuilder builder = reKey(object.toBuilder());
+		return (T) resolveReferences(builder);
 	}
 
 	public static String getJson(String resourceName) throws IOException {
@@ -51,7 +59,8 @@ public class ResourcesUtils {
 		URL url = Resources.getResource(funcInputFile);
 		JsonNode jsonNode = new ObjectMapper().readTree(url);
 		String json = jsonNode.get(funcInputName).toString();
-		T object = RosettaObjectMapper.getNewRosettaObjectMapper().readValue(json, funcInputType);
+		RuneJsonObjectMapper runeJsonObjectMapper = new RuneJsonObjectMapper();
+		T object = runeJsonObjectMapper.readValue(json, funcInputType);
 		if (object instanceof RosettaModelObject) {
 			return (T) resolveReferences((RosettaModelObject) object);
 		}

@@ -16,7 +16,6 @@ import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.doc.* as fpml
 import fpml.consolidated.generic.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapGenericProductCounterpartyList:
     inputs:
@@ -170,27 +169,13 @@ func MapGenericProductPriceQuantityList:
                                 empty,
                                 currency,
                                 empty
-                            ),
+                            )
+                    then only-element,
             observable: fpmlGenericProduct -> underlyer -> underlyingAsset
                     first
                     then extract MapAssetToObservableWithLocation,
             ...
         }
-
-func MapGenericProductAccountPartyReference:
-    inputs:
-        fpmlGenericProduct fpml.GenericProduct (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        MapBuyerSellerToAccountPartyReference(
-                fpmlAccount,
-                fpmlGenericProduct -> buyerAccountReference,
-                fpmlGenericProduct -> sellerAccountReference
-            )
 
 func MapGenericProductBaseQuantityListWithAddress:
     inputs:

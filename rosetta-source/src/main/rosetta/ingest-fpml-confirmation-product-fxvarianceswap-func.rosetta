@@ -136,22 +136,27 @@ func MapFxVarianceSwapPriceQuantityList:
 
     add priceQuantityList:
         PriceQuantity {
-            quantity: [
-                    MapNotionalAmountWithIdToQuantityWithLocation(
-                            fpmlFxVarianceSwap -> vegaNotional -> amount,
-                            empty,
-                            fpmlFxVarianceSwap -> vegaNotional -> currency,
-                            "vegaNotional",
-                            empty
-                        ),
-                    MapNotionalAmountWithIdToQuantityWithLocation(
-                            fpmlFxVarianceSwap -> notional -> amount,
-                            empty,
-                            fpmlFxVarianceSwap -> notional -> currency,
-                            "notional",
-                            empty
-                        )
-                ],
+            price:
+                PriceSchedule {
+                    priceType: empty,
+                    derivedQuantity: MapNotionalAmountWithIdToQuantityWithLocation(
+                                fpmlFxVarianceSwap -> vegaNotional -> amount,
+                                empty,
+                                fpmlFxVarianceSwap -> vegaNotional -> currency,
+                                "vegaNotional",
+                                empty,
+                                empty
+                            ),
+                    ...
+                },
+            quantity: MapNotionalAmountWithIdToQuantityWithLocation(
+                        fpmlFxVarianceSwap -> notional -> amount,
+                        empty,
+                        fpmlFxVarianceSwap -> notional -> currency,
+                        "notional",
+                        empty,
+                        empty
+                    ),
             observable: MapQuotedCurrencyPairToObservableWithLocation(
                         fpmlFxVarianceSwap -> quotedCurrencyPair,
                         fpmlFxVarianceSwap -> fixingInformationSource

@@ -1,0 +1,23 @@
+---
+title: CDM Derivatives Working Group 
+---
+
+## Overview
+
+Focused on swaps (IR, credit, equity, commodity, etc.), options, FX, post-trade events (increases, novations, exercises, etc.)
+
+## Meetings
+
+**Join us every two weeks on Wednesday at 11:30 AM EST (4:30PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/94159751957?password=8a54da8a-9f42-4448-a8a9-246e545279cb&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
+
+## Subscribe
+
+To subscribe to the [CDM Derivatives mailing list](https://lists.finos.org/g/cdm-derivatives-wg) and stay updated on meetings and agenda, please send an email to [cdm-derivatives-wg+subscribe@lists.finos.org](mailto:cdm-derivatives-wg+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
+
+---
+
+To view the work of the Derivatives Working Group, both current and past, please visit our [Derivatives WG GitHub project](https://github.com/orgs/finos/projects/112/views/1).
+
+To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+%22CDM+Contribution+Review+Working+Group%22) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Derivatives+Products+and+Business+Events+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
+
+Click [here](working-groups.md) to return back to the Working Groups home page.

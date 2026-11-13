@@ -94,7 +94,7 @@ public class CreateNovationEventTest extends AbstractExampleTest {
                         .setQuantityChange(QuantityChangeInstruction.builder()
                                 .setDirection(QuantityChangeDirectionEnum.REPLACE)
                                 .addChange(PriceQuantity.builder()
-                                        .addQuantityValue(NonNegativeQuantitySchedule.builder()
+                                        .setQuantityValue(NonNegativeQuantitySchedule.builder()
                                                 .setValue(BigDecimal.valueOf(0.0))
                                                 .setUnit(UnitType.builder()
                                                         .setCurrency(FieldWithMetaString.builder()

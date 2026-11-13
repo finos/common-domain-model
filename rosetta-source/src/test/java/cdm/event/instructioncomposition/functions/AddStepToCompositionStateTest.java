@@ -5,13 +5,14 @@ import cdm.event.instructioncomposition.CompositionStepInstruction;
 import cdm.event.instructioncomposition.CompositionStepInstructions;
 import cdm.event.instructioncomposition.InstructionCompositionTypeEnum;
 import cdm.event.instructioncomposition.reset.ResetInstructionState;
+import cdm.event.instructioncomposition.reset.functions.UpdateResetCompositionState;
 import com.google.inject.Binder;
-import javax.inject.Inject;
-
 import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import javax.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.*;
 

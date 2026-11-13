@@ -13,6 +13,7 @@ import com.regnosys.rosetta.common.testing.FunctionRunner;
 import com.regnosys.testing.TestingExpectationUtil;
 import com.rosetta.model.lib.process.PostProcessor;
 import org.finos.cdm.CdmRuntimeModule;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.params.provider.Arguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +36,10 @@ public class FunctionCreator {
 
     private static final ObjectMapper ROSETTA_OBJECT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
 
-    private static final List<String> EXECUTION_DESCRIPTOR_PATHS = List.of(
+    static final List<String> EXECUTION_DESCRIPTOR_PATHS = List.of(
             "functions/execution-descriptor.json",
             "functions/sec-lending-execution-descriptor.json",
             "functions/fpml-processes-execution-descriptor.json",
-            "functions/cme-cleared-confirm-1-17-execution-descriptor.json",
-            "functions/dtcc-11-0-execution-descriptor.json",
             "functions/repo-and-bond-execution-descriptor.json");
 
     private static Injector injector;
@@ -75,7 +74,7 @@ public class FunctionCreator {
         FunctionRunner functionRunner = new FunctionRunner(executionDescriptor,
                 injector::getInstance,
                 this.getClass().getClassLoader(),
-                ROSETTA_OBJECT_MAPPER);
+                new RuneJsonObjectMapper());
         FunctionRunner.FunctionRunnerResult<Object, Object> run = functionRunner.run();
 
         writeTestOutput(executionDescriptor, run);

@@ -13,6 +13,7 @@ import com.regnosys.rosetta.common.validation.ValidationReport;
 import com.rosetta.model.lib.validation.ValidationResult;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import org.finos.cdm.CdmRuntimeModule;
+import org.finos.rune.mapper.RuneJsonObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ final class FpMLCodingSchemeTests {
      */
     @BeforeAll
     public static void setUpOnce() {
-        mapper = RosettaObjectMapper.getNewRosettaObjectMapper(); // Create a new Rosetta-specific ObjectMapper
+        mapper = new RuneJsonObjectMapper(); // Create a new Rosetta-specific ObjectMapper
         injector = Guice.createInjector(new CdmRuntimeModule()); // Initialize Guice injector with CDM runtime module
     }
 

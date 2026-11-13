@@ -11,7 +11,6 @@ import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.fx.* as fpml
-import fpml.consolidated.shared.* as fpml
 
 func MapFxSwapCounterpartyList:
     inputs:
@@ -92,7 +91,7 @@ func MapFxSwapPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
-        MapFxCoreDetailsModelPriceQuantityList(
+        MapFxCoreDetailsModelPriceQuantity(
                 fpmlFxSwap -> nearLeg -> exchangeRate,
                 fpmlFxSwap -> nearLeg -> exchangedCurrency1,
                 fpmlFxSwap -> nearLeg -> exchangedCurrency2,
@@ -100,30 +99,9 @@ func MapFxSwapPriceQuantityList:
             )
 
     add priceQuantityList:
-        MapFxCoreDetailsModelPriceQuantityList(
+        MapFxCoreDetailsModelPriceQuantity(
                 fpmlFxSwap -> farLeg -> exchangeRate,
                 fpmlFxSwap -> farLeg -> exchangedCurrency1,
                 fpmlFxSwap -> farLeg -> exchangedCurrency2,
                 fpmlFxSwap -> farLeg
             )
-
-func MapFxSwapAccountPartyReference:
-    inputs:
-        fpmlFxSwap fpml.FxSwap (0..1)
-        fpmlAccount fpml.Account (0..1)
-    output:
-        partyReference Party (0..1)
-            [metadata reference]
-
-    set partyReference:
-        [fpmlFxSwap -> nearLeg -> exchangedCurrency1, fpmlFxSwap -> nearLeg -> exchangedCurrency2, fpmlFxSwap -> farLeg -> exchangedCurrency1, fpmlFxSwap -> farLeg -> exchangedCurrency2]
-            extract
-                MapPayerReceiverToAccountPartyReference(
-                        fpmlAccount,
-                        payerAccountReference,
-                        receiverAccountReference,
-                        payerPartyReference,
-                        receiverPartyReference
-                    )
-            then filter reference exists
-            then first

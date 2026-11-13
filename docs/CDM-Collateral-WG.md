@@ -4,6 +4,10 @@ title: CDM Collateral Working Group
 
 ## Common Domain Model Collateral Start-Up Guide
 
+The Collateral Working Group supports the harmonisation of collateral data, processes, and documentation across the industry, covering areas such as eligible collateral, margin workflows, exposure, and collateral validation.
+
+[View Collateral Working Group Terms of Reference](https://github.com/finos/common-domain-model/blob/master/website/static/pdfs/CDM.Collateral.WG.Book.of.Work.May.2023.pdf)
+
 ISDA has also launched the Get Started with the CDM for Collateral Guide! You can now access a wealth of resources and tutorials on CDM for collateral management on the [CDM-Collateral Initiatives page](https://www.isda.org/2023/02/16/isda-collateral-initiatives/).
 
 ## Overview
@@ -12,7 +16,7 @@ The Collateral Working Group plays a pivotal role in the CDM ecosystem by provid
 
 ## Meetings
 
-**Join us on the last Tuesday every month 10AM EST (3PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+**Join us on the last Wednesday of every month at 10AM EST (3PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/94271033159?password=0452bf20-88ad-423b-8b3b-a23c57524f09&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
 
 
 ## Subscribe
