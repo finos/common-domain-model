@@ -1,13 +1,18 @@
 namespace cdm.ingest.fpml.confirmation.product.fxdigitaloption
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.fx.* as fpml
 
 func MapFxDigitalOptionNonTransferableProduct:
@@ -76,6 +81,8 @@ func MapFxDigitalOptionPayout:
     output:
         payout Payout (0..1)
 
+    alias fpmlQuotedCurrencyPair: fpmlFxDigitalOption -> touch first -> quotedCurrencyPair
+
     set payout:
         Payout {
             OptionPayout:
@@ -93,7 +100,20 @@ func MapFxDigitalOptionPayout:
                                 fpmlFxDigitalOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
-                    underlier: empty,
+                    underlier: if fpmlQuotedCurrencyPair exists
+                            then Underlier {
+                                Observable:
+                                    Observable {
+                                        Asset: MapCurrencyToAssetCash(
+                                                    if fpmlQuotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+                                                    then fpmlQuotedCurrencyPair -> currency2
+                                                    else if fpmlQuotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+                                                    then fpmlQuotedCurrencyPair -> currency1
+                                                ),
+                                        ...
+                                    },
+                                ...
+                            },
                     exerciseTerms: MapExerciseTerms(
                                 GetFpmlFxDigitalExercise(fpmlFxDigitalOption),
                                 fpmlFxDigitalOption -> exerciseProcedure,
@@ -102,6 +122,66 @@ func MapFxDigitalOptionPayout:
                                 fpmlFxDigitalOption -> sellerPartyReference,
                                 cdmCounterpartyList
                             ),
+                    feature: MapFxTouchListToOptionFeature(fpmlFxDigitalOption -> touch),
+                    ...
+                },
+            ...
+        }
+
+func MapFxTouchListToOptionFeature:
+    inputs:
+        fpmlTouches fpml.FxTouch (0..*)
+    output:
+        feature OptionFeature (0..1)
+
+    set feature:
+        OptionFeature {
+            knock:
+                Knock {
+                    knockIn: fpmlTouches
+                            then filter touchCondition = fpml.TouchConditionEnum -> Touch
+                            then extract MapFxTouchToTriggerEvent,
+                    knockOut: fpmlTouches
+                            then filter touchCondition = fpml.TouchConditionEnum -> Notouch
+                            then extract MapFxTouchToTriggerEvent
+                },
+            ...
+        }
+
+func MapFxTouchToTriggerEvent:
+    inputs:
+        fpmlTouch fpml.FxTouch (0..1)
+    output:
+        triggerEvent TriggerEvent (0..1)
+
+    alias fpmlQuotedCurrencyPair: fpmlTouch -> quotedCurrencyPair
+
+    set triggerEvent:
+        TriggerEvent {
+            trigger:
+                Trigger {
+                    level:
+                        PriceSchedule {
+                            value: fpmlTouch -> triggerRate,
+                            unit:
+                                UnitType {
+                                    currency: if fpmlQuotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+                                            then fpmlQuotedCurrencyPair -> currency1 -> value
+                                        else if fpmlQuotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+                                        then fpmlQuotedCurrencyPair -> currency2 -> value,
+                                    ...
+                                },
+                            perUnitOf:
+                                UnitType {
+                                    currency: if fpmlQuotedCurrencyPair -> quoteBasis = Currency1PerCurrency2
+                                            then fpmlQuotedCurrencyPair -> currency2 -> value
+                                        else if fpmlQuotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+                                        then fpmlQuotedCurrencyPair -> currency1 -> value,
+                                    ...
+                                },
+                            priceType: ExchangeRate,
+                            ...
+                        },
                     ...
                 },
             ...

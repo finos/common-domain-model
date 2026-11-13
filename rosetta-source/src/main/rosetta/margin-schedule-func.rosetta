@@ -393,13 +393,12 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
     post-condition ValidCurrency: <"Ensure Currency is an ISO 3-Letter Currency Code ">
         notionalCurrency to-enum ISOCurrencyCodeEnum exists
 
-func AuxiliarEffectiveDate: <"Extracts the effective date of specific products such as interest rate swaps and swaptions.">
+func AuxiliaryEffectiveDate: <"Extracts the effective date of specific products such as interest rate swaps and swaptions.">
     inputs:
-        trade Trade (1..1)
+        economicTerms EconomicTerms (1..1)
     output:
         effectiveDate date (0..1)
-    alias product: trade -> product
-    alias economicTerms: product -> economicTerms
+
     set effectiveDate:
         // interestRatePayout
         if economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
@@ -412,13 +411,12 @@ func AuxiliarEffectiveDate: <"Extracts the effective date of specific products s
             extract AdjustableDateResolution
             then min)
 
-func AuxiliarTerminationDate: <"Extracts the termination date of specific products such as interest rate swaps and swaptions.">
+func AuxiliaryTerminationDate: <"Extracts the termination date of specific products such as interest rate swaps and swaptions.">
     inputs:
-        trade Trade (1..1)
+        economicTerms EconomicTerms (1..1)
     output:
         terminationDate date (0..1)
-    alias product: trade -> product
-    alias economicTerms: product -> economicTerms
+
     set terminationDate:
         // interestRatePayout
         if economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
@@ -524,12 +522,15 @@ func StandardizedScheduleDuration: <"Extracts the duration of a trade, according
             then timeToOptionExpiryInYears // IR Exotic swap with an exotic coupon against a floating leg not supported
                 // Credit Total return swap on a bond not supported
             )
-    alias auxiliarDurationInYears:
-        DateDifferenceYears(AuxiliarEffectiveDate(trade), AuxiliarTerminationDate(trade))
+    alias auxiliaryDurationInYears:
+        DateDifferenceYears(
+                AuxiliaryEffectiveDate(trade -> product -> economicTerms),
+                AuxiliaryTerminationDate(trade -> product -> economicTerms)
+            )
     set durationInYears:
         if genericDurationInYears exists
         then genericDurationInYears
-        else auxiliarDurationInYears
+        else auxiliaryDurationInYears
 
     post-condition PositiveDuration: <"Ensure duration is greater than 0.">
         durationInYears > 0

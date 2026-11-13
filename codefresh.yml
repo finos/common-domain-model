@@ -47,7 +47,7 @@ steps:
           releaseNameNotDefined: "${{IS_RELEASE}} == true"
     commands:
       - cf_export RELEASE_NAME=${{CF_RELEASE_TAG}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,release,excel,json-schema,python"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,release,excel,json-schema"
 
   SnapshotProperties:
     stage: 'setup'
@@ -59,7 +59,22 @@ steps:
           releaseNameNotDefined: "${{IS_RELEASE}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,release,excel,json-schema"
+
+  # Exports GCP_ACCESS_TOKEN, which the Artifact Registry servers in settings.xml
+  # use as their Basic auth password, by workload identity federation rather than
+  # a service account key. Step definition lives in the REGnosys/scripts repo, at
+  # codefresh/step-types/gcp-oidc-auth.yml.
+  #
+  # Last of the setup steps on purpose: the token lasts an hour from here, and
+  # everything that spends it is below.
+  Authenticate:
+    stage: 'setup'
+    title: Federate into GCP
+    type: regnosysops/gcp-oidc-auth:1.1.0
+    arguments:
+      WIF_PROVIDER: ${{GCP_WIF_PROVIDER_CODEFRESH_AUDIENCE}}
+      SERVICE_ACCOUNT: ${{GCP_CODEFRESH_SERVICE_ACCOUNT}}
 
   Build:
     stage: 'build'
@@ -100,13 +115,14 @@ steps:
         stage: 'build'
         title: Scala build
         fail_fast: false
-        image: mozilla/sbt:8u292_1.5.7
+        image: 'sbtscala/scala-sbt:eclipse-temurin-17.0.19_10_1.12.13_3.8.4'
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         environment:
-          - ARTIFACT_REGISTRY_SA_KEY=${{ARTIFACT_REGISTRY_SA_KEY}}
+          - GCP_ACCESS_TOKEN=${{GCP_ACCESS_TOKEN}}
         commands:
-          - sbt -d compile package doc packageDoc packageSrc
+          - source ./setup-sbt-credentials.sh
+          - sbt -Dsbt.override.build.repos=true -Dsbt.repository.config=./repositories -Dsbt.boot.credentials=$HOME/.sbt/.credentials compile package doc packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
@@ -163,10 +179,10 @@ steps:
     shell: bash
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd target/classes/cdm/scala/target/scala-2.12
-      - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
-      - mv cdm-scala_2.12-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
-      - mv cdm-scala_2.12-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
+      - cd target/classes/cdm/scala/target/scala-3.8.4
+      - mv cdm-scala_3-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
+      - mv cdm-scala_3-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
+      - mv cdm-scala_3-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-scala ${{RELEASE_NAME}} jar
       - ${{MVN_DEPLOY_FILE_COMMAND}}
 

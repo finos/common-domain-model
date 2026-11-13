@@ -1,6 +1,7 @@
 namespace cdm.ingest.fpml.confirmation.product.fxsingleleg: <"FpML FxSingleLeg product mapping functions.">
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
@@ -84,6 +85,19 @@ func MapFxCoreDetailsModelToSettlementPayout:
     output:
         payout Payout (0..1)
 
+    alias resolvedQuantityCurrency:
+        fpmlExchangeRate -> quotedCurrencyPair
+            extract
+                if quoteBasis = Currency2PerCurrency1
+                then currency2
+                else currency1
+
+    alias derivedQuantity:
+        if resolvedQuantityCurrency = fpmlExchangedCurrency1 -> paymentAmount -> currency
+        then fpmlExchangedCurrency1 -> paymentAmount
+        else if resolvedQuantityCurrency = fpmlExchangedCurrency2 -> paymentAmount -> currency
+        then fpmlExchangedCurrency2 -> paymentAmount
+
     alias exchangedCurrency:
         GetFpmlExchangedCurrency(
                 fpmlExchangeRate,
@@ -102,6 +116,16 @@ func MapFxCoreDetailsModelToSettlementPayout:
                             ),
                     priceQuantity:
                         ResolvablePriceQuantity {
+                            resolvedQuantity:
+                                Quantity {
+                                    value: derivedQuantity -> amount,
+                                    unit:
+                                        UnitType {
+                                            currency: derivedQuantity -> currency -> value,
+                                            ...
+                                        },
+                                    ...
+                                },
                             quantitySchedule: MapFxCoreDetailsModelQuantityWithAddress(
                                         fpmlExchangeRate,
                                         fpmlLeg

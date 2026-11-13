@@ -53,3 +53,9 @@ This section includes any Exclusion Notices made against a Draft Deliverable or 
 ## Code of Conduct
 
 Contact for Code of Conduct issues or inquires: [legal@linuxfoundation.org](mailto:legal@linuxfoundation.org)
+
+## Third-Party Notices
+
+CDM's Java distribution depends on QuickFIX/J (`org.quickfixj:quickfixj-base`), licensed under [The QuickFIX Software License, Version 1.0](https://github.com/quickfix-j/quickfixj/blob/master/LICENSE), which requires the following acknowledgment:
+
+> This product includes software developed by quickfixengine.org (http://www.quickfixengine.org/).

@@ -1,0 +1,18 @@
+name: Verify read-only namespaces
+
+# Fails when a pull request changes a read-only Rune namespace by hand.
+# For more info, see https://rune-docs.netlify.app/developers/read-only-namespaces
+
+on:
+  pull_request:
+    paths:
+      - "**/*.rosetta"
+      - "rosetta-source/src/main/resources/rune-config.yml"
+      - ".github/workflows/verify-readonly-namespaces.yml"
+
+jobs:
+  readonly-namespaces:
+    uses: finos/rune-dsl/.github/workflows/verify-readonly-namespaces.yml@main
+    with:
+      config-path: rosetta-source/src/main/resources/rune-config.yml
+      root: rosetta-source/src/main/rosetta
