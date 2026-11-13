@@ -166,6 +166,12 @@ type QuantityChangeInstruction: <"Instructions required to create a Quantity Cha
     change PriceQuantity (1..*) <"Quantity by which the trade is being increased, decreased or replaced, and the price at which such quantity change is agreed. The quantity change should always be specified as a positive number, with the direction (increase/decrease/replacement) being specified by the direction enumeration. A fee can also be associated to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
     direction QuantityChangeDirectionEnum (1..1) <"Direction of the quantity change specified as either an increase, decrease or replacement.">
     lotIdentifier Identifier (0..*) <"Identifier for the new lot (in case of increase) or for the existing lot to be changed(in case of decrease or replacement). This optional attribute is mandatory in case of a decrease or replacement if the initial trade state contains multiple trade lots.">
+    priceLocations string (0..*) <"Location reference strings of PriceSchedule objects to be updated.">
+    quantityLocations string (0..*) <"Location reference strings of NonNegativeQuantitySchedule objects  to be updated.">
+
+    condition SingleChangeWhenSpecificPriceQuantity: <"When specific prices/quantities are targeted, only one change is permitted.">
+        if priceLocations exists or quantityLocations exists
+        then change count = 1
 
 type IndexTransitionInstruction: <"Defines the information needed to create a Index Transition Business Event.">
     priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
