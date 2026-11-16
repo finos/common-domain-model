@@ -127,7 +127,7 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Reference Data
 -   **Executable code distribution**, automatically generated from the
     model definitions expressed in the Rune DSL using [available code
-    generators](https://docs.rosetta-technology.io/rosetta/rune-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
+    generators](https://rune.finos.org/docs/developers/code-generator/#3-available-code-generators). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be
     automatically distributed in that language going forward.
@@ -167,7 +167,7 @@ share code generators into any other languages.
 ---
 **Note:**
 All the language components, their syntax and purpose are detailed in
-the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/). The documentation also describes the
+the [Rune DSL Documentation](https://rune.finos.org/docs/modelling-components/). The documentation also describes the
 mechanism to write and use code generators.
 
 ---

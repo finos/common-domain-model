@@ -89,7 +89,7 @@ RuneJsonObjectMapper runeMapper = new RuneJsonObjectMapper();
 String runeJson = runeMapper.writeValueAsString(tradeState);
 ```
 
-A complete working example demonstrating bidirectional conversion between formats can be found in the [SerialisationTest.java](../examples/src/test/java/org/finos/cdm/example/SerialisationTest.java) test case (see the `shouldConvertSampleBetweenJsonFormats` test method).
+A complete working example demonstrating bidirectional conversion between formats can be found in the [SerialisationTest.java](https://github.com/finos/common-domain-model/blob/master/examples/src/test/java/org/finos/cdm/example/SerialisationTest.java) test case (see the `shouldConvertSampleBetweenJsonFormats` test method).
 
 ## Full specification
 

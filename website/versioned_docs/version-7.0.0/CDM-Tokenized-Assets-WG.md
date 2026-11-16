@@ -1,0 +1,23 @@
+---
+title: CDM Tokenized Assets Working Group
+---
+
+## Overview
+
+The CDM Tokenized Assets WG aims to extend the Common Domain Model (CDM) to support tokenized assets and processes within financial products.
+
+This initiative will begin by introducing new attributes to the current Asset and Settlement structures, allowing for specification of token standards, blockchain protocol and other token details while maintaining the integrity of the existing CDM structure. Further work - including exploration of atomic settlement and intra-day count fractions - will also be considered.  This work will be crucial in facilitating tokenised workflows for derivatives, securities financing transactions (SFTs), and beyond.
+
+[View Tokenized Assets Working Group Terms of Reference](https://github.com/finos/common-domain-model/issues/3333)
+
+## Meetings
+
+**Join us on the third Wednesday of every month at 10AM EST (3PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/92172584188?password=cf35c343-0e3e-49e3-9dae-117c6f6accb8&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
+
+## Subscribe
+
+To subscribe to the [Tokenized Assets Working Group mailing list](https://lists.finos.org/g/cdm-tokenized-assets) and stay updated on meetings and agenda, please send an email to [cdm-tokenized-assets+subscribe@lists.finos.org](mailto:cdm-tokenized-assets+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
+
+---
+
+Click [here](working-groups.md) to return back to the Working Groups home page.

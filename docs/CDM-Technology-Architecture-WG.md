@@ -16,7 +16,7 @@ The CDM Technology Architecture [Working Group](cdm-org-structure.md) focuses on
 
 ## Meetings
 
-**Join us every 2nd Thursday of Every Month, 9AM EST (2PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+**Join us every 2nd Thursday of Every Month, 9AM EST (2PM GMT).** [Register for this meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/95550011535?password=26d713be-93a8-45ee-b497-9e88f0dc10d0&invite=true) to add it to your own calendar, or find it in the [FINOS Community Calendar](https://www.finos.org/calendar). If you have any trouble registering, email help@finos.org. 
 
 
 ## Subscribe

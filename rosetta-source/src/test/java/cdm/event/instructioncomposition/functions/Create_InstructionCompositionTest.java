@@ -1,8 +1,11 @@
 package cdm.event.instructioncomposition.functions;
 
+import cdm.event.common.Reset;
+import cdm.event.common.ResetInstruction;
 import cdm.event.common.TradeIdentifier;
 import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
 import cdm.event.instructioncomposition.*;
+import com.rosetta.model.lib.records.Date;
 
 import javax.inject.Inject;
 
@@ -256,6 +259,52 @@ class Create_InstructionCompositionTest extends AbstractFunctionTest {
         }
     }
 
+    @Nested
+    @DisplayName("Output scenarios - verifying the output produced from the step instruction")
+    class OutputScenarios {
+
+        @Test
+        @DisplayName("Populates the reset instruction on the output when supplied on the step instruction")
+        void shouldPopulateResetInstructionOnOutputWhenSuppliedOnStepInstruction() {
+            ResetInstruction resetInstruction = buildResetInstruction();
+            CompositionStepInstruction stepInstruction = CompositionStepInstruction.builder()
+                    .setInstructionCompositionType(InstructionCompositionTypeEnum.RESET_INSTRUCTION)
+                    .setCompositionStepInstructions(CompositionStepInstructions.builder()
+                            .setResetInstruction(resetInstruction))
+                    .build();
+
+            InstructionComposition result = createInstructionComposition.evaluate(
+                    null,
+                    "IC-001",
+                    null,
+                    InstructionCompositionTypeEnum.RESET_INSTRUCTION,
+                    "step-1",
+                    stepInstruction
+            );
+
+            assertNotNull(result.getInstructionCompositionOutput(),
+                    "instructionCompositionOutput must be set on the new InstructionComposition");
+            assertEquals(resetInstruction, result.getInstructionCompositionOutput().getResetInstruction(),
+                    "resetInstruction on the output must be taken from the current step instruction");
+        }
+
+        @Test
+        @DisplayName("Leaves the output absent when the step instruction has no reset instruction")
+        void shouldLeaveOutputAbsentWhenNoResetInstructionOnStepInstruction() {
+            InstructionComposition result = createInstructionComposition.evaluate(
+                    null,
+                    "IC-001",
+                    null,
+                    InstructionCompositionTypeEnum.RESET_INSTRUCTION,
+                    "step-1",
+                    buildResetStepInstruction()
+            );
+
+            assertNull(result.getInstructionCompositionOutput(),
+                    "instructionCompositionOutput must be pruned to null when no reset instruction is supplied on the step");
+        }
+    }
+
     //-------- Helper methods -----------
     private static CompositionStepInstruction buildResetStepInstruction() {
         return CompositionStepInstruction.builder()
@@ -267,6 +316,13 @@ class Create_InstructionCompositionTest extends AbstractFunctionTest {
     private static TradeIdentifier buildTradeIdentifier() {
         return TradeIdentifier.builder()
                 .setIdentifierType(TradeIdentifierTypeEnum.UNIQUE_TRANSACTION_IDENTIFIER)
+                .build();
+    }
+
+    private static ResetInstruction buildResetInstruction() {
+        return ResetInstruction.builder()
+                .addReset(Reset.builder()
+                        .setResetDate(Date.of(2024, 1, 1)))
                 .build();
     }
 }

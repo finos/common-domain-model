@@ -460,7 +460,7 @@ prior to any release.
     languages, law, science, lists, and tables. An earlier version
     coined the phrase Oxford Comma in July 1905.
 2.  [Eats, Shoots & Leaves: The Zero Tolerance Approach to
-    Punctuation](https://www.lynnetruss.com/books/eats-shoots-leaves/):
+    Punctuation](https://www.penguinrandomhouse.com/books/294386/eats-shoots-and-leaves-by-lynne-truss/):
     A light-hearted book with a serious purpose regarding common
     problems and correctness for using punctuation in the English
     language.

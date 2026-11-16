@@ -20,8 +20,8 @@ applicable, data samples to help demonstrate the structure.
 The standard for JSON serialization of Rune defined CDM objects is
 documented here:
 
-- [serialization](/docs/next/serialization)
+- [serialization](/docs/serialization)
 
 The CDM is expressed in a language called the Rune DSL. All the
 language components used by the CDM including types, functions and
-annotations are described in the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/).
+annotations are described in the [Rune DSL Documentation](https://rune.finos.org/docs/modelling-components/).

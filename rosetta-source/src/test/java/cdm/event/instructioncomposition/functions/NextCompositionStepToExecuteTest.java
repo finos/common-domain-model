@@ -1,14 +1,11 @@
 package cdm.event.instructioncomposition.functions;
 
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
-import cdm.event.instructioncomposition.CompositionState;
-import cdm.event.instructioncomposition.InstructionComposition;
-import cdm.event.instructioncomposition.InstructionCompositionOutput;
-import cdm.event.instructioncomposition.InstructionCompositionSteps;
-import cdm.event.instructioncomposition.InstructionCompositionTypeEnum;
+import cdm.event.instructioncomposition.*;
 import cdm.event.instructioncomposition.reset.ResetInstructionCompositionStepsEnum;
 import cdm.event.instructioncomposition.reset.ResetInstructionState;
 import cdm.event.instructioncomposition.reset.ResetInstructionSteps;
+import cdm.event.instructioncomposition.reset.functions.ResetInstructionNextStep;
 import com.google.inject.Binder;
 import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +31,7 @@ class NextCompositionStepToExecuteTest extends AbstractFunctionTest {
         mockResetInstructionSteps = ResetInstructionSteps.builder()
                 .setResetInstructionCompositionSteps(ResetInstructionCompositionStepsEnum.values()[0])
                 .build();
-        binder.bind(ResetInstructionNextStep.class).toInstance(new ResetInstructionNextStep() {
+        binder.bind(ResetInstructionNextStep.class).toInstance(new ResetInstructionNextStep.ResetInstructionNextStepDefault() {
             @Override
             protected ResetInstructionSteps.ResetInstructionStepsBuilder doEvaluate(
                     ResetInstructionState resetInstructionState,

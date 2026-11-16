@@ -41,7 +41,7 @@ widely adopted and freely available programming languages and is
 systematically distributed as part of the CDM release.
 
 The code generation process is based on the Rune DSL and is further
-described in the [Code Generation Section](https://docs.rosetta-technology.io/rosetta/rune-dsl/rosetta-code-generators/), including an up-to-date
+described in the [Code Generation Section](https://rune.finos.org/docs/developers/code-generator/), including an up-to-date
 list of available languages. Support for further languages can be
 added as required by market participants.
 
@@ -583,9 +583,9 @@ func EquityCashSettlementAmount:
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
-    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> payerPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> partyReferencePayerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
-    set equityCashSettlementAmount -> ScheduledTransfer -> payerReceiver -> receiverPartyReference:
+    set equityCashSettlementAmount -> ScheduledTransfer -> partyReferencePayerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
     set equityCashSettlementAmount -> ScheduledTransfer -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
