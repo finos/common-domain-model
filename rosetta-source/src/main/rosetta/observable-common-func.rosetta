@@ -31,7 +31,9 @@ func PriceQuantityTriangulation: <"Checks the relationship between price, multip
 
     set success:
         price
-            filter priceType = AssetPrice or priceType = ExchangeRate
+            filter
+                priceType = AssetPrice and quantity -> unit -> currency is absent
+                    or priceType = ExchangeRate
             then extract
                 if value exists and noOfUnits exists and derivedQuantity -> value exists
                 then value * noOfUnits = derivedQuantity -> value
