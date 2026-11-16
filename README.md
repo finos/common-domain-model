@@ -59,6 +59,9 @@ Ways to interact with the CDM community:
 
 ## Contributing
 
+> &#128161; Tip<br>
+> **New to the CDM?** The [new contributor quickstart](CONTRIBUTING.md#new-contributor-quickstart) shows how to get covered by a contributor license agreement, choose a first contribution, and open your first pull request.
+
 > &#10071; Important<br>
 > If you wish to add a new feature, make a change to the model, or fix a defect, you should start by raising an Issue in GitHub.  To implement changes in the CDM repository resolving an issue, you should raise a Pull Request.  
 
