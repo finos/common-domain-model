@@ -695,18 +695,25 @@ func MapCommodityNotionalQuantityToQuantityListWithLocation:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
             [metadata location]
 
+    alias quantityUnit:
+        fpmlNotionalQuantity -> quantityUnit default fpmlNotionalQuantitySchedule -> notionalStep first -> quantityUnit
+
     set nonNegativeQuantitySchedule:
-        MapCommodityNotionalQuantityToQuantityWithLocation(
-                fpmlNotionalQuantity -> quantity,
-                empty,
-                fpmlNotionalQuantity -> quantityUnit,
-                fpmlNotionalQuantity -> quantityFrequency,
-                fpmlLeg,
-                MapCommodityTotalNotionalQuantityToQuantityWithLocation(
-                        totalNotionalQuantity,
-                        fpmlNotionalQuantity -> quantityUnit default fpmlNotionalQuantitySchedule -> notionalStep first -> quantityUnit,
-                        fpmlLeg
-                    ) -> value
+        if fpmlNotionalQuantity -> quantity exists
+        then CreateQuantityWithLocation(
+                    MapQuantityUnitAmountToQuantity(
+                            fpmlNotionalQuantity -> quantity,
+                            empty,
+                            quantityUnit,
+                            fpmlNotionalQuantity -> quantityFrequency,
+                            totalNotionalQuantity
+                        ),
+                    CreateQuantityKey("totalNotionalQuantity", fpmlLeg)
+                )
+        else MapCommodityTotalNotionalQuantityToQuantityWithLocation(
+                totalNotionalQuantity,
+                quantityUnit,
+                fpmlLeg
             )
 
 func MapCommodityNotionalQuantityToQuantityWithAddress:
