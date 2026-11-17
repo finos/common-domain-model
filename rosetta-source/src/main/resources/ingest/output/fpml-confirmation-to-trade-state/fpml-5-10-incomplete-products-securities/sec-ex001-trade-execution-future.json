@@ -2,8 +2,101 @@
   "@model" : "cdm",
   "@type" : "cdm.event.common.TradeState",
   "@version" : "0.0.0.master-SNAPSHOT",
-  "@key" : "98acbf65",
+  "@key" : "b7f667da",
   "trade" : {
+    "product" : {
+      "economicTerms" : {
+        "payout" : [ {
+          "@type" : "cdm.product.template.SettlementPayout",
+          "payerReceiver" : {
+            "payer" : "Party2",
+            "receiver" : "Party1"
+          },
+          "priceQuantity" : {
+            "quantitySchedule" : {
+              "@ref:scoped" : "quantity-1"
+            }
+          },
+          "underlier" : {
+            "@type" : "cdm.observable.asset.Observable",
+            "@ref:scoped" : "observable-1"
+          }
+        } ]
+      }
+    },
+    "tradeLot" : [ {
+      "priceQuantity" : [ {
+        "price" : [ {
+          "value" : 9575,
+          "unit" : {
+            "currency" : {
+              "@data" : "USD"
+            }
+          },
+          "perUnitOf" : {
+            "financialUnit" : "Contract"
+          },
+          "priceType" : "AssetPrice"
+        } ],
+        "quantity" : {
+          "@key:scoped" : "quantity-1",
+          "value" : 1000,
+          "unit" : {
+            "financialUnit" : "Contract"
+          }
+        },
+        "observable" : {
+          "@key:scoped" : "observable-1",
+          "@data" : {
+            "@type" : "cdm.base.staticdata.asset.common.ListedDerivative",
+            "identifier" : [ {
+              "identifier" : {
+                "@scheme" : "CUSIP",
+                "@data" : "ExampleCUSIP1"
+              },
+              "identifierType" : "CUSIP"
+            } ],
+            "isExchangeListed" : true,
+            "party" : [ {
+              "partyId" : [ {
+                "identifier" : {
+                  "@data" : "XCME"
+                }
+              } ],
+              "name" : {
+                "@data" : "XCME"
+              }
+            } ],
+            "partyRole" : {
+              "partyReference" : {
+                "partyId" : [ {
+                  "identifier" : {
+                    "@data" : "XCME"
+                  }
+                } ],
+                "name" : {
+                  "@data" : "XCME"
+                }
+              },
+              "role" : "Exchange"
+            },
+            "assetType" : "ListedDerivative",
+            "deliveryTerm" : "2013-03"
+          }
+        }
+      } ]
+    } ],
+    "counterparty" : [ {
+      "role" : "Party1",
+      "partyReference" : {
+        "@ref:external" : "party1"
+      }
+    }, {
+      "role" : "Party2",
+      "partyReference" : {
+        "@ref:external" : "exchange"
+      }
+    } ],
     "tradeIdentifier" : [ {
       "issuerReference" : {
         "@ref:external" : "party1"
@@ -35,6 +128,17 @@
           "@data" : "Exchange 123"
         }
       } ]
+    } ],
+    "partyRole" : [ {
+      "partyReference" : {
+        "@ref:external" : "party1"
+      },
+      "role" : "Buyer"
+    }, {
+      "partyReference" : {
+        "@ref:external" : "exchange"
+      },
+      "role" : "Seller"
     } ]
   }
 }
