@@ -42,7 +42,7 @@ Every Reset step follows a standard pattern:
 2. Create the Instruction Composition object for the step-instruction sending the output of the step 1 above to the function `Create_InstructionComposition`.
 3. The `CompositionState` of the `InstructionComposition` created gets updated with the new instruction.
 
-Only the step builders are process specific. The eight Create_<Step>Instruction functions take the step's inputs and do the Reset specific work, each returning a typed instruction result. Everything else in the pattern (`CompositionStepInstruction`, `Create_InstructionComposition` and `CompositionState`) is generic. Any multi-step process can reuse it unchanged.
+Only the step builders are process specific. The eight `Create_<Step>Instruction` functions take the step's inputs and do the Reset specific work, each returning a typed instruction result. Everything else in the pattern (`CompositionStepInstruction`, `Create_InstructionComposition` and `CompositionState`) is generic. Any multi-step process can reuse it unchanged.
 
 The eight step builders that perform the process-specific work for this Reset Instruction Composition are given below with the typed instruction results they return:
 | Step | Instruction Builder | Typed Result (`CompositionStepInstruction`) | Result Retained in `CompositionState` |
@@ -57,14 +57,14 @@ The eight step builders that perform the process-specific work for this Reset In
 | **8** | `Create_ResetInstruction` | `ResetInstruction` | Generates the canonical `Reset` instruction. |
 
 ### Step Builder Independence
-The `Create_[...]Instruction` functions execute domain specific logic without mutating state objects directly. They return a typed `CompositionStepInstruction` capturing the result of one operation to be applied in each step.
+The `Create_<Step>Instruction` functions execute domain specific logic without mutating state objects directly. They return a typed `CompositionStepInstruction` capturing the result of one operation to be applied in each step.
 
 ### Generic Orchestration
-After every step builder call, append the resulting typed instruction using `Create_CompositionStepFromInstruction`.
+After every step builder call, append the resulting typed instruction using `Create_InstructionComposition`.
 
 The orchestration function:
 - Receives prior `CompositionState` and `CompositionStep` collections (0 / empty for Step 1),
-- Receives stable composition identifiers (compositionIdentifier, tradeId, compositionType),
+- Receives stable composition identifiers (`compositionIdentifier`, `tradeId`, `compositionType`),
 - Appends a new `CompositionStep` containing the step instruction,
 - Updates cumulative `CompositionState` with the step result, and
 - Populates `InstructionCompositionOutput` upon reaching the terminal `Reset` step.
@@ -111,7 +111,7 @@ The orchestration function:
 - **Details**:
   - **Single observation**: Observed rate becomes the reset value directly (no rounding/calculation applied).
   - **Compounded index**: Requires exactly 2 observations; applies Compounded Index formula.
-  - **Multiple observations**: Requires  observations; applies Compounding Formula using calendar weights.
+  - **Multiple observations**: Requires multiple observations; applies Compounding Formula using calendar weights.
   - **Rounding**: Default fallback for calculated rates is 7 decimal places (0.00001% or 0.0000001). Explicit contract rounding takes precedence.
 
 ### Step 8 — Record the Reset Instruction Output
