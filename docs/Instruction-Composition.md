@@ -55,8 +55,8 @@ The model is a composed process represented by an `InstructionComposition` conta
 
 Each step follows a strict lifecycle:
 1. Obtain inputs from the originating workflow or context, prior `CompositionState`, or an external data boundary.
-2. Call a typed `Create_[...]Instruction` builder function to return a `CompositionStepInstruction` (e.g., `Create_ResetInstruction`).
-3. Process the step proposal using the generic composition orchestration functions. [generic composition orchestration functions](#generic-orchestration-functions).
+2. Call a typed `Create_<Step>Instruction` builder function to return a `CompositionStepInstruction` (e.g., `Create_ResetInstruction`).
+3. Process the step proposal using the [generic composition orchestration functions](#generic-orchestration-functions).
 4. Update `CompositionState` and store the returned history for subsequent steps.
 5. Upon reaching the terminal step, populate `InstructionCompositionOutput` with the final `BusinessEvent` instruction (or other target type).
 
@@ -75,28 +75,28 @@ These are the natural steps to follow when creating a new Instruction Compositio
 #### 1. Define boundary of process you are modelling with Instruction Composition Model
 Identify:
 - The originating workflow or context,
-- The standard BusinessEvent instruction or another object to be produced,
+- The standard `BusinessEvent` instruction or another object to be produced,
 - The appropriate `InstructionCompositionTypeEnum` value (or label) for the process the instructionComposition is being used for,
-- The correlation identifiers (compositionIdentifier, tradeId) that must remain consistent across steps, and
+- The correlation identifiers (`compositionIdentifier`, `tradeId`) that must remain consistent across steps, and
 - The terminal condition completing process.
 
 Start with information fully natively available within CDM. Do not embed provider-specific data retrieval inside calculation/process logic.
 
 #### 2. Decompose into Instructions
-Define a narrow instruction type and builder function (`Create_[...]Instruction`) for each distinct business operation. Each instruction builder should:
+Define a narrow instruction type and builder function (`Create_<Step>Instruction`) for each distinct business operation. Each instruction builder should:
 - Expose explicit input assumptions via typed parameters,
 - Contain only data required for auditability or downstream steps,
 - Use descriptive process naming, and
 - Avoid combining unrelated calculations.
 
 #### 3. Manage State Composition
-Pass 0 prior state/steps for the initial operation. For each subsequent step, supply the returned `CompositionState` and steps from the preceding Instruction Composition object. Maintain stable compositionIdentifier, tradeId, and compositionType values throughout the sequence.
+Pass 0 prior state/steps for the initial operation. For each subsequent step, supply the returned `CompositionState` and steps from the preceding Instruction Composition object. Maintain stable `compositionIdentifier`, `tradeId`, and `compositionType` values throughout the sequence.
 
 #### 4. Model external dependencies as placeholders
-If CDM is the source of truth, to keep track of the general process, use CDM functions tagged with [codeImplementation] when logic relies on runtime context that CDM cannot supply (e.g., market observations, business-day calendars, or external workflow triggers).
+If CDM is the source of truth, to keep track of the general process, use CDM functions tagged with `[codeImplementation]` when logic relies on runtime context that CDM cannot supply (e.g., market observations, business-day calendars, or external workflow triggers).
 
 #### 5. Produce the final CDM object
-The terminal builder gathers accumulated state parameters to yield the final BusinessEvent instruction or other object output by the process via `InstructionCompositionOutput`.
+The terminal builder gathers accumulated state parameters to yield the final `BusinessEvent` instruction or other object output by the process via `InstructionCompositionOutput`.
 
 ## Implementation Guidance
 
