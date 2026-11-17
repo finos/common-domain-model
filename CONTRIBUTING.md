@@ -34,12 +34,12 @@ None of these changes the model, so none needs working group approval.
 
 | Contribution | Where it lives | How to start |
 | --- | --- | --- |
-| Fix a typo, broken link or unclear sentence in the documentation | `docs/` and `website/versioned_docs/` | Open a pull request |
-| Fix a broken or unclear reference between pages | `docs/` and `website/versioned_docs/` | Open a pull request |
+| Fix a typo, broken link or unclear sentence in the documentation | `docs/`, and `website/versioned_docs/` if a published release has the same mistake ([which folder?](#which-documentation-folder-to-edit)) | Open a pull request |
+| Fix a broken or unclear reference between pages | `docs/`, and `website/versioned_docs/` if a published release has the same mistake ([which folder?](#which-documentation-folder-to-edit)) | Open a pull request |
 | Fix the website: navigation, home page or layout | `website/` | Open a pull request; open an issue first if it changes how the site is organised |
 | Add steps to reproduce an open bug | The bug's issue | Comment on the issue |
 | Draft an outline for an approved documentation issue | The issue | Comment on the issue with your outline |
-| Improve the glossary, an example walkthrough, or this guide | `docs/`, `CONTRIBUTING.md` | Open a pull request; open an issue first if you are adding a page |
+| Write an example walkthrough, start a glossary, or improve this guide | `docs/`, `CONTRIBUTING.md` | Open a pull request; open an issue first if you are adding a page |
 | Enrol as a participant | `Participants.md` | Open a pull request |
 
 To find something to work on, look at the open issues labelled [documentation](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+label%3Adocumentation).
@@ -57,17 +57,28 @@ The folder a file lives in tells you what kind of change you are making, and how
 
 | Folder | What it holds | Review |
 | --- | --- | --- |
-| `docs/` | The documentation for the next release, shown under **Next** in the site's version menu | One maintainer |
-| `website/versioned_docs/` | The documentation published for each release, one folder per version | One maintainer |
+| `docs/` | The documentation for the development version on `master`, shown as **Next** in the site's version menu | One maintainer |
+| `website/versioned_docs/` | The documentation for each published release, one folder per version | One maintainer |
 | The rest of `website/` | The site's configuration, home page, navigation and styles | One maintainer |
 | `CONTRIBUTING.md`, `README.md`, `Participants.md` | Project information. The **Contribute** link on [cdm.finos.org](https://cdm.finos.org) opens this file | One maintainer |
 | `rosetta-source/src/main/rosetta/` | The model itself, written in the [Rune DSL](https://rune.finos.org/docs/modelling-components/) | See the [approval rules for model changes](https://cdm.finos.org/docs/change-control-guidelines#summary-of-pr-approval-requirements) |
 | `rosetta-source/src/main/resources/`, `tests/`, `examples/` | Code lists, mappings from other formats such as FpML, tests and their expected results, and Java examples | One maintainer, who may consult the Technology Architecture Working Group |
 
-Two things catch out people who edit the documentation:
+**The build checks code blocks in `docs/` against the model.** A code block in `docs/` must match the model's text exactly, or the build fails. Tag any code block that is not model code as `json`, `xml`, `Java`, `MD` or `sourcecode`.
 
-- **Fix the version the reader sees, and the next one.** A page at `cdm.finos.org/docs/...` comes from the folder in `website/versioned_docs/` for the version shown in the site's version menu. Fix it there, and make the same fix in `docs/` so that it carries into the next release.
-- **The build checks code blocks in `docs/` against the model.** A code block in `docs/` must match the model's text exactly, or the build fails. Tag any code block that is not model code as `json`, `xml`, `Java`, `MD` or `sourcecode`.
+#### Which documentation folder to edit
+
+The site opens on the latest published release, at `cdm.finos.org/docs/...`, and its pages come from that release's folder, currently `website/versioned_docs/version-7.0.0/`. The development version on `master` is listed as **Next** in the site's version menu, at `cdm.finos.org/docs/next/...`, and its pages come from `docs/`.
+
+- **A change that applies only to the development version**, such as documenting a model change that has not been released yet, goes in `docs/` only.
+- **A fix for a mistake that a published release shows too** goes in `docs/` and in that release's folder, so that the published page is corrected and the fix carries into the next release.
+
+For example, to fix a typo on the Event Model page:
+
+| Where the typo appears | Files to edit |
+| --- | --- |
+| Only on the **Next** page, `cdm.finos.org/docs/next/event-model` | `docs/event-model.md` |
+| On the 7.0.0 page, `cdm.finos.org/docs/event-model`, and on the **Next** page | `website/versioned_docs/version-7.0.0/event-model.md` and `docs/event-model.md` |
 
 ### 6. Rosetta Design or GitHub?
 
@@ -91,7 +102,6 @@ Rosetta is one of several modelling platforms that support the CDM; FINOS does n
 - **To pick up an existing issue,** comment on it to say you are taking it, so that nobody else starts the same work.
 - **For a change to the model,** bring the issue to the [working group](https://cdm.finos.org/docs/working-groups) for its area. If you do not know which group that is, ask in a [Q&A discussion](https://github.com/finos/common-domain-model/discussions/categories/q-a), or bring it to the [Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG). When the group approves the issue, it assigns a maintainer to review your pull request.
 - **For a large change, or a change to core types,** follow [before you start modelling](https://cdm.finos.org/docs/dev-guidelines#before-you-start-modelling): agree a use case and a high-level design with the working group before you write the change.
-- **To reach the maintainers directly,** subscribe by emailing [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org), then post to [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org).
 
 ### 8. After you open a pull request
 
