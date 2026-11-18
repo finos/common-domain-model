@@ -3,15 +3,20 @@ import classnames from 'classnames';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBrokenLinks from '@docusaurus/useBrokenLinks';
 import styles from './styles.module.css';
 import FeaturesTwo from '../components/featuresTwo';
 import { featuresTwo } from '../components/featuresTwo-config';
 import FeaturesTwoHeader from '../components/featuresTwoHeader';
 import { featuresTwoHeader } from '../components/featuresTwoHeader-config';
+import FeaturesThree from '../components/featuresThree';
+import { featuresThree, contributingGuideUrl } from '../components/featuresThree-config';
 
 function Home() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;
+  // The link checker only knows ids from Docusaurus headings; register the section's own.
+  useBrokenLinks().collectAnchor('contribute');
   return (
     <Layout
       title={`${siteConfig.title}`}
@@ -44,6 +49,14 @@ function Home() {
               to={'https://github.com/finos/common-domain-model'}>
               GITHUB
             </Link>
+            <Link
+              className={classnames(
+                'button button--outline button--secondary button--lg',
+                styles.getStarted
+              )}
+              to={'#contribute'}>
+              CONTRIBUTE
+            </Link>
           </div>
         </div>
       </header>
@@ -72,6 +85,26 @@ function Home() {
             </div>
           </section>
         )}
+        <section id="contribute" className={styles.projects}>
+          <div className="container">
+            <FeaturesTwoHeader
+              title={<>HOW TO CONTRIBUTE</>}
+              description={
+                <span style={{ fontSize: '1.25em' }}>Anyone can contribute to the CDM, and most first contributions fix the documentation or this website.</span>
+              }
+            />
+            <div className="row">
+              {featuresThree.map((props, idx) => (
+                <FeaturesThree key={idx} {...props} />
+              ))}
+            </div>
+            <div className={styles.buttons}>
+              <Link className="button button--primary button--lg" to={contributingGuideUrl}>
+                Read the new contributor quickstart
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
     </Layout>
   );
