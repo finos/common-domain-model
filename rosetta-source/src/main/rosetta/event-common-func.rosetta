@@ -475,6 +475,15 @@ func Create_ContractFormationInstruction:
 
     add instruction -> legalAgreement: legalAgreement
 
+func Create_ContractFormationInstructionFromTradeState: <"Extract Legal Agreements from TradeState and create ContractFormationInstruction">
+    inputs:
+        tradeState TradeState (0..*)
+    output:
+        instruction ContractFormationInstruction (1..1)
+    
+    set instruction: Create_ContractFormationInstruction(
+        tradeState -> trade -> contractDetails -> documentation)
+
 func Create_ContractFormation: <"Function specification that represents an executed trade for a contractual product that has been affirmed (or confirmed) by the two parties. The formed contract can reference a legal agreement for instance a master agreement, by using the optional legalAgreement input.">
     inputs:
         instruction ContractFormationInstruction (1..1) <"Instructions to be used as an input to the function">
@@ -482,10 +491,14 @@ func Create_ContractFormation: <"Function specification that represents an execu
     output:
         contractFormation TradeState (1..1) <"Primitive event containing the execution as its before state and the contract as the after state.">
 
+    alias legalAgreements: <"if new set of agreements provided, consider only newly provided legal Agreements, else inherit legal Agreements from TradeState">
+        if instruction -> legalAgreement exists
+        then instruction -> legalAgreement
+        else execution -> trade -> contractDetails -> documentation
+        
     set contractFormation: execution
     set contractFormation -> trade -> contractDetails -> documentation: <"Append any legal agreements from the instructions, and ensure no duplicates.">
-        [instruction -> legalAgreement, contractFormation -> trade -> contractDetails -> documentation]
-            distinct
+        legalAgreements
     set contractFormation -> state -> positionState: <"Assign the position status to formed.">
         PositionStatusEnum -> Formed
 
