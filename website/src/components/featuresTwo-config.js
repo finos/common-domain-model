@@ -2,24 +2,24 @@ import React from 'react';
 
 export const featuresTwo = [
    {
-        title: <>ENHANCE INTEROPERABILITY & STRAIGHT THROUGH PROCESSING</>,
+        title: <>INTEROPERABILITY</>,
         description: (
-            <>Enables interoperability between systems/services, removing burden of setting up connections to different systems/entities, laying groundwork for STP</>
+            <>Interoperability through CDM improves data quality and mutual alignment between counterparties by enabling shared, agreed representations of trade data to be consistently exchanged.</>
         ),
         imageUrl: '/img/feature-images/share.svg',
     },
     {
-        title: <>DELIVERS BETTER REGULATORY OVERSIGHT</>,
-        imageUrl: '/img/feature-images/book-open.svg',
+        title: <>SUPPORTS INNOVATION</>,
         description: (
-            <>Promotes transparency and alignment between regulators and market participants</>
-        ),
-    },
-    {
-        title: <>CREATES AN ENVIRONMENT FOR INNOVATION IN FINANCIAL MARKETS</>,
-        description: (
-            <>Will speed up development of new solutions for the market by allowing providers to focus on what they specialize in rather than requiring them to interpret and represent market events and processes individually</>
+            <>Enable innovation by providing a stable, extensible foundation that can evolve with market practice and emerging technologies.</>
         ),
         imageUrl: '/img/feature-images/bulb.svg',
+    },
+    {
+        title: <>REGULATORY CONSISTENCY & OVERSIGHT</>,
+        description: (
+            <>Simplify and standardize regulatory compliance by offering a universal, machine-executable representation of trade data.</>
+        ),
+        imageUrl: '/img/feature-images/book-open.svg',
     }
 ];
