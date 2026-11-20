@@ -45,7 +45,7 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                 }
             ]
 
-func RescaleDerivedQuantity: <"Keeps price.derivedQuantity consistent with its sibling quantity after a QuantityChange. Rescales derivedQuantity.value to siblingQuantity * updatedPrice only when derivedQuantity is populated, updatedPrice.perUnitOf matches the sibling quantity's unit, AND the price value itself did not change (e.g. an equity partial termination that only shrinks the number of shares). When the price value also changed - as in a stock split, where quantity and price both scale by inverse factors so the total notional is preserved by construction - the existing derivedQuantity is retained to avoid reintroducing rounding error from division. Prices without derivedQuantity, or where perUnitOf does not match the sibling unit (e.g. spread on an interest-rate payout, or currency-only PriceQuantity rows), are returned unchanged.">
+func RescaleDerivedQuantity: <"Keeps price.derivedQuantity consistent with its sibling quantity after a QuantityChange across both scalar values and step schedules (datedValue). Rescales derivedQuantity.value and derivedQuantity.datedValue to effective siblingQuantity * updatedPrice only when derivedQuantity is populated, updatedPrice.perUnitOf matches the sibling quantity's unit, AND the price itself (both value and datedValue schedule) did not change (e.g. an equity partial termination or scheduled quantity step change that only adjusts the quantity). When the price also changed - as in a stock split, where quantity and price both scale by inverse factors so total notional is preserved by construction - the existing derivedQuantity is retained. Prices without derivedQuantity, or where perUnitOf does not match the sibling unit (e.g. spread on an interest-rate payout, or currency-only PriceQuantity rows), are returned unchanged.">
     inputs:
         originalPrice PriceSchedule (0..1)
         updatedPrice PriceSchedule (0..1)
@@ -56,20 +56,146 @@ func RescaleDerivedQuantity: <"Keeps price.derivedQuantity consistent with its s
             [metadata location]
 
     alias priceValueUnchanged:
-        originalPrice -> value = updatedPrice -> value
+        (originalPrice -> value is absent and updatedPrice -> value is absent)
+            or originalPrice -> value = updatedPrice -> value
+
+    alias priceUnchanged:
+        priceValueUnchanged
+            and PriceDatedValuesEqual(originalPrice -> datedValue, updatedPrice -> datedValue)
 
     alias shouldRescale:
         updatedPrice -> derivedQuantity exists
             and siblingQuantity exists
             and updatedPrice -> perUnitOf exists
             and UnitEquals(updatedPrice -> perUnitOf, siblingQuantity -> unit)
-            and priceValueUnchanged
+            and priceUnchanged
+
+    alias effectiveQuantityValue:
+        if siblingQuantity -> multiplier -> value exists
+        then siblingQuantity -> value * siblingQuantity -> multiplier -> value
+        else siblingQuantity -> value
+
+    alias rescaledScalarAmount:
+        if effectiveQuantityValue exists and updatedPrice -> value exists
+        then effectiveQuantityValue * updatedPrice -> value
+
+    alias scheduleDates:
+        [
+            updatedPrice -> derivedQuantity -> datedValue -> date,
+            updatedPrice -> datedValue -> date,
+            siblingQuantity -> datedValue -> date
+        ]
+            distinct
+            then sort
 
     set rescaledPrice: updatedPrice
     set rescaledPrice -> derivedQuantity -> value:
-        if shouldRescale
-        then siblingQuantity -> value * updatedPrice -> value
+        if shouldRescale and rescaledScalarAmount exists and rescaledScalarAmount >= 0
+        then rescaledScalarAmount
         else updatedPrice -> derivedQuantity -> value
+    set rescaledPrice -> derivedQuantity -> datedValue:
+        if shouldRescale and scheduleDates exists
+        then scheduleDates
+                extract
+                    RescaleDerivedDatedValue(
+                            item,
+                            updatedPrice,
+                            siblingQuantity
+                        )
+        else updatedPrice -> derivedQuantity -> datedValue
+
+func RescaleDerivedDatedValue: <"Computes or rescales the derivedQuantity datedValue entry for a given schedule step date using the effective sibling quantity (including multiplier when present) and effective price on or prior to that step date.">
+    inputs:
+        stepDate date (1..1)
+        updatedPrice PriceSchedule (0..1)
+        siblingQuantity NonNegativeQuantitySchedule (0..1)
+    output:
+        rescaledDatedValue NonNegativeDatedValue (0..1)
+
+    alias existingDerivedDatedValue:
+        updatedPrice -> derivedQuantity -> datedValue
+            filter date = stepDate
+            then first
+
+    alias matchingQuantityDatedValue:
+        siblingQuantity -> datedValue
+            filter date <= stepDate
+            then sort [ date ]
+            then last
+
+    alias matchingPriceDatedValue:
+        updatedPrice -> datedValue
+            filter date <= stepDate
+            then sort [ date ]
+            then last
+
+    alias baseQuantityForDate:
+        matchingQuantityDatedValue -> value default siblingQuantity -> value
+
+    alias effectiveQuantityForDate:
+        if siblingQuantity -> multiplier -> value exists
+        then baseQuantityForDate * siblingQuantity -> multiplier -> value
+        else baseQuantityForDate
+
+    alias effectivePriceForDate:
+        matchingPriceDatedValue -> value default updatedPrice -> value
+
+    alias rescaledAmount:
+        if effectiveQuantityForDate exists and effectivePriceForDate exists
+        then effectiveQuantityForDate * effectivePriceForDate
+
+    set rescaledDatedValue:
+        if rescaledAmount exists and rescaledAmount >= 0
+        then if existingDerivedDatedValue exists
+            then UpdateNonNegativeDatedValueAmount(existingDerivedDatedValue, rescaledAmount)
+            else NonNegativeDatedValue {
+                date: stepDate,
+                value: rescaledAmount
+            }
+        else existingDerivedDatedValue
+
+func UpdateNonNegativeDatedValueAmount: <"Updates the value of an existing NonNegativeDatedValue while preserving its date and metadata.">
+    inputs:
+        datedValue NonNegativeDatedValue (0..1)
+        newValue number (1..1)
+    output:
+        updatedDatedValue NonNegativeDatedValue (0..1)
+
+    set updatedDatedValue: datedValue
+    set updatedDatedValue -> value: newValue
+
+func PriceDatedValuesEqual: <"Checks whether two DatedValue schedules contain the same step dates and values.">
+    inputs:
+        d1 DatedValue (0..*)
+        d2 DatedValue (0..*)
+    output:
+        result boolean (1..1)
+
+    alias sameCount:
+        d1 count = d2 count
+
+    alias d1MatchesD2:
+        d1 is absent
+            or (d1
+                extract item1 [
+                    d2
+                        filter date = item1 -> date and value = item1 -> value
+                        then exists
+                ]
+                then all = True)
+
+    alias d2MatchesD1:
+        d2 is absent
+            or (d2
+                extract item2 [
+                    d1
+                        filter date = item2 -> date and value = item2 -> value
+                        then exists
+                ]
+                then all = True)
+
+    set result:
+        sameCount and d1MatchesD2 and d2MatchesD1
 
 // TODO uncomment usage to support matching on PriceQuantity observable
 func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match on Observable if present.">
