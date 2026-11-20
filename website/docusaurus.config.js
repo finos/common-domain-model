@@ -37,6 +37,11 @@ module.exports = {
         {to: 'schemas', label: 'Schemas', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
         {
+          href: 'https://github.com/finos/common-domain-model/blob/master/CONTRIBUTING.md#new-contributor-quickstart',
+          label: 'Contribute',
+          position: 'right',
+        },
+        {
           href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
           position: 'right',
