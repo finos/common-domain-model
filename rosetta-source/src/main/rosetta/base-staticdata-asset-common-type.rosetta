@@ -25,8 +25,8 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     condition RoleIsExchange: <"If Exchange is specified, it must be an exchange-listed Instrument.">
         if partyRole -> role = Exchange then isExchangeListed = True
 
-    condition ExchangeListed: <"if isExchangeListed is true then partyRole is Exchange.">
-        if isExchangeListed and partyRole exists
+    condition ExchangeListed: <"If isExchangeListed is true then partyRole, where specified, must be Exchange - except for a Security, whose partyRole is governed by IssuerRole.">
+        if isExchangeListed and partyRole exists and assetType <> Security
         then partyRole -> role = Exchange
 
     condition IssuerRole: <"If the asset type is a security then the role must be issuer.">
