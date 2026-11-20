@@ -96,6 +96,14 @@ The CDM covers OTC derivatives, cash securities, securities financing, commoditi
 - The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.
 
+## CDM Metrics
+
+The CDM Release Management team publishes quarterly metrics on activity in the CDM GitHub repository, covering working group meetings, issues and pull requests, merge approvals, releases, repository adoption (stars, forks and contributors) and package downloads.
+
+**Latest report: 2026 Q3 (1 July – 30 September 2026):** [Report (PowerPoint)](/metrics/CDM_GitHub_Metrics_2026-Q3.pptx) · [Data (Excel)](/metrics/CDM_GitHub_Metrics_2026-Q3.xlsx)
+
+Metrics are updated quarterly. Repository activity can also be viewed on [LFX Insights](https://insights.linuxfoundation.org/project/isda-cdm/development).
+
 # CDM Components
 
 **The CDM is made of three sets of components**, as laid-out in the FINOS
