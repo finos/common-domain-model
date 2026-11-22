@@ -11,11 +11,10 @@
 The FINOS Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source.
 
 ## Purpose
-A single, digital processing standard for trade events and actions enhances financial markets' operational efficiency in several ways:
 
-- Enables inter-operability and straight-through processing across firms, solutions and platforms, reducing the need for reconciliation caused by variations in how each firm records trade lifecycle events.
-- Accelerates financial technology innovation by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.
-- Delivers better regulatory oversight, promotes transparency and alignment between regulators and market participants and enables consistency in regulatory reporting, by providing a standard representation of trade data and supporting machine executable reporting requirements.
+- **Interoperability:** Interoperability through CDM improves data quality and mutual alignment between counterparties by enabling shared, agreed representations of trade data to be consistently exchanged.
+- **Supports Innovation:** Enable innovation by providing a stable, extensible foundation that can evolve with market practice and emerging technologies.
+- **Regulatory Consistency & Oversight:** Simplify and standardize regulatory compliance by offering a universal, machine-executable representation of trade data.
 
 The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://www.finos.org/), starting in February 2023. The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/main/LICENSE). To participate in the standard process and working group meetings, [enroll as a participant](https://github.com/finos/standards-project-blueprint/blob/main/PARTICIPANTS.md#how-to-enroll-as-a-participant) by completing a [Community Specification Contributor License Agreement](https://github.com/finos/standards-project-blueprint/blob/main/governance-documents/CS_Contributor_License_Agreement.md) (CSL CLA).  All meetings are to be held [in accordance with the FINOS policies and procedures](https://community.finos.org/docs/governance/meeting-procedures).
 

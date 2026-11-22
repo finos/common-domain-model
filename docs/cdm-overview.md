@@ -37,22 +37,9 @@ If you’re interested in the Common Domain Model (CDM), please complete the [CD
 
 ## Purpose
 
-A single, digital processing standard for trade events and actions
-enhances financial markets' operational efficiency in several ways:
-
--   **Enables inter-operability and straight-through processing** across
-    firms, solutions and platforms, reducing the need for reconciliation
-    caused by variations in how each firm records trade lifecycle
-    events.
--   **Accelerates financial technology innovation** by providing a
-    common, readily operational foundation for how technologies like
-    distributed ledger, smart contracts, cloud computing, and artificial
-    intelligence can be applied to financial markets.
--   **Delivers better regulatory oversight**, promotes transparency and
-    alignment between regulators and market participants and enables
-    consistency in regulatory reporting, by providing a standard
-    representation of trade data and supporting machine executable
-    reporting requirements.
+-   **Interoperability:** Interoperability through CDM improves data quality and mutual alignment between counterparties by enabling shared, agreed representations of trade data to be consistently exchanged.
+-   **Supports Innovation:** Enable innovation by providing a stable, extensible foundation that can evolve with market practice and emerging technologies.
+-   **Regulatory Consistency & Oversight:** Simplify and standardize regulatory compliance by offering a universal, machine-executable representation of trade data.
 
 For further information about the CDM and its applications, please
 consult the [CDM section](https://www.finos.org/common-domain-model) of the FINOS website or contact FINOS directly
