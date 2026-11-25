@@ -1,0 +1,264 @@
+namespace cdm.ingest.cme.clearport.tradecapture: <"CME ClearPort FIXML 5.0 SP2 trade capture report mapping functions.">
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.math.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.party.*
+import cdm.event.common.*
+import cdm.event.workflow.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+func Ingest_CmeClearPortFixmlToTradeState: <"Ingests a CME ClearPort or CME IRS Submission FIXML 5.0 SP2 XML document (<FIXML>) into a canonical CDM TradeState.">
+    [ingest XML]
+    inputs:
+        fixmlDocument CmeClearPortFixmlDocument (0..1) <"Parsed CME ClearPort FIXML 5.0 SP2 root document.">
+    output:
+        tradeState TradeState (0..1)
+
+    alias rpt:
+        fixmlDocument -> tradeCaptureReport
+
+    alias primaryTradeId:
+        (rpt -> trdId) default (rpt -> execId)
+
+    set tradeState -> trade -> tradeDate:
+        rpt -> trdDt
+
+    add tradeState -> trade -> tradeIdentifier:
+        if primaryTradeId exists
+        then TradeIdentifier {
+                issuer: (rpt -> instrument -> exchange) default "CME",
+                assignedIdentifier: [
+                    AssignedIdentifier {
+                        identifier: primaryTradeId,
+                        version: 1
+                    }
+                ],
+                identifierType: TradeIdentifierTypeEnum -> UniqueTransactionIdentifier
+            }
+
+    add tradeState -> trade -> tradeIdentifier:
+        rpt -> reportSide
+            filter origTradeId exists
+            then extract
+                TradeIdentifier {
+                    issuer: inputSource default "CME",
+                    assignedIdentifier: [
+                        AssignedIdentifier {
+                            identifier: origTradeId,
+                            version: 1
+                        }
+                    ],
+                    identifierType: TradeIdentifierTypeEnum -> UniqueTransactionIdentifier
+                }
+
+    add tradeState -> trade -> party:
+        rpt -> reportSide -> party
+            extract MapCmeClearPortPartyToCdmParty
+
+    add tradeState -> trade -> partyRole:
+        rpt -> reportSide -> party
+            extract MapCmeClearPortPartyToPartyRole
+
+func Ingest_CmeClearPortFixmlToWorkflowStep: <"Ingests a CME ClearPort or CME IRS Submission FIXML 5.0 SP2 XML document (<FIXML>) into a canonical CDM WorkflowStep.">
+    [ingest XML]
+    inputs:
+        fixmlDocument CmeClearPortFixmlDocument (0..1) <"Parsed CME ClearPort FIXML 5.0 SP2 root document.">
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias rpt:
+        fixmlDocument -> tradeCaptureReport
+
+    alias eventIdValue:
+        (rpt -> rptId) default (rpt -> execId)
+
+    alias eventTimestampValue:
+        (rpt -> txnTm) default ToDateTime(rpt -> trdDt)
+
+    set workflowStep -> businessEvent:
+        BusinessEvent {
+            intent: EventIntentEnum -> Clearing,
+            eventDate: rpt -> trdDt,
+            after: [ Ingest_CmeClearPortFixmlToTradeState(fixmlDocument) ],
+            ...
+        }
+
+    add workflowStep -> eventIdentifier:
+        if eventIdValue exists
+        then Identifier {
+                issuer: (rpt -> header -> senderId) default "CME",
+                assignedIdentifier: [
+                    AssignedIdentifier {
+                        identifier: eventIdValue,
+                        version: 1
+                    }
+                ],
+                ...
+            }
+
+    set workflowStep -> messageInformation:
+        if rpt -> header exists and eventIdValue exists
+        then MessageInformation {
+                messageId: eventIdValue,
+                sentBy: rpt -> header -> senderId,
+                sentTo: if rpt -> header -> targetId exists
+                    then [ rpt -> header -> targetId ]
+                    else empty,
+                ...
+            }
+
+    add workflowStep -> timestamp:
+        if eventTimestampValue exists
+        then EventTimestamp {
+                dateTime: eventTimestampValue,
+                qualification: EventTimestampQualificationEnum -> transactionCreationDateTime
+            }
+
+    add workflowStep -> party:
+        rpt -> reportSide -> party
+            extract MapCmeClearPortPartyToCdmParty
+
+    set workflowStep -> action:
+        if rpt -> transTyp = "1" or rpt -> transTyp = "CANCEL"
+        then ActionEnum -> Cancel
+        else if rpt -> transTyp = "2" or rpt -> transTyp = "REPLACE"
+        then ActionEnum -> Correct
+        else ActionEnum -> New
+
+func MapCmeClearPortPartyToCdmParty: <"Maps a CME ClearPort FIXML party (<Pty>) into a canonical CDM Party with a deterministic metadata key.">
+    inputs:
+        cmeParty CmeClearPortParty (0..1)
+    output:
+        party Party (0..1)
+
+    set party:
+        Party {
+            partyId: [
+                PartyIdentifier {
+                    identifier: cmeParty -> partyId,
+                    identifierType: if cmeParty -> source = "N"
+                        then PartyIdentifierTypeEnum -> LEI
+                        else empty
+                }
+            ],
+            ...
+        } with-meta {
+            key: cmeParty -> partyId
+        }
+
+func MapCmeClearPortPartyReference: <"Creates a CDM Party metadata reference from a CME ClearPort party identifier.">
+    inputs:
+        partyId string (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        if partyId exists
+        then empty with-meta {
+            reference: partyId
+        }
+
+func MapCmeClearPortPartyToPartyRole: <"Maps a CME ClearPort FIXML party (<Pty>) and its @R role code (Tag 452) into a canonical CDM PartyRole.">
+    inputs:
+        cmeParty CmeClearPortParty (0..1)
+    output:
+        partyRole PartyRole (0..1)
+
+    set partyRole:
+        PartyRole {
+            partyReference: MapCmeClearPortPartyReference(cmeParty -> partyId),
+            role: if cmeParty -> role = "4"
+                then PartyRoleEnum -> ClearingFirm
+                else if cmeParty -> role = "7"
+                then PartyRoleEnum -> ExecutingEntity
+                else if cmeParty -> role = "24"
+                then PartyRoleEnum -> ClearingClient
+                else PartyRoleEnum -> Counterparty,
+            ...
+        }
+
+func Ingest_CmeClearPortTradeCaptureToTradeState: <"Maps a CME ClearPort FIXML 5.0 SP2 TradeCaptureReport (<TrdCaptRpt>) into canonical CDM TradeState.">
+    inputs:
+        rptId string (1..1) <"Trade report identifier (RptID).">
+        trdId string (1..1) <"CME unique trade identifier (TrdID).">
+        execId string (0..1) <"Execution identifier (ExecID).">
+        symbol string (1..1) <"Contract symbol or instrument ticker (Sym).">
+        securityType string (0..1) <"Security type (SecTyp: FUT, OPT, SWP).">
+        tradeDate date (1..1) <"Trade execution date (TrdDt).">
+        lastPx number (1..1) <"Executed trade price (LastPx).">
+        lastQty number (1..1) <"Executed quantity / contract volume (LastQty).">
+        netMoney number (0..1) <"Notional net settlement money amount (NetMny).">
+        currency string (1..1) <"Settlement currency (Ccy/SettlCcy).">
+        buyerPartyId string (1..1) <"Buyer party identifier.">
+        sellerPartyId string (1..1) <"Seller party identifier.">
+        clearingFirmBuyer string (0..1) <"Clearing member firm or direct self-clearing identifier for buyer.">
+        clearingFirmSeller string (0..1) <"Clearing member firm or direct self-clearing identifier for seller.">
+    output:
+        tradeState TradeState (1..1)
+
+    set tradeState -> trade -> tradeIdentifier:
+        [
+            TradeIdentifier {
+                issuer: "CME",
+                assignedIdentifier: [
+                    AssignedIdentifier {
+                        identifier: trdId,
+                        version: 1
+                    }
+                ],
+                identifierType: TradeIdentifierTypeEnum -> UniqueTransactionIdentifier
+            }
+        ]
+
+    set tradeState -> trade -> tradeDate: tradeDate
+
+func Ingest_CmeClearPortTradeCaptureToWorkflowStep: <"Maps CME ClearPort FIXML 5.0 SP2 trade capture lifecycle confirmation into canonical CDM WorkflowStep.">
+    inputs:
+        rptId string (1..1) <"Trade report identifier (RptID).">
+        trdId string (1..1) <"CME unique trade identifier (TrdID).">
+        transType string (1..1) <"Transaction type: NEW, CANCEL, REPLACE.">
+        tradeState TradeState (1..1) <"The underlying CDM TradeState.">
+    output:
+        workflowStep WorkflowStep (1..1)
+
+    alias tradeDate: tradeState -> trade -> tradeDate
+
+    set workflowStep -> businessEvent:
+        BusinessEvent {
+            eventDate: tradeDate,
+            after: [ tradeState ],
+            ...
+        }
+
+    set workflowStep -> eventIdentifier:
+        [
+            Identifier {
+                issuer: "CME",
+                assignedIdentifier: [
+                    AssignedIdentifier {
+                        identifier: rptId,
+                        version: 1
+                    }
+                ],
+                ...
+            }
+        ]
+
+    set workflowStep -> timestamp:
+        [
+            EventTimestamp {
+                dateTime: ToDateTime(tradeDate),
+                qualification: EventTimestampQualificationEnum -> eventCreationDateTime
+            }
+        ]
+
+    set workflowStep -> action:
+        if transType = "CANCEL"
+        then ActionEnum -> Cancel
+        else if transType = "REPLACE"
+        then ActionEnum -> Correct
+        else ActionEnum -> New
