@@ -8,7 +8,7 @@
 > &#128161; Tip<br> 
 > Visit the [CDM Documentation website](https://cdm.finos.org/) for a complete description of the features and capabilities of the Common Domain Model.
 
-The FINOS Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source.
+The Common Domain Model (CDM) is a canonical, industry-maintained model for representing financial products and the events that occur across their lifecycle, expressed through standardised, machine-executable technology.
 
 ## Purpose
 A single, digital processing standard for trade events and actions enhances financial markets' operational efficiency in several ways:
