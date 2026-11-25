@@ -1,7 +1,20 @@
 package cdm.product.qualification.functions;
 
+import cdm.base.staticdata.asset.common.AssetClassEnum;
+import cdm.base.staticdata.asset.common.Instrument;
+import cdm.base.staticdata.asset.common.Loan;
+import cdm.base.staticdata.asset.common.Security;
+import cdm.base.staticdata.asset.common.SecurityTypeEnum;
+import cdm.base.staticdata.asset.common.Asset;
 import cdm.event.common.TradeState;
+import cdm.observable.asset.CreditIndex;
+import cdm.observable.asset.Index;
+import cdm.observable.asset.Observable;
+import cdm.product.asset.InterestRatePayout;
 import cdm.product.template.EconomicTerms;
+import cdm.product.template.Payout;
+import cdm.product.template.PerformancePayout;
+import cdm.product.template.Underlier;
 import javax.inject.Inject;
 import org.finos.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -35,9 +48,61 @@ class Qualify_AssetClass_CreditTest extends AbstractFunctionTest {
         assertFalse(result);
     }
 
+    @Test
+    void shouldQualifyCreditTotalReturnSwapWithLoanUnderlier() {
+        Underlier loanUnderlier = Underlier.builder()
+                .setObservableValue(Observable.builder()
+                        .setAsset(Asset.builder()
+                                .setInstrument(Instrument.builder()
+                                        .setLoan(Loan.builder().build()))))
+                .build();
+
+        EconomicTerms economicTerms = buildPerformancePlusInterestRateEconomicTerms(loanUnderlier);
+
+        assertTrue(qualifyAssetClassCredit.evaluate(economicTerms));
+    }
+
+    @Test
+    void shouldQualifyCreditTotalReturnSwapWithDebtSecurityUnderlier() {
+        Underlier debtSecurityUnderlier = Underlier.builder()
+                .setObservableValue(Observable.builder()
+                        .setAsset(Asset.builder()
+                                .setInstrument(Instrument.builder()
+                                        .setSecurity(Security.builder()
+                                                .setSecurityType(SecurityTypeEnum.DEBT)))))
+                .build();
+
+        EconomicTerms economicTerms = buildPerformancePlusInterestRateEconomicTerms(debtSecurityUnderlier);
+
+        assertTrue(qualifyAssetClassCredit.evaluate(economicTerms));
+    }
+
+    @Test
+    void shouldQualifyCreditTotalReturnSwapWithCreditIndexUnderlier() {
+        Underlier creditIndexUnderlier = Underlier.builder()
+                .setObservableValue(Observable.builder()
+                        .setIndex(Index.builder()
+                                .setCreditIndex(CreditIndex.builder()
+                                        .setAssetClass(AssetClassEnum.CREDIT))))
+                .build();
+
+        EconomicTerms economicTerms = buildPerformancePlusInterestRateEconomicTerms(creditIndexUnderlier);
+
+        assertTrue(qualifyAssetClassCredit.evaluate(economicTerms));
+    }
+
+    private static EconomicTerms buildPerformancePlusInterestRateEconomicTerms(Underlier performanceUnderlier) {
+        return EconomicTerms.builder()
+                .addPayout(Payout.builder()
+                        .setPerformancePayout(PerformancePayout.builder()
+                                .setUnderlier(performanceUnderlier)))
+                .addPayout(Payout.builder()
+                        .setInterestRatePayout(InterestRatePayout.builder()))
+                .build();
+    }
+
     private static EconomicTerms getEconomicTerms(String resourceName) throws IOException {
         TradeState tradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, resourceName);
-        EconomicTerms economicTerms = tradeState.getTrade().getProduct().getEconomicTerms();
-        return economicTerms;
+        return tradeState.getTrade().getProduct().getEconomicTerms();
     }
 }
