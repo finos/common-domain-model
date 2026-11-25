@@ -55,15 +55,13 @@ func RescaleDerivedQuantity: <"Keeps price.derivedQuantity consistent with its s
         rescaledPrice PriceSchedule (0..1)
             [metadata location]
 
-    alias priceValueUnchanged:
-        originalPrice -> value = updatedPrice -> value
+    alias priceValueUnchanged: originalPrice -> value = updatedPrice -> value
 
     alias shouldRescale:
         updatedPrice -> derivedQuantity exists
             and siblingQuantity exists
             and updatedPrice -> perUnitOf exists
-            and UnitEquals(updatedPrice -> perUnitOf, siblingQuantity -> unit)
-            and priceValueUnchanged
+            and UnitEquals(updatedPrice -> perUnitOf, siblingQuantity -> unit) and priceValueUnchanged
 
     set rescaledPrice: updatedPrice
     set rescaledPrice -> derivedQuantity -> value:
