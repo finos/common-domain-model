@@ -192,11 +192,13 @@ func GetNetInitialMarginFromExposure:
     alias totalGIM:
         tradeInitialMargin -> grossInitialMargin -> value sum
     alias netCurrentReplacementCost:
-        tradeInitialMargin -> markToMarketValue -> value sum
+        Max(tradeInitialMargin -> markToMarketValue -> value sum, 0.0)
     alias grossCurrentReplacementCost:
         tradeInitialMargin -> markToMarketValue filter item -> value > 0 then value sum
     alias netToGrossRatio:
-        netCurrentReplacementCost / grossCurrentReplacementCost
+        if grossCurrentReplacementCost > 0
+        then netCurrentReplacementCost / grossCurrentReplacementCost
+        else 1.0
     add initialMargin -> tradeInfo:
         tradeInitialMargin
     set initialMargin -> netInitialMargin -> value:
@@ -212,7 +214,7 @@ func GetNetInitialMarginFromExposure:
 ```
 This function checks for existing exposures within the portfolio, allowing for an adjusted representation of the initial margin requirement. By deducting existing exposures from the gross initial margin, it reflects a more accurate margin requirement tailored to the actual risk profile of the portfolio.
 
-If no exposures are present, it sets the initial margin value to zero, indicating that no additional margin is required beyond the gross amount calculated earlier.
+The net-to-gross ratio (NGR) is the net current replacement cost divided by the gross current replacement cost. The net current replacement cost is floored at zero, so the NGR lies between 0 and 1 and the net initial margin between 40% and 100% of the gross initial margin. If the gross current replacement cost is zero, because no trade in the netting set has a positive mark-to-market value, the NGR is set to 1.0 as the regulations require (17 CFR 23.154(c)(2)(ii)(E); note 1 to Appendix A of 12 CFR part 45), and the net initial margin equals the gross initial margin.
 
 ## Conclusions
 

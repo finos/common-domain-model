@@ -777,12 +777,16 @@ func GetNetInitialMarginFromExposure: <"Computes the net initial margin, taking 
                             then amount
                 }
     alias totalGIM: tradeInitialMargin -> grossInitialMargin -> value sum
-    alias netCurrentReplacementCost: tradeInitialMargin -> markToMarketValue -> value sum
+    alias netCurrentReplacementCost: <"Net current replacement cost, floored at zero so that the net-to-gross ratio lies between 0 and 1 and net initial margin between 40% and 100% of gross initial margin.">
+        Max(tradeInitialMargin -> markToMarketValue -> value sum, 0.0)
     alias grossCurrentReplacementCost:
         tradeInitialMargin -> markToMarketValue
             filter item -> value > 0
             then value sum
-    alias netToGrossRatio: netCurrentReplacementCost / grossCurrentReplacementCost
+    alias netToGrossRatio: <"The net-to-gross ratio is set to 1 when gross current replacement cost is zero, per 17 CFR 23.154(c)(2)(ii)(E) and note 1 to Appendix A of 12 CFR part 45.">
+        if grossCurrentReplacementCost > 0
+        then netCurrentReplacementCost / grossCurrentReplacementCost
+        else 1.0
     add initialMargin -> tradeInfo: tradeInitialMargin
     set initialMargin -> netInitialMargin -> value:
         0.4 * totalGIM + 0.6 * totalGIM * netToGrossRatio
